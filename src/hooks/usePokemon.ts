@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../common/api'
 
-// ── 타입 정의 ──
+// ── Types ──
 
 interface PokemonListResult {
     results: { name: string; url: string }[]
@@ -19,6 +19,15 @@ interface MoveResponse {
     learned_by_pokemon: { name: string }[]
 }
 
+export interface PokemonMoveEntry {
+    move: { name: string; url: string }
+    version_group_details: {
+        level_learned_at: number
+        move_learn_method: { name: string }
+        version_group: { name: string }
+    }[]
+}
+
 export interface PokemonDetail {
     id: number
     name: string
@@ -26,12 +35,11 @@ export interface PokemonDetail {
     types: { type: { name: string } }[]
     sprites: {
         front_default: string
-        other: {
-            'official-artwork': { front_default: string }
-        }
+        other: { 'official-artwork': { front_default: string } }
     }
     stats: { base_stat: number; stat: { name: string } }[]
     abilities: { ability: { name: string }; is_hidden: boolean }[]
+    moves: PokemonMoveEntry[]
     height: number
     weight: number
 }
@@ -41,16 +49,28 @@ export interface PokemonSpecies {
     name: string
     names: { language: { name: string }; name: string }[]
     genera: { genus: string; language: { name: string } }[]
-    flavor_text_entries: {
-        flavor_text: string
-        language: { name: string }
-        version: { name: string }
-    }[]
+    flavor_text_entries: { flavor_text: string; language: { name: string }; version: { name: string } }[]
     evolution_chain: { url: string }
-    varieties: {
-        is_default: boolean
-        pokemon: { name: string; url: string }
-    }[]
+    egg_groups: { name: string; url: string }[]
+    varieties: { is_default: boolean; pokemon: { name: string; url: string } }[]
+}
+
+export interface AbilityDetail {
+    id: number
+    name: string
+    names: { language: { name: string }; name: string }[]
+    flavor_text_entries: { flavor_text: string; language: { name: string }; version_group: { name: string } }[]
+}
+
+export interface MoveDetail {
+    id: number
+    name: string
+    names: { language: { name: string }; name: string }[]
+    type: { name: string }
+    power: number | null
+    accuracy: number | null
+    pp: number | null
+    damage_class: { name: string }
 }
 
 export interface EvolutionDetail {
@@ -123,20 +143,37 @@ export const usePokemonByMove = (move: string) =>
         staleTime: Infinity,
     })
 
-export const usePokemonDetail = (name: string) =>
+export const usePokemonDetail = (idOrName: string | number) =>
     useQuery({
-        queryKey: ['pokemon', name],
-        queryFn: () => api.get<PokemonDetail>(`pokemon/${name}`),
-        enabled: !!name,
+        queryKey: ['pokemon', idOrName],
+        queryFn: () => api.get<PokemonDetail>(`pokemon/${idOrName}`),
+        enabled: !!idOrName,
         staleTime: Infinity,
     })
 
-/** 포켓몬 종 정보 — 도감번호(speciesId)로 조회 */
 export const usePokemonSpecies = (speciesId: number | undefined) =>
     useQuery({
         queryKey: ['pokemon-species', speciesId],
         queryFn: () => api.get<PokemonSpecies>(`pokemon-species/${speciesId}`),
         enabled: !!speciesId,
+        staleTime: Infinity,
+    })
+
+/** 특성 상세 (한글 이름 포함) */
+export const useAbilityDetail = (name: string) =>
+    useQuery({
+        queryKey: ['ability', name],
+        queryFn: () => api.get<AbilityDetail>(`ability/${name}`),
+        enabled: !!name,
+        staleTime: Infinity,
+    })
+
+/** 기술 상세 (한글 이름, 타입, 위력 등) */
+export const useMoveDetail = (name: string) =>
+    useQuery({
+        queryKey: ['move-detail', name],
+        queryFn: () => api.get<MoveDetail>(`move/${name}`),
+        enabled: !!name,
         staleTime: Infinity,
     })
 

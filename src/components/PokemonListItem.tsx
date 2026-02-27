@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { usePokemonDetail, usePokemonSpecies } from '../hooks/usePokemon'
-import { getIdFromUrl } from '../common/utils'
+import { getIdFromUrl, getArtwork } from '../common/utils'
 import TypeBadge from './TypeBadge'
 
 interface Props {
@@ -17,10 +17,13 @@ const PokemonListItem = ({ name, index }: Props) => {
 
     if (isLoading) {
         return (
-            <div className="pokemon-list-item" style={{ animationDelay: `${index * 30}ms` }}>
-                <div className="skeleton" style={{ width: 36, height: 14 }} />
-                <div className="skeleton" style={{ width: 48, height: 48, borderRadius: 8 }} />
-                <div className="skeleton" style={{ width: 80, height: 14 }} />
+            <div className="poke-row">
+                <div className="skeleton" style={{ width: 32, height: 12 }} />
+                <div className="skeleton" style={{ width: 44, height: 44, borderRadius: 8 }} />
+                <div style={{ flex: 1 }}>
+                    <div className="skeleton" style={{ width: 72, height: 13, marginBottom: 4 }} />
+                    <div className="skeleton" style={{ width: 48, height: 10 }} />
+                </div>
             </div>
         )
     }
@@ -29,29 +32,17 @@ const PokemonListItem = ({ name, index }: Props) => {
 
     return (
         <Link
-            to={`/pokemon/${name}`}
-            className="pokemon-list-item animate-fade-in-up"
-            style={{ animationDelay: `${index * 30}ms` }}
+            to={`/pokemon/${data.id}`}
+            className="poke-row fade-up"
+            style={{ animationDelay: `${index * 25}ms` }}
         >
-            <span style={{ width: 40, fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-heading)', fontWeight: 500 }}>
-                #{String(speciesId ?? data.id).padStart(3, '0')}
-            </span>
-            <img
-                src={data.sprites.front_default}
-                alt={data.name}
-                className="poke-sprite"
-            />
-            <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 14 }}>
-                    {koName ?? species?.name ?? data.name}
-                </div>
-                {koName && (
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'capitalize' }}>
-                        {species?.name}
-                    </div>
-                )}
+            <span className="num">#{String(speciesId ?? data.id).padStart(3, '0')}</span>
+            <img src={getArtwork(data)} alt={data.name} className="sprite" />
+            <div className="info">
+                <div className="name">{koName ?? species?.name ?? data.name}</div>
+                {koName && <div className="sub">{species?.name}</div>}
             </div>
-            <div style={{ display: 'flex', gap: 4 }}>
+            <div className="types">
                 {data.types.map((t) => (
                     <TypeBadge key={t.type.name} type={t.type.name} />
                 ))}

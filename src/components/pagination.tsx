@@ -22,27 +22,17 @@ const Pagination = ({ page, totalPages, onPageChange }: Props) => {
 
     return (
         <div className="pagination">
-            <button onClick={() => onPageChange(page - 1)} disabled={page === 1}>
-                ‹
-            </button>
-
+            <button onClick={() => onPageChange(page - 1)} disabled={page === 1}>‹</button>
             {getRange().map((p, i) =>
                 p === -1 ? (
-                    <span key={`e-${i}`} style={{ color: 'var(--text-muted)', fontSize: 12 }}>…</span>
+                    <span key={`e${i}`} className="dots">…</span>
                 ) : (
-                    <button
-                        key={p}
-                        onClick={() => onPageChange(p)}
-                        className={p === page ? 'active' : ''}
-                    >
+                    <button key={p} onClick={() => onPageChange(p)} className={p === page ? 'active' : ''}>
                         {p}
                     </button>
                 )
             )}
-
-            <button onClick={() => onPageChange(page + 1)} disabled={page === totalPages}>
-                ›
-            </button>
+            <button onClick={() => onPageChange(page + 1)} disabled={page === totalPages}>›</button>
         </div>
     )
 }

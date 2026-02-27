@@ -19,32 +19,31 @@ const TYPE_META: Record<string, { ko: string; icon: string }> = {
     fairy:    { ko: '페어리', icon: '✨' },
 }
 
-interface TypeBadgeProps {
+interface Props {
     type: string
-    /** 사이드바 필터용 */
     selectable?: boolean
     selected?: boolean
     dimmed?: boolean
     onClick?: () => void
 }
 
-const TypeBadge = ({ type, selectable, selected, dimmed, onClick }: TypeBadgeProps) => {
+const TypeBadge = ({ type, selectable, selected, dimmed, onClick }: Props) => {
     const meta = TYPE_META[type]
     if (!meta) return null
 
-    const classes = [
+    const cls = [
         'type-badge',
         type,
-        selectable && 'type-select-btn',
-        selected && 'selected',
-        dimmed && 'dimmed',
+        selectable && 'type-sel',
+        selected && 'on',
+        dimmed && 'off',
     ].filter(Boolean).join(' ')
 
     const Tag = selectable ? 'button' : 'span'
 
     return (
-        <Tag className={classes} onClick={onClick}>
-            <span className="type-icon">{meta.icon}</span>
+        <Tag className={cls} onClick={onClick}>
+            <span className="t-icon">{meta.icon}</span>
             {meta.ko}
         </Tag>
     )

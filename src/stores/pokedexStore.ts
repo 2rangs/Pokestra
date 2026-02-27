@@ -1,37 +1,48 @@
 import { create } from 'zustand'
 
-interface PokedexStore {
+interface PokedexState {
     nameSearch: string
     moveSearch: string
     selectedType: string | null
     selectedGenerations: number[]
     selectedEggGroup: string | null
     page: number
+
     setNameSearch: (v: string) => void
     setMoveSearch: (v: string) => void
     setSelectedType: (v: string | null) => void
-    toggleGeneration: (v: number) => void
+    toggleGeneration: (id: number) => void
     setSelectedEggGroup: (v: string | null) => void
     setPage: (v: number) => void
+    resetFilters: () => void
 }
 
-export const usePokedexStore = create<PokedexStore>((set) => ({
+export const usePokedexStore = create<PokedexState>((set) => ({
     nameSearch: '',
     moveSearch: '',
     selectedType: null,
     selectedGenerations: [],
     selectedEggGroup: null,
     page: 1,
-    setNameSearch: (nameSearch) => set({ nameSearch, page: 1 }),
-    setMoveSearch: (moveSearch) => set({ moveSearch, page: 1 }),
-    setSelectedType: (selectedType) => set({ selectedType, page: 1 }),
-    toggleGeneration: (v) =>
+
+    setNameSearch: (v) => set({ nameSearch: v, page: 1 }),
+    setMoveSearch: (v) => set({ moveSearch: v, page: 1 }),
+    setSelectedType: (v) => set({ selectedType: v, page: 1 }),
+    toggleGeneration: (id) =>
         set((s) => ({
-            selectedGenerations: s.selectedGenerations.includes(v)
-                ? s.selectedGenerations.filter((g) => g !== v)
-                : [...s.selectedGenerations, v],
+            selectedGenerations: s.selectedGenerations.includes(id)
+                ? s.selectedGenerations.filter((g) => g !== id)
+                : [...s.selectedGenerations, id],
             page: 1,
         })),
-    setSelectedEggGroup: (selectedEggGroup) => set({ selectedEggGroup, page: 1 }),
-    setPage: (page) => set({ page }),
+    setSelectedEggGroup: (v) => set({ selectedEggGroup: v, page: 1 }),
+    setPage: (v) => set({ page: v }),
+    resetFilters: () =>
+        set({
+            moveSearch: '',
+            selectedType: null,
+            selectedGenerations: [],
+            selectedEggGroup: null,
+            page: 1,
+        }),
 }))

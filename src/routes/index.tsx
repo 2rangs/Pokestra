@@ -5,7 +5,7 @@ import PokemonDetailPage from '../page/PokemonDetailPage'
 const router = createBrowserRouter(
     [
         { path: '/', element: <Pokedex /> },
-        { path: '/pokemon/:name', element: <PokemonDetailPage /> },
+        { path: '/pokemon/:id', element: <PokemonDetailPage /> },
     ],
     {
         // GitHub Pages에서 /<repo>/ 아래로 라우팅되게 함
