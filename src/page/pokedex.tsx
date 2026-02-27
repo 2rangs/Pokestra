@@ -194,6 +194,7 @@ const Pokedex = () => {
                                         {page} / {totalPages}
                                     </span>
                                 )}
+
                             </div>
                             <div className="card">
                                 {paged.map(({ name }, i) => (
