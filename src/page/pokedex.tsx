@@ -9,7 +9,7 @@ import {
 import { POKEMON_TYPES, GENERATIONS, EGG_GROUPS } from '../constants/pokemon'
 import { getIdFromUrl } from '../common/utils'
 import PokemonListItem from '../components/PokemonListItem'
-import Pagination from '../components/Pagination'
+import Pagination from '../components/pagination'
 import TypeBadge from '../components/TypeBadge'
 
 const PER_PAGE = 30
