@@ -109,10 +109,22 @@ export interface EvolutionChain {
 export const useAllPokemonList = () =>
     useQuery({
         queryKey: ['pokemon-list-all'],
-        queryFn: () => api.get<PokemonListResult>('pokemon?limit=1302'),
+        queryFn: () => api.get<PokemonListResult>('pokemon?limit=1025'),
         staleTime: Infinity,
     })
 
+export function usePokemonDetail(name: string, enabled = true) {
+    return useQuery({
+        queryKey: ["pokemon-detail", name],
+        queryFn: async () => {
+            const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
+            if (!res.ok) throw new Error("Failed to fetch pokemon detail")
+            return res.json()
+        },
+        enabled,              // ✅ inView일 때만 실행
+        staleTime: 1000 * 60 * 10,
+    })
+}
 export const usePokemonByType = (type: string | null) =>
     useQuery({
         queryKey: ['pokemon-by-type', type],
@@ -142,15 +154,6 @@ export const usePokemonByMove = (move: string) =>
         enabled: move.length > 2,
         staleTime: Infinity,
     })
-
-export const usePokemonDetail = (idOrName: string | number) =>
-    useQuery({
-        queryKey: ['pokemon', idOrName],
-        queryFn: () => api.get<PokemonDetail>(`pokemon/${idOrName}`),
-        enabled: !!idOrName,
-        staleTime: Infinity,
-    })
-
 export const usePokemonSpecies = (speciesId: number | undefined) =>
     useQuery({
         queryKey: ['pokemon-species', speciesId],
