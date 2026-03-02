@@ -1,0 +1,6561 @@
+[
+  {
+    "id": 1,
+    "name": "pound",
+    "nameKo": "막치기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 2,
+    "name": "karate-chop",
+    "nameKo": "태권당수",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 3,
+    "name": "double-slap",
+    "nameKo": "연속뺨치기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 4,
+    "name": "comet-punch",
+    "nameKo": "연속펀치",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 5,
+    "name": "mega-punch",
+    "nameKo": "메가톤펀치",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 6,
+    "name": "pay-day",
+    "nameKo": "고양이돈받기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 7,
+    "name": "fire-punch",
+    "nameKo": "불꽃펀치",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 8,
+    "name": "ice-punch",
+    "nameKo": "냉동펀치",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 9,
+    "name": "thunder-punch",
+    "nameKo": "번개펀치",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 10,
+    "name": "scratch",
+    "nameKo": "할퀴기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 11,
+    "name": "vice-grip",
+    "nameKo": "찝기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 12,
+    "name": "guillotine",
+    "nameKo": "가위자르기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 13,
+    "name": "razor-wind",
+    "nameKo": "칼바람",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 14,
+    "name": "swords-dance",
+    "nameKo": "칼춤",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 15,
+    "name": "cut",
+    "nameKo": "풀베기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 16,
+    "name": "gust",
+    "nameKo": "바람일으키기",
+    "type": "flying",
+    "damageClass": "special"
+  },
+  {
+    "id": 17,
+    "name": "wing-attack",
+    "nameKo": "날개치기",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 18,
+    "name": "whirlwind",
+    "nameKo": "날려버리기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 19,
+    "name": "fly",
+    "nameKo": "공중날기",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 20,
+    "name": "bind",
+    "nameKo": "조이기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 21,
+    "name": "slam",
+    "nameKo": "힘껏치기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 22,
+    "name": "vine-whip",
+    "nameKo": "덩굴채찍",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 23,
+    "name": "stomp",
+    "nameKo": "짓밟기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 24,
+    "name": "double-kick",
+    "nameKo": "두번치기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 25,
+    "name": "mega-kick",
+    "nameKo": "메가톤킥",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 26,
+    "name": "jump-kick",
+    "nameKo": "점프킥",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 27,
+    "name": "rolling-kick",
+    "nameKo": "돌려차기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 28,
+    "name": "sand-attack",
+    "nameKo": "모래뿌리기",
+    "type": "ground",
+    "damageClass": "status"
+  },
+  {
+    "id": 29,
+    "name": "headbutt",
+    "nameKo": "박치기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 30,
+    "name": "horn-attack",
+    "nameKo": "뿔찌르기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 31,
+    "name": "fury-attack",
+    "nameKo": "마구찌르기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 32,
+    "name": "horn-drill",
+    "nameKo": "뿔드릴",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 33,
+    "name": "tackle",
+    "nameKo": "몸통박치기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 34,
+    "name": "body-slam",
+    "nameKo": "누르기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 35,
+    "name": "wrap",
+    "nameKo": "김밥말이",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 36,
+    "name": "take-down",
+    "nameKo": "돌진",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 37,
+    "name": "thrash",
+    "nameKo": "난동부리기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 38,
+    "name": "double-edge",
+    "nameKo": "이판사판태클",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 39,
+    "name": "tail-whip",
+    "nameKo": "꼬리흔들기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 40,
+    "name": "poison-sting",
+    "nameKo": "독침",
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 41,
+    "name": "twineedle",
+    "nameKo": "더블니들",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 42,
+    "name": "pin-missile",
+    "nameKo": "바늘미사일",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 43,
+    "name": "leer",
+    "nameKo": "째려보기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 44,
+    "name": "bite",
+    "nameKo": "물기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 45,
+    "name": "growl",
+    "nameKo": "울음소리",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 46,
+    "name": "roar",
+    "nameKo": "울부짖기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 47,
+    "name": "sing",
+    "nameKo": "노래하기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 48,
+    "name": "supersonic",
+    "nameKo": "초음파",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 49,
+    "name": "sonic-boom",
+    "nameKo": "소닉붐",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 50,
+    "name": "disable",
+    "nameKo": "사슬묶기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 51,
+    "name": "acid",
+    "nameKo": "용해액",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 52,
+    "name": "ember",
+    "nameKo": "불꽃세례",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 53,
+    "name": "flamethrower",
+    "nameKo": "화염방사",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 54,
+    "name": "mist",
+    "nameKo": "흰안개",
+    "type": "ice",
+    "damageClass": "status"
+  },
+  {
+    "id": 55,
+    "name": "water-gun",
+    "nameKo": "물대포",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 56,
+    "name": "hydro-pump",
+    "nameKo": "하이드로펌프",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 57,
+    "name": "surf",
+    "nameKo": "파도타기",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 58,
+    "name": "ice-beam",
+    "nameKo": "냉동빔",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 59,
+    "name": "blizzard",
+    "nameKo": "눈보라",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 60,
+    "name": "psybeam",
+    "nameKo": "환상빔",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 61,
+    "name": "bubble-beam",
+    "nameKo": "거품광선",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 62,
+    "name": "aurora-beam",
+    "nameKo": "오로라빔",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 63,
+    "name": "hyper-beam",
+    "nameKo": "파괴광선",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 64,
+    "name": "peck",
+    "nameKo": "쪼기",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 65,
+    "name": "drill-peck",
+    "nameKo": "회전부리",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 66,
+    "name": "submission",
+    "nameKo": "지옥의바퀴",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 67,
+    "name": "low-kick",
+    "nameKo": "안다리걸기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 68,
+    "name": "counter",
+    "nameKo": "카운터",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 69,
+    "name": "seismic-toss",
+    "nameKo": "지구던지기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 70,
+    "name": "strength",
+    "nameKo": "괴력",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 71,
+    "name": "absorb",
+    "nameKo": "흡수",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 72,
+    "name": "mega-drain",
+    "nameKo": "메가드레인",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 73,
+    "name": "leech-seed",
+    "nameKo": "씨뿌리기",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 74,
+    "name": "growth",
+    "nameKo": "성장",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 75,
+    "name": "razor-leaf",
+    "nameKo": "잎날가르기",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 76,
+    "name": "solar-beam",
+    "nameKo": "솔라빔",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 77,
+    "name": "poison-powder",
+    "nameKo": "독가루",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 78,
+    "name": "stun-spore",
+    "nameKo": "저리가루",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 79,
+    "name": "sleep-powder",
+    "nameKo": "수면가루",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 80,
+    "name": "petal-dance",
+    "nameKo": "꽃잎댄스",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 81,
+    "name": "string-shot",
+    "nameKo": "실뿜기",
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 82,
+    "name": "dragon-rage",
+    "nameKo": "용의분노",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 83,
+    "name": "fire-spin",
+    "nameKo": "회오리불꽃",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 84,
+    "name": "thunder-shock",
+    "nameKo": "전기쇼크",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 85,
+    "name": "thunderbolt",
+    "nameKo": "10만볼트",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 86,
+    "name": "thunder-wave",
+    "nameKo": "전기자석파",
+    "type": "electric",
+    "damageClass": "status"
+  },
+  {
+    "id": 87,
+    "name": "thunder",
+    "nameKo": "번개",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 88,
+    "name": "rock-throw",
+    "nameKo": "돌떨구기",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 89,
+    "name": "earthquake",
+    "nameKo": "지진",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 90,
+    "name": "fissure",
+    "nameKo": "땅가르기",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 91,
+    "name": "dig",
+    "nameKo": "구멍파기",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 92,
+    "name": "toxic",
+    "nameKo": "맹독",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 93,
+    "name": "confusion",
+    "nameKo": "염동력",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 94,
+    "name": "psychic",
+    "nameKo": "사이코키네시스",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 95,
+    "name": "hypnosis",
+    "nameKo": "최면술",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 96,
+    "name": "meditate",
+    "nameKo": "요가포즈",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 97,
+    "name": "agility",
+    "nameKo": "고속이동",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 98,
+    "name": "quick-attack",
+    "nameKo": "전광석화",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 99,
+    "name": "rage",
+    "nameKo": "분노",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 100,
+    "name": "teleport",
+    "nameKo": "순간이동",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 101,
+    "name": "night-shade",
+    "nameKo": "나이트헤드",
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 102,
+    "name": "mimic",
+    "nameKo": "흉내내기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 103,
+    "name": "screech",
+    "nameKo": "싫은소리",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 104,
+    "name": "double-team",
+    "nameKo": "그림자분신",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 105,
+    "name": "recover",
+    "nameKo": "HP회복",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 106,
+    "name": "harden",
+    "nameKo": "단단해지기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 107,
+    "name": "minimize",
+    "nameKo": "작아지기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 108,
+    "name": "smokescreen",
+    "nameKo": "연막",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 109,
+    "name": "confuse-ray",
+    "nameKo": "이상한빛",
+    "type": "ghost",
+    "damageClass": "status"
+  },
+  {
+    "id": 110,
+    "name": "withdraw",
+    "nameKo": "껍질에숨기",
+    "type": "water",
+    "damageClass": "status"
+  },
+  {
+    "id": 111,
+    "name": "defense-curl",
+    "nameKo": "웅크리기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 112,
+    "name": "barrier",
+    "nameKo": "배리어",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 113,
+    "name": "light-screen",
+    "nameKo": "빛의장막",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 114,
+    "name": "haze",
+    "nameKo": "흑안개",
+    "type": "ice",
+    "damageClass": "status"
+  },
+  {
+    "id": 115,
+    "name": "reflect",
+    "nameKo": "리플렉터",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 116,
+    "name": "focus-energy",
+    "nameKo": "기충전",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 117,
+    "name": "bide",
+    "nameKo": "참기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 118,
+    "name": "metronome",
+    "nameKo": "손가락흔들기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 119,
+    "name": "mirror-move",
+    "nameKo": "따라하기",
+    "type": "flying",
+    "damageClass": "status"
+  },
+  {
+    "id": 120,
+    "name": "self-destruct",
+    "nameKo": "자폭",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 121,
+    "name": "egg-bomb",
+    "nameKo": "알폭탄",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 122,
+    "name": "lick",
+    "nameKo": "핥기",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 123,
+    "name": "smog",
+    "nameKo": "스모그",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 124,
+    "name": "sludge",
+    "nameKo": "오물공격",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 125,
+    "name": "bone-club",
+    "nameKo": "뼈다귀치기",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 126,
+    "name": "fire-blast",
+    "nameKo": "불대문자",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 127,
+    "name": "waterfall",
+    "nameKo": "폭포오르기",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 128,
+    "name": "clamp",
+    "nameKo": "껍질끼우기",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 129,
+    "name": "swift",
+    "nameKo": "스피드스타",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 130,
+    "name": "skull-bash",
+    "nameKo": "로케트박치기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 131,
+    "name": "spike-cannon",
+    "nameKo": "가시대포",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 132,
+    "name": "constrict",
+    "nameKo": "휘감기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 133,
+    "name": "amnesia",
+    "nameKo": "망각술",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 134,
+    "name": "kinesis",
+    "nameKo": "숟가락휘기",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 135,
+    "name": "soft-boiled",
+    "nameKo": "알낳기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 136,
+    "name": "high-jump-kick",
+    "nameKo": "무릎차기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 137,
+    "name": "glare",
+    "nameKo": "뱀눈초리",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 138,
+    "name": "dream-eater",
+    "nameKo": "꿈먹기",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 139,
+    "name": "poison-gas",
+    "nameKo": "독가스",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 140,
+    "name": "barrage",
+    "nameKo": "구슬던지기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 141,
+    "name": "leech-life",
+    "nameKo": "흡혈",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 142,
+    "name": "lovely-kiss",
+    "nameKo": "악마의키스",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 143,
+    "name": "sky-attack",
+    "nameKo": "불새",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 144,
+    "name": "transform",
+    "nameKo": "변신",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 145,
+    "name": "bubble",
+    "nameKo": "거품",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 146,
+    "name": "dizzy-punch",
+    "nameKo": "잼잼펀치",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 147,
+    "name": "spore",
+    "nameKo": "버섯포자",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 148,
+    "name": "flash",
+    "nameKo": "플래시",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 149,
+    "name": "psywave",
+    "nameKo": "사이코웨이브",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 150,
+    "name": "splash",
+    "nameKo": "튀어오르기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 151,
+    "name": "acid-armor",
+    "nameKo": "녹기",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 152,
+    "name": "crabhammer",
+    "nameKo": "찝게햄머",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 153,
+    "name": "explosion",
+    "nameKo": "대폭발",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 154,
+    "name": "fury-swipes",
+    "nameKo": "마구할퀴기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 155,
+    "name": "bonemerang",
+    "nameKo": "뼈다귀부메랑",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 156,
+    "name": "rest",
+    "nameKo": "잠자기",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 157,
+    "name": "rock-slide",
+    "nameKo": "스톤샤워",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 158,
+    "name": "hyper-fang",
+    "nameKo": "필살앞니",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 159,
+    "name": "sharpen",
+    "nameKo": "각지기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 160,
+    "name": "conversion",
+    "nameKo": "텍스처",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 161,
+    "name": "tri-attack",
+    "nameKo": "트라이어택",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 162,
+    "name": "super-fang",
+    "nameKo": "분노의앞니",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 163,
+    "name": "slash",
+    "nameKo": "베어가르기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 164,
+    "name": "substitute",
+    "nameKo": "대타출동",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 165,
+    "name": "struggle",
+    "nameKo": "발버둥",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 166,
+    "name": "sketch",
+    "nameKo": "스케치",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 167,
+    "name": "triple-kick",
+    "nameKo": "트리플킥",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 168,
+    "name": "thief",
+    "nameKo": "도둑질",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 169,
+    "name": "spider-web",
+    "nameKo": "거미집",
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 170,
+    "name": "mind-reader",
+    "nameKo": "마음의눈",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 171,
+    "name": "nightmare",
+    "nameKo": "악몽",
+    "type": "ghost",
+    "damageClass": "status"
+  },
+  {
+    "id": 172,
+    "name": "flame-wheel",
+    "nameKo": "화염자동차",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 173,
+    "name": "snore",
+    "nameKo": "코골기",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 174,
+    "name": "curse",
+    "nameKo": "저주",
+    "type": "ghost",
+    "damageClass": "status"
+  },
+  {
+    "id": 175,
+    "name": "flail",
+    "nameKo": "바둥바둥",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 176,
+    "name": "conversion-2",
+    "nameKo": "텍스처2",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 177,
+    "name": "aeroblast",
+    "nameKo": "에어로블라스트",
+    "type": "flying",
+    "damageClass": "special"
+  },
+  {
+    "id": 178,
+    "name": "cotton-spore",
+    "nameKo": "목화포자",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 179,
+    "name": "reversal",
+    "nameKo": "기사회생",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 180,
+    "name": "spite",
+    "nameKo": "원한",
+    "type": "ghost",
+    "damageClass": "status"
+  },
+  {
+    "id": 181,
+    "name": "powder-snow",
+    "nameKo": "눈싸라기",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 182,
+    "name": "protect",
+    "nameKo": "방어",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 183,
+    "name": "mach-punch",
+    "nameKo": "마하펀치",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 184,
+    "name": "scary-face",
+    "nameKo": "겁나는얼굴",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 185,
+    "name": "feint-attack",
+    "nameKo": "속여때리기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 186,
+    "name": "sweet-kiss",
+    "nameKo": "천사의키스",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 187,
+    "name": "belly-drum",
+    "nameKo": "배북",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 188,
+    "name": "sludge-bomb",
+    "nameKo": "오물폭탄",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 189,
+    "name": "mud-slap",
+    "nameKo": "진흙뿌리기",
+    "type": "ground",
+    "damageClass": "special"
+  },
+  {
+    "id": 190,
+    "name": "octazooka",
+    "nameKo": "대포무노포",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 191,
+    "name": "spikes",
+    "nameKo": "압정뿌리기",
+    "type": "ground",
+    "damageClass": "status"
+  },
+  {
+    "id": 192,
+    "name": "zap-cannon",
+    "nameKo": "전자포",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 193,
+    "name": "foresight",
+    "nameKo": "꿰뚫어보기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 194,
+    "name": "destiny-bond",
+    "nameKo": "길동무",
+    "type": "ghost",
+    "damageClass": "status"
+  },
+  {
+    "id": 195,
+    "name": "perish-song",
+    "nameKo": "멸망의노래",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 196,
+    "name": "icy-wind",
+    "nameKo": "얼다바람",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 197,
+    "name": "detect",
+    "nameKo": "판별",
+    "type": "fighting",
+    "damageClass": "status"
+  },
+  {
+    "id": 198,
+    "name": "bone-rush",
+    "nameKo": "본러쉬",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 199,
+    "name": "lock-on",
+    "nameKo": "록온",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 200,
+    "name": "outrage",
+    "nameKo": "역린",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 201,
+    "name": "sandstorm",
+    "nameKo": "모래바람",
+    "type": "rock",
+    "damageClass": "status"
+  },
+  {
+    "id": 202,
+    "name": "giga-drain",
+    "nameKo": "기가드레인",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 203,
+    "name": "endure",
+    "nameKo": "버티기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 204,
+    "name": "charm",
+    "nameKo": "애교부리기",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 205,
+    "name": "rollout",
+    "nameKo": "구르기",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 206,
+    "name": "false-swipe",
+    "nameKo": "칼등치기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 207,
+    "name": "swagger",
+    "nameKo": "뽐내기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 208,
+    "name": "milk-drink",
+    "nameKo": "우유마시기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 209,
+    "name": "spark",
+    "nameKo": "스파크",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 210,
+    "name": "fury-cutter",
+    "nameKo": "연속자르기",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 211,
+    "name": "steel-wing",
+    "nameKo": "강철날개",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 212,
+    "name": "mean-look",
+    "nameKo": "검은눈빛",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 213,
+    "name": "attract",
+    "nameKo": "헤롱헤롱",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 214,
+    "name": "sleep-talk",
+    "nameKo": "잠꼬대",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 215,
+    "name": "heal-bell",
+    "nameKo": "치료방울",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 216,
+    "name": "return",
+    "nameKo": "은혜갚기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 217,
+    "name": "present",
+    "nameKo": "프레젠트",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 218,
+    "name": "frustration",
+    "nameKo": "화풀이",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 219,
+    "name": "safeguard",
+    "nameKo": "신비의부적",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 220,
+    "name": "pain-split",
+    "nameKo": "아픔나누기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 221,
+    "name": "sacred-fire",
+    "nameKo": "성스러운불꽃",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 222,
+    "name": "magnitude",
+    "nameKo": "매그니튜드",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 223,
+    "name": "dynamic-punch",
+    "nameKo": "폭발펀치",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 224,
+    "name": "megahorn",
+    "nameKo": "메가폰",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 225,
+    "name": "dragon-breath",
+    "nameKo": "용의숨결",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 226,
+    "name": "baton-pass",
+    "nameKo": "바톤터치",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 227,
+    "name": "encore",
+    "nameKo": "앵콜",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 228,
+    "name": "pursuit",
+    "nameKo": "따라가때리기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 229,
+    "name": "rapid-spin",
+    "nameKo": "고속스핀",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 230,
+    "name": "sweet-scent",
+    "nameKo": "달콤한향기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 231,
+    "name": "iron-tail",
+    "nameKo": "아이언테일",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 232,
+    "name": "metal-claw",
+    "nameKo": "메탈크로우",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 233,
+    "name": "vital-throw",
+    "nameKo": "받아던지기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 234,
+    "name": "morning-sun",
+    "nameKo": "아침햇살",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 235,
+    "name": "synthesis",
+    "nameKo": "광합성",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 236,
+    "name": "moonlight",
+    "nameKo": "달의불빛",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 237,
+    "name": "hidden-power",
+    "nameKo": "잠재파워",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 238,
+    "name": "cross-chop",
+    "nameKo": "크로스촙",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 239,
+    "name": "twister",
+    "nameKo": "회오리",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 240,
+    "name": "rain-dance",
+    "nameKo": "비바라기",
+    "type": "water",
+    "damageClass": "status"
+  },
+  {
+    "id": 241,
+    "name": "sunny-day",
+    "nameKo": "쾌청",
+    "type": "fire",
+    "damageClass": "status"
+  },
+  {
+    "id": 242,
+    "name": "crunch",
+    "nameKo": "깨물어부수기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 243,
+    "name": "mirror-coat",
+    "nameKo": "미러코트",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 244,
+    "name": "psych-up",
+    "nameKo": "자기암시",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 245,
+    "name": "extreme-speed",
+    "nameKo": "신속",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 246,
+    "name": "ancient-power",
+    "nameKo": "원시의힘",
+    "type": "rock",
+    "damageClass": "special"
+  },
+  {
+    "id": 247,
+    "name": "shadow-ball",
+    "nameKo": "섀도볼",
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 248,
+    "name": "future-sight",
+    "nameKo": "미래예지",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 249,
+    "name": "rock-smash",
+    "nameKo": "바위깨기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 250,
+    "name": "whirlpool",
+    "nameKo": "바다회오리",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 251,
+    "name": "beat-up",
+    "nameKo": "집단구타",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 252,
+    "name": "fake-out",
+    "nameKo": "속이다",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 253,
+    "name": "uproar",
+    "nameKo": "소란피기",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 254,
+    "name": "stockpile",
+    "nameKo": "비축하기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 255,
+    "name": "spit-up",
+    "nameKo": "토해내기",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 256,
+    "name": "swallow",
+    "nameKo": "꿀꺽",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 257,
+    "name": "heat-wave",
+    "nameKo": "열풍",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 258,
+    "name": "hail",
+    "nameKo": "싸라기눈",
+    "type": "ice",
+    "damageClass": "status"
+  },
+  {
+    "id": 259,
+    "name": "torment",
+    "nameKo": "트집",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 260,
+    "name": "flatter",
+    "nameKo": "부추기기",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 261,
+    "name": "will-o-wisp",
+    "nameKo": "도깨비불",
+    "type": "fire",
+    "damageClass": "status"
+  },
+  {
+    "id": 262,
+    "name": "memento",
+    "nameKo": "추억의선물",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 263,
+    "name": "facade",
+    "nameKo": "객기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 264,
+    "name": "focus-punch",
+    "nameKo": "힘껏펀치",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 265,
+    "name": "smelling-salts",
+    "nameKo": "정신차리기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 266,
+    "name": "follow-me",
+    "nameKo": "날따름",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 267,
+    "name": "nature-power",
+    "nameKo": "자연의힘",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 268,
+    "name": "charge",
+    "nameKo": "충전",
+    "type": "electric",
+    "damageClass": "status"
+  },
+  {
+    "id": 269,
+    "name": "taunt",
+    "nameKo": "도발",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 270,
+    "name": "helping-hand",
+    "nameKo": "도우미",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 271,
+    "name": "trick",
+    "nameKo": "트릭",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 272,
+    "name": "role-play",
+    "nameKo": "역할",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 273,
+    "name": "wish",
+    "nameKo": "희망사항",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 274,
+    "name": "assist",
+    "nameKo": "조수",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 275,
+    "name": "ingrain",
+    "nameKo": "뿌리박기",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 276,
+    "name": "superpower",
+    "nameKo": "엄청난힘",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 277,
+    "name": "magic-coat",
+    "nameKo": "매직코트",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 278,
+    "name": "recycle",
+    "nameKo": "리사이클",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 279,
+    "name": "revenge",
+    "nameKo": "리벤지",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 280,
+    "name": "brick-break",
+    "nameKo": "깨트리다",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 281,
+    "name": "yawn",
+    "nameKo": "하품",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 282,
+    "name": "knock-off",
+    "nameKo": "탁쳐서떨구기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 283,
+    "name": "endeavor",
+    "nameKo": "죽기살기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 284,
+    "name": "eruption",
+    "nameKo": "분화",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 285,
+    "name": "skill-swap",
+    "nameKo": "스킬스웹",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 286,
+    "name": "imprison",
+    "nameKo": "봉인",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 287,
+    "name": "refresh",
+    "nameKo": "리프레쉬",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 288,
+    "name": "grudge",
+    "nameKo": "원념",
+    "type": "ghost",
+    "damageClass": "status"
+  },
+  {
+    "id": 289,
+    "name": "snatch",
+    "nameKo": "가로챔",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 290,
+    "name": "secret-power",
+    "nameKo": "비밀의힘",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 291,
+    "name": "dive",
+    "nameKo": "다이빙",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 292,
+    "name": "arm-thrust",
+    "nameKo": "손바닥치기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 293,
+    "name": "camouflage",
+    "nameKo": "보호색",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 294,
+    "name": "tail-glow",
+    "nameKo": "반딧불",
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 295,
+    "name": "luster-purge",
+    "nameKo": "라스트버지",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 296,
+    "name": "mist-ball",
+    "nameKo": "미스트볼",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 297,
+    "name": "feather-dance",
+    "nameKo": "깃털댄스",
+    "type": "flying",
+    "damageClass": "status"
+  },
+  {
+    "id": 298,
+    "name": "teeter-dance",
+    "nameKo": "흔들흔들댄스",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 299,
+    "name": "blaze-kick",
+    "nameKo": "브레이즈킥",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 300,
+    "name": "mud-sport",
+    "nameKo": "흙놀이",
+    "type": "ground",
+    "damageClass": "status"
+  },
+  {
+    "id": 301,
+    "name": "ice-ball",
+    "nameKo": "아이스볼",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 302,
+    "name": "needle-arm",
+    "nameKo": "바늘팔",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 303,
+    "name": "slack-off",
+    "nameKo": "태만함",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 304,
+    "name": "hyper-voice",
+    "nameKo": "하이퍼보이스",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 305,
+    "name": "poison-fang",
+    "nameKo": "독엄니",
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 306,
+    "name": "crush-claw",
+    "nameKo": "브레이크크루",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 307,
+    "name": "blast-burn",
+    "nameKo": "블러스트번",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 308,
+    "name": "hydro-cannon",
+    "nameKo": "하이드로캐논",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 309,
+    "name": "meteor-mash",
+    "nameKo": "코멧펀치",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 310,
+    "name": "astonish",
+    "nameKo": "놀래키기",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 311,
+    "name": "weather-ball",
+    "nameKo": "웨더볼",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 312,
+    "name": "aromatherapy",
+    "nameKo": "아로마테라피",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 313,
+    "name": "fake-tears",
+    "nameKo": "거짓울음",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 314,
+    "name": "air-cutter",
+    "nameKo": "에어컷터",
+    "type": "flying",
+    "damageClass": "special"
+  },
+  {
+    "id": 315,
+    "name": "overheat",
+    "nameKo": "오버히트",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 316,
+    "name": "odor-sleuth",
+    "nameKo": "냄새구별",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 317,
+    "name": "rock-tomb",
+    "nameKo": "암석봉인",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 318,
+    "name": "silver-wind",
+    "nameKo": "은빛바람",
+    "type": "bug",
+    "damageClass": "special"
+  },
+  {
+    "id": 319,
+    "name": "metal-sound",
+    "nameKo": "금속음",
+    "type": "steel",
+    "damageClass": "status"
+  },
+  {
+    "id": 320,
+    "name": "grass-whistle",
+    "nameKo": "풀피리",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 321,
+    "name": "tickle",
+    "nameKo": "간지르기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 322,
+    "name": "cosmic-power",
+    "nameKo": "코스믹파워",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 323,
+    "name": "water-spout",
+    "nameKo": "해수스파우팅",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 324,
+    "name": "signal-beam",
+    "nameKo": "시그널빔",
+    "type": "bug",
+    "damageClass": "special"
+  },
+  {
+    "id": 325,
+    "name": "shadow-punch",
+    "nameKo": "섀도펀치",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 326,
+    "name": "extrasensory",
+    "nameKo": "신통력",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 327,
+    "name": "sky-uppercut",
+    "nameKo": "스카이업퍼",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 328,
+    "name": "sand-tomb",
+    "nameKo": "모래지옥",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 329,
+    "name": "sheer-cold",
+    "nameKo": "절대영도",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 330,
+    "name": "muddy-water",
+    "nameKo": "탁류",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 331,
+    "name": "bullet-seed",
+    "nameKo": "기관총",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 332,
+    "name": "aerial-ace",
+    "nameKo": "제비반환",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 333,
+    "name": "icicle-spear",
+    "nameKo": "고드름침",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 334,
+    "name": "iron-defense",
+    "nameKo": "철벽",
+    "type": "steel",
+    "damageClass": "status"
+  },
+  {
+    "id": 335,
+    "name": "block",
+    "nameKo": "블록",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 336,
+    "name": "howl",
+    "nameKo": "멀리짖음",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 337,
+    "name": "dragon-claw",
+    "nameKo": "드래곤크루",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 338,
+    "name": "frenzy-plant",
+    "nameKo": "하드플랜트",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 339,
+    "name": "bulk-up",
+    "nameKo": "벌크업",
+    "type": "fighting",
+    "damageClass": "status"
+  },
+  {
+    "id": 340,
+    "name": "bounce",
+    "nameKo": "뛰어오르다",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 341,
+    "name": "mud-shot",
+    "nameKo": "머드숏",
+    "type": "ground",
+    "damageClass": "special"
+  },
+  {
+    "id": 342,
+    "name": "poison-tail",
+    "nameKo": "포이즌테일",
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 343,
+    "name": "covet",
+    "nameKo": "탐내다",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 344,
+    "name": "volt-tackle",
+    "nameKo": "볼트태클",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 345,
+    "name": "magical-leaf",
+    "nameKo": "메지컬리프",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 346,
+    "name": "water-sport",
+    "nameKo": "물놀이",
+    "type": "water",
+    "damageClass": "status"
+  },
+  {
+    "id": 347,
+    "name": "calm-mind",
+    "nameKo": "명상",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 348,
+    "name": "leaf-blade",
+    "nameKo": "리프블레이드",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 349,
+    "name": "dragon-dance",
+    "nameKo": "용의춤",
+    "type": "dragon",
+    "damageClass": "status"
+  },
+  {
+    "id": 350,
+    "name": "rock-blast",
+    "nameKo": "락블레스트",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 351,
+    "name": "shock-wave",
+    "nameKo": "전격파",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 352,
+    "name": "water-pulse",
+    "nameKo": "물의파동",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 353,
+    "name": "doom-desire",
+    "nameKo": "파멸의소원",
+    "type": "steel",
+    "damageClass": "special"
+  },
+  {
+    "id": 354,
+    "name": "psycho-boost",
+    "nameKo": "사이코부스트",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 355,
+    "name": "roost",
+    "nameKo": "날개쉬기",
+    "type": "flying",
+    "damageClass": "status"
+  },
+  {
+    "id": 356,
+    "name": "gravity",
+    "nameKo": "중력",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 357,
+    "name": "miracle-eye",
+    "nameKo": "미라클아이",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 358,
+    "name": "wake-up-slap",
+    "nameKo": "잠깨움뺨치기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 359,
+    "name": "hammer-arm",
+    "nameKo": "암해머",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 360,
+    "name": "gyro-ball",
+    "nameKo": "자이로볼",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 361,
+    "name": "healing-wish",
+    "nameKo": "치유소원",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 362,
+    "name": "brine",
+    "nameKo": "소금물",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 363,
+    "name": "natural-gift",
+    "nameKo": "자연의은혜",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 364,
+    "name": "feint",
+    "nameKo": "페인트",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 365,
+    "name": "pluck",
+    "nameKo": "쪼아대기",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 366,
+    "name": "tailwind",
+    "nameKo": "순풍",
+    "type": "flying",
+    "damageClass": "status"
+  },
+  {
+    "id": 367,
+    "name": "acupressure",
+    "nameKo": "경혈찌르기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 368,
+    "name": "metal-burst",
+    "nameKo": "메탈버스트",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 369,
+    "name": "u-turn",
+    "nameKo": "유턴",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 370,
+    "name": "close-combat",
+    "nameKo": "인파이트",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 371,
+    "name": "payback",
+    "nameKo": "보복",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 372,
+    "name": "assurance",
+    "nameKo": "승부굳히기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 373,
+    "name": "embargo",
+    "nameKo": "금제",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 374,
+    "name": "fling",
+    "nameKo": "내던지기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 375,
+    "name": "psycho-shift",
+    "nameKo": "사이코시프트",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 376,
+    "name": "trump-card",
+    "nameKo": "마지막수단",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 377,
+    "name": "heal-block",
+    "nameKo": "회복봉인",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 378,
+    "name": "wring-out",
+    "nameKo": "쥐어짜기",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 379,
+    "name": "power-trick",
+    "nameKo": "파워트릭",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 380,
+    "name": "gastro-acid",
+    "nameKo": "위액",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 381,
+    "name": "lucky-chant",
+    "nameKo": "주술",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 382,
+    "name": "me-first",
+    "nameKo": "선취",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 383,
+    "name": "copycat",
+    "nameKo": "흉내쟁이",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 384,
+    "name": "power-swap",
+    "nameKo": "파워스웹",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 385,
+    "name": "guard-swap",
+    "nameKo": "가드스웹",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 386,
+    "name": "punishment",
+    "nameKo": "혼내기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 387,
+    "name": "last-resort",
+    "nameKo": "뒀다쓰기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 388,
+    "name": "worry-seed",
+    "nameKo": "고민씨",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 389,
+    "name": "sucker-punch",
+    "nameKo": "기습",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 390,
+    "name": "toxic-spikes",
+    "nameKo": "독압정",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 391,
+    "name": "heart-swap",
+    "nameKo": "하트스웹",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 392,
+    "name": "aqua-ring",
+    "nameKo": "아쿠아링",
+    "type": "water",
+    "damageClass": "status"
+  },
+  {
+    "id": 393,
+    "name": "magnet-rise",
+    "nameKo": "전자부유",
+    "type": "electric",
+    "damageClass": "status"
+  },
+  {
+    "id": 394,
+    "name": "flare-blitz",
+    "nameKo": "플레어드라이브",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 395,
+    "name": "force-palm",
+    "nameKo": "발경",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 396,
+    "name": "aura-sphere",
+    "nameKo": "파동탄",
+    "type": "fighting",
+    "damageClass": "special"
+  },
+  {
+    "id": 397,
+    "name": "rock-polish",
+    "nameKo": "록커트",
+    "type": "rock",
+    "damageClass": "status"
+  },
+  {
+    "id": 398,
+    "name": "poison-jab",
+    "nameKo": "독찌르기",
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 399,
+    "name": "dark-pulse",
+    "nameKo": "악의파동",
+    "type": "dark",
+    "damageClass": "special"
+  },
+  {
+    "id": 400,
+    "name": "night-slash",
+    "nameKo": "깜짝베기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 401,
+    "name": "aqua-tail",
+    "nameKo": "아쿠아테일",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 402,
+    "name": "seed-bomb",
+    "nameKo": "씨폭탄",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 403,
+    "name": "air-slash",
+    "nameKo": "에어슬래시",
+    "type": "flying",
+    "damageClass": "special"
+  },
+  {
+    "id": 404,
+    "name": "x-scissor",
+    "nameKo": "시저크로스",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 405,
+    "name": "bug-buzz",
+    "nameKo": "벌레의야단법석",
+    "type": "bug",
+    "damageClass": "special"
+  },
+  {
+    "id": 406,
+    "name": "dragon-pulse",
+    "nameKo": "용의파동",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 407,
+    "name": "dragon-rush",
+    "nameKo": "드래곤다이브",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 408,
+    "name": "power-gem",
+    "nameKo": "파워젬",
+    "type": "rock",
+    "damageClass": "special"
+  },
+  {
+    "id": 409,
+    "name": "drain-punch",
+    "nameKo": "드레인펀치",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 410,
+    "name": "vacuum-wave",
+    "nameKo": "진공파",
+    "type": "fighting",
+    "damageClass": "special"
+  },
+  {
+    "id": 411,
+    "name": "focus-blast",
+    "nameKo": "기합구슬",
+    "type": "fighting",
+    "damageClass": "special"
+  },
+  {
+    "id": 412,
+    "name": "energy-ball",
+    "nameKo": "에너지볼",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 413,
+    "name": "brave-bird",
+    "nameKo": "브레이브버드",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 414,
+    "name": "earth-power",
+    "nameKo": "대지의힘",
+    "type": "ground",
+    "damageClass": "special"
+  },
+  {
+    "id": 415,
+    "name": "switcheroo",
+    "nameKo": "바꿔치기",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 416,
+    "name": "giga-impact",
+    "nameKo": "기가임팩트",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 417,
+    "name": "nasty-plot",
+    "nameKo": "나쁜음모",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 418,
+    "name": "bullet-punch",
+    "nameKo": "불릿펀치",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 419,
+    "name": "avalanche",
+    "nameKo": "눈사태",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 420,
+    "name": "ice-shard",
+    "nameKo": "얼음뭉치",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 421,
+    "name": "shadow-claw",
+    "nameKo": "섀도크루",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 422,
+    "name": "thunder-fang",
+    "nameKo": "번개엄니",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 423,
+    "name": "ice-fang",
+    "nameKo": "얼음엄니",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 424,
+    "name": "fire-fang",
+    "nameKo": "불꽃엄니",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 425,
+    "name": "shadow-sneak",
+    "nameKo": "야습",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 426,
+    "name": "mud-bomb",
+    "nameKo": "진흙폭탄",
+    "type": "ground",
+    "damageClass": "special"
+  },
+  {
+    "id": 427,
+    "name": "psycho-cut",
+    "nameKo": "사이코커터",
+    "type": "psychic",
+    "damageClass": "physical"
+  },
+  {
+    "id": 428,
+    "name": "zen-headbutt",
+    "nameKo": "사념의박치기",
+    "type": "psychic",
+    "damageClass": "physical"
+  },
+  {
+    "id": 429,
+    "name": "mirror-shot",
+    "nameKo": "미러숏",
+    "type": "steel",
+    "damageClass": "special"
+  },
+  {
+    "id": 430,
+    "name": "flash-cannon",
+    "nameKo": "러스터캐논",
+    "type": "steel",
+    "damageClass": "special"
+  },
+  {
+    "id": 431,
+    "name": "rock-climb",
+    "nameKo": "락클라임",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 432,
+    "name": "defog",
+    "nameKo": "안개제거",
+    "type": "flying",
+    "damageClass": "status"
+  },
+  {
+    "id": 433,
+    "name": "trick-room",
+    "nameKo": "트릭룸",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 434,
+    "name": "draco-meteor",
+    "nameKo": "용성군",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 435,
+    "name": "discharge",
+    "nameKo": "방전",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 436,
+    "name": "lava-plume",
+    "nameKo": "분연",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 437,
+    "name": "leaf-storm",
+    "nameKo": "리프스톰",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 438,
+    "name": "power-whip",
+    "nameKo": "파워휩",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 439,
+    "name": "rock-wrecker",
+    "nameKo": "암석포",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 440,
+    "name": "cross-poison",
+    "nameKo": "크로스포이즌",
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 441,
+    "name": "gunk-shot",
+    "nameKo": "더스트슈트",
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 442,
+    "name": "iron-head",
+    "nameKo": "아이언헤드",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 443,
+    "name": "magnet-bomb",
+    "nameKo": "마그넷봄",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 444,
+    "name": "stone-edge",
+    "nameKo": "스톤에지",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 445,
+    "name": "captivate",
+    "nameKo": "유혹",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 446,
+    "name": "stealth-rock",
+    "nameKo": "스텔스록",
+    "type": "rock",
+    "damageClass": "status"
+  },
+  {
+    "id": 447,
+    "name": "grass-knot",
+    "nameKo": "풀묶기",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 448,
+    "name": "chatter",
+    "nameKo": "수다",
+    "type": "flying",
+    "damageClass": "special"
+  },
+  {
+    "id": 449,
+    "name": "judgment",
+    "nameKo": "심판의뭉치",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 450,
+    "name": "bug-bite",
+    "nameKo": "벌레먹음",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 451,
+    "name": "charge-beam",
+    "nameKo": "차지빔",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 452,
+    "name": "wood-hammer",
+    "nameKo": "우드해머",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 453,
+    "name": "aqua-jet",
+    "nameKo": "아쿠아제트",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 454,
+    "name": "attack-order",
+    "nameKo": "공격지령",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 455,
+    "name": "defend-order",
+    "nameKo": "방어지령",
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 456,
+    "name": "heal-order",
+    "nameKo": "회복지령",
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 457,
+    "name": "head-smash",
+    "nameKo": "양날박치기",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 458,
+    "name": "double-hit",
+    "nameKo": "더블어택",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 459,
+    "name": "roar-of-time",
+    "nameKo": "시간의포효",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 460,
+    "name": "spacial-rend",
+    "nameKo": "공간절단",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 461,
+    "name": "lunar-dance",
+    "nameKo": "초승달춤",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 462,
+    "name": "crush-grip",
+    "nameKo": "묵사발",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 463,
+    "name": "magma-storm",
+    "nameKo": "마그마스톰",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 464,
+    "name": "dark-void",
+    "nameKo": "다크홀",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 465,
+    "name": "seed-flare",
+    "nameKo": "시드플레어",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 466,
+    "name": "ominous-wind",
+    "nameKo": "괴상한바람",
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 467,
+    "name": "shadow-force",
+    "nameKo": "섀도다이브",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 468,
+    "name": "hone-claws",
+    "nameKo": "손톱갈기",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 469,
+    "name": "wide-guard",
+    "nameKo": "와이드가드",
+    "type": "rock",
+    "damageClass": "status"
+  },
+  {
+    "id": 470,
+    "name": "guard-split",
+    "nameKo": "가드셰어",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 471,
+    "name": "power-split",
+    "nameKo": "파워셰어",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 472,
+    "name": "wonder-room",
+    "nameKo": "원더룸",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 473,
+    "name": "psyshock",
+    "nameKo": "사이코쇼크",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 474,
+    "name": "venoshock",
+    "nameKo": "베놈쇼크",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 475,
+    "name": "autotomize",
+    "nameKo": "바디퍼지",
+    "type": "steel",
+    "damageClass": "status"
+  },
+  {
+    "id": 476,
+    "name": "rage-powder",
+    "nameKo": "분노가루",
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 477,
+    "name": "telekinesis",
+    "nameKo": "텔레키네시스",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 478,
+    "name": "magic-room",
+    "nameKo": "매직룸",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 479,
+    "name": "smack-down",
+    "nameKo": "떨어뜨리기",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 480,
+    "name": "storm-throw",
+    "nameKo": "업어후리기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 481,
+    "name": "flame-burst",
+    "nameKo": "불꽃튀기기",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 482,
+    "name": "sludge-wave",
+    "nameKo": "오물웨이브",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 483,
+    "name": "quiver-dance",
+    "nameKo": "나비춤",
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 484,
+    "name": "heavy-slam",
+    "nameKo": "헤비봄버",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 485,
+    "name": "synchronoise",
+    "nameKo": "싱크로노이즈",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 486,
+    "name": "electro-ball",
+    "nameKo": "일렉트릭볼",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 487,
+    "name": "soak",
+    "nameKo": "물붓기",
+    "type": "water",
+    "damageClass": "status"
+  },
+  {
+    "id": 488,
+    "name": "flame-charge",
+    "nameKo": "니트로차지",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 489,
+    "name": "coil",
+    "nameKo": "똬리틀기",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 490,
+    "name": "low-sweep",
+    "nameKo": "로킥",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 491,
+    "name": "acid-spray",
+    "nameKo": "애시드봄",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 492,
+    "name": "foul-play",
+    "nameKo": "속임수",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 493,
+    "name": "simple-beam",
+    "nameKo": "심플빔",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 494,
+    "name": "entrainment",
+    "nameKo": "동료만들기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 495,
+    "name": "after-you",
+    "nameKo": "당신먼저",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 496,
+    "name": "round",
+    "nameKo": "돌림노래",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 497,
+    "name": "echoed-voice",
+    "nameKo": "에코보이스",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 498,
+    "name": "chip-away",
+    "nameKo": "야금야금",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 499,
+    "name": "clear-smog",
+    "nameKo": "클리어스모그",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 500,
+    "name": "stored-power",
+    "nameKo": "어시스트파워",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 501,
+    "name": "quick-guard",
+    "nameKo": "퍼스트가드",
+    "type": "fighting",
+    "damageClass": "status"
+  },
+  {
+    "id": 502,
+    "name": "ally-switch",
+    "nameKo": "사이드체인지",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 503,
+    "name": "scald",
+    "nameKo": "열탕",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 504,
+    "name": "shell-smash",
+    "nameKo": "껍질깨기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 505,
+    "name": "heal-pulse",
+    "nameKo": "치유파동",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 506,
+    "name": "hex",
+    "nameKo": "병상첨병",
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 507,
+    "name": "sky-drop",
+    "nameKo": "프리폴",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 508,
+    "name": "shift-gear",
+    "nameKo": "기어체인지",
+    "type": "steel",
+    "damageClass": "status"
+  },
+  {
+    "id": 509,
+    "name": "circle-throw",
+    "nameKo": "배대뒤치기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 510,
+    "name": "incinerate",
+    "nameKo": "불태우기",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 511,
+    "name": "quash",
+    "nameKo": "순서미루기",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 512,
+    "name": "acrobatics",
+    "nameKo": "애크러뱃",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 513,
+    "name": "reflect-type",
+    "nameKo": "미러타입",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 514,
+    "name": "retaliate",
+    "nameKo": "원수갚기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 515,
+    "name": "final-gambit",
+    "nameKo": "목숨걸기",
+    "type": "fighting",
+    "damageClass": "special"
+  },
+  {
+    "id": 516,
+    "name": "bestow",
+    "nameKo": "기프트패스",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 517,
+    "name": "inferno",
+    "nameKo": "연옥",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 518,
+    "name": "water-pledge",
+    "nameKo": "물의맹세",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 519,
+    "name": "fire-pledge",
+    "nameKo": "불꽃의맹세",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 520,
+    "name": "grass-pledge",
+    "nameKo": "풀의맹세",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 521,
+    "name": "volt-switch",
+    "nameKo": "볼트체인지",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 522,
+    "name": "struggle-bug",
+    "nameKo": "벌레의저항",
+    "type": "bug",
+    "damageClass": "special"
+  },
+  {
+    "id": 523,
+    "name": "bulldoze",
+    "nameKo": "땅고르기",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 524,
+    "name": "frost-breath",
+    "nameKo": "얼음숨결",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 525,
+    "name": "dragon-tail",
+    "nameKo": "드래곤테일",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 526,
+    "name": "work-up",
+    "nameKo": "분발",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 527,
+    "name": "electroweb",
+    "nameKo": "일렉트릭네트",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 528,
+    "name": "wild-charge",
+    "nameKo": "와일드볼트",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 529,
+    "name": "drill-run",
+    "nameKo": "드릴라이너",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 530,
+    "name": "dual-chop",
+    "nameKo": "더블촙",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 531,
+    "name": "heart-stamp",
+    "nameKo": "하트스탬프",
+    "type": "psychic",
+    "damageClass": "physical"
+  },
+  {
+    "id": 532,
+    "name": "horn-leech",
+    "nameKo": "우드호른",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 533,
+    "name": "sacred-sword",
+    "nameKo": "성스러운칼",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 534,
+    "name": "razor-shell",
+    "nameKo": "셸블레이드",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 535,
+    "name": "heat-crash",
+    "nameKo": "히트스탬프",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 536,
+    "name": "leaf-tornado",
+    "nameKo": "그래스믹서",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 537,
+    "name": "steamroller",
+    "nameKo": "하드롤러",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 538,
+    "name": "cotton-guard",
+    "nameKo": "코튼가드",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 539,
+    "name": "night-daze",
+    "nameKo": "나이트버스트",
+    "type": "dark",
+    "damageClass": "special"
+  },
+  {
+    "id": 540,
+    "name": "psystrike",
+    "nameKo": "사이코브레이크",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 541,
+    "name": "tail-slap",
+    "nameKo": "스위프뺨치기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 542,
+    "name": "hurricane",
+    "nameKo": "폭풍",
+    "type": "flying",
+    "damageClass": "special"
+  },
+  {
+    "id": 543,
+    "name": "head-charge",
+    "nameKo": "아프로브레이크",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 544,
+    "name": "gear-grind",
+    "nameKo": "기어소서",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 545,
+    "name": "searing-shot",
+    "nameKo": "화염탄",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 546,
+    "name": "techno-blast",
+    "nameKo": "테크노버스터",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 547,
+    "name": "relic-song",
+    "nameKo": "옛노래",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 548,
+    "name": "secret-sword",
+    "nameKo": "신비의칼",
+    "type": "fighting",
+    "damageClass": "special"
+  },
+  {
+    "id": 549,
+    "name": "glaciate",
+    "nameKo": "얼다세계",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 550,
+    "name": "bolt-strike",
+    "nameKo": "뇌격",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 551,
+    "name": "blue-flare",
+    "nameKo": "푸른불꽃",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 552,
+    "name": "fiery-dance",
+    "nameKo": "불꽃춤",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 553,
+    "name": "freeze-shock",
+    "nameKo": "프리즈볼트",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 554,
+    "name": "ice-burn",
+    "nameKo": "콜드플레어",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 555,
+    "name": "snarl",
+    "nameKo": "바크아웃",
+    "type": "dark",
+    "damageClass": "special"
+  },
+  {
+    "id": 556,
+    "name": "icicle-crash",
+    "nameKo": "고드름떨구기",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 557,
+    "name": "v-create",
+    "nameKo": "V제너레이트",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 558,
+    "name": "fusion-flare",
+    "nameKo": "크로스플레임",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 559,
+    "name": "fusion-bolt",
+    "nameKo": "크로스썬더",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 560,
+    "name": "flying-press",
+    "nameKo": "플라잉프레스",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 561,
+    "name": "mat-block",
+    "nameKo": "마룻바닥세워막기",
+    "type": "fighting",
+    "damageClass": "status"
+  },
+  {
+    "id": 562,
+    "name": "belch",
+    "nameKo": "트림",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 563,
+    "name": "rototiller",
+    "nameKo": "일구기",
+    "type": "ground",
+    "damageClass": "status"
+  },
+  {
+    "id": 564,
+    "name": "sticky-web",
+    "nameKo": "끈적끈적네트",
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 565,
+    "name": "fell-stinger",
+    "nameKo": "마지막일침",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 566,
+    "name": "phantom-force",
+    "nameKo": "고스트다이브",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 567,
+    "name": "trick-or-treat",
+    "nameKo": "핼러윈",
+    "type": "ghost",
+    "damageClass": "status"
+  },
+  {
+    "id": 568,
+    "name": "noble-roar",
+    "nameKo": "부르짖기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 569,
+    "name": "ion-deluge",
+    "nameKo": "플라스마샤워",
+    "type": "electric",
+    "damageClass": "status"
+  },
+  {
+    "id": 570,
+    "name": "parabolic-charge",
+    "nameKo": "파라볼라차지",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 571,
+    "name": "forests-curse",
+    "nameKo": "숲의저주",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 572,
+    "name": "petal-blizzard",
+    "nameKo": "꽃보라",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 573,
+    "name": "freeze-dry",
+    "nameKo": "프리즈드라이",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 574,
+    "name": "disarming-voice",
+    "nameKo": "차밍보이스",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 575,
+    "name": "parting-shot",
+    "nameKo": "막말내뱉기",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 576,
+    "name": "topsy-turvy",
+    "nameKo": "뒤집어엎기",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 577,
+    "name": "draining-kiss",
+    "nameKo": "드레인키스",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 578,
+    "name": "crafty-shield",
+    "nameKo": "트릭가드",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 579,
+    "name": "flower-shield",
+    "nameKo": "플라워가드",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 580,
+    "name": "grassy-terrain",
+    "nameKo": "그래스필드",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 581,
+    "name": "misty-terrain",
+    "nameKo": "미스트필드",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 582,
+    "name": "electrify",
+    "nameKo": "송전",
+    "type": "electric",
+    "damageClass": "status"
+  },
+  {
+    "id": 583,
+    "name": "play-rough",
+    "nameKo": "치근거리기",
+    "type": "fairy",
+    "damageClass": "physical"
+  },
+  {
+    "id": 584,
+    "name": "fairy-wind",
+    "nameKo": "요정의바람",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 585,
+    "name": "moonblast",
+    "nameKo": "문포스",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 586,
+    "name": "boomburst",
+    "nameKo": "폭음파",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 587,
+    "name": "fairy-lock",
+    "nameKo": "페어리록",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 588,
+    "name": "kings-shield",
+    "nameKo": "킹실드",
+    "type": "steel",
+    "damageClass": "status"
+  },
+  {
+    "id": 589,
+    "name": "play-nice",
+    "nameKo": "친해지기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 590,
+    "name": "confide",
+    "nameKo": "비밀이야기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 591,
+    "name": "diamond-storm",
+    "nameKo": "다이아스톰",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 592,
+    "name": "steam-eruption",
+    "nameKo": "스팀버스트",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 593,
+    "name": "hyperspace-hole",
+    "nameKo": "다른차원홀",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 594,
+    "name": "water-shuriken",
+    "nameKo": "물수리검",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 595,
+    "name": "mystical-fire",
+    "nameKo": "매지컬플레임",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 596,
+    "name": "spiky-shield",
+    "nameKo": "니들가드",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 597,
+    "name": "aromatic-mist",
+    "nameKo": "아로마미스트",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 598,
+    "name": "eerie-impulse",
+    "nameKo": "괴전파",
+    "type": "electric",
+    "damageClass": "status"
+  },
+  {
+    "id": 599,
+    "name": "venom-drench",
+    "nameKo": "베놈트랩",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 600,
+    "name": "powder",
+    "nameKo": "분진",
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 601,
+    "name": "geomancy",
+    "nameKo": "지오컨트롤",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 602,
+    "name": "magnetic-flux",
+    "nameKo": "자기장조작",
+    "type": "electric",
+    "damageClass": "status"
+  },
+  {
+    "id": 603,
+    "name": "happy-hour",
+    "nameKo": "해피타임",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 604,
+    "name": "electric-terrain",
+    "nameKo": "일렉트릭필드",
+    "type": "electric",
+    "damageClass": "status"
+  },
+  {
+    "id": 605,
+    "name": "dazzling-gleam",
+    "nameKo": "매지컬샤인",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 606,
+    "name": "celebrate",
+    "nameKo": "축하",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 607,
+    "name": "hold-hands",
+    "nameKo": "손에손잡기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 608,
+    "name": "baby-doll-eyes",
+    "nameKo": "초롱초롱눈동자",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 609,
+    "name": "nuzzle",
+    "nameKo": "볼부비부비",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 610,
+    "name": "hold-back",
+    "nameKo": "적당히손봐주기",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 611,
+    "name": "infestation",
+    "nameKo": "엉겨붙기",
+    "type": "bug",
+    "damageClass": "special"
+  },
+  {
+    "id": 612,
+    "name": "power-up-punch",
+    "nameKo": "그로우펀치",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 613,
+    "name": "oblivion-wing",
+    "nameKo": "데스윙",
+    "type": "flying",
+    "damageClass": "special"
+  },
+  {
+    "id": 614,
+    "name": "thousand-arrows",
+    "nameKo": "사우전드애로",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 615,
+    "name": "thousand-waves",
+    "nameKo": "사우전드웨이브",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 616,
+    "name": "lands-wrath",
+    "nameKo": "그라운드포스",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 617,
+    "name": "light-of-ruin",
+    "nameKo": "파멸의빛",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 618,
+    "name": "origin-pulse",
+    "nameKo": "근원의파동",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 619,
+    "name": "precipice-blades",
+    "nameKo": "단애의칼",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 620,
+    "name": "dragon-ascent",
+    "nameKo": "화룡점정",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 621,
+    "name": "hyperspace-fury",
+    "nameKo": "다른차원러시",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 622,
+    "name": "breakneck-blitz--physical",
+    "nameKo": "울트라대시어택",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 623,
+    "name": "breakneck-blitz--special",
+    "nameKo": "울트라대시어택",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 624,
+    "name": "all-out-pummeling--physical",
+    "nameKo": "전력무쌍격렬권",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 625,
+    "name": "all-out-pummeling--special",
+    "nameKo": "전력무쌍격렬권",
+    "type": "fighting",
+    "damageClass": "special"
+  },
+  {
+    "id": 626,
+    "name": "supersonic-skystrike--physical",
+    "nameKo": "파이널다이브클래시",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 627,
+    "name": "supersonic-skystrike--special",
+    "nameKo": "파이널다이브클래시",
+    "type": "flying",
+    "damageClass": "special"
+  },
+  {
+    "id": 628,
+    "name": "acid-downpour--physical",
+    "nameKo": "애시드포이즌딜리트",
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 629,
+    "name": "acid-downpour--special",
+    "nameKo": "애시드포이즌딜리트",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 630,
+    "name": "tectonic-rage--physical",
+    "nameKo": "라이징랜드오버",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 631,
+    "name": "tectonic-rage--special",
+    "nameKo": "라이징랜드오버",
+    "type": "ground",
+    "damageClass": "special"
+  },
+  {
+    "id": 632,
+    "name": "continental-crush--physical",
+    "nameKo": "월즈엔드폴",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 633,
+    "name": "continental-crush--special",
+    "nameKo": "월즈엔드폴",
+    "type": "rock",
+    "damageClass": "special"
+  },
+  {
+    "id": 634,
+    "name": "savage-spin-out--physical",
+    "nameKo": "절대포식회전참",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 635,
+    "name": "savage-spin-out--special",
+    "nameKo": "절대포식회전참",
+    "type": "bug",
+    "damageClass": "special"
+  },
+  {
+    "id": 636,
+    "name": "never-ending-nightmare--physical",
+    "nameKo": "무한암야로의유인",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 637,
+    "name": "never-ending-nightmare--special",
+    "nameKo": "무한암야로의유인",
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 638,
+    "name": "corkscrew-crash--physical",
+    "nameKo": "초월나선연격",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 639,
+    "name": "corkscrew-crash--special",
+    "nameKo": "초월나선연격",
+    "type": "steel",
+    "damageClass": "special"
+  },
+  {
+    "id": 640,
+    "name": "inferno-overdrive--physical",
+    "nameKo": "다이내믹풀플레임",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 641,
+    "name": "inferno-overdrive--special",
+    "nameKo": "다이내믹풀플레임",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 642,
+    "name": "hydro-vortex--physical",
+    "nameKo": "슈퍼아쿠아토네이도",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 643,
+    "name": "hydro-vortex--special",
+    "nameKo": "슈퍼아쿠아토네이도",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 644,
+    "name": "bloom-doom--physical",
+    "nameKo": "블룸샤인엑스트라",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 645,
+    "name": "bloom-doom--special",
+    "nameKo": "블룸샤인엑스트라",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 646,
+    "name": "gigavolt-havoc--physical",
+    "nameKo": "스파킹기가볼트",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 647,
+    "name": "gigavolt-havoc--special",
+    "nameKo": "스파킹기가볼트",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 648,
+    "name": "shattered-psyche--physical",
+    "nameKo": "맥시멈사이브레이커",
+    "type": "psychic",
+    "damageClass": "physical"
+  },
+  {
+    "id": 649,
+    "name": "shattered-psyche--special",
+    "nameKo": "맥시멈사이브레이커",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 650,
+    "name": "subzero-slammer--physical",
+    "nameKo": "레이징지오프리즈",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 651,
+    "name": "subzero-slammer--special",
+    "nameKo": "레이징지오프리즈",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 652,
+    "name": "devastating-drake--physical",
+    "nameKo": "얼티메이트드래곤번",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 653,
+    "name": "devastating-drake--special",
+    "nameKo": "얼티메이트드래곤번",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 654,
+    "name": "black-hole-eclipse--physical",
+    "nameKo": "블랙홀이클립스",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 655,
+    "name": "black-hole-eclipse--special",
+    "nameKo": "블랙홀이클립스",
+    "type": "dark",
+    "damageClass": "special"
+  },
+  {
+    "id": 656,
+    "name": "twinkle-tackle--physical",
+    "nameKo": "러블리스타임팩트",
+    "type": "fairy",
+    "damageClass": "physical"
+  },
+  {
+    "id": 657,
+    "name": "twinkle-tackle--special",
+    "nameKo": "러블리스타임팩트",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 658,
+    "name": "catastropika",
+    "nameKo": "필살피카슛",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 659,
+    "name": "shore-up",
+    "nameKo": "모래모으기",
+    "type": "ground",
+    "damageClass": "status"
+  },
+  {
+    "id": 660,
+    "name": "first-impression",
+    "nameKo": "만나자마자",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 661,
+    "name": "baneful-bunker",
+    "nameKo": "토치카",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 662,
+    "name": "spirit-shackle",
+    "nameKo": "그림자꿰매기",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 663,
+    "name": "darkest-lariat",
+    "nameKo": "DD래리어트",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 664,
+    "name": "sparkling-aria",
+    "nameKo": "물거품아리아",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 665,
+    "name": "ice-hammer",
+    "nameKo": "아이스해머",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 666,
+    "name": "floral-healing",
+    "nameKo": "플라워힐",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 667,
+    "name": "high-horsepower",
+    "nameKo": "10만마력",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 668,
+    "name": "strength-sap",
+    "nameKo": "힘흡수",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 669,
+    "name": "solar-blade",
+    "nameKo": "솔라블레이드",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 670,
+    "name": "leafage",
+    "nameKo": "나뭇잎",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 671,
+    "name": "spotlight",
+    "nameKo": "스포트라이트",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 672,
+    "name": "toxic-thread",
+    "nameKo": "독실",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 673,
+    "name": "laser-focus",
+    "nameKo": "예민해지기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 674,
+    "name": "gear-up",
+    "nameKo": "어시스트기어",
+    "type": "steel",
+    "damageClass": "status"
+  },
+  {
+    "id": 675,
+    "name": "throat-chop",
+    "nameKo": "지옥찌르기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 676,
+    "name": "pollen-puff",
+    "nameKo": "꽃가루경단",
+    "type": "bug",
+    "damageClass": "special"
+  },
+  {
+    "id": 677,
+    "name": "anchor-shot",
+    "nameKo": "앵커숏",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 678,
+    "name": "psychic-terrain",
+    "nameKo": "사이코필드",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 679,
+    "name": "lunge",
+    "nameKo": "덤벼들기",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 680,
+    "name": "fire-lash",
+    "nameKo": "불꽃채찍",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 681,
+    "name": "power-trip",
+    "nameKo": "기어오르기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 682,
+    "name": "burn-up",
+    "nameKo": "불사르기",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 683,
+    "name": "speed-swap",
+    "nameKo": "스피드스웹",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 684,
+    "name": "smart-strike",
+    "nameKo": "스마트호른",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 685,
+    "name": "purify",
+    "nameKo": "정화",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 686,
+    "name": "revelation-dance",
+    "nameKo": "잠재댄스",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 687,
+    "name": "core-enforcer",
+    "nameKo": "코어퍼니셔",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 688,
+    "name": "trop-kick",
+    "nameKo": "트로피컬킥",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 689,
+    "name": "instruct",
+    "nameKo": "지휘",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 690,
+    "name": "beak-blast",
+    "nameKo": "부리캐논",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 691,
+    "name": "clanging-scales",
+    "nameKo": "스케일노이즈",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 692,
+    "name": "dragon-hammer",
+    "nameKo": "드래곤해머",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 693,
+    "name": "brutal-swing",
+    "nameKo": "세차게휘두르기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 694,
+    "name": "aurora-veil",
+    "nameKo": "오로라베일",
+    "type": "ice",
+    "damageClass": "status"
+  },
+  {
+    "id": 695,
+    "name": "sinister-arrow-raid",
+    "nameKo": "섀도애로우즈스트라이크",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 696,
+    "name": "malicious-moonsault",
+    "nameKo": "하이퍼다크크러셔",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 697,
+    "name": "oceanic-operetta",
+    "nameKo": "바다의심포니",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 698,
+    "name": "guardian-of-alola",
+    "nameKo": "알로라의수호자",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 699,
+    "name": "soul-stealing-7-star-strike",
+    "nameKo": "칠성탈혼퇴",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 700,
+    "name": "stoked-sparksurfer",
+    "nameKo": "라이트닝서프라이드",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 701,
+    "name": "pulverizing-pancake",
+    "nameKo": "진심의공격",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 702,
+    "name": "extreme-evoboost",
+    "nameKo": "나인이볼부스트",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 703,
+    "name": "genesis-supernova",
+    "nameKo": "오리진즈슈퍼노바",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 704,
+    "name": "shell-trap",
+    "nameKo": "트랩셸",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 705,
+    "name": "fleur-cannon",
+    "nameKo": "플뢰르캐논",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 706,
+    "name": "psychic-fangs",
+    "nameKo": "사이코팽",
+    "type": "psychic",
+    "damageClass": "physical"
+  },
+  {
+    "id": 707,
+    "name": "stomping-tantrum",
+    "nameKo": "분함의발구르기",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 708,
+    "name": "shadow-bone",
+    "nameKo": "섀도본",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 709,
+    "name": "accelerock",
+    "nameKo": "액셀록",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 710,
+    "name": "liquidation",
+    "nameKo": "아쿠아브레이크",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 711,
+    "name": "prismatic-laser",
+    "nameKo": "프리즘레이저",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 712,
+    "name": "spectral-thief",
+    "nameKo": "섀도스틸",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 713,
+    "name": "sunsteel-strike",
+    "nameKo": "메테오드라이브",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 714,
+    "name": "moongeist-beam",
+    "nameKo": "섀도레이",
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 715,
+    "name": "tearful-look",
+    "nameKo": "눈물그렁그렁",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 716,
+    "name": "zing-zap",
+    "nameKo": "찌리리따끔따끔",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 717,
+    "name": "natures-madness",
+    "nameKo": "자연의분노",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 718,
+    "name": "multi-attack",
+    "nameKo": "멀티어택",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 719,
+    "name": "10-000-000-volt-thunderbolt",
+    "nameKo": "1000만볼트",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 720,
+    "name": "mind-blown",
+    "nameKo": "깜짝헤드",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 721,
+    "name": "plasma-fists",
+    "nameKo": "플라스마피스트",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 722,
+    "name": "photon-geyser",
+    "nameKo": "포톤가이저",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 723,
+    "name": "light-that-burns-the-sky",
+    "nameKo": "하늘을태우는멸망의빛",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 724,
+    "name": "searing-sunraze-smash",
+    "nameKo": "선샤인스매셔",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 725,
+    "name": "menacing-moonraze-maelstrom",
+    "nameKo": "문라이트블래스터",
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 726,
+    "name": "lets-snuggle-forever",
+    "nameKo": "투닥투닥프렌드타임",
+    "type": "fairy",
+    "damageClass": "physical"
+  },
+  {
+    "id": 727,
+    "name": "splintered-stormshards",
+    "nameKo": "레이디얼에지스톰",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 728,
+    "name": "clangorous-soulblaze",
+    "nameKo": "브레이징소울비트",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 729,
+    "name": "zippy-zap",
+    "nameKo": "파찌파찌액셀",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 730,
+    "name": "splishy-splash",
+    "nameKo": "참방참방서핑",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 731,
+    "name": "floaty-fall",
+    "nameKo": "둥실둥실폴",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 732,
+    "name": "pika-papow",
+    "nameKo": "피카피카썬더",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 733,
+    "name": "bouncy-bubble",
+    "nameKo": "생생버블",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 734,
+    "name": "buzzy-buzz",
+    "nameKo": "찌릿찌릿일렉",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 735,
+    "name": "sizzly-slide",
+    "nameKo": "이글이글번",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 736,
+    "name": "glitzy-glow",
+    "nameKo": "콸콸오라",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 737,
+    "name": "baddy-bad",
+    "nameKo": "아그아그존",
+    "type": "dark",
+    "damageClass": "special"
+  },
+  {
+    "id": 738,
+    "name": "sappy-seed",
+    "nameKo": "쑥쑥봄버",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 739,
+    "name": "freezy-frost",
+    "nameKo": "꽁꽁프로스트",
+    "type": "ice",
+    "damageClass": "special"
+  },
+  {
+    "id": 740,
+    "name": "sparkly-swirl",
+    "nameKo": "반짝반짝스톰",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 741,
+    "name": "veevee-volley",
+    "nameKo": "브이브이브레이크",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 742,
+    "name": "double-iron-bash",
+    "nameKo": "더블펀처",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 743,
+    "name": "max-guard",
+    "nameKo": "다이월",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 744,
+    "name": "dynamax-cannon",
+    "nameKo": "다이맥스포",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 745,
+    "name": "snipe-shot",
+    "nameKo": "노려맞히기",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 746,
+    "name": "jaw-lock",
+    "nameKo": "물고버티기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 747,
+    "name": "stuff-cheeks",
+    "nameKo": "볼가득넣기",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 748,
+    "name": "no-retreat",
+    "nameKo": "배수의진",
+    "type": "fighting",
+    "damageClass": "status"
+  },
+  {
+    "id": 749,
+    "name": "tar-shot",
+    "nameKo": "타르숏",
+    "type": "rock",
+    "damageClass": "status"
+  },
+  {
+    "id": 750,
+    "name": "magic-powder",
+    "nameKo": "마법가루",
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 751,
+    "name": "dragon-darts",
+    "nameKo": "드래곤애로",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 752,
+    "name": "teatime",
+    "nameKo": "다과회",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 753,
+    "name": "octolock",
+    "nameKo": "문어굳히기",
+    "type": "fighting",
+    "damageClass": "status"
+  },
+  {
+    "id": 754,
+    "name": "bolt-beak",
+    "nameKo": "전격부리",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 755,
+    "name": "fishious-rend",
+    "nameKo": "아가미물기",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 756,
+    "name": "court-change",
+    "nameKo": "코트체인지",
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 757,
+    "name": "max-flare",
+    "nameKo": "다이번",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 758,
+    "name": "max-flutterby",
+    "nameKo": "다이웜",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 759,
+    "name": "max-lightning",
+    "nameKo": "다이썬더",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 760,
+    "name": "max-strike",
+    "nameKo": "다이어택",
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 761,
+    "name": "max-knuckle",
+    "nameKo": "다이너클",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 762,
+    "name": "max-phantasm",
+    "nameKo": "다이할로우",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 763,
+    "name": "max-hailstorm",
+    "nameKo": "다이아이스",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 764,
+    "name": "max-ooze",
+    "nameKo": "다이애시드",
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 765,
+    "name": "max-geyser",
+    "nameKo": "다이스트림",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 766,
+    "name": "max-airstream",
+    "nameKo": "다이제트",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 767,
+    "name": "max-starfall",
+    "nameKo": "다이페어리",
+    "type": "fairy",
+    "damageClass": "physical"
+  },
+  {
+    "id": 768,
+    "name": "max-wyrmwind",
+    "nameKo": "다이드라군",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 769,
+    "name": "max-mindstorm",
+    "nameKo": "다이사이코",
+    "type": "psychic",
+    "damageClass": "physical"
+  },
+  {
+    "id": 770,
+    "name": "max-rockfall",
+    "nameKo": "다이록",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 771,
+    "name": "max-quake",
+    "nameKo": "다이어스",
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 772,
+    "name": "max-darkness",
+    "nameKo": "다이아크",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 773,
+    "name": "max-overgrowth",
+    "nameKo": "다이그래스",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 774,
+    "name": "max-steelspike",
+    "nameKo": "다이스틸",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 775,
+    "name": "clangorous-soul",
+    "nameKo": "소울비트",
+    "type": "dragon",
+    "damageClass": "status"
+  },
+  {
+    "id": 776,
+    "name": "body-press",
+    "nameKo": "바디프레스",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 777,
+    "name": "decorate",
+    "nameKo": "데코레이션",
+    "type": "fairy",
+    "damageClass": "status"
+  },
+  {
+    "id": 778,
+    "name": "drum-beating",
+    "nameKo": "드럼어택",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 779,
+    "name": "snap-trap",
+    "nameKo": "집게덫",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 780,
+    "name": "pyro-ball",
+    "nameKo": "화염볼",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 781,
+    "name": "behemoth-blade",
+    "nameKo": "거수참",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 782,
+    "name": "behemoth-bash",
+    "nameKo": "거수탄",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 783,
+    "name": "aura-wheel",
+    "nameKo": "오라휠",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 784,
+    "name": "breaking-swipe",
+    "nameKo": "와이드브레이커",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 785,
+    "name": "branch-poke",
+    "nameKo": "가지찌르기",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 786,
+    "name": "overdrive",
+    "nameKo": "오버드라이브",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 787,
+    "name": "apple-acid",
+    "nameKo": "사과산",
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 788,
+    "name": "grav-apple",
+    "nameKo": "G의힘",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 789,
+    "name": "spirit-break",
+    "nameKo": "소울크래시",
+    "type": "fairy",
+    "damageClass": "physical"
+  },
+  {
+    "id": 790,
+    "name": "strange-steam",
+    "nameKo": "원더스팀",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 791,
+    "name": "life-dew",
+    "nameKo": "생명의물방울",
+    "type": "water",
+    "damageClass": "status"
+  },
+  {
+    "id": 792,
+    "name": "obstruct",
+    "nameKo": "블로킹",
+    "type": "dark",
+    "damageClass": "status"
+  },
+  {
+    "id": 793,
+    "name": "false-surrender",
+    "nameKo": "사죄의찌르기",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 794,
+    "name": "meteor-assault",
+    "nameKo": "스타어설트",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 795,
+    "name": "eternabeam",
+    "nameKo": "무한다이빔",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 796,
+    "name": "steel-beam",
+    "nameKo": "철제광선",
+    "type": "steel",
+    "damageClass": "special"
+  },
+  {
+    "id": 797,
+    "name": "expanding-force",
+    "nameKo": "와이드포스",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 798,
+    "name": "steel-roller",
+    "nameKo": "아이언롤러",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 799,
+    "name": "scale-shot",
+    "nameKo": "스케일샷",
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 800,
+    "name": "meteor-beam",
+    "nameKo": "메테오빔",
+    "type": "rock",
+    "damageClass": "special"
+  },
+  {
+    "id": 801,
+    "name": "shell-side-arm",
+    "nameKo": "셸암즈",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 802,
+    "name": "misty-explosion",
+    "nameKo": "미스트버스트",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 803,
+    "name": "grassy-glide",
+    "nameKo": "그래스슬라이더",
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 804,
+    "name": "rising-voltage",
+    "nameKo": "라이징볼트",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 805,
+    "name": "terrain-pulse",
+    "nameKo": "대지의파동",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 806,
+    "name": "skitter-smack",
+    "nameKo": "엄습하는일격",
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 807,
+    "name": "burning-jealousy",
+    "nameKo": "질투의불꽃",
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 808,
+    "name": "lash-out",
+    "nameKo": "분풀이",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 809,
+    "name": "poltergeist",
+    "nameKo": "폴터가이스트",
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 810,
+    "name": "corrosive-gas",
+    "nameKo": "부식가스",
+    "type": "poison",
+    "damageClass": "status"
+  },
+  {
+    "id": 811,
+    "name": "coaching",
+    "nameKo": "코칭",
+    "type": "fighting",
+    "damageClass": "status"
+  },
+  {
+    "id": 812,
+    "name": "flip-turn",
+    "nameKo": "퀵턴",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 813,
+    "name": "triple-axel",
+    "nameKo": "트리플악셀",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 814,
+    "name": "dual-wingbeat",
+    "nameKo": "더블윙",
+    "type": "flying",
+    "damageClass": "physical"
+  },
+  {
+    "id": 815,
+    "name": "scorching-sands",
+    "nameKo": "열사의대지",
+    "type": "ground",
+    "damageClass": "special"
+  },
+  {
+    "id": 816,
+    "name": "jungle-healing",
+    "nameKo": "정글힐",
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 817,
+    "name": "wicked-blow",
+    "nameKo": "암흑강타",
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 818,
+    "name": "surging-strikes",
+    "nameKo": "수류연타",
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 819,
+    "name": "thunder-cage",
+    "nameKo": "썬더프리즌",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 820,
+    "name": "dragon-energy",
+    "nameKo": "드래곤에너지",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 821,
+    "name": "freezing-glare",
+    "nameKo": "얼어붙는시선",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 822,
+    "name": "fiery-wrath",
+    "nameKo": "타오르는분노",
+    "type": "dark",
+    "damageClass": "special"
+  },
+  {
+    "id": 823,
+    "name": "thunderous-kick",
+    "nameKo": "천둥차기",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 824,
+    "name": "glacial-lance",
+    "nameKo": "블리자드랜스",
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 825,
+    "name": "astral-barrage",
+    "nameKo": "아스트랄비트",
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 826,
+    "name": "eerie-spell",
+    "nameKo": "섬뜩한주문",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 827,
+    "name": "dire-claw",
+    "nameKo": null,
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 828,
+    "name": "psyshield-bash",
+    "nameKo": null,
+    "type": "psychic",
+    "damageClass": "physical"
+  },
+  {
+    "id": 829,
+    "name": "power-shift",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 830,
+    "name": "stone-axe",
+    "nameKo": null,
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 831,
+    "name": "springtide-storm",
+    "nameKo": null,
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 832,
+    "name": "mystical-power",
+    "nameKo": null,
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 833,
+    "name": "raging-fury",
+    "nameKo": null,
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 834,
+    "name": "wave-crash",
+    "nameKo": null,
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 835,
+    "name": "chloroblast",
+    "nameKo": null,
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 836,
+    "name": "mountain-gale",
+    "nameKo": null,
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 837,
+    "name": "victory-dance",
+    "nameKo": null,
+    "type": "fighting",
+    "damageClass": "status"
+  },
+  {
+    "id": 838,
+    "name": "headlong-rush",
+    "nameKo": null,
+    "type": "ground",
+    "damageClass": "physical"
+  },
+  {
+    "id": 839,
+    "name": "barb-barrage",
+    "nameKo": null,
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 840,
+    "name": "esper-wing",
+    "nameKo": null,
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 841,
+    "name": "bitter-malice",
+    "nameKo": null,
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 842,
+    "name": "shelter",
+    "nameKo": null,
+    "type": "steel",
+    "damageClass": "status"
+  },
+  {
+    "id": 843,
+    "name": "triple-arrows",
+    "nameKo": null,
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 844,
+    "name": "infernal-parade",
+    "nameKo": null,
+    "type": "ghost",
+    "damageClass": "special"
+  },
+  {
+    "id": 845,
+    "name": "ceaseless-edge",
+    "nameKo": null,
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 846,
+    "name": "bleakwind-storm",
+    "nameKo": null,
+    "type": "flying",
+    "damageClass": "special"
+  },
+  {
+    "id": 847,
+    "name": "wildbolt-storm",
+    "nameKo": null,
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 848,
+    "name": "sandsear-storm",
+    "nameKo": null,
+    "type": "ground",
+    "damageClass": "special"
+  },
+  {
+    "id": 849,
+    "name": "lunar-blessing",
+    "nameKo": null,
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 850,
+    "name": "take-heart",
+    "nameKo": null,
+    "type": "psychic",
+    "damageClass": "status"
+  },
+  {
+    "id": 851,
+    "name": "tera-blast",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 852,
+    "name": "silk-trap",
+    "nameKo": null,
+    "type": "bug",
+    "damageClass": "status"
+  },
+  {
+    "id": 853,
+    "name": "axe-kick",
+    "nameKo": null,
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 854,
+    "name": "last-respects",
+    "nameKo": null,
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 855,
+    "name": "lumina-crash",
+    "nameKo": null,
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 856,
+    "name": "order-up",
+    "nameKo": null,
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 857,
+    "name": "jet-punch",
+    "nameKo": null,
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 858,
+    "name": "spicy-extract",
+    "nameKo": null,
+    "type": "grass",
+    "damageClass": "status"
+  },
+  {
+    "id": 859,
+    "name": "spin-out",
+    "nameKo": null,
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 860,
+    "name": "population-bomb",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 861,
+    "name": "ice-spinner",
+    "nameKo": null,
+    "type": "ice",
+    "damageClass": "physical"
+  },
+  {
+    "id": 862,
+    "name": "glaive-rush",
+    "nameKo": null,
+    "type": "dragon",
+    "damageClass": "physical"
+  },
+  {
+    "id": 863,
+    "name": "revival-blessing",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 864,
+    "name": "salt-cure",
+    "nameKo": null,
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 865,
+    "name": "triple-dive",
+    "nameKo": null,
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 866,
+    "name": "mortal-spin",
+    "nameKo": null,
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 867,
+    "name": "doodle",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 868,
+    "name": "fillet-away",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 869,
+    "name": "kowtow-cleave",
+    "nameKo": null,
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 870,
+    "name": "flower-trick",
+    "nameKo": null,
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 871,
+    "name": "torch-song",
+    "nameKo": null,
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 872,
+    "name": "aqua-step",
+    "nameKo": null,
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 873,
+    "name": "raging-bull",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 874,
+    "name": "make-it-rain",
+    "nameKo": null,
+    "type": "steel",
+    "damageClass": "special"
+  },
+  {
+    "id": 875,
+    "name": "psyblade",
+    "nameKo": "사이코블레이드",
+    "type": "psychic",
+    "damageClass": "physical"
+  },
+  {
+    "id": 876,
+    "name": "hydro-steam",
+    "nameKo": "하이드로스팀",
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 877,
+    "name": "ruination",
+    "nameKo": null,
+    "type": "dark",
+    "damageClass": "special"
+  },
+  {
+    "id": 878,
+    "name": "collision-course",
+    "nameKo": null,
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 879,
+    "name": "electro-drift",
+    "nameKo": null,
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 880,
+    "name": "shed-tail",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 881,
+    "name": "chilly-reception",
+    "nameKo": null,
+    "type": "ice",
+    "damageClass": "status"
+  },
+  {
+    "id": 882,
+    "name": "tidy-up",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "status"
+  },
+  {
+    "id": 883,
+    "name": "snowscape",
+    "nameKo": null,
+    "type": "ice",
+    "damageClass": "status"
+  },
+  {
+    "id": 884,
+    "name": "pounce",
+    "nameKo": null,
+    "type": "bug",
+    "damageClass": "physical"
+  },
+  {
+    "id": 885,
+    "name": "trailblaze",
+    "nameKo": null,
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 886,
+    "name": "chilling-water",
+    "nameKo": null,
+    "type": "water",
+    "damageClass": "special"
+  },
+  {
+    "id": 887,
+    "name": "hyper-drill",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "physical"
+  },
+  {
+    "id": 888,
+    "name": "twin-beam",
+    "nameKo": null,
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 889,
+    "name": "rage-fist",
+    "nameKo": null,
+    "type": "ghost",
+    "damageClass": "physical"
+  },
+  {
+    "id": 890,
+    "name": "armor-cannon",
+    "nameKo": null,
+    "type": "fire",
+    "damageClass": "special"
+  },
+  {
+    "id": 891,
+    "name": "bitter-blade",
+    "nameKo": null,
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 892,
+    "name": "double-shock",
+    "nameKo": null,
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 893,
+    "name": "gigaton-hammer",
+    "nameKo": null,
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 894,
+    "name": "comeuppance",
+    "nameKo": null,
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 895,
+    "name": "aqua-cutter",
+    "nameKo": null,
+    "type": "water",
+    "damageClass": "physical"
+  },
+  {
+    "id": 896,
+    "name": "blazing-torque",
+    "nameKo": null,
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 897,
+    "name": "wicked-torque",
+    "nameKo": null,
+    "type": "dark",
+    "damageClass": "physical"
+  },
+  {
+    "id": 898,
+    "name": "noxious-torque",
+    "nameKo": null,
+    "type": "poison",
+    "damageClass": "physical"
+  },
+  {
+    "id": 899,
+    "name": "combat-torque",
+    "nameKo": null,
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 900,
+    "name": "magical-torque",
+    "nameKo": null,
+    "type": "fairy",
+    "damageClass": "physical"
+  },
+  {
+    "id": 901,
+    "name": "blood-moon",
+    "nameKo": null,
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 902,
+    "name": "matcha-gotcha",
+    "nameKo": null,
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 903,
+    "name": "syrup-bomb",
+    "nameKo": null,
+    "type": "grass",
+    "damageClass": "special"
+  },
+  {
+    "id": 904,
+    "name": "ivy-cudgel",
+    "nameKo": null,
+    "type": "grass",
+    "damageClass": "physical"
+  },
+  {
+    "id": 905,
+    "name": "electro-shot",
+    "nameKo": "일렉트로빔",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 906,
+    "name": "tera-starstorm",
+    "nameKo": "테라클러스터",
+    "type": "normal",
+    "damageClass": "special"
+  },
+  {
+    "id": 907,
+    "name": "fickle-beam",
+    "nameKo": "변덕레이저",
+    "type": "dragon",
+    "damageClass": "special"
+  },
+  {
+    "id": 908,
+    "name": "burning-bulwark",
+    "nameKo": "화염의수호",
+    "type": "fire",
+    "damageClass": "status"
+  },
+  {
+    "id": 909,
+    "name": "thunderclap",
+    "nameKo": "질풍신뢰",
+    "type": "electric",
+    "damageClass": "special"
+  },
+  {
+    "id": 910,
+    "name": "mighty-cleave",
+    "nameKo": "파워풀에지",
+    "type": "rock",
+    "damageClass": "physical"
+  },
+  {
+    "id": 911,
+    "name": "tachyon-cutter",
+    "nameKo": "타키온커터",
+    "type": "steel",
+    "damageClass": "special"
+  },
+  {
+    "id": 912,
+    "name": "hard-press",
+    "nameKo": "하드프레스",
+    "type": "steel",
+    "damageClass": "physical"
+  },
+  {
+    "id": 913,
+    "name": "dragon-cheer",
+    "nameKo": "드래곤옐",
+    "type": "dragon",
+    "damageClass": "status"
+  },
+  {
+    "id": 914,
+    "name": "alluring-voice",
+    "nameKo": "매혹의보이스",
+    "type": "fairy",
+    "damageClass": "special"
+  },
+  {
+    "id": 915,
+    "name": "temper-flare",
+    "nameKo": "열불내기",
+    "type": "fire",
+    "damageClass": "physical"
+  },
+  {
+    "id": 916,
+    "name": "supercell-slam",
+    "nameKo": "썬더다이브",
+    "type": "electric",
+    "damageClass": "physical"
+  },
+  {
+    "id": 917,
+    "name": "psychic-noise",
+    "nameKo": "사이코노이즈",
+    "type": "psychic",
+    "damageClass": "special"
+  },
+  {
+    "id": 918,
+    "name": "upper-hand",
+    "nameKo": "기선제압",
+    "type": "fighting",
+    "damageClass": "physical"
+  },
+  {
+    "id": 919,
+    "name": "malignant-chain",
+    "nameKo": "악독사슬",
+    "type": "poison",
+    "damageClass": "special"
+  },
+  {
+    "id": 10001,
+    "name": "shadow-rush",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "physical"
+  },
+  {
+    "id": 10002,
+    "name": "shadow-blast",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "physical"
+  },
+  {
+    "id": 10003,
+    "name": "shadow-blitz",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "physical"
+  },
+  {
+    "id": 10004,
+    "name": "shadow-bolt",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "special"
+  },
+  {
+    "id": 10005,
+    "name": "shadow-break",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "physical"
+  },
+  {
+    "id": 10006,
+    "name": "shadow-chill",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "special"
+  },
+  {
+    "id": 10007,
+    "name": "shadow-end",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "physical"
+  },
+  {
+    "id": 10008,
+    "name": "shadow-fire",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "special"
+  },
+  {
+    "id": 10009,
+    "name": "shadow-rave",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "special"
+  },
+  {
+    "id": 10010,
+    "name": "shadow-storm",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "special"
+  },
+  {
+    "id": 10011,
+    "name": "shadow-wave",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "special"
+  },
+  {
+    "id": 10012,
+    "name": "shadow-down",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "status"
+  },
+  {
+    "id": 10013,
+    "name": "shadow-half",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "special"
+  },
+  {
+    "id": 10014,
+    "name": "shadow-hold",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "status"
+  },
+  {
+    "id": 10015,
+    "name": "shadow-mist",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "status"
+  },
+  {
+    "id": 10016,
+    "name": "shadow-panic",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "status"
+  },
+  {
+    "id": 10017,
+    "name": "shadow-shed",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "status"
+  },
+  {
+    "id": 10018,
+    "name": "shadow-sky",
+    "nameKo": null,
+    "type": "shadow",
+    "damageClass": "status"
+  }
+]

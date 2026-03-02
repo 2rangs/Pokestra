@@ -1,0 +1,62 @@
+[
+  {
+    "name": "monster",
+    "nameKo": "괴수"
+  },
+  {
+    "name": "water1",
+    "nameKo": "수중 1"
+  },
+  {
+    "name": "bug",
+    "nameKo": "벌레"
+  },
+  {
+    "name": "flying",
+    "nameKo": "비행"
+  },
+  {
+    "name": "ground",
+    "nameKo": "육상"
+  },
+  {
+    "name": "fairy",
+    "nameKo": "요정"
+  },
+  {
+    "name": "plant",
+    "nameKo": "식물"
+  },
+  {
+    "name": "humanshape",
+    "nameKo": "인간형"
+  },
+  {
+    "name": "water3",
+    "nameKo": "수중 3"
+  },
+  {
+    "name": "mineral",
+    "nameKo": "광물"
+  },
+  {
+    "name": "indeterminate",
+    "nameKo": "부정형"
+  },
+  {
+    "name": "water2",
+    "nameKo": "수중 2"
+  },
+  {
+    "name": "ditto",
+    "nameKo": "메타몽"
+  },
+  {
+    "name": "dragon",
+    "nameKo": "드래곤"
+  },
+  {
+    "name": "no-eggs",
+    "nameKo": "알미발견"
+  }
+]

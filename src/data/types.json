@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "normal",
+    "nameKo": "노말"
+  },
+  {
+    "id": 2,
+    "name": "fighting",
+    "nameKo": "격투"
+  },
+  {
+    "id": 3,
+    "name": "flying",
+    "nameKo": "비행"
+  },
+  {
+    "id": 4,
+    "name": "poison",
+    "nameKo": "독"
+  },
+  {
+    "id": 5,
+    "name": "ground",
+    "nameKo": "땅"
+  },
+  {
+    "id": 6,
+    "name": "rock",
+    "nameKo": "바위"
+  },
+  {
+    "id": 7,
+    "name": "bug",
+    "nameKo": "벌레"
+  },
+  {
+    "id": 8,
+    "name": "ghost",
+    "nameKo": "고스트"
+  },
+  {
+    "id": 9,
+    "name": "steel",
+    "nameKo": "강철"
+  },
+  {
+    "id": 10,
+    "name": "fire",
+    "nameKo": "불꽃"
+  },
+  {
+    "id": 11,
+    "name": "water",
+    "nameKo": "물"
+  },
+  {
+    "id": 12,
+    "name": "grass",
+    "nameKo": "풀"
+  },
+  {
+    "id": 13,
+    "name": "electric",
+    "nameKo": "전기"
+  },
+  {
+    "id": 14,
+    "name": "psychic",
+    "nameKo": "에스퍼"
+  },
+  {
+    "id": 15,
+    "name": "ice",
+    "nameKo": "얼음"
+  },
+  {
+    "id": 16,
+    "name": "dragon",
+    "nameKo": "드래곤"
+  },
+  {
+    "id": 17,
+    "name": "dark",
+    "nameKo": "악"
+  },
+  {
+    "id": 18,
+    "name": "fairy",
+    "nameKo": "페어리"
+  }
+]
