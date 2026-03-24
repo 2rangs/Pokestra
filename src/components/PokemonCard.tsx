@@ -1,6 +1,7 @@
 import { usePokemonDetail } from "../hooks/usePokemon"
 import { useInView } from "../hooks/useInView"
 import {TypeIcon} from "./TypeIcon.tsx";
+import { useNavigate } from "react-router-dom"
 
 type PokemonListItem = { name: string; url: string }
 
@@ -15,6 +16,7 @@ function BadgeSkeleton() {
 
 export function PokemonCard({ p }: { p: PokemonListItem }) {
     const { ref, inView } = useInView<HTMLDivElement>({ rootMargin: "200px" })
+    const navigate = useNavigate()
     const id = getPokemonId(p.url)
     const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
 
@@ -30,6 +32,7 @@ export function PokemonCard({ p }: { p: PokemonListItem }) {
         <div
             ref={ref}
             className="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-4 flex flex-col items-center"
+            onClick={() => {navigate(`/pokemon/${id}`)}}
         >
             {/* 이미지: inView 전엔 굳이 로드 안 시켜도 되지만, 브라우저 lazy로도 충분 */}
             <img
