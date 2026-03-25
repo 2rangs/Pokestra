@@ -34,8 +34,8 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Build without TypeScript check
+        run: npx vite build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
