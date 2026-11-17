@@ -37,11 +37,15 @@ The UI is built on the [Astryx](https://astryx.atmeta.com) design system with it
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173/Pokestra/
+npm run dev      # http://localhost:5173/portfolio/pokestra/
 npm run build
 ```
 
 Requires Node 20.19+ (Vite 8).
+
+### Deployment
+
+The site is served at https://2rangs.github.io/portfolio/pokestra/. This repo has no deploy workflow of its own: the [2rangs.github.io](https://github.com/2rangs/2rangs.github.io) repo checks out this repo's `main`, builds it with `--base=/portfolio/pokestra/` and publishes it. That workflow runs on a push to its own `main`, every 6 hours, or by hand (Actions → "Deploy Vite site to Pages" → Run workflow).
 
 ### Data
 

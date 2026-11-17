@@ -10,5 +10,6 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
-  base: '/Pokestra/',
+  // 실제 서비스 주소: https://2rangs.github.io/portfolio/pokestra/ (2rangs.github.io 저장소가 빌드)
+  base: '/portfolio/pokestra/',
 })
