@@ -1,6 +1,12 @@
 # Pokestra
 
+**English** · [한국어](README.ko.md)
+
+![Pokestra home page: quick search, popular Pokémon and the Pokémon of the day](docs/screenshots/home-en.png)
+
 A Pokémon dex and battle site in **Korean, English and Japanese**. It covers every Pokémon from Gen 1 to 9, and its battles and damage calculations run on [`@kyasi/pokebattle-engine`](https://github.com/2rangs/pokebattle-engine).
+
+**Live site:** https://2rangs.github.io/portfolio/pokestra/
 
 ## Features
 
@@ -14,6 +20,8 @@ A Pokémon dex and battle site in **Korean, English and Japanese**. It covers ev
 | `/moves`, `/moves/:slug` | Move list with type/class/generation filters and power/accuracy/PP sorting; detail with description and learners |
 | `/abilities`, `/abilities/:slug` | Ability list and detail with description and Pokémon that have it |
 | `/sprites` | Sprite gallery (normal/shiny, sprite/official artwork) |
+
+![Pokédex with type, generation and learnable-move filters](docs/screenshots/pokedex-en.png)
 
 ## Languages
 
