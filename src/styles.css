@@ -1,0 +1,32 @@
+/*
+ * 전역 스타일: Astryx 디자인 시스템 (기본 neutral 테마) + Tailwind v4 브리지.
+ * 레이어 순서 선언이 가장 먼저 와야 하므로 main.tsx 의 첫 import 로 로드한다.
+ * 색/간격/글꼴은 모두 Astryx 토큰을 쓴다 (text-primary, bg-surface, border-border …).
+ */
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "@astryxdesign/core/reset.css";
+@import "@astryxdesign/core/astryx.css";
+@import "@astryxdesign/core/tailwind-theme.css";
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@layer base {
+    body {
+        margin: 0;
+        background: var(--color-background-body);
+        color: var(--color-text-primary);
+        font-family: var(--font-family-body);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}

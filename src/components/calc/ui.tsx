@@ -1,55 +1,56 @@
-import type { ReactNode } from 'react'
-import { typeNameKo } from '../../lib/battle'
+import { useEffect, useState } from 'react'
+import { Button } from '@astryxdesign/core/Button'
+import { Icon } from '@astryxdesign/core/Icon'
+import { Text } from '@astryxdesign/core/Text'
+import { damageClassName } from '../../lib/dex'
+import { useLang } from '../../i18n'
 
-export const inputCls =
-    'w-full min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-800 ' +
-    'focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-100 disabled:bg-slate-50 disabled:text-slate-400'
-
-export function FieldLabel({ label, children, className = '' }: { label: string; children: ReactNode; className?: string }) {
-    return (
-        <label className={`flex min-w-0 flex-col gap-1 ${className}`}>
-            <span className="text-[11px] font-semibold tracking-wide text-slate-500">{label}</span>
-            {children}
-        </label>
-    )
+/** 기술 분류 (물리/특수/변화): 보조 텍스트 */
+export function CategoryLabel({ category }: { category: string }) {
+    const lang = useLang()
+    return <Text type="supporting" color="secondary">{damageClassName(category, lang)}</Text>
 }
 
-export function TypeChip({ type, small = false }: { type: string; small?: boolean }) {
+/** 데미지 범위 막대: 진한 칸 = 최소 데미지, 옅은 칸 = 최대 데미지 */
+export function HpBar({ min, max, label, size = 'sm' }: { min: number; max: number; label: string; size?: 'sm' | 'md' }) {
+    const a = Math.min(100, Math.max(0, min * 100))
+    const b = Math.min(100, Math.max(0, max * 100))
     return (
         <span
-            className={`${type} inline-flex shrink-0 items-center gap-1 rounded-md font-bold leading-none text-white ${small ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-1 text-xs'}`}
-            style={type === 'stellar' ? { background: '#7c6cf0' } : undefined}
+            role="img" aria-label={label} title={label}
+            className={`relative block w-full overflow-hidden rounded-full bg-track ${size === 'md' ? 'h-3' : 'h-1.5'}`}
         >
-            {type !== 'stellar' && (
-                <img
-                    src={`${import.meta.env.BASE_URL}assets/types/${type}.svg`}
-                    alt=""
-                    className={small ? 'h-3 w-3' : 'h-4 w-4'}
-                />
-            )}
-            {typeNameKo(type)}
+            <span className="absolute inset-y-0 left-0 bg-error/35" style={{ width: `${b}%` }} />
+            <span className="absolute inset-y-0 left-0 bg-error" style={{ width: `${a}%` }} />
         </span>
     )
 }
 
-const CATEGORY_KO: Record<string, string> = { physical: '물리', special: '특수', status: '변화' }
-
-export function CategoryBadge({ category }: { category: string }) {
-    const cls = category === 'physical'
-        ? 'bg-orange-100 text-orange-700'
-        : category === 'special' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
-    return <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${cls}`}>{CATEGORY_KO[category] ?? category}</span>
-}
-
-export function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+/** 클립보드 복사 버튼 ("복사됨" 피드백) */
+export function CopyButton({ text, label, copiedLabel }: { text: string; label: string; copiedLabel: string }) {
+    const [copied, setCopied] = useState(false)
+    useEffect(() => {
+        if (!copied) return
+        const id = setTimeout(() => setCopied(false), 1500)
+        return () => clearTimeout(id)
+    }, [copied])
+    const copy = async () => {
+        try {
+            await navigator.clipboard.writeText(text)
+            setCopied(true)
+        } catch {
+            /* 클립보드 권한 없음: 무시 */
+        }
+    }
     return (
-        <label
-            className={`inline-flex cursor-pointer select-none items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
-                checked ? 'border-red-500 bg-red-500 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
-            }`}
-        >
-            <input type="checkbox" className="sr-only" checked={checked} onChange={e => onChange(e.target.checked)} />
-            {label}
-        </label>
+        <span aria-live="polite" className="shrink-0">
+            <Button
+                size="sm"
+                variant="secondary"
+                label={copied ? copiedLabel : label}
+                icon={<Icon icon={copied ? 'check' : 'copy'} />}
+                onClick={copy}
+            />
+        </span>
     )
 }

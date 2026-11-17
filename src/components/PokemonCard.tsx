@@ -1,14 +1,20 @@
 import { memo, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { ClickableCard } from "@astryxdesign/core/ClickableCard"
+import { Text } from "@astryxdesign/core/Text"
+import { VStack } from "@astryxdesign/core/VStack"
+import { HStack } from "@astryxdesign/core/HStack"
+import { type Lang, useLang, useT } from "../i18n"
+import { pokedexMessages } from "../i18n/messages/pokedex"
 import {
     type DexPokemon,
     baseStatTotal,
-    formLabelKo,
+    formLabel as getFormLabel,
     getSpeciesId,
-    getSpeciesSlug,
     officialArtworkUrl,
-    TYPE_NAME_KO,
+    pokemonName,
 } from "../lib/dex"
+import { TypeTag } from "./ui/shared"
+import { dexNumber } from "./pokedex/format"
 
 type Props = {
     pokemon: DexPokemon
@@ -16,77 +22,72 @@ type Props = {
     highlight?: { label: string; value: number }
 }
 
-function TypeChip({ type }: { type: string }) {
+/** 보조 이름: 한국어/일본어 화면에서는 영어 이름, 영어 화면에서는 일본어 이름 */
+function secondaryName(p: DexPokemon, lang: Lang): string {
+    return (lang === "en" ? p.nameJa : p.nameEn) ?? ""
+}
+
+/** 포켓몬 이미지: 공식 일러스트 → 도트 스프라이트 → 빈 칸 */
+export function PokemonImage({ p, className }: { p: DexPokemon; className: string }) {
+    const [stage, setStage] = useState<0 | 1 | 2>(0)
+    if (stage === 2 || (stage === 1 && !p.sprite)) {
+        return <span className={`${className} block rounded-full bg-muted`} aria-hidden />
+    }
+    if (stage === 1) {
+        return <img src={p.sprite ?? ""} alt="" loading="lazy" className={`${className} object-contain [image-rendering:pixelated]`} />
+    }
     return (
-        <span
-            className={`${type} inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-bold leading-none text-white`}
-        >
-            <img
-                src={`${import.meta.env.BASE_URL}assets/types/${type}.svg`}
-                alt=""
-                aria-hidden
-                className="h-3.5 w-3.5 shrink-0"
-            />
-            {TYPE_NAME_KO[type] ?? type}
-        </span>
+        <img
+            src={officialArtworkUrl(p.id)}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            width={96}
+            height={96}
+            onError={() => setStage(p.sprite ? 1 : 2)}
+            className={`${className} object-contain`}
+        />
     )
 }
 
 function PokemonCardImpl({ pokemon: p, highlight }: Props) {
-    const navigate = useNavigate()
-    const [imgFailed, setImgFailed] = useState(false)
-    const formLabel = formLabelKo(p)
-    const dexNo = getSpeciesId(p)
-    const stat = highlight ?? { label: "합계", value: baseStatTotal(p) }
+    const lang = useLang()
+    const t = useT(pokedexMessages)
+    const formLabel = getFormLabel(p, lang)
+    const name = pokemonName(p, lang)
+    const no = dexNumber(getSpeciesId(p))
+    const stat = highlight ?? { label: t("total"), value: baseStatTotal(p) }
+    const sub = secondaryName(p, lang)
 
     return (
-        <button
-            type="button"
-            onClick={() => navigate(`/pokemon/${p.id}`)}
-            className="group relative flex w-full flex-col items-center rounded-2xl border border-slate-200/80 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 sm:p-4"
-        >
-            <span className="absolute left-3 top-2.5 text-xs font-semibold tabular-nums text-slate-400">
-                #{String(dexNo).padStart(4, "0")}
-            </span>
-            {formLabel && (
-                <span className="absolute right-2.5 top-2 max-w-[55%] truncate rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
-                    {formLabel}
+        <ClickableCard href={`/pokemon/${p.id}`} label={`${no} ${name}${formLabel ? ` (${formLabel})` : ""}`} padding={3} className="h-full">
+            <VStack gap={2} hAlign="stretch">
+                <HStack justify="between" vAlign="center" gap={2}>
+                    <Text type="supporting" hasTabularNumbers>
+                        {no}
+                    </Text>
+                    <Text type="supporting" hasTabularNumbers>
+                        {stat.label} <Text type="supporting" color="primary" weight="semibold" hasTabularNumbers>{stat.value}</Text>
+                    </Text>
+                </HStack>
+                <span className="flex justify-center">
+                    <PokemonImage p={p} className="h-20 w-20 sm:h-24 sm:w-24" />
                 </span>
-            )}
-
-            <div className="mt-4 flex h-20 w-20 items-center justify-center sm:h-24 sm:w-24">
-                {imgFailed && !p.sprite ? (
-                    <span className="text-2xl text-slate-300" aria-hidden>?</span>
-                ) : imgFailed && p.sprite ? (
-                    <img src={p.sprite} alt={p.nameKo} className="h-16 w-16 object-contain [image-rendering:pixelated]" loading="lazy" />
-                ) : (
-                    <img
-                        src={officialArtworkUrl(p.id)}
-                        alt={p.nameKo}
-                        loading="lazy"
-                        decoding="async"
-                        width={96}
-                        height={96}
-                        onError={() => setImgFailed(true)}
-                        className="h-full w-full object-contain transition-transform group-hover:scale-105"
-                    />
-                )}
-            </div>
-
-            <h2 className="mt-2 w-full truncate text-center text-sm font-bold text-slate-900 sm:text-base">{p.nameKo}</h2>
-            <p className="w-full truncate text-center text-[11px] capitalize text-slate-400">{(formLabel ? p.name : getSpeciesSlug(p)).replace(/-/g, " ")}</p>
-
-            <div className="mt-2 flex min-h-[20px] flex-wrap justify-center gap-1">
-                {p.types.map((t) => (
-                    <TypeChip key={t} type={t} />
-                ))}
-            </div>
-
-            <div className="mt-2.5 flex w-full items-center justify-center gap-1.5 border-t border-slate-100 pt-2 text-[11px] text-slate-400">
-                <span>{stat.label}</span>
-                <span className="font-bold tabular-nums text-slate-700">{stat.value}</span>
-            </div>
-        </button>
+                <VStack gap={0.5}>
+                    <Text weight="semibold" maxLines={1}>
+                        {name}
+                    </Text>
+                    <Text type="supporting" maxLines={1}>
+                        {formLabel ?? <span lang={lang === "en" ? "ja" : "en"}>{sub || " "}</span>}
+                    </Text>
+                </VStack>
+                <HStack gap={1} wrap="wrap">
+                    {p.types.map((type) => (
+                        <TypeTag key={type} type={type} size="xs" />
+                    ))}
+                </HStack>
+            </VStack>
+        </ClickableCard>
     )
 }
 

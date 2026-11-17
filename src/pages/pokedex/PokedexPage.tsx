@@ -1,96 +1,92 @@
 import { type ReactNode, useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
+import { useSearchParams } from "react-router"
+import { Button } from "@astryxdesign/core/Button"
+import { Card } from "@astryxdesign/core/Card"
+import { EmptyState } from "@astryxdesign/core/EmptyState"
+import { Grid } from "@astryxdesign/core/Grid"
+import { Heading } from "@astryxdesign/core/Heading"
+import { HStack } from "@astryxdesign/core/HStack"
+import { Icon } from "@astryxdesign/core/Icon"
+import { SegmentedControl, SegmentedControlItem } from "@astryxdesign/core/SegmentedControl"
+import { Selector } from "@astryxdesign/core/Selector"
+import { Switch } from "@astryxdesign/core/Switch"
+import { Text } from "@astryxdesign/core/Text"
+import { TextInput } from "@astryxdesign/core/TextInput"
+import { ToggleButton } from "@astryxdesign/core/ToggleButton"
+import { VStack } from "@astryxdesign/core/VStack"
 import { PokemonCard } from "../../components/PokemonCard.tsx"
+import { MoveFilter } from "../../components/pokedex/MoveFilter"
+import { PokedexTable } from "../../components/pokedex/PokedexTable"
+import { exactMove, norm } from "../../components/pokedex/search"
+import { TypeIconDot } from "../../components/ui/shared"
+import { type Lang, collator, useDocumentTitle, useLang, useT } from "../../i18n"
+import { type PokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
 import {
     ALL_POKEMON,
     GENERATIONS,
-    MOVES,
-    MOVE_BY_NAME,
-    STAT_LABEL_KO,
     TYPES,
-    type DexMove,
     type DexPokemon,
     type StatKey,
     baseStatTotal,
+    displayName,
+    generationName,
     getGeneration,
     getSpeciesId,
     isAlternateForm,
+    searchKey,
+    statLabel,
+    typeName,
 } from "../../lib/dex"
-import { MAX_SELECTED_TYPES, type PokedexSortKey, usePokedexStore } from "../../stores/pokedexStore"
+import { MAX_SELECTED_TYPES, type PokedexSortKey, type SortDir, usePokedexStore } from "../../stores/pokedexStore"
 
 const PAGE_SIZE = 60
-const MAX_MOVE_SUGGESTIONS = 8
 
-const SORT_OPTIONS: { value: PokedexSortKey; label: string }[] = [
-    { value: "id", label: "도감번호" },
-    { value: "name", label: "이름" },
-    { value: "total", label: "종족값 합계" },
-    { value: "hp", label: "HP" },
-    { value: "attack", label: "공격" },
-    { value: "defense", label: "방어" },
-    { value: "spAtk", label: "특공" },
-    { value: "spDef", label: "특방" },
-    { value: "speed", label: "스피드" },
+/** 정렬 옵션 (라벨: 메시지 키 또는 스탯) */
+const SORT_OPTIONS: { value: PokedexSortKey; label: PokedexKey | StatKey }[] = [
+    { value: "id", label: "sortId" },
+    { value: "name", label: "sortName" },
+    { value: "total", label: "sortTotal" },
+    { value: "hp", label: "hp" },
+    { value: "attack", label: "attack" },
+    { value: "defense", label: "defense" },
+    { value: "spAtk", label: "spAtk" },
+    { value: "spDef", label: "spDef" },
+    { value: "speed", label: "speed" },
 ]
 
-const DAMAGE_CLASS_KO: Record<string, string> = { physical: "물리", special: "특수", status: "변화" }
+type View = "grid" | "table"
 
 // ── 검색 인덱스 (모듈 로드 시 1회) ──
 
 interface IndexedPokemon {
     p: DexPokemon
-    nameKo: string
-    nameEn: string
+    /** 모든 언어 이름 + slug 를 정규화한 문자열 */
+    key: string
     speciesId: number
     generation: number
     total: number
     isForm: boolean
 }
 
-const normalize = (s: string) => s.trim().toLowerCase().replace(/[\s_]+/g, "-")
-const normalizeKo = (s: string) => s.trim().toLowerCase().replace(/\s+/g, "")
-
 const INDEX: IndexedPokemon[] = ALL_POKEMON.map((p) => ({
     p,
-    nameKo: normalizeKo(p.nameKo),
-    nameEn: p.name,
+    key: searchKey(p)
+        .split(" ")
+        .map(norm)
+        .join(" "),
     speciesId: getSpeciesId(p),
     generation: getGeneration(p),
     total: baseStatTotal(p),
     isForm: isAlternateForm(p),
 }))
 
-const koCollator = new Intl.Collator("ko")
-
 function matchesName(e: IndexedPokemon, rawQuery: string): boolean {
     const q = rawQuery.trim()
     if (!q) return true
-    const num = q.replace(/^#/, "")
+    const num = q.replace(/^(#|no\.?)\s*/i, "")
     if (/^\d+$/.test(num)) return e.speciesId === Number(num)
-    return e.nameKo.includes(normalizeKo(q)) || e.nameEn.includes(normalize(q))
-}
-
-function findMoveSuggestions(query: string): DexMove[] {
-    const ko = normalizeKo(query)
-    const en = normalize(query)
-    if (!ko) return []
-    const starts: DexMove[] = []
-    const contains: DexMove[] = []
-    for (const m of MOVES) {
-        const mKo = normalizeKo(m.nameKo)
-        if (mKo.startsWith(ko) || m.name.startsWith(en)) starts.push(m)
-        else if (mKo.includes(ko) || m.name.includes(en)) contains.push(m)
-        if (starts.length >= MAX_MOVE_SUGGESTIONS) break
-    }
-    return [...starts, ...contains].slice(0, MAX_MOVE_SUGGESTIONS)
-}
-
-/** 입력이 기술 이름과 정확히 일치하면 그 기술 slug */
-function exactMove(query: string): string | null {
-    const ko = normalizeKo(query)
-    const en = normalize(query)
-    if (!ko) return null
-    if (MOVE_BY_NAME.has(en)) return en
-    return MOVES.find((m) => normalizeKo(m.nameKo) === ko)?.name ?? null
+    const n = norm(q)
+    return n === "" || e.key.includes(n)
 }
 
 function sortValue(e: IndexedPokemon, key: PokedexSortKey): number {
@@ -100,142 +96,64 @@ function sortValue(e: IndexedPokemon, key: PokedexSortKey): number {
     return e.p.stats[key]
 }
 
-// ── UI 조각 ──
+const STAT_KEY_SET: ReadonlySet<string> = new Set<StatKey>(["hp", "attack", "defense", "spAtk", "spDef", "speed"])
 
-function Chip({
-    active,
-    onClick,
+function sortLabel(label: PokedexKey | StatKey, lang: Lang, t: (k: PokedexKey) => string): string {
+    return STAT_KEY_SET.has(label) ? statLabel(label as StatKey, lang) : t(label as PokedexKey)
+}
+
+/** 필터 묶음: 소제목 + (선택) 해제 버튼 */
+function FilterGroup({
+    id,
+    label,
+    hint,
+    onClear,
+    clearLabel,
     children,
-    className = "",
 }: {
-    active: boolean
-    onClick: () => void
+    id: string
+    label: string
+    hint?: string
+    onClear?: () => void
+    clearLabel: string
     children: ReactNode
-    className?: string
 }) {
     return (
-        <button
-            type="button"
-            onClick={onClick}
-            aria-pressed={active}
-            className={[
-                "rounded-full border px-2.5 py-1 text-xs font-semibold transition",
-                active
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900",
-                className,
-            ].join(" ")}
-        >
+        <VStack gap={2} role="group" aria-labelledby={id}>
+            <HStack justify="between" vAlign="center" gap={2}>
+                <span>
+                    <Text type="label" id={id}>
+                        {label}
+                    </Text>{" "}
+                    {hint && <Text type="supporting">{hint}</Text>}
+                </span>
+                {onClear && <Button size="sm" variant="ghost" label={clearLabel} onClick={onClear} />}
+            </HStack>
             {children}
-        </button>
-    )
-}
-
-function SectionLabel({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
-    return (
-        <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500">{children}</span>
-            {aside}
-        </div>
-    )
-}
-
-function MoveFilter() {
-    const moveSearch = usePokedexStore((s) => s.moveSearch)
-    const selectedMove = usePokedexStore((s) => s.selectedMove)
-    const setMoveSearch = usePokedexStore((s) => s.setMoveSearch)
-    const setSelectedMove = usePokedexStore((s) => s.setSelectedMove)
-    const [open, setOpen] = useState(false)
-    const [active, setActive] = useState(0)
-
-    const suggestions = useMemo(
-        () => (selectedMove ? [] : findMoveSuggestions(moveSearch)),
-        [moveSearch, selectedMove],
-    )
-    const resolved = selectedMove ?? exactMove(moveSearch)
-    const resolvedMove = resolved ? MOVE_BY_NAME.get(resolved) : undefined
-    const showDropdown = open && suggestions.length > 0
-
-    const pick = (m: DexMove) => {
-        setSelectedMove(m.name, m.nameKo)
-        setOpen(false)
-    }
-
-    return (
-        <div className="relative">
-            <div className="relative">
-                <input
-                    type="search"
-                    value={moveSearch}
-                    placeholder="기술 이름 (예: 지진, earthquake)"
-                    onChange={(e) => {
-                        setMoveSearch(e.target.value)
-                        setActive(0)
-                        setOpen(true)
-                    }}
-                    onFocus={() => setOpen(true)}
-                    onBlur={() => setOpen(false)}
-                    onKeyDown={(e) => {
-                        if (!showDropdown) return
-                        if (e.key === "ArrowDown") {
-                            e.preventDefault()
-                            setActive((i) => (i + 1) % suggestions.length)
-                        } else if (e.key === "ArrowUp") {
-                            e.preventDefault()
-                            setActive((i) => (i - 1 + suggestions.length) % suggestions.length)
-                        } else if (e.key === "Enter") {
-                            e.preventDefault()
-                            pick(suggestions[Math.min(active, suggestions.length - 1)])
-                        } else if (e.key === "Escape") {
-                            setOpen(false)
-                        }
-                    }}
-                    role="combobox"
-                    aria-expanded={showDropdown}
-                    aria-autocomplete="list"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-100"
-                />
-            </div>
-            {resolvedMove && (
-                <p className="mt-1 text-[11px] text-slate-500">
-                    <span className="font-semibold text-red-500">{resolvedMove.nameKo}</span> 을(를) 배우는 포켓몬만 표시
-                </p>
-            )}
-            {!resolvedMove && moveSearch.trim() && !showDropdown && (
-                <p className="mt-1 text-[11px] text-slate-400">목록에서 기술을 선택하세요</p>
-            )}
-            {showDropdown && (
-                <ul
-                    role="listbox"
-                    className="absolute z-30 mt-1 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg"
-                >
-                    {suggestions.map((m, i) => (
-                        <li key={m.name} role="option" aria-selected={i === active}>
-                            <button
-                                type="button"
-                                onMouseDown={(e) => e.preventDefault()}
-                                onMouseEnter={() => setActive(i)}
-                                onClick={() => pick(m)}
-                                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${i === active ? "bg-slate-100" : ""}`}
-                            >
-                                <span className={`${m.type} h-2.5 w-2.5 shrink-0 rounded-full`} aria-hidden />
-                                <span className="font-semibold text-slate-800">{m.nameKo}</span>
-                                <span className="truncate text-xs text-slate-400">{m.name}</span>
-                                <span className="ml-auto shrink-0 text-[10px] text-slate-400">
-                                    {DAMAGE_CLASS_KO[m.damageClass] ?? m.damageClass}
-                                </span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+        </VStack>
     )
 }
 
 // ── Page ──
 
 export default function PokedexPage() {
+    const lang = useLang()
+    const t = useT(pokedexMessages)
+    useDocumentTitle(t("title"))
+
+    const [searchParams, setSearchParams] = useSearchParams()
+    const view: View = searchParams.get("view") === "table" ? "table" : "grid"
+    const setView = (v: View) =>
+        setSearchParams(
+            (prev) => {
+                const next = new URLSearchParams(prev)
+                if (v === "grid") next.delete("view")
+                else next.set("view", v)
+                return next
+            },
+            { replace: true },
+        )
+
     const nameSearch = usePokedexStore((s) => s.nameSearch)
     const moveSearch = usePokedexStore((s) => s.moveSearch)
     const selectedMove = usePokedexStore((s) => s.selectedMove)
@@ -258,9 +176,14 @@ export default function PokedexPage() {
     const resetFilters = usePokedexStore((s) => s.resetFilters)
 
     const [filtersOpen, setFiltersOpen] = useState(false)
+    // 초기화하면 기술 입력칸(자체 입력 상태를 가진 Typeahead)도 새로 그린다
+    const [moveFilterKey, setMoveFilterKey] = useState(0)
 
     const deferredName = useDeferredValue(nameSearch)
     const moveSlug = selectedMove ?? exactMove(moveSearch)
+
+    // 이름순 정렬용: 현재 언어의 표시 이름
+    const names = useMemo(() => new Map(INDEX.map((e) => [e.p.id, displayName(e.p, lang)])), [lang])
 
     const results = useMemo(() => {
         const gens = new Set(selectedGenerations)
@@ -268,26 +191,28 @@ export default function PokedexPage() {
             (e) =>
                 (includeForms || !e.isForm) &&
                 (gens.size === 0 || gens.has(e.generation)) &&
-                selectedTypes.every((t) => e.p.types.includes(t)) &&
+                selectedTypes.every((type) => e.p.types.includes(type)) &&
                 (!moveSlug || e.p.moves.includes(moveSlug)) &&
                 matchesName(e, deferredName),
         )
         const dir = sortDir === "asc" ? 1 : -1
+        const coll = collator(lang)
         filtered.sort((a, b) => {
             const primary =
                 sortKey === "name"
-                    ? koCollator.compare(a.p.nameKo, b.p.nameKo)
+                    ? coll.compare(names.get(a.p.id) ?? "", names.get(b.p.id) ?? "")
                     : sortValue(a, sortKey) - sortValue(b, sortKey)
             if (primary !== 0) return primary * dir
             // 동률이면 도감번호 → id 오름차순
             return a.speciesId - b.speciesId || a.p.id - b.p.id
         })
         return filtered
-    }, [selectedGenerations, includeForms, selectedTypes, moveSlug, deferredName, sortKey, sortDir])
+    }, [selectedGenerations, includeForms, selectedTypes, moveSlug, deferredName, sortKey, sortDir, lang, names])
 
     const visibleCount = Math.min(results.length, page * PAGE_SIZE)
     const visible = results.slice(0, visibleCount)
     const hasMore = visibleCount < results.length
+    const isSearching = deferredName !== nameSearch
 
     // 무한 스크롤: 하단 센티넬이 보이면 다음 페이지
     const sentinelRef = useRef<HTMLDivElement | null>(null)
@@ -309,205 +234,184 @@ export default function PokedexPage() {
 
     const activeFilterCount =
         selectedTypes.length + selectedGenerations.length + (moveSlug ? 1 : 0) + (includeForms ? 1 : 0)
-    const isDirty = activeFilterCount > 0 || nameSearch.trim() !== "" || moveSearch !== "" || sortKey !== "id" || sortDir !== "asc"
+    const isDirty =
+        activeFilterCount > 0 || nameSearch.trim() !== "" || moveSearch !== "" || selectedMove != null || sortKey !== "id" || sortDir !== "asc"
+
+    const reset = () => {
+        resetFilters()
+        setMoveFilterKey((k) => k + 1)
+        setFiltersOpen(false)
+    }
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-end justify-between gap-3">
-                <div>
-                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">포켓몬 도감</h1>
-                    <p className="mt-0.5 text-sm text-slate-500">이름·번호·타입·세대·기술로 찾아보세요</p>
-                </div>
-            </div>
+        <VStack gap={5}>
+            <VStack gap={1}>
+                <Heading level={1}>{t("title")}</Heading>
+                <Text color="secondary" as="p">
+                    {t("subtitle")}
+                </Text>
+            </VStack>
 
             {/* ── 검색/필터 패널 ── */}
-            <section className="space-y-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm sm:p-4">
-                <div className="flex gap-2">
-                    <div className="relative flex-1">
-                        <svg viewBox="0 0 20 20" fill="none" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden>
-                            <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="2" />
-                            <path d="m14 14 4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
-                        <input
-                            type="search"
-                            value={nameSearch}
-                            onChange={(e) => setNameSearch(e.target.value)}
-                            placeholder="이름 또는 번호 (피카츄, pikachu, 25)"
-                            aria-label="포켓몬 이름 또는 번호 검색"
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-100"
-                        />
-                    </div>
-                    <button
-                        type="button"
-                        onClick={() => setFiltersOpen((v) => !v)}
-                        aria-expanded={filtersOpen}
-                        className="relative shrink-0 rounded-xl border border-slate-200 px-3 text-sm font-semibold text-slate-700 md:hidden"
-                    >
-                        필터
-                        {activeFilterCount > 0 && (
-                            <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                                {activeFilterCount}
-                            </span>
-                        )}
-                    </button>
-                </div>
-
-                <div className={`${filtersOpen ? "block" : "hidden"} space-y-4 md:block`}>
-                    <div>
-                        <SectionLabel
-                            aside={
-                                selectedTypes.length > 0 && (
-                                    <button type="button" onClick={clearTypes} className="text-[11px] font-semibold text-slate-400 hover:text-red-500">
-                                        해제
-                                    </button>
-                                )
-                            }
-                        >
-                            타입 <span className="font-normal text-slate-400">(최대 {MAX_SELECTED_TYPES}개, 모두 가진 포켓몬)</span>
-                        </SectionLabel>
-                        <div className="grid grid-cols-6 gap-1.5 sm:grid-cols-9">
-                            {TYPES.map((t) => {
-                                const active = selectedTypes.includes(t.name)
-                                return (
-                                    <button
-                                        key={t.name}
-                                        type="button"
-                                        onClick={() => toggleType(t.name)}
-                                        aria-pressed={active}
-                                        className={[
-                                            "flex items-center justify-center gap-1 rounded-lg px-1 py-1.5 text-[11px] font-bold transition",
-                                            active
-                                                ? `${t.name} text-white shadow-sm ring-2 ring-slate-900/70 ring-offset-1`
-                                                : "bg-slate-100 text-slate-500 hover:bg-slate-200",
-                                        ].join(" ")}
-                                    >
-                                        <img
-                                            src={`${import.meta.env.BASE_URL}assets/types/${t.name}.svg`}
-                                            alt=""
-                                            aria-hidden
-                                            className={`hidden h-3.5 w-3.5 sm:block ${active ? "" : "opacity-60 invert"}`}
-                                        />
-                                        {t.nameKo}
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    </div>
-
-                    <div>
-                        <SectionLabel
-                            aside={
-                                selectedGenerations.length > 0 && (
-                                    <button type="button" onClick={clearGenerations} className="text-[11px] font-semibold text-slate-400 hover:text-red-500">
-                                        해제
-                                    </button>
-                                )
-                            }
-                        >
-                            세대
-                        </SectionLabel>
-                        <div className="flex flex-wrap gap-1.5">
-                            {GENERATIONS.map((g) => (
-                                <Chip key={g.id} active={selectedGenerations.includes(g.id)} onClick={() => toggleGeneration(g.id)}>
-                                    {g.nameKo}
-                                </Chip>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div>
-                            <SectionLabel>배울 수 있는 기술</SectionLabel>
-                            <MoveFilter />
-                        </div>
-                        <div>
-                            <SectionLabel>정렬</SectionLabel>
-                            <div className="flex gap-2">
-                                <select
-                                    value={sortKey}
-                                    onChange={(e) => setSortKey(e.target.value as PokedexSortKey)}
-                                    aria-label="정렬 기준"
-                                    className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-100"
-                                >
-                                    {SORT_OPTIONS.map((o) => (
-                                        <option key={o.value} value={o.value}>
-                                            {o.label}
-                                        </option>
-                                    ))}
-                                </select>
-                                <button
-                                    type="button"
-                                    onClick={() => setSortDir(sortDir === "asc" ? "desc" : "asc")}
-                                    className="shrink-0 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 hover:border-slate-300"
-                                    aria-label="정렬 방향 전환"
-                                >
-                                    {sortDir === "asc" ? "오름차순 ↑" : "내림차순 ↓"}
-                                </button>
-                            </div>
-                            <label className="mt-3 flex cursor-pointer select-none items-center gap-2 text-sm text-slate-700">
-                                <input
-                                    type="checkbox"
-                                    checked={includeForms}
-                                    onChange={(e) => setIncludeForms(e.target.checked)}
-                                    className="peer sr-only"
+            <Card>
+                <section aria-label={t("filters")}>
+                    <VStack gap={4}>
+                        <HStack gap={2} vAlign="end">
+                            <span className="min-w-0 flex-1">
+                                <TextInput
+                                    type="search"
+                                    label={t("searchLabel")}
+                                    isLabelHidden
+                                    value={nameSearch}
+                                    onChange={(v) => setNameSearch(v)}
+                                    placeholder={t("searchPlaceholder")}
+                                    enterKeyHint="search"
+                                    startIcon={<Icon icon="search" />}
+                                    hasClear
+                                    width="100%"
                                 />
-                                <span className="relative h-5 w-9 rounded-full bg-slate-200 transition peer-checked:bg-red-500 peer-focus-visible:ring-2 peer-focus-visible:ring-red-200 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow after:transition peer-checked:after:translate-x-4" />
-                                폼 포함 <span className="text-xs text-slate-400">(메가진화·리전폼 등)</span>
-                            </label>
+                            </span>
+                            <span className="md:hidden">
+                                <Button
+                                    icon={<Icon icon="funnel" />}
+                                    label={activeFilterCount > 0 ? `${t("filters")} ${activeFilterCount}` : t("filters")}
+                                    tooltip={activeFilterCount > 0 ? t("activeFilters", { n: activeFilterCount }) : undefined}
+                                    onClick={() => setFiltersOpen((v) => !v)}
+                                    aria-expanded={filtersOpen}
+                                    aria-controls="pokedex-filters"
+                                />
+                            </span>
+                        </HStack>
+
+                        <div id="pokedex-filters" className={`${filtersOpen ? "flex" : "hidden"} flex-col gap-5 md:flex`}>
+                            <FilterGroup
+                                id="pokedex-type-label"
+                                label={t("type")}
+                                hint={t("typeHint", { n: MAX_SELECTED_TYPES })}
+                                onClear={selectedTypes.length > 0 ? clearTypes : undefined}
+                                clearLabel={t("clearSelection")}
+                            >
+                                <Grid columns={{ minWidth: 104, repeat: "fill" }} gap={1.5}>
+                                    {TYPES.map((type) => (
+                                        <ToggleButton
+                                            key={type.name}
+                                            size="sm"
+                                            label={typeName(type.name, lang)}
+                                            icon={<TypeIconDot type={type.name} />}
+                                            isPressed={selectedTypes.includes(type.name)}
+                                            onPressedChange={() => toggleType(type.name)}
+                                            className="w-full justify-start"
+                                        >
+                                            {typeName(type.name, lang)}
+                                        </ToggleButton>
+                                    ))}
+                                </Grid>
+                            </FilterGroup>
+
+                            <FilterGroup
+                                id="pokedex-gen-label"
+                                label={t("generation")}
+                                onClear={selectedGenerations.length > 0 ? clearGenerations : undefined}
+                                clearLabel={t("clearSelection")}
+                            >
+                                <HStack gap={1.5} wrap="wrap">
+                                    {GENERATIONS.map((g) => (
+                                        <ToggleButton
+                                            key={g.id}
+                                            size="sm"
+                                            label={generationName(g.id, lang)}
+                                            isPressed={selectedGenerations.includes(g.id)}
+                                            onPressedChange={() => toggleGeneration(g.id)}
+                                        />
+                                    ))}
+                                </HStack>
+                            </FilterGroup>
+
+                            <Grid columns={{ minWidth: 280, repeat: "fit" }} gap={5}>
+                                <MoveFilter key={moveFilterKey} />
+                                <VStack gap={3}>
+                                    <HStack gap={2} vAlign="end" wrap="wrap">
+                                        <span className="min-w-40 flex-1">
+                                            <Selector
+                                                label={t("sortBy")}
+                                                value={sortKey}
+                                                onChange={(v) => setSortKey(v as PokedexSortKey)}
+                                                options={SORT_OPTIONS.map((o) => ({ value: o.value, label: sortLabel(o.label, lang, t) }))}
+                                                width="100%"
+                                            />
+                                        </span>
+                                        <SegmentedControl label={t("toggleSortDir")} value={sortDir} onChange={(v) => setSortDir(v as SortDir)}>
+                                            <SegmentedControlItem value="asc" label={t("asc")} icon={<Icon icon="arrowUp" size="sm" />} />
+                                            <SegmentedControlItem value="desc" label={t("desc")} icon={<Icon icon="arrowDown" size="sm" />} />
+                                        </SegmentedControl>
+                                    </HStack>
+                                    <Switch
+                                        label={t("includeForms")}
+                                        description={t("includeFormsHint")}
+                                        value={includeForms}
+                                        onChange={(v) => setIncludeForms(v)}
+                                    />
+                                </VStack>
+                            </Grid>
                         </div>
-                    </div>
-                </div>
-            </section>
+                    </VStack>
+                </section>
+            </Card>
 
             {/* ── 결과 헤더 ── */}
-            <div className="flex items-center justify-between gap-2">
-                <p className="text-sm text-slate-500">
-                    <span className="font-bold tabular-nums text-slate-900">{results.length.toLocaleString()}</span>마리
-                    {results.length > 0 && (
-                        <span className="text-slate-400"> · {visibleCount.toLocaleString()}마리 표시 중</span>
+            <HStack justify="between" vAlign="center" gap={2} wrap="wrap">
+                <span aria-live="polite" aria-atomic className={`flex flex-wrap items-baseline gap-x-3 ${isSearching ? "opacity-60" : ""}`}>
+                    <Text weight="semibold" hasTabularNumbers>
+                        {t("resultCount", { n: results.length })}
+                    </Text>
+                    {hasMore && (
+                        <Text type="supporting" hasTabularNumbers>
+                            {t("showingCount", { n: visibleCount })}
+                        </Text>
                     )}
-                </p>
-                <button
-                    type="button"
-                    onClick={() => {
-                        resetFilters()
-                        setFiltersOpen(false)
-                    }}
-                    disabled={!isDirty}
-                    className="rounded-lg px-2.5 py-1 text-sm font-semibold text-red-500 transition hover:bg-red-50 disabled:cursor-default disabled:text-slate-300 disabled:hover:bg-transparent"
-                >
-                    초기화
-                </button>
-            </div>
+                </span>
+                <HStack gap={2} vAlign="center">
+                    <Button variant="ghost" size="sm" label={t("reset")} onClick={reset} isDisabled={!isDirty} />
+                    <SegmentedControl size="sm" label={t("viewMode")} value={view} onChange={(v) => setView(v as View)}>
+                        <SegmentedControlItem value="grid" label={t("viewGrid")} />
+                        <SegmentedControlItem value="table" label={t("viewTable")} />
+                    </SegmentedControl>
+                </HStack>
+            </HStack>
 
-            {/* ── 결과 그리드 ── */}
+            {/* ── 결과 ── */}
             {results.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-white py-16 text-center text-sm text-slate-400">
-                    조건에 맞는 포켓몬이 없어요.
+                <EmptyState
+                    title={t("emptyTitle")}
+                    description={t("emptyBody")}
+                    headingLevel={2}
+                    actions={isDirty ? <Button variant="primary" label={t("reset")} onClick={reset} /> : undefined}
+                />
+            ) : view === "table" ? (
+                <div className={`transition-opacity ${isSearching ? "opacity-60" : ""}`}>
+                    <PokedexTable pokemon={visible.map((e) => e.p)} sortStat={sortKey === "total" ? "total" : highlightStat} />
                 </div>
             ) : (
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5">
-                    {visible.map((e) => (
-                        <PokemonCard
-                            key={e.p.id}
-                            pokemon={e.p}
-                            highlight={highlightStat ? { label: STAT_LABEL_KO[highlightStat], value: e.p.stats[highlightStat] } : undefined}
-                        />
-                    ))}
+                <div className={`transition-opacity ${isSearching ? "opacity-60" : ""}`}>
+                    <Grid columns={{ minWidth: 150, repeat: "fill" }} gap={3}>
+                        {visible.map((e) => (
+                            <PokemonCard
+                                key={e.p.id}
+                                pokemon={e.p}
+                                highlight={
+                                    highlightStat ? { label: statLabel(highlightStat, lang, true), value: e.p.stats[highlightStat] } : undefined
+                                }
+                            />
+                        ))}
+                    </Grid>
                 </div>
             )}
 
             {hasMore && (
                 <div ref={sentinelRef} className="flex justify-center pt-2">
-                    <button
-                        type="button"
-                        onClick={() => setPage(page + 1)}
-                        className="rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:border-slate-300"
-                    >
-                        더 보기 ({(results.length - visibleCount).toLocaleString()}마리 남음)
-                    </button>
+                    <Button label={t("loadMore", { n: results.length - visibleCount })} onClick={() => setPage(page + 1)} />
                 </div>
             )}
-        </div>
+        </VStack>
     )
 }

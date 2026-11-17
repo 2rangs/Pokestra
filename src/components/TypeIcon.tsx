@@ -1,30 +1,30 @@
-type Props = { types: string[] }
+import { useLang } from '../i18n'
+import { typeName } from '../lib/dex'
+import { TypeIconDot, TypeTag } from './ui/shared'
 
-export function TypeIcon({ types }: Props) {
+type Props = {
+    types: readonly string[]
+    /** 아이콘만 표시 (이름은 스크린리더용으로만) */
+    iconOnly?: boolean
+    size?: 'xs' | 'sm' | 'md' | 'lg'
+    className?: string
+}
+
+/** 타입 태그 묶음 (현재 언어의 타입 이름) */
+export function TypeIcon({ types, iconOnly = false, size = 'md', className = '' }: Props) {
+    const lang = useLang()
     return (
-        <div className="flex gap-1">
-            {types.map((type) => (
-                <div
-                    key={type}
-                    className={`
-            ${type}
-            inline-flex items-center gap-1
-            px-2 py-1
-            min-h-8
-            rounded-md
-            text-white text-xs font-bold uppercase
-            leading-none
-            whitespace-nowrap
-          `}
-                >
-                    <img
-                        src={`${import.meta.env.BASE_URL}assets/types/${type}.svg`}
-                        alt={type}
-                        className="w-5 h-5 shrink-0"
-                    />
-                    <span className="leading-none">{type}</span>
-                </div>
-            ))}
-        </div>
+        <span className={`flex flex-wrap gap-1.5 ${className}`}>
+            {types.map((type) => {
+                if (!iconOnly) return <TypeTag key={type} type={type} size={size} />
+                const label = typeName(type, lang)
+                return (
+                    <span key={type} title={label} className="inline-flex">
+                        <TypeIconDot type={type} className="h-5 w-5" />
+                        <span className="sr-only">{label}</span>
+                    </span>
+                )
+            })}
+        </span>
     )
 }

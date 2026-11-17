@@ -23,24 +23,47 @@ export interface PokemonMoveEntry {
     move: { name: string; url: string }
     version_group_details: {
         level_learned_at: number
-        move_learn_method: { name: string }
-        version_group: { name: string }
+        move_learn_method: { name: string; url?: string }
+        version_group: { name: string; url: string }
+        /** 일부 응답에만 있음 (레벨업 순서) */
+        order?: number | null
     }[]
 }
 
+/** 스프라이트 하나 (없으면 null) */
+type SpriteUrl = string | null | undefined
+
+export interface PokemonSprites {
+    front_default: SpriteUrl
+    back_default?: SpriteUrl
+    front_shiny?: SpriteUrl
+    back_shiny?: SpriteUrl
+    front_female?: SpriteUrl
+    front_shiny_female?: SpriteUrl
+    other?: {
+        'official-artwork'?: { front_default?: SpriteUrl; front_shiny?: SpriteUrl }
+        home?: { front_default?: SpriteUrl; front_shiny?: SpriteUrl; front_female?: SpriteUrl }
+        dream_world?: { front_default?: SpriteUrl; front_female?: SpriteUrl }
+    }
+    /** generation-i → { red-blue: { front_default, ... } } */
+    versions?: Record<string, Record<string, { front_default?: SpriteUrl } | null | undefined>>
+}
+
+/** PokeAPI `pokemon/{id}` 응답 (사용하는 필드 위주) */
 export interface PokemonDetail {
     id: number
     name: string
+    base_experience: number | null
     species: { name: string; url: string }
-    types: { type: { name: string } }[]
-    sprites: {
-        front_default: string
-        other: { 'official-artwork': { front_default: string } }
-    }
-    stats: { base_stat: number; stat: { name: string } }[]
-    abilities: { ability: { name: string }; is_hidden: boolean }[]
+    types: { slot: number; type: { name: string } }[]
+    sprites: PokemonSprites
+    stats: { base_stat: number; effort: number; stat: { name: string } }[]
+    abilities: { ability: { name: string }; is_hidden: boolean; slot: number }[]
+    held_items: { item: { name: string; url: string } }[]
     moves: PokemonMoveEntry[]
+    /** 데시미터 */
     height: number
+    /** 헥토그램 */
     weight: number
 }
 
@@ -141,16 +164,14 @@ export const useAllPokemonList = () =>
         staleTime: Infinity,
     })
 
+/** 포켓몬 상세 (id 또는 slug). `enabled` 가 false 면 요청하지 않는다 */
 export function usePokemonDetail(name: string, enabled = true) {
     return useQuery({
-        queryKey: ["pokemon-detail", name],
-        queryFn: async () => {
-            const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
-            if (!res.ok) throw new Error("Failed to fetch pokemon detail")
-            return res.json()
-        },
-        enabled,              // ✅ inView일 때만 실행
+        queryKey: ['pokemon-detail', name],
+        queryFn: () => api.get<PokemonDetail>(`pokemon/${name}`),
+        enabled: enabled && !!name,
         staleTime: 1000 * 60 * 10,
+        retry: (count, err) => count < 2 && !(err instanceof Error && err.message.endsWith('404')),
     })
 }
 export const usePokemonByType = (type: string | null) =>
@@ -190,7 +211,7 @@ export const usePokemonSpecies = (speciesId: number | undefined) =>
         staleTime: Infinity,
     })
 
-/** 특성 상세 (한글 이름 포함) */
+/** 특성 상세 (언어별 이름 포함) */
 export const useAbilityDetail = (name: string) =>
     useQuery({
         queryKey: ['ability', name],
@@ -199,7 +220,7 @@ export const useAbilityDetail = (name: string) =>
         staleTime: Infinity,
     })
 
-/** 기술 상세 (한글 이름, 타입, 위력 등) */
+/** 기술 상세 (언어별 이름, 타입, 위력 등) */
 export const useMoveDetail = (name: string) =>
     useQuery({
         queryKey: ['move-detail', name],
@@ -214,7 +235,7 @@ export const useEvolutionChain = (url: string | undefined) =>
         queryFn: async () => {
             const res = await fetch(url!)
             if (!res.ok) throw new Error(`API Error: ${res.status}`)
-            return res.json() as Promise<EvolutionChain>
+            return (await res.json()) as EvolutionChain
         },
         enabled: !!url,
         staleTime: Infinity,

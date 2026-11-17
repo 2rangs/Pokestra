@@ -1,76 +1,141 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { fixParticles, type BattleRequest, type PlayerID, type MoveOption } from '@kyasi/pokebattle-engine'
+import { Button } from '@astryxdesign/core/Button'
+import { Card } from '@astryxdesign/core/Card'
+import { Heading } from '@astryxdesign/core/Heading'
+import { HStack } from '@astryxdesign/core/HStack'
+import { VStack } from '@astryxdesign/core/VStack'
+import { Icon } from '@astryxdesign/core/Icon'
+import { ProgressBar } from '@astryxdesign/core/ProgressBar'
+import { Selector } from '@astryxdesign/core/Selector'
+import { Spinner } from '@astryxdesign/core/Spinner'
+import { Switch } from '@astryxdesign/core/Switch'
+import { Text } from '@astryxdesign/core/Text'
+import { Token } from '@astryxdesign/core/Token'
 import {
-    STATUS_NAME_KO, WEATHER_NAME_KO, TERRAIN_NAME_KO,
-    SIDE_CONDITION_KO, FIELD_CONDITION_KO, VOLATILE_NAME_KO,
-    type BattleRequest, type PlayerID, type MoveOption,
-} from '@kyasi/pokebattle-engine'
+    battleStatLabel, dexIdOf, itemName, moveNameL, abilityNameL, typeNameL,
+    spriteUrl, backSpriteUrl, artworkUrl,
+} from '../../lib/battle'
 import {
-    BATTLE_STAT_LABEL_KO, TYPE_COLOR, dexIdOf, itemNameKo, moveNameKo, pokemonNameKo, 
-    spriteUrl, backSpriteUrl, artworkUrl, abilityNameKo } from '../../lib/battle'
+    pokemonLabel, statusName, statusLongName, weatherName, terrainName, sideConditionName,
+    fieldConditionName, volatileName,
+} from '../../lib/battleLog'
+import { damageClassName } from '../../lib/dex'
+import { useDocumentTitle, useLang, useT, type Lang } from '../../i18n'
+import { battleMessages } from '../../i18n/messages/battle'
 import { TypeBadge } from '../../components/battle/TypeBadge'
-import type { BattleSession, PokeView, SideView } from './useBattleSession'
+import { cx } from '../../components/ui/utils'
+import { frameText, type BattleSession, type Frame, type PokeView, type SideView } from './useBattleSession'
 
-const STATUS_STYLE: Record<string, string> = {
-    burn: 'bg-orange-500', freeze: 'bg-cyan-400', paralysis: 'bg-yellow-400 text-yellow-900',
-    poison: 'bg-purple-500', toxic: 'bg-purple-700', sleep: 'bg-slate-400',
+type TokenColor = 'default' | 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'cyan' | 'blue' | 'purple' | 'pink' | 'gray'
+
+const STATUS_COLOR: Record<string, TokenColor> = {
+    burn: 'orange', freeze: 'cyan', paralysis: 'yellow', poison: 'purple', toxic: 'purple', sleep: 'gray',
 }
 
-function hpColor(ratio: number) {
-    return ratio > 0.5 ? 'bg-emerald-500' : ratio > 0.2 ? 'bg-amber-400' : 'bg-red-500'
+const SPEEDS = [
+    { value: 900, label: 'speedSlow' },
+    { value: 450, label: 'speedNormal' },
+    { value: 180, label: 'speedFast' },
+    { value: 40, label: 'speedVeryFast' },
+] as const
+
+const ratioOf = (p: { hp: number; max_hp: number }) => (p.max_hp ? Math.max(0, Math.min(1, p.hp / p.max_hp)) : 0)
+const pctOf = (p: { hp: number; max_hp: number }) => (p.hp > 0 ? Math.max(1, Math.ceil(ratioOf(p) * 100)) : 0)
+
+type Named = { species: string; nickname?: string | null; setSpecies?: string; set?: { species: string } }
+const nameOf = (p: Named, lang: Lang) => pokemonLabel(p.species, p.nickname, lang, p.setSpecies ?? p.set?.species)
+
+function useBattleT() {
+    return useT(battleMessages)
 }
 
-function displayName(p: PokeView) {
-    return p.nickname && p.nickname !== p.species ? p.nickname : pokemonNameKo(p.species)
-}
-
-// ─── 포켓몬 정보 카드 ─────────────────────────────────────────
-function StatusCard({ side, mine }: { side: SideView; mine: boolean }) {
-    const p = side.active
-    const ratio = p.max_hp ? p.hp / p.max_hp : 0
+function StatusToken({ status, lang }: { status: string; lang: Lang }) {
     return (
-        <div className="w-full max-w-[300px] rounded-2xl border border-slate-200 bg-white/95 p-3 shadow-md backdrop-blur">
-            <div className="flex items-center gap-1.5">
-                <span className="truncate font-bold text-slate-900">{displayName(p)}</span>
-                <span className="shrink-0 text-xs text-slate-400">Lv.{p.level}</span>
-                {p.status && (
-                    <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold text-white ${STATUS_STYLE[p.status] ?? 'bg-slate-500'}`}>
-                        {STATUS_NAME_KO[p.status]}
-                    </span>
-                )}
-                {p.terastallized && p.tera_type && <TypeBadge type={p.tera_type} size="xs" className="ring-2 ring-white/70" />}
-            </div>
-            <div className="mt-1 flex gap-1">{p.types.map(t => <TypeBadge key={t} type={t} size="xs" />)}</div>
-            <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-slate-200">
-                <div className={`h-full rounded-full transition-all duration-500 ease-out ${hpColor(ratio)}`} style={{ width: `${Math.max(0, ratio * 100)}%` }} />
-            </div>
-            <div className="mt-1 flex items-center justify-between text-xs">
-                <span className="tabular-nums text-slate-500">{mine ? `${p.hp} / ${p.max_hp}` : `${Math.ceil(ratio * 100)}%`}</span>
-                <PartyBalls side={side} />
-            </div>
-            {(Object.keys(p.stages).length > 0 || p.volatiles.length > 0) && (
-                <div className="mt-1.5 flex flex-wrap gap-1">
-                    {Object.entries(p.stages).map(([k, v]) => (
-                        <span key={k} className={`rounded px-1 text-[10px] font-semibold ${v > 0 ? 'bg-sky-100 text-sky-700' : 'bg-rose-100 text-rose-700'}`}>
-                            {BATTLE_STAT_LABEL_KO[k] ?? k} {v > 0 ? `+${v}` : v}
-                        </span>
-                    ))}
-                    {p.volatiles.filter(v => VOLATILE_NAME_KO[v]).map(v => (
-                        <span key={v} className="rounded bg-violet-100 px-1 text-[10px] font-semibold text-violet-700">{VOLATILE_NAME_KO[v]}</span>
-                    ))}
-                </div>
-            )}
-        </div>
+        <span title={statusLongName(status, lang)} className="inline-flex">
+            <Token size="sm" color={STATUS_COLOR[status] ?? 'gray'} label={statusName(status, lang)} description={statusLongName(status, lang)} />
+        </span>
     )
 }
 
-function PartyBalls({ side }: { side: SideView }) {
+/** HP 막대: 많으면 초록, 절반 이하 노랑, 1/5 이하 빨강 */
+function HpBar({ p, label }: { p: { hp: number; max_hp: number }; label: string }) {
+    const ratio = ratioOf(p)
     return (
-        <span className="flex gap-0.5" aria-label="파티 상태">
+        <ProgressBar
+            label={label}
+            isLabelHidden
+            value={pctOf(p)}
+            max={100}
+            variant={ratio > 0.5 ? 'success' : ratio > 0.2 ? 'warning' : 'error'}
+        />
+    )
+}
+
+// ─── 필드 위 포켓몬 카드 ─────────────────────────────────────
+function Combatant({ side, exact, back }: { side: SideView; exact: boolean; back: boolean }) {
+    const lang = useLang()
+    const t = useBattleT()
+    const p = side.active
+    const name = nameOf(p, lang)
+    const volatiles = p.volatiles.map(v => [v, volatileName(v, lang)] as const).filter(([, n]) => n)
+    const hpText = exact ? `${p.hp} / ${p.max_hp}` : `${pctOf(p)}%`
+
+    const info = (
+        <VStack gap={1.5} className="min-w-0 flex-1">
+            <HStack gap={1.5} vAlign="center" wrap="wrap">
+                <Text weight="semibold" maxLines={1}>{name}</Text>
+                <Text type="supporting" color="secondary">{t('level', { n: p.level })}</Text>
+                {p.status && <StatusToken status={p.status} lang={lang} />}
+            </HStack>
+            <HStack gap={1} wrap="wrap">
+                {p.terastallized && p.tera_type
+                    ? <TypeBadge type={p.tera_type} size="xs" title={t('tera')} />
+                    : p.types.map(ty => <TypeBadge key={ty} type={ty} size="xs" />)}
+            </HStack>
+            <HpBar p={p} label={exact ? t('hpLabel', { hp: p.hp, max: p.max_hp }) : t('hpPercent', { pct: pctOf(p) })} />
+            <HStack gap={2} vAlign="center" hAlign="between">
+                <Text type="supporting" weight="medium" hasTabularNumbers>{hpText}</Text>
+                <PartyDots side={side} />
+            </HStack>
+            {(Object.keys(p.stages).length > 0 || volatiles.length > 0) && (
+                <HStack gap={1} wrap="wrap">
+                    {Object.entries(p.stages).map(([k, v]) => (
+                        <Token key={k} size="sm" color={v > 0 ? 'blue' : 'red'} label={`${battleStatLabel(k, lang)} ${v > 0 ? `+${v}` : v}`} />
+                    ))}
+                    {volatiles.map(([v, n]) => <Token key={v} size="sm" color="purple" label={n!} />)}
+                </HStack>
+            )}
+        </VStack>
+    )
+
+    return (
+        <section aria-label={name} className="w-full max-w-md min-w-0">
+            <Card padding={3}>
+                <HStack gap={3} vAlign="center">
+                    {back && <Sprite p={p} back />}
+                    {info}
+                    {!back && <Sprite p={p} back={false} />}
+                </HStack>
+            </Card>
+        </section>
+    )
+}
+
+function PartyDots({ side }: { side: SideView }) {
+    const lang = useLang()
+    const t = useBattleT()
+    const summary = side.team.map(p => `${nameOf(p, lang)} ${p.fainted ? t('fainted') : `${pctOf(p)}%`}`).join(', ')
+    return (
+        <span className="flex gap-1" role="img" aria-label={`${t('partyStatus')}: ${summary}`}>
             {side.team.map(p => (
                 <span
                     key={p.id}
-                    title={`${displayName(p)} ${p.fainted ? '(기절)' : `${Math.ceil(p.hp / p.max_hp * 100)}%`}`}
-                    className={`h-2.5 w-2.5 rounded-full border ${p.fainted ? 'border-slate-300 bg-slate-300' : p.status ? 'border-amber-500 bg-amber-300' : 'border-red-500 bg-red-400'}`}
+                    title={`${nameOf(p, lang)} ${p.fainted ? `(${t('fainted')})` : `${pctOf(p)}%`}${p.status ? `, ${statusLongName(p.status, lang)}` : ''}`}
+                    className={cx(
+                        'h-2.5 w-2.5 rounded-full border',
+                        p.fainted ? 'border-border bg-muted' : p.status ? 'border-warning bg-warning' : 'border-success bg-success',
+                    )}
                 />
             ))}
         </span>
@@ -78,84 +143,94 @@ function PartyBalls({ side }: { side: SideView }) {
 }
 
 function Sprite({ p, back }: { p: PokeView; back: boolean }) {
+    const lang = useLang()
     const id = dexIdOf(p.species)
     // 실패한 URL 단계 (0: 기본, 1: 정면 도트, 2: 공식 아트워크)
     const [fallback, setFallback] = useState<{ key: string; step: number }>({ key: '', step: 0 })
     const key = `${p.species}-${back}`
     const step = fallback.key === key ? fallback.step : 0
-    if (!id) return <div className="h-28 w-28" />
+    const box = 'h-20 w-20 shrink-0 sm:h-28 sm:w-28'
+    if (!id) return <span className={box} />
     const candidates = back ? [backSpriteUrl(id), spriteUrl(id), artworkUrl(id)] : [spriteUrl(id), artworkUrl(id)]
     const src = candidates[Math.min(step, candidates.length - 1)]!
     return (
         <img
             key={p.id}
             src={src}
-            alt={displayName(p)}
-            onError={() => setFallback({ key, step: step + 1 })}
-            className={`h-28 w-28 object-contain transition-all duration-300 sm:h-36 sm:w-36 [image-rendering:pixelated] ${p.fainted ? 'translate-y-6 opacity-0' : 'opacity-100'}`}
+            alt={nameOf(p, lang)}
+            onError={() => step < candidates.length - 1 && setFallback({ key, step: step + 1 })}
+            className={cx(box, 'object-contain transition-all duration-300 [image-rendering:pixelated]', p.fainted ? 'translate-y-4 opacity-0' : 'opacity-100')}
         />
     )
 }
 
-// ─── 필드 정보 ───────────────────────────────────────────────
-function FieldBar({ session }: { session: BattleSession }) {
-    const f = session.current
-    if (!f) return null
-    const chips: { label: string; tone: string }[] = []
-    if (f.weather) chips.push({ label: WEATHER_NAME_KO[f.weather] ?? f.weather, tone: 'bg-sky-100 text-sky-700' })
-    if (f.terrain) chips.push({ label: TERRAIN_NAME_KO[f.terrain] ?? f.terrain, tone: 'bg-emerald-100 text-emerald-700' })
-    for (const c of f.field) chips.push({ label: FIELD_CONDITION_KO[c] ?? c, tone: 'bg-fuchsia-100 text-fuchsia-700' })
+// ─── 필드 상태 (날씨, 필드, 진영 효과) ─────────────────────────
+function FieldTokens({ f }: { f: Frame }) {
+    const lang = useLang()
+    const t = useBattleT()
+    const tokens: { label: string; color: TokenColor }[] = []
+    if (f.weather) tokens.push({ label: weatherName(f.weather, lang), color: 'blue' })
+    if (f.terrain) tokens.push({ label: terrainName(f.terrain, lang), color: 'green' })
+    for (const c of f.field) tokens.push({ label: fieldConditionName(c, lang), color: 'pink' })
     const side = (s: SideView, label: string) => s.conditions.filter(c => c.id !== 'wish').map(c => ({
-        label: `${label} ${SIDE_CONDITION_KO[c.id] ?? c.id}${c.layers > 1 ? `×${c.layers}` : ''}`,
-        tone: 'bg-amber-100 text-amber-800',
+        label: `${label} ${sideConditionName(c.id, lang)}${c.layers > 1 ? `×${c.layers}` : ''}`,
+        color: 'orange' as const,
     }))
-    chips.push(...side(f.p2, '상대'), ...side(f.p1, '우리'))
+    tokens.push(...side(f.p2, t('sideFoe')), ...side(f.p1, t('sideOurs')))
     return (
-        <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <span className="rounded-full bg-slate-900 px-2 py-0.5 font-bold text-white">{f.turn}턴</span>
-            {chips.map((c, i) => <span key={i} className={`rounded-full px-2 py-0.5 font-semibold ${c.tone}`}>{c.label}</span>)}
-        </div>
+        <HStack gap={2} vAlign="center" wrap="wrap">
+            <Heading level={2}>{t('turn', { n: f.turn })}</Heading>
+            {tokens.map((c, i) => <Token key={i} size="sm" color={c.color} label={c.label} />)}
+        </HStack>
     )
 }
 
 // ─── 기술 선택 ───────────────────────────────────────────────
-function MoveButton({ opt, preview, onClick, disabled }: {
+function MoveButton({ opt, preview, onClick }: {
     opt: MoveOption
     preview: { text: string; eff: number } | null
     onClick: () => void
-    disabled: boolean
 }) {
+    const lang = useLang()
+    const t = useBattleT()
     const m = opt.move
-    const color = TYPE_COLOR[m.type] ?? '#94a3b8'
-    const effLabel = preview ? preview.eff === 0 ? '효과 없음' : preview.eff >= 2 ? '효과 굉장' : preview.eff < 1 ? '효과 별로' : '' : ''
+    const effLabel = preview ? preview.eff === 0 ? t('effNone') : preview.eff >= 2 ? t('effSuper') : preview.eff < 1 ? t('effWeak') : '' : ''
+    const name = moveNameL(opt.index === -1 ? 'struggle' : m.name, lang)
+    const meta = m.category === 'status' ? damageClassName('status', lang) : `${damageClassName(m.category, lang)} ${m.power ?? '-'}`
+    const pp = `PP ${opt.pp}/${opt.max_pp}`
+    const a11y = [
+        name, typeNameL(m.type, lang), meta, pp,
+        preview && [effLabel, t('damagePreview', { range: preview.text })].filter(Boolean).join(' '),
+        opt.disabled_reason,
+    ].filter(Boolean).join(', ')
+    const effTone = !preview ? '' : preview.eff >= 2 ? 'text-error font-semibold' : preview.eff === 0 || preview.eff < 1 ? 'text-secondary' : 'text-primary'
     return (
-        <button
-            type="button"
-            disabled={disabled || opt.disabled}
-            onClick={onClick}
-            title={opt.disabled_reason}
-            className="group relative flex min-h-[64px] flex-col justify-between overflow-hidden rounded-xl border-2 bg-white px-3 py-2 text-left transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
-            style={{ borderColor: color }}
+        <Button
+            label={a11y}
+            width="100%"
+            isDisabled={opt.disabled}
+            tooltip={opt.disabled_reason}
+            onClick={() => { if (!opt.disabled) onClick() }}
+            className="h-auto min-h-16 justify-start py-2 text-left [&>span]:w-full [&>span>span]:w-full"
         >
-            <span className="absolute inset-y-0 left-0 w-1.5" style={{ background: color }} />
-            <span className="flex items-center justify-between gap-2">
-                <span className="truncate font-bold text-slate-900">{opt.index === -1 ? '발버둥' : moveNameKo(m.name)}</span>
-                <TypeBadge type={m.type} size="xs" />
+            <span className="flex w-full min-w-0 flex-col gap-1">
+                <span className="flex min-w-0 items-center justify-between gap-2">
+                    <span className="truncate font-semibold">{name}</span>
+                    <TypeBadge type={m.type} size="xs" />
+                </span>
+                <span className="flex flex-wrap items-center justify-between gap-x-2 text-xs font-normal">
+                    <span className="flex gap-2 text-secondary"><span>{meta}</span><span className="tabular-nums">{pp}</span></span>
+                    {preview && <span className={cx('tabular-nums', effTone)}>{effLabel && `${effLabel} `}{preview.text}</span>}
+                </span>
+                {opt.disabled_reason && <span className="truncate text-xs font-normal text-error">{opt.disabled_reason}</span>}
             </span>
-            <span className="flex items-center justify-between gap-2 text-[11px] text-slate-500">
-                <span>{m.category === 'status' ? '변화' : `${m.category === 'physical' ? '물리' : '특수'} ${m.power ?? '-'}`} · PP {opt.pp}/{opt.max_pp}</span>
-                {preview && (
-                    <span className={`font-semibold ${preview.eff >= 2 ? 'text-red-600' : preview.eff === 0 ? 'text-slate-400' : preview.eff < 1 ? 'text-sky-600' : 'text-slate-600'}`}>
-                        {effLabel && `${effLabel} · `}{preview.text}
-                    </span>
-                )}
-            </span>
-            {opt.disabled_reason && <span className="text-[10px] text-red-500">{opt.disabled_reason}</span>}
-        </button>
+        </Button>
     )
 }
 
 function ActionPanel({ session, player }: { session: BattleSession; player: PlayerID }) {
+    const lang = useLang()
+    const t = useBattleT()
     const req = session.request(player)
     // 턴이 바뀌면 부모가 key 로 다시 마운트 → 테라스탈 토글 초기화
     const [tera, setTera] = useState(false)
@@ -170,204 +245,285 @@ function ActionPanel({ session, player }: { session: BattleSession; player: Play
             if (!r) continue
             if (r.max === 0) { out[opt.index] = { text: '0%', eff: r.effectiveness }; continue }
             const pct = (n: number) => Math.min(100, Math.round(n))
-            out[opt.index] = { text: `${pct(r.minPercent)}~${pct(r.maxPercent)}%`, eff: r.effectiveness }
+            out[opt.index] = { text: `${pct(r.minPercent)}–${pct(r.maxPercent)}%`, eff: r.effectiveness }
         }
         return out
     }, [engine, req, player, tera])
 
     if (!req) {
+        const ended = session.phase === 'ended'
         return (
-            <div className="flex h-full min-h-[120px] items-center justify-center text-sm text-slate-400">
-                {session.phase === 'ended' ? '배틀 종료' : session.allRevealed ? '상대의 행동을 기다리는 중…' : '진행 중…'}
-            </div>
+            <span role="status" className="flex min-h-30 items-center justify-center gap-2">
+                {!ended && <Spinner size="sm" aria-label={t('inProgress')} />}
+                <Text color="secondary">{ended ? t('battleEnded') : session.allRevealed ? t('waitingFoe') : t('inProgress')}</Text>
+            </span>
         )
     }
 
     const switchAction = (id: string) => session.submit({ type: 'switch', player, pokemon_id: req.active.id, switch_to_id: id })
+    const activeName = nameOf(req.active, lang)
+    const prompt = t('whatWillDo', { name: activeName })
 
     return (
-        <div className="space-y-3">
+        <VStack gap={4}>
             {req.type === 'move' && (
-                <>
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm font-semibold text-slate-700">{req.active.nickname !== req.active.species ? req.active.nickname : pokemonNameKo(req.active.species)}은(는) 무엇을 할까?</p>
+                <VStack gap={3}>
+                    <HStack gap={3} vAlign="center" hAlign="between" wrap="wrap">
+                        <Text weight="semibold">{lang === 'ko' ? fixParticles(prompt) : prompt}</Text>
                         {req.can_terastallize && (
-                            <label className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition ${tera ? 'bg-gradient-to-r from-fuchsia-500 to-sky-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                                <input type="checkbox" className="sr-only" checked={tera} onChange={e => setTera(e.target.checked)} />
-                                ✦ 테라스탈 ({req.active.tera_type && <TypeBadge type={req.active.tera_type} size="xs" />})
-                            </label>
+                            <HStack gap={2} vAlign="center">
+                                <Switch label={t('terastallize')} value={tera} onChange={setTera} size="sm" />
+                                {req.active.tera_type && <TypeBadge type={req.active.tera_type} size="xs" />}
+                            </HStack>
                         )}
-                    </div>
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    </HStack>
+                    <div role="group" aria-label={t('moves')} className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
                         {req.moves.map(opt => (
                             <MoveButton
                                 key={opt.index}
                                 opt={opt}
                                 preview={previews[opt.index] ?? null}
-                                disabled={false}
                                 onClick={() => session.submit({ type: 'move', player, pokemon_id: req.active.id, move_index: opt.index, terastallize: tera || undefined })}
                             />
                         ))}
                     </div>
-                    {req.forced && <p className="text-xs text-slate-400">이번 턴은 기술이 고정되어 있습니다.</p>}
-                </>
+                    {req.forced && <Text type="supporting" color="secondary">{t('movesLocked')}</Text>}
+                </VStack>
             )}
             {req.type === 'switch' && (
-                <p className="text-sm font-semibold text-slate-700">
-                    {req.reason === 'faint' ? '다음 포켓몬을 내보내세요!' : '교체할 포켓몬을 고르세요!'}
-                </p>
+                <Text weight="semibold">{req.reason === 'faint' ? t('switchFaint') : t('switchPick')}</Text>
             )}
             <SwitchList req={req} onSwitch={switchAction} />
-        </div>
+        </VStack>
     )
 }
 
 function SwitchList({ req, onSwitch }: { req: BattleRequest; onSwitch: (id: string) => void }) {
+    const lang = useLang()
+    const t = useBattleT()
     if (req.switches.length === 0) return null
     return (
-        <div>
-            {req.type === 'move' && <p className="mb-1 text-xs font-semibold text-slate-400">교체</p>}
-            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        <VStack gap={1.5}>
+            {req.type === 'move' && <Text type="label" color="secondary">{t('switchHeading')}</Text>}
+            <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                 {req.switches.map(p => {
                     const id = dexIdOf(p.species)
-                    const ratio = p.hp / p.max_hp
+                    const name = nameOf(p, lang)
                     return (
-                        <button key={p.id} type="button" onClick={() => onSwitch(p.id)}
-                            className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2 py-1.5 text-left hover:border-red-300 hover:bg-red-50">
-                            {id && <img src={spriteUrl(id)} alt="" className="h-9 w-9 shrink-0 object-contain [image-rendering:pixelated]" />}
-                            <span className="min-w-0 flex-1">
-                                <span className="block truncate text-xs font-bold text-slate-800">{p.nickname !== p.species ? p.nickname : pokemonNameKo(p.species)}</span>
-                                <span className="mt-0.5 block h-1.5 overflow-hidden rounded-full bg-slate-200">
-                                    <span className={`block h-full ${hpColor(ratio)}`} style={{ width: `${ratio * 100}%` }} />
+                        <li key={p.id} className="min-w-0">
+                            <Button
+                                variant="ghost"
+                                width="100%"
+                                label={`${t('switchTo', { name })} (${pctOf(p)}%${p.status ? `, ${statusLongName(p.status, lang)}` : ''})`}
+                                onClick={() => onSwitch(p.id)}
+                                className="h-auto justify-start border border-border py-1 text-left [&>span]:w-full [&>span>span]:w-full"
+                            >
+                                <span className="flex w-full min-w-0 items-center gap-2">
+                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center">
+                                        {id && <img src={spriteUrl(id)} alt="" className="h-9 w-9 object-contain [image-rendering:pixelated]" />}
+                                    </span>
+                                    <span className="flex min-w-0 flex-1 flex-col gap-1">
+                                        <span className="flex min-w-0 items-center gap-1.5">
+                                            <span className="truncate text-sm font-semibold">{name}</span>
+                                            {p.status && <StatusToken status={p.status} lang={lang} />}
+                                        </span>
+                                        <HpBar p={p} label={t('hpLabel', { hp: p.hp, max: p.max_hp })} />
+                                    </span>
+                                    <span className="w-9 shrink-0 text-right text-xs font-normal tabular-nums text-secondary">{pctOf(p)}%</span>
                                 </span>
-                                {p.status && <span className="text-[10px] text-slate-500">{STATUS_NAME_KO[p.status]}</span>}
-                            </span>
-                        </button>
+                            </Button>
+                        </li>
                     )
                 })}
-            </div>
-        </div>
+            </ul>
+        </VStack>
     )
 }
 
 // ─── 로그 ────────────────────────────────────────────────────
-function BattleLog({ session }: { session: BattleSession }) {
+function BattleLog({ session, sideName }: { session: BattleSession; sideName?: (p: PlayerID) => string }) {
+    const lang = useLang()
+    const t = useBattleT()
     const ref = useRef<HTMLDivElement>(null)
-    const lines = session.frames.slice(0, session.revealed).filter(f => f.text)
+    const { frames, revealed } = session
+    // 문장은 현재 언어로 그릴 때마다 만든다 → 언어를 바꾸면 지난 로그도 바뀐다
+    const lines = useMemo(
+        () => frames.slice(0, revealed)
+            .map(f => ({ f, text: frameText(f, lang, sideName) }))
+            .filter((x): x is { f: Frame; text: string } => x.text !== null),
+        [frames, revealed, lang, sideName],
+    )
     useEffect(() => {
         const el = ref.current
         if (el) el.scrollTop = el.scrollHeight
     }, [lines.length])
     return (
-        <div ref={ref} className="h-64 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 text-sm leading-relaxed lg:h-[calc(100%-2rem)]">
-            {lines.map(f => {
-                const e = f.event
-                if (e.type === 'turn_start') return <div key={f.index} className="mt-2 mb-1 border-b border-slate-100 pb-0.5 text-xs font-bold text-slate-400">{f.text}</div>
-                const tone = e.type === 'move_use' ? 'font-semibold text-slate-900'
-                    : e.type === 'faint' ? 'font-semibold text-red-600'
-                        : e.type === 'battle_end' ? 'mt-2 text-base font-extrabold text-red-600'
-                            : e.type === 'damage' && (e.effectiveness ?? 1) > 1 ? 'text-orange-700'
-                                : 'text-slate-600'
-                return <div key={f.index} className={tone}>{f.text}</div>
-            })}
+        <div
+            ref={ref}
+            role="log"
+            aria-live="polite"
+            aria-label={t('battleLog')}
+            tabIndex={0}
+            className="h-72 overflow-y-auto overscroll-contain rounded-md border border-border bg-surface px-3 py-2 text-sm lg:h-160"
+        >
+            {lines.length === 0 && <Text color="secondary">{t('logEmpty')}</Text>}
+            <ul className="flex flex-col gap-0.5">
+                {lines.map(({ f, text }) => {
+                    const e = f.event
+                    if (e.type === 'turn_start') {
+                        return (
+                            <li key={f.index} className="mt-3 border-t border-border pt-2 first:mt-0 first:border-t-0 first:pt-0">
+                                <Text type="label" color="secondary">{text}</Text>
+                            </li>
+                        )
+                    }
+                    const key = e.type === 'faint' || (e.type === 'damage' && (e.crit || (e.effectiveness ?? 1) > 1))
+                    const tone = e.type === 'battle_end' ? 'mt-2 font-bold text-accent'
+                        : key ? 'font-medium text-error'
+                            : e.type === 'move_use' ? 'font-semibold text-primary'
+                                : 'text-secondary'
+                    return <li key={f.index} className={tone}>{text}</li>
+                })}
+            </ul>
+        </div>
+    )
+}
+
+// ─── 결과 ────────────────────────────────────────────────────
+function ResultOverlay({ result, onRematch, onExit }: { result: string; onRematch: () => void; onExit: () => void }) {
+    const t = useBattleT()
+    const ref = useRef<HTMLDivElement>(null)
+    useEffect(() => { ref.current?.querySelector('button')?.focus() }, [])
+    return (
+        <div
+            ref={ref}
+            role="alertdialog"
+            aria-label={result}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-surface/90 p-4 text-center"
+        >
+            <Heading level={2}>{result}</Heading>
+            <HStack gap={2} hAlign="center" wrap="wrap">
+                <Button variant="primary" label={t('rematch')} onClick={onRematch} />
+                <Button label={t('backToTeam')} onClick={onExit} />
+            </HStack>
         </div>
     )
 }
 
 // ─── 메인 뷰 ─────────────────────────────────────────────────
 export function BattleView({ session, onExit, onRematch }: { session: BattleSession; onExit: () => void; onRematch: () => void }) {
+    const lang = useLang()
+    const t = useBattleT()
     const f = session.current
-    if (!f) return null
     const spectating = session.isAI('p1') && session.isAI('p2')
     const ended = session.phase === 'ended' && session.allRevealed
 
+    const cpu1 = t('cpu1')
+    const cpu2 = t('cpu2')
+    const sideName = useMemo(
+        () => (spectating ? (p: PlayerID) => (p === 'p1' ? cpu1 : cpu2) : undefined),
+        [spectating, cpu1, cpu2],
+    )
+
+    const docTitle = f
+        ? `${nameOf(f.p1.active, lang)} vs ${nameOf(f.p2.active, lang)} - ${t('turn', { n: f.turn })}`
+        : t('title')
+    useDocumentTitle(docTitle)
+
+    if (!f) return null
+
+    const result = session.winner === 'draw' ? t('draw')
+        : session.winner === 'p1' ? (spectating ? t('winnerIs', { name: cpu1 }) : t('win'))
+            : spectating ? t('winnerIs', { name: cpu2 }) : t('lose')
+
     return (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_340px]">
-            <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                    <FieldBar session={session} />
-                    <div className="flex items-center gap-1.5 text-xs">
-                        <label className="flex items-center gap-1 text-slate-500">속도
-                            <select value={session.speed} onChange={e => session.setSpeed(Number(e.target.value))}
-                                className="rounded-lg border border-slate-200 bg-white px-1.5 py-1">
-                                <option value={900}>느리게</option>
-                                <option value={450}>보통</option>
-                                <option value={180}>빠르게</option>
-                                <option value={40}>매우 빠르게</option>
-                            </select>
-                        </label>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+            <VStack gap={4} className="min-w-0">
+                <HStack gap={3} vAlign="center" hAlign="between" wrap="wrap">
+                    <FieldTokens f={f} />
+                    <HStack gap={2} vAlign="center" wrap="wrap">
+                        <Selector
+                            label={t('speed')}
+                            isLabelHidden
+                            variant="secondary"
+                            size="sm"
+                            startIcon="clock"
+                            value={String(session.speed)}
+                            onChange={v => session.setSpeed(Number(v))}
+                            options={SPEEDS.map(s => ({ value: String(s.value), label: t(s.label) }))}
+                        />
                         {spectating && (
-                            <button type="button" onClick={() => session.setPaused(!session.paused)} className="rounded-lg bg-slate-100 px-2 py-1 font-semibold text-slate-600">
-                                {session.paused ? '▶ 재생' : '❚❚ 일시정지'}
-                            </button>
+                            <Button
+                                size="sm"
+                                label={session.paused ? t('play') : t('pause')}
+                                aria-pressed={session.paused}
+                                onClick={() => session.setPaused(!session.paused)}
+                            />
                         )}
                         {!session.allRevealed && (
-                            <button type="button" onClick={session.skip} className="rounded-lg bg-slate-100 px-2 py-1 font-semibold text-slate-600">건너뛰기 ⏭</button>
+                            <Button size="sm" label={t('skip')} endContent={<Icon icon="chevronsRight" />} onClick={session.skip} />
                         )}
-                        <button type="button" onClick={onExit} className="rounded-lg px-2 py-1 font-semibold text-slate-400 hover:text-red-500">나가기</button>
-                    </div>
-                </div>
+                        <Button size="sm" variant="ghost" label={t('exit')} onClick={onExit} />
+                    </HStack>
+                </HStack>
 
-                {/* 배틀 필드 */}
-                <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-b from-sky-100 via-sky-50 to-emerald-50 p-3 sm:p-5">
-                    <div className="pointer-events-none absolute right-[8%] top-[34%] h-10 w-40 rounded-[50%] bg-emerald-200/70 blur-[1px] sm:w-52" />
-                    <div className="pointer-events-none absolute bottom-[10%] left-[6%] h-10 w-44 rounded-[50%] bg-emerald-300/60 blur-[1px] sm:w-60" />
-                    <div className="relative flex items-start justify-between gap-2">
-                        <StatusCard side={f.p2} mine={spectating} />
-                        <Sprite p={f.p2.active} back={false} />
-                    </div>
-                    <div className="relative mt-2 flex items-end justify-between gap-2">
-                        <Sprite p={f.p1.active} back />
-                        <StatusCard side={f.p1} mine />
-                    </div>
-                    {ended && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/70 backdrop-blur-sm">
-                            <p className="text-3xl font-black text-slate-900">
-                                {session.winner === 'draw' ? '무승부' : session.winner === 'p1' ? (spectating ? `${f.p1.name} 승리!` : '승리!') : (spectating ? `${f.p2.name} 승리!` : '패배…')}
-                            </p>
-                            <div className="flex gap-2">
-                                <button type="button" onClick={onRematch} className="rounded-xl bg-red-500 px-4 py-2 font-semibold text-white hover:bg-red-600">같은 팀으로 다시</button>
-                                <button type="button" onClick={onExit} className="rounded-xl bg-white px-4 py-2 font-semibold text-slate-700 shadow hover:bg-slate-50">팀 편집으로</button>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                {/* 배틀 필드: 상대는 위 오른쪽, 우리는 아래 왼쪽 */}
+                <Card padding={4} variant="muted" className="relative">
+                    <VStack gap={4}>
+                        <HStack hAlign="end"><Combatant side={f.p2} exact={spectating} back={false} /></HStack>
+                        <HStack hAlign="start"><Combatant side={f.p1} exact back /></HStack>
+                    </VStack>
+                    {ended && <ResultOverlay result={result} onRematch={onRematch} onExit={onExit} />}
+                </Card>
 
-                {/* 행동 */}
                 {!spectating && (
-                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
-                        {session.error && <p className="mb-2 text-xs text-red-500">{session.error}</p>}
-                        <ActionPanel key={`${f.turn}-${session.allRevealed}`} session={session} player="p1" />
-                    </div>
+                    <Card padding={4}>
+                        <VStack gap={3}>
+                            {session.error && (
+                                <span role="alert" className="block">
+                                    <Text color="inherit" className="text-error">{t('actionError', { msg: session.error })}</Text>
+                                </span>
+                            )}
+                            <ActionPanel key={`${f.turn}-${session.allRevealed}`} session={session} player="p1" />
+                        </VStack>
+                    </Card>
                 )}
-                {spectating && <SpectatorDetails f={f} />}
-            </div>
+                {spectating && <SpectatorDetails f={f} sideName={sideName!} />}
+            </VStack>
 
-            <div className="lg:h-[640px]">
-                <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">배틀 로그</p>
-                <BattleLog session={session} />
-            </div>
+            <VStack gap={2} className="min-w-0">
+                <Heading level={2}>{t('battleLog')}</Heading>
+                <BattleLog session={session} sideName={sideName} />
+            </VStack>
         </div>
     )
 }
 
-function SpectatorDetails({ f }: { f: NonNullable<BattleSession['current']> }) {
-    const row = (p: PokeView) => (
-        <div key={p.id} className={`flex items-center gap-2 text-xs ${p.fainted ? 'opacity-40' : ''}`}>
-            <span className="w-24 truncate font-semibold text-slate-700">{displayName(p)}</span>
-            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-200">
-                <span className={`block h-full ${hpColor(p.hp / p.max_hp)}`} style={{ width: `${p.hp / p.max_hp * 100}%` }} />
-            </span>
-            <span className="w-20 truncate text-right text-slate-400">{p.item ? itemNameKo(p.item) : abilityNameKo(p.ability)}</span>
-        </div>
-    )
+function SpectatorDetails({ f, sideName }: { f: Frame; sideName: (p: PlayerID) => string }) {
+    const lang = useLang()
+    const t = useBattleT()
+    const row = (p: PokeView) => {
+        const name = nameOf(p, lang)
+        return (
+            <li key={p.id} className={cx('grid grid-cols-[minmax(0,6rem)_1fr_2.5rem] items-center gap-2 py-1', p.fainted && 'opacity-50')}>
+                <Text type="supporting" weight="medium" maxLines={1}>{name}</Text>
+                <HpBar p={p} label={t('hpLabel', { hp: p.hp, max: p.max_hp })} />
+                <Text type="supporting" color="secondary" hasTabularNumbers justify="end">{pctOf(p)}%</Text>
+                <span className="col-span-3 truncate text-xs text-secondary" title={t('itemOrAbility')}>
+                    {p.item ? itemName(p.item, lang) : abilityNameL(p.ability, lang)}
+                </span>
+            </li>
+        )
+    }
     return (
-        <div className="grid grid-cols-1 gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {[f.p1, f.p2].map(s => (
-                <div key={s.id} className="space-y-1">
-                    <p className="text-xs font-bold text-slate-500">{s.name}</p>
-                    {s.team.map(row)}
-                </div>
+                <Card key={s.id} padding={3}>
+                    <VStack gap={2}>
+                        <Text type="label">{sideName(s.id)}</Text>
+                        <ul className="divide-y divide-border">{s.team.map(row)}</ul>
+                    </VStack>
+                </Card>
             ))}
         </div>
     )

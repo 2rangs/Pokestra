@@ -1,8 +1,191 @@
+import { memo, useDeferredValue, useMemo, useState } from 'react'
+import { Card } from '@astryxdesign/core/Card'
+import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
+import { ClickableCard } from '@astryxdesign/core/ClickableCard'
+import { Grid } from '@astryxdesign/core/Grid'
+import { HStack } from '@astryxdesign/core/HStack'
+import { Text } from '@astryxdesign/core/Text'
+import { VStack } from '@astryxdesign/core/VStack'
+import { EmptyState, LoadMore, PageHeader, SearchField, Segmented, SelectField } from '../components/dex/DexUi'
+import { artworkUrl, buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
+import { useProgressive } from '../components/dex/useProgressive'
+import { useUrlParams } from '../components/dex/useUrlParams'
+import { useDocumentTitle, useLang, useT } from '../i18n'
+import { commonMessages } from '../i18n/messages/common'
+import { spritesMessages } from '../i18n/messages/sprites'
+import {
+    ALL_POKEMON,
+    type DexPokemon,
+    displayName,
+    GENERATIONS,
+    generationName,
+    getGeneration,
+    getSpeciesId,
+    isAlternateForm,
+} from '../lib/dex'
+
+interface Entry {
+    p: DexPokemon
+    speciesId: number
+    gen: number
+    form: boolean
+    key: string
+}
+
+const INDEX: readonly Entry[] = ALL_POKEMON.map((p) => ({
+    p,
+    speciesId: getSpeciesId(p),
+    gen: getGeneration(p),
+    form: isAlternateForm(p),
+    key: buildSearchKey(p.name, p.nameKo, p.nameEn, p.nameJa),
+})).sort((a, b) => a.speciesId - b.speciesId || a.p.id - b.p.id)
+
+type Style = 'sprite' | 'artwork'
+type Color = 'normal' | 'shiny'
 
 export default function SpritesPage() {
+    const lang = useLang()
+    const t = useT(spritesMessages)
+    const tc = useT(commonMessages)
+    const [params, update] = useUrlParams()
+    useDocumentTitle(t('title'))
+
+    const q = params.get('q') ?? ''
+    const gen = params.get('gen') ?? ''
+    const style: Style = params.get('style') === 'artwork' ? 'artwork' : 'sprite'
+    const color: Color = params.get('shiny') === '1' ? 'shiny' : 'normal'
+    const forms = params.get('forms') === '1'
+
+    const deferredQ = useDeferredValue(q)
+    const filtered = useMemo(() => {
+        const raw = deferredQ.trim().replace(/^#/, '')
+        const num = /^\d+$/.test(raw) ? Number(raw) : null
+        const needle = num == null ? foldSearch(raw) : ''
+        const genNum = gen ? Number(gen) : null
+        return INDEX.filter(
+            (e) =>
+                (forms || !e.form) &&
+                (genNum == null || e.gen === genNum) &&
+                (num == null || e.speciesId === num) &&
+                (!needle || e.key.includes(needle)),
+        )
+    }, [deferredQ, gen, forms])
+
+    const { shown, hasMore, more, sentinelRef } = useProgressive(filtered.length, `${deferredQ}|${gen}|${forms}`, 120)
+    const shiny = color === 'shiny'
+
     return (
-        <div>
-            <h1>SpritesPage</h1>
-        </div>
+        <VStack gap={5}>
+            <PageHeader title={t('title')} subtitle={t('subtitle')} />
+
+            <Card>
+                <VStack gap={4}>
+                    <HStack gap={3} wrap="wrap" vAlign="end">
+                        <span className="min-w-[14rem] flex-1">
+                            <SearchField
+                                value={q}
+                                onChange={(v) => update({ q: v })}
+                                label={t('searchLabel')}
+                                placeholder={t('searchPlaceholder')}
+                            />
+                        </span>
+                        <SelectField
+                            label={t('filterGen')}
+                            value={gen}
+                            onChange={(v) => update({ gen: v || null })}
+                            width={150}
+                            options={[
+                                { value: '', label: tc('all') },
+                                ...GENERATIONS.map((g) => ({ value: String(g.id), label: generationName(g.id, lang) })),
+                            ]}
+                        />
+                    </HStack>
+                    <HStack gap={5} wrap="wrap" vAlign="end">
+                        <Segmented<Style>
+                            label={t('style')}
+                            value={style}
+                            onChange={(v) => update({ style: v === 'artwork' ? 'artwork' : null })}
+                            options={[
+                                { value: 'sprite', label: t('styleSprite') },
+                                { value: 'artwork', label: t('styleArtwork') },
+                            ]}
+                        />
+                        <Segmented<Color>
+                            label={t('color')}
+                            value={color}
+                            onChange={(v) => update({ shiny: v === 'shiny' ? '1' : null })}
+                            options={[
+                                { value: 'normal', label: t('normal') },
+                                { value: 'shiny', label: t('shiny') },
+                            ]}
+                        />
+                        <CheckboxInput
+                            size="sm"
+                            label={t('includeForms')}
+                            value={forms}
+                            onChange={(checked) => update({ forms: checked ? '1' : null })}
+                        />
+                    </HStack>
+                </VStack>
+            </Card>
+
+            <VStack gap={2}>
+                <span aria-live="polite">
+                    <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
+                </span>
+
+                {filtered.length === 0 ? (
+                    <EmptyState />
+                ) : (
+                    <Grid columns={{ minWidth: 104 }} gap={2} role="list" aria-label={t('gallery')}>
+                        {filtered.slice(0, shown).map((e) => (
+                            <span key={e.p.id} role="listitem" className="block min-w-0">
+                                <SpriteCard entry={e} style={style} shiny={shiny} />
+                            </span>
+                        ))}
+                    </Grid>
+                )}
+                <LoadMore hasMore={hasMore} onMore={more} sentinelRef={sentinelRef} />
+            </VStack>
+        </VStack>
     )
 }
+
+const SpriteCard = memo(function SpriteCard({ entry: e, style, shiny }: { entry: Entry; style: Style; shiny: boolean }) {
+    const lang = useLang()
+    const t = useT(spritesMessages)
+    const [failedSrc, setFailedSrc] = useState<string | null>(null)
+    const name = displayName(e.p, lang)
+    const src = style === 'artwork' ? artworkUrl(e.p.id, shiny) : shiny ? e.p.spriteShiny : e.p.sprite
+    const failed = !src || failedSrc === src
+
+    return (
+        <ClickableCard href={`/pokemon/${e.p.id}`} label={shiny ? `${name} (${t('shiny')})` : name} padding={2} height="100%">
+            <VStack gap={1} hAlign="center">
+                <span className="flex aspect-square w-full max-w-24 items-center justify-center">
+                    {failed ? (
+                        <Text type="supporting">{t('noImage')}</Text>
+                    ) : (
+                        <img
+                            key={src}
+                            src={src}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            width={96}
+                            height={96}
+                            onError={() => setFailedSrc(src)}
+                            className={`h-full w-full object-contain ${style === 'sprite' ? '[image-rendering:pixelated]' : ''}`}
+                        />
+                    )}
+                </span>
+                <Text type="supporting" hasTabularNumbers>
+                    {padDexNo(e.speciesId)}
+                </Text>
+                <Text size="sm" weight="semibold" justify="center" maxLines={2}>
+                    {name}
+                </Text>
+            </VStack>
+        </ClickableCard>
+    )
+})

@@ -1,14 +1,18 @@
-import { TYPE_COLOR, typeNameKo } from '../../lib/battle'
+import { typeNameL } from '../../lib/battle'
+import { useLang } from '../../i18n'
+import { TypeTag } from '../ui/shared'
 
-export function TypeBadge({ type, size = 'sm', className = '' }: { type: string; size?: 'xs' | 'sm'; className?: string }) {
-    const color = TYPE_COLOR[type] ?? '#94a3b8'
-    const pad = size === 'xs' ? 'px-1.5 py-0.5 text-[10px]' : 'px-2 py-0.5 text-xs'
-    return (
-        <span
-            className={`inline-flex items-center rounded-md font-bold text-white leading-none whitespace-nowrap ${pad} ${className}`}
-            style={{ background: color, textShadow: '0 1px 1px rgba(0,0,0,.25)' }}
-        >
-            {typeNameKo(type)}
-        </span>
-    )
+/**
+ * 타입 표시 (아이콘 + 현재 언어의 이름).
+ * 공용 TypeTag 를 그대로 쓰되, 'stellar' 처럼 도감에 없는 타입도 이름이 나오도록
+ * 배틀 엔진 쪽 이름표(typeNameL)를 넘긴다. 예전 props 와 호환된다.
+ */
+export function TypeBadge({ type, size = 'sm', className, title }: {
+    type: string
+    size?: 'xs' | 'sm'
+    className?: string
+    title?: string
+}) {
+    const lang = useLang()
+    return <TypeTag type={type} size={size} label={typeNameL(type, lang)} title={title} className={className} />
 }

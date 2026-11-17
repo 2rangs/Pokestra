@@ -1,40 +1,60 @@
-import { useMemo, useState } from "react"
-import { useNavigate, useParams } from "react-router-dom"
-import { useEvolutionChain, usePokemonDetail, usePokemonSpecies } from "../../hooks/usePokemon"
+import { type ReactNode, useEffect, useMemo, useState } from "react"
+import { useNavigate, useParams, useSearchParams } from "react-router"
+import { Banner } from "@astryxdesign/core/Banner"
+import { Button } from "@astryxdesign/core/Button"
+import { Card } from "@astryxdesign/core/Card"
+import { EmptyState } from "@astryxdesign/core/EmptyState"
+import { Grid } from "@astryxdesign/core/Grid"
+import { Heading } from "@astryxdesign/core/Heading"
+import { HStack } from "@astryxdesign/core/HStack"
+import { Icon } from "@astryxdesign/core/Icon"
+import { Link } from "@astryxdesign/core/Link"
+import { MetadataList, MetadataListItem } from "@astryxdesign/core/MetadataList"
+import { Skeleton } from "@astryxdesign/core/Skeleton"
+import { Tab, TabList } from "@astryxdesign/core/TabList"
+import { Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow } from "@astryxdesign/core/Table"
+import { Text } from "@astryxdesign/core/Text"
+import { Token } from "@astryxdesign/core/Token"
+import { VStack } from "@astryxdesign/core/VStack"
 import BattleStatsPanel from "../../components/BattleStatsPanel"
+import { TypeIcon } from "../../components/TypeIcon"
+import { EvolutionTree } from "../../components/pokedex/EvolutionChain"
+import { dexNumber, ROMAN } from "../../components/pokedex/format"
+import { MovesPanel } from "../../components/pokedex/MovesPanel"
+import { SpritesGallery } from "../../components/pokedex/SpritesGallery"
+import { StatBar, TypeTag } from "../../components/ui/shared"
+import { getIdFromUrl } from "../../common/utils"
+import {
+    type PokemonSpecies,
+    useEvolutionChain,
+    usePokemonDetail,
+    usePokemonSpecies,
+} from "../../hooks/usePokemon"
+import { LANGS, type Lang, formatNumber, useDocumentTitle, useLang, useT } from "../../i18n"
+import { commonMessages } from "../../i18n/messages/common"
+import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
+import { itemName } from "../../lib/battle"
+import {
+    ABILITY_BY_NAME,
+    ALL_POKEMON,
+    STAT_KEYS,
+    type DexPokemon,
+    type StatKey,
+    abilityName,
+    eggGroupName,
+    findDexPokemonByName,
+    formLabel,
+    generationName,
+    getDexPokemon,
+    getGeneration,
+    getSpeciesId,
+    localText,
+    officialArtworkUrl,
+    pokemonName,
+    statLabel,
+    titleCaseSlug,
+} from "../../lib/dex"
 
-// ─── Google Fonts injection ───────────────────────────────────────────────────
-const FONT_LINK = "https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
-function injectFont() {
-    if (typeof document !== "undefined" && !document.getElementById("pokemon-fonts")) {
-        const link = document.createElement("link")
-        link.id = "pokemon-fonts"; link.rel = "stylesheet"; link.href = FONT_LINK
-        document.head.appendChild(link)
-    }
-}
-
-// ─── Type palette ─────────────────────────────────────────────────────────────
-const TYPE_PALETTE: Record<string, { primary: string; light: string; dark: string }> = {
-    fire:     { primary: "#F97316", light: "#FEF3E2", dark: "#C2410C" },
-    water:    { primary: "#3B82F6", light: "#EFF6FF", dark: "#1D4ED8" },
-    grass:    { primary: "#22C55E", light: "#F0FDF4", dark: "#15803D" },
-    electric: { primary: "#EAB308", light: "#FEFCE8", dark: "#A16207" },
-    ice:      { primary: "#06B6D4", light: "#ECFEFF", dark: "#0E7490" },
-    fighting: { primary: "#EF4444", light: "#FEF2F2", dark: "#B91C1C" },
-    poison:   { primary: "#A855F7", light: "#FAF5FF", dark: "#7E22CE" },
-    ground:   { primary: "#F59E0B", light: "#FFFBEB", dark: "#B45309" },
-    flying:   { primary: "#6366F1", light: "#EEF2FF", dark: "#4338CA" },
-    psychic:  { primary: "#EC4899", light: "#FDF2F8", dark: "#BE185D" },
-    bug:      { primary: "#84CC16", light: "#F7FEE7", dark: "#4D7C0F" },
-    rock:     { primary: "#92400E", light: "#FEF3C7", dark: "#78350F" },
-    ghost:    { primary: "#7C3AED", light: "#F5F3FF", dark: "#5B21B6" },
-    dragon:   { primary: "#4F46E5", light: "#EEF2FF", dark: "#3730A3" },
-    dark:     { primary: "#374151", light: "#F9FAFB", dark: "#111827" },
-    steel:    { primary: "#6B7280", light: "#F9FAFB", dark: "#374151" },
-    fairy:    { primary: "#F472B6", light: "#FDF2F8", dark: "#BE185D" },
-    normal:   { primary: "#9CA3AF", light: "#F9FAFB", dark: "#4B5563" },
-}
-function getTheme(types: string[]) { return TYPE_PALETTE[types[0]] ?? TYPE_PALETTE["normal"] }
 
 // ─── Defensive type chart ─────────────────────────────────────────────────────
 const TYPE_CHART: Record<string, Record<string, number>> = {
@@ -57,569 +77,718 @@ const TYPE_CHART: Record<string, Record<string, number>> = {
     steel:    { fire: 0.5, water: 0.5, electric: 0.5, ice: 2, rock: 2, steel: 0.5, fairy: 2 },
     fairy:    { fire: 0.5, fighting: 2, poison: 0.5, dragon: 2, dark: 2, steel: 0.5 },
 }
-function computeDefense(types: string[]) {
-    const out: Record<string, number> = {}
-    Object.keys(TYPE_CHART).forEach(atk => {
+
+/** 공격 타입 → 배율 (1배 제외) */
+function computeDefense(types: readonly string[]): [string, number][] {
+    const out: [string, number][] = []
+    for (const atk of Object.keys(TYPE_CHART)) {
         let m = 1
-        types.forEach(def => { m *= TYPE_CHART[atk]?.[def] ?? 1 })
-        if (m !== 1) out[atk] = m
-    })
+        for (const def of types) m *= TYPE_CHART[atk]?.[def] ?? 1
+        if (m !== 1) out.push([atk, m])
+    }
     return out
 }
 
+/** 배율 묶음 (큰 배율부터) */
+const MULTIPLIER_GROUPS: { mult: number; label: PokedexKey }[] = [
+    { mult: 4, label: "weakTo" },
+    { mult: 2, label: "weakTo" },
+    { mult: 0.5, label: "resists" },
+    { mult: 0.25, label: "resists" },
+    { mult: 0, label: "immuneTo" },
+]
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function titleCase(s: string) { return s.replace(/-/g, " ") }
-function getIdFromUrl(url?: string) {
-    if (!url) return undefined
-    const n = Number(url.split("/").filter(Boolean).at(-1))
-    return Number.isFinite(n) ? n : undefined
-}
-function getPokemonSprite(id: number) {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
-}
 
-const STAT_META: Record<string, { label: string; color: string }> = {
-    hp:               { label: "HP",     color: "#F87171" },
-    attack:           { label: "ATK",    color: "#FB923C" },
-    defense:          { label: "DEF",    color: "#FBBF24" },
-    "special-attack": { label: "Sp.ATK", color: "#818CF8" },
-    "special-defense":{ label: "Sp.DEF", color: "#34D399" },
-    speed:            { label: "SPD",    color: "#F472B6" },
+/** URL 파라미터(id 또는 slug)로 로컬 도감 데이터 찾기 */
+function resolveLocal(param: string): DexPokemon | undefined {
+    const s = param.trim()
+    if (!s) return undefined
+    if (/^\d+$/.test(s)) return getDexPokemon(Number(s))
+    return findDexPokemonByName(s)
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+/** PokeAPI 언어 코드 우선순위 */
+const API_LANG_CODES: Record<Lang, readonly string[]> = {
+    ko: ["ko", "en"],
+    en: ["en"],
+    ja: ["ja", "ja-Hrkt", "en"],
+}
 
-function StatRow({ statName, value }: { statName: string; value: number }) {
-    const meta = STAT_META[statName] ?? { label: statName.toUpperCase(), color: "#9CA3AF" }
-    const pct = Math.min(100, Math.round((value / 255) * 100))
+/** 현재 언어에 맞는 항목 (last = 같은 언어 중 가장 최근 항목) */
+function pickByLang<E extends { language: { name: string } }>(
+    entries: readonly E[] | undefined,
+    lang: Lang,
+    last = false,
+): E | undefined {
+    if (!entries) return undefined
+    for (const code of API_LANG_CODES[lang]) {
+        const matches = entries.filter((e) => e.language.name === code)
+        if (matches.length) return last ? matches[matches.length - 1] : matches[0]
+    }
+    return undefined
+}
+
+function cleanFlavor(text: string, code: string): string {
+    // 한자 일본어 텍스트는 줄바꿈이 단어 경계가 아니므로 그냥 붙인다
+    const joined = code === "ja" ? text.replace(/[\n\f\r]+/g, "") : text.replace(/­?[\n\f\r]+/g, " ")
+    return joined.replace(/[ \t]+/g, " ").trim()
+}
+
+/** PokeAPI 스탯 이름 → 로컬 StatKey */
+const API_STAT_KEY: Record<string, StatKey> = {
+    hp: "hp",
+    attack: "attack",
+    defense: "defense",
+    "special-attack": "spAtk",
+    "special-defense": "spDef",
+    speed: "speed",
+}
+
+type DetailTab = "overview" | "stats" | "moves" | "sprites"
+const TABS: readonly DetailTab[] = ["overview", "stats", "moves", "sprites"]
+const TAB_LABEL: Record<DetailTab, PokedexKey> = {
+    overview: "tabOverview",
+    stats: "tabStats",
+    moves: "tabMoves",
+    sprites: "tabSprites",
+}
+function parseTab(v: string | null): DetailTab {
+    return TABS.includes(v as DetailTab) ? (v as DetailTab) : "overview"
+}
+
+// ─── Small UI pieces ──────────────────────────────────────────────────────────
+
+function Panel({ title, children, className = "" }: { title?: string; children: ReactNode; className?: string }) {
     return (
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ width: 56, fontSize: 11, fontWeight: 800, color: "#CBD5E1", fontFamily: "Syne, sans-serif", letterSpacing: "0.08em", textTransform: "uppercase", flexShrink: 0 }}>{meta.label}</span>
-            <span style={{ width: 36, textAlign: "right", fontSize: 16, fontWeight: 700, color: "#0F172A", fontFamily: "Syne, sans-serif", flexShrink: 0 }}>{value}</span>
-            <div style={{ flex: 1, height: 7, borderRadius: 999, background: "#F1F5F9", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${pct}%`, borderRadius: 999, background: meta.color }} />
-            </div>
-        </div>
-    )
-}
-
-function TypeBadge({ type }: { type: string }) {
-    const p = TYPE_PALETTE[type] ?? TYPE_PALETTE["normal"]
-    return (
-        <span style={{ padding: "5px 14px", borderRadius: 999, fontSize: 11, fontWeight: 700, fontFamily: "Syne, sans-serif", letterSpacing: "0.1em", textTransform: "uppercase", background: p.light, color: p.dark, border: `1.5px solid ${p.primary}35` }}>
-            {type}
+        <span className={`block min-w-0 ${className}`}>
+            <Card height="100%">
+                <section>
+                    <VStack gap={4}>
+                        {title && <Heading level={2}>{title}</Heading>}
+                        {children}
+                    </VStack>
+                </section>
+            </Card>
         </span>
     )
 }
 
-function MatchupBadge({ type, mult }: { type: string; mult: number }) {
-    const multColor = mult >= 4 ? "#DC2626" : mult === 2 ? "#EA580C" : mult === 0.5 ? "#2563EB" : mult === 0 ? "#7C3AED" : "#6B7280"
+function SkeletonRows({ n = 4 }: { n?: number }) {
     return (
-        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 12, background: "#FAFAFA", border: "1px solid #E5E7EB" }}>
-            <TypeBadge type={type} />
-            <span style={{ fontSize: 13, fontWeight: 800, color: multColor, fontFamily: "Syne, sans-serif" }}>{mult}×</span>
-        </div>
-    )
-}
-
-function InfoRow({ label, value }: { label: string; value: string | number }) {
-    return (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid #F8FAFC" }}>
-            <span style={{ fontSize: 14, color: "#94A3B8", fontFamily: "DM Sans, sans-serif", fontWeight: 500 }}>{label}</span>
-            <span style={{ fontSize: 14, color: "#0F172A", fontFamily: "DM Sans, sans-serif", fontWeight: 600, textTransform: "capitalize" }}>{value}</span>
-        </div>
-    )
-}
-
-function SecLabel({ children }: { children: React.ReactNode }) {
-    return (
-        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: "#CBD5E1", fontFamily: "Syne, sans-serif", marginBottom: 18 }}>
-            {children}
-        </div>
-    )
-}
-
-function Card({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
-    return (
-        <div style={{ background: "#fff", borderRadius: 22, padding: "28px", border: "1px solid #F1F5F9", boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 8px 32px rgba(0,0,0,0.05)", ...style }}>
-            {children}
-        </div>
-    )
-}
-
-// ─── Evolution chain ──────────────────────────────────────────────────────────
-interface EvoNode { id: number; name: string; level?: number; trigger?: string; item?: string }
-function flattenChain(chain: any): EvoNode[][] {
-    const paths: EvoNode[][] = []
-    function walk(node: any, path: EvoNode[]) {
-        const id = getIdFromUrl(node.species.url) ?? 0
-        const det = node.evolution_details?.[0]
-        const next = [...path, { id, name: node.species.name, level: det?.min_level, trigger: det?.trigger?.name, item: det?.item?.name ?? det?.held_item?.name }]
-        if (!node.evolves_to?.length) { paths.push(next); return }
-        node.evolves_to.forEach((n: any) => walk(n, next))
-    }
-    walk(chain, [])
-    return paths
-}
-
-function EvoChain({ chain, theme }: { chain: any; theme: { primary: string; light: string; dark: string } }) {
-    const paths = useMemo(() => flattenChain(chain), [chain])
-    return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-            {paths.map((path, pi) => (
-                <div key={pi} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
-                    {path.map((node, idx) => (
-                        <div key={node.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                                <div style={{ width: 80, height: 80, borderRadius: 18, background: "#FAFAFA", border: "1px solid #F1F5F9", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <img src={getPokemonSprite(node.id)} alt={node.name} style={{ width: 72, height: 72, objectFit: "contain" }} loading="lazy" onError={e => { (e.target as HTMLImageElement).style.opacity = "0" }} />
-                                </div>
-                                <span style={{ fontSize: 13, fontWeight: 600, textTransform: "capitalize", color: "#374151", fontFamily: "DM Sans, sans-serif" }}>{titleCase(node.name)}</span>
-                                {node.level && (
-                                    <span style={{ fontSize: 11, fontWeight: 700, color: theme.primary, background: theme.light, padding: "2px 10px", borderRadius: 999, fontFamily: "Syne, sans-serif" }}>Lv.{node.level}</span>
-                                )}
-                                {node.item && !node.level && (
-                                    <span style={{ fontSize: 11, color: "#9CA3AF", textTransform: "capitalize", fontFamily: "DM Sans, sans-serif" }}>{titleCase(node.item)}</span>
-                                )}
-                            </div>
-                            {idx < path.length - 1 && <span style={{ color: "#CBD5E1", fontSize: 20 }}>→</span>}
-                        </div>
-                    ))}
-                </div>
+        <VStack gap={2}>
+            {Array.from({ length: n }, (_, i) => (
+                <Skeleton key={i} height={24} index={i} />
             ))}
-        </div>
+        </VStack>
     )
 }
 
-// ─── Sprites ──────────────────────────────────────────────────────────────────
-function SpritesGallery({ sprites }: { sprites: any }) {
-    const main = [
-        { label: "Default", src: sprites?.front_default, pixelated: true },
-        { label: "Back", src: sprites?.back_default, pixelated: true },
-        { label: "Shiny", src: sprites?.front_shiny, pixelated: true },
-        { label: "Back Shiny", src: sprites?.back_shiny, pixelated: true },
-        { label: "Female", src: sprites?.front_female, pixelated: true },
-        { label: "Shiny ♀", src: sprites?.front_shiny_female, pixelated: true },
-    ].filter(x => x.src)
-
-    const extra = [
-        { label: "Dream World", src: sprites?.other?.dream_world?.front_default, pixelated: false },
-        { label: "Dream World ♀", src: sprites?.other?.dream_world?.front_female, pixelated: false },
-        { label: "HOME", src: sprites?.other?.home?.front_default, pixelated: false },
-        { label: "HOME Shiny", src: sprites?.other?.home?.front_shiny, pixelated: false },
-        { label: "HOME ♀", src: sprites?.other?.home?.front_female, pixelated: false },
-    ].filter(x => x.src)
-
-    const genItems: { label: string; src: string }[] = []
-    if (sprites?.versions) {
-        Object.entries(sprites.versions).forEach(([, games]: [string, any]) => {
-            Object.entries(games).forEach(([game, data]: [string, any]) => {
-                if (data?.front_default) genItems.push({ label: game, src: data.front_default })
-            })
-        })
-    }
-
-    const SpriteItem = ({ label, src, size = 80, pixelated = false }: { label: string; src: string; size?: number; pixelated?: boolean }) => (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <div style={{ width: size, height: size, background: "#FAFAFA", borderRadius: 14, border: "1px solid #F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <img src={src} alt={label} style={{ width: size - 10, height: size - 10, objectFit: "contain", imageRendering: pixelated ? "pixelated" : "auto" }} loading="lazy" />
-            </div>
-            <span style={{ fontSize: 11, color: "#94A3B8", fontFamily: "DM Sans, sans-serif", textAlign: "center", maxWidth: size }}>{label}</span>
-        </div>
-    )
-
+function LoadError({ message, onRetry, retryLabel }: { message: string; onRetry?: () => void; retryLabel: string }) {
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-            {main.length > 0 && (
-                <div>
-                    <SecLabel>Game Sprites</SecLabel>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-                        {main.map(x => <SpriteItem key={x.label} {...x} size={90} />)}
-                    </div>
-                </div>
-            )}
-            {extra.length > 0 && (
-                <div>
-                    <SecLabel>HD Artwork</SecLabel>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
-                        {extra.map(x => <SpriteItem key={x.label} {...x} size={110} />)}
-                    </div>
-                </div>
-            )}
-            {genItems.length > 0 && (
-                <div>
-                    <SecLabel>All Generations</SecLabel>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-                        {genItems.map(x => <SpriteItem key={x.label} src={x.src} label={titleCase(x.label)} size={68} pixelated />)}
-                    </div>
-                </div>
-            )}
-        </div>
+        <Banner
+            status="error"
+            title={message}
+            endContent={onRetry ? <Button size="sm" label={retryLabel} onClick={onRetry} /> : undefined}
+        />
+    )
+}
+
+// ─── Artwork ──────────────────────────────────────────────────────────────────
+
+function Artwork({ src, fallback, alt }: { src: string; fallback?: string | null; alt: string }) {
+    const [stage, setStage] = useState<0 | 1 | 2>(src ? 0 : fallback ? 1 : 2)
+    if (stage === 2) {
+        return <span className="block h-56 w-56 sm:h-64 sm:w-64" aria-hidden />
+    }
+    const url = stage === 0 ? src : fallback ?? ""
+    return (
+        <img
+            src={url}
+            alt={alt}
+            width={256}
+            height={256}
+            onError={() => setStage(stage === 0 && fallback ? 1 : 2)}
+            className={`h-56 w-56 object-contain sm:h-64 sm:w-64 ${stage === 1 ? "[image-rendering:pixelated]" : ""}`}
+        />
+    )
+}
+
+// ─── Prev / Next ──────────────────────────────────────────────────────────────
+
+function NeighborLink({ p, dir, lang, label }: { p: DexPokemon | undefined; dir: "prev" | "next"; lang: Lang; label: string }) {
+    if (!p) return <span aria-hidden className="block" />
+    const name = pokemonName(p, lang)
+    const no = dexNumber(p.id)
+    return (
+        <Link href={`/pokemon/${p.id}`} label={`${label}: ${no} ${name}`} hasUnderline={false} color="secondary">
+            <span className={`inline-flex min-w-0 items-center gap-1.5 ${dir === "next" ? "flex-row-reverse" : ""}`}>
+                <Icon icon={dir === "prev" ? "chevronLeft" : "chevronRight"} size="sm" />
+                <span className="hidden tabular-nums sm:inline">{no}</span>
+                <span className="max-w-[8rem] truncate font-medium text-primary sm:max-w-[12rem]">{name}</span>
+            </span>
+        </Link>
+    )
+}
+
+// ─── Page states ──────────────────────────────────────────────────────────────
+
+function DetailSkeleton({ label }: { label: string }) {
+    return (
+        <VStack gap={5} role="status" aria-live="polite">
+            <span className="sr-only">{label}</span>
+            <HStack justify="between">
+                <Skeleton width={112} height={28} />
+                <Skeleton width={180} height={28} />
+            </HStack>
+            <Card>
+                <Grid columns={{ minWidth: 260, repeat: "fit" }} gap={6}>
+                    <Skeleton height={256} />
+                    <VStack gap={3}>
+                        <Skeleton width={96} height={16} />
+                        <Skeleton width="60%" height={40} />
+                        <Skeleton width={160} height={24} />
+                        <Skeleton height={64} />
+                    </VStack>
+                </Grid>
+            </Card>
+            <Skeleton height={160} />
+        </VStack>
     )
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-type Tab = "overview" | "stats" | "moves" | "sprites"
 
 export default function PokemonDetailPage() {
-    injectFont()
-
-    const { id } = useParams()
+    const { id: param = "" } = useParams()
     const navigate = useNavigate()
-    const [tab, setTab] = useState<Tab>("overview")
+    const lang = useLang()
+    const t = useT(pokedexMessages)
+    const tc = useT(commonMessages)
+    const [searchParams, setSearchParams] = useSearchParams()
+    const tab = parseTab(searchParams.get("tab"))
+    const setTab = (next: DetailTab) => setSearchParams(next === "overview" ? {} : { tab: next }, { replace: true })
 
-    const pokemonKey = id ?? ""
-    const { data: detail, isLoading, isError, error } = usePokemonDetail(pokemonKey, !!pokemonKey)
+    const local = useMemo(() => resolveLocal(param), [param])
+    const apiKey = local ? String(local.id) : param.trim().toLowerCase()
+    const detailQ = usePokemonDetail(apiKey)
+    const detail = detailQ.data
 
-    const types: string[] = useMemo(() =>
-            detail?.types?.slice().sort((a: any, b: any) => a.slot - b.slot).map((t: any) => t.type.name) ?? []
-        , [detail])
+    const speciesId = local ? getSpeciesId(local) : getIdFromUrl(detail?.species.url)
+    const speciesQ = usePokemonSpecies(speciesId)
+    const species: PokemonSpecies | undefined = speciesQ.data
+    const evoQ = useEvolutionChain(species?.evolution_chain?.url)
 
-    const theme = useMemo(() => getTheme(types), [types])
+    const types = useMemo(
+        () => local?.types ?? detail?.types.slice().sort((a, b) => a.slot - b.slot).map((x) => x.type.name) ?? [],
+        [local, detail],
+    )
 
-    const artwork =
-        detail?.sprites?.other?.["official-artwork"]?.front_default ??
-        detail?.sprites?.other?.["official-artwork"]?.front_shiny ??
-        detail?.sprites?.front_default ?? ""
+    const name = local
+        ? pokemonName(local, lang)
+        : (pickByLang(species?.names, lang)?.name ?? (detail ? titleCaseSlug(detail.name) : ""))
+    const form = local ? formLabel(local, lang) : null
+    useDocumentTitle(name ? (form ? `${name} (${form})` : name) : t("title"))
 
-    const speciesId = useMemo(() => getIdFromUrl(detail?.species?.url), [detail?.species?.url])
-    const { data: species } = usePokemonSpecies(speciesId)
-    const { data: evo, isLoading: evoLoading } = useEvolutionChain(species?.evolution_chain?.url)
+    const otherNames = useMemo(() => {
+        if (!local) return []
+        const seen = new Set([pokemonName(local, lang)])
+        const out: { n: string; lang: Lang }[] = []
+        for (const l of LANGS) {
+            const n = pokemonName(local, l)
+            if (seen.has(n)) continue
+            seen.add(n)
+            out.push({ n, lang: l })
+        }
+        return out
+    }, [local, lang])
 
-    const flavor = useMemo(() => {
-        const e = species?.flavor_text_entries ?? []
-        const en = e.find((x: any) => x.language?.name === "en")?.flavor_text ?? ""
-        return en.replace(/\f/g, " ").replace(/\s+/g, " ").trim()
-    }, [species?.flavor_text_entries])
+    const flavorEntry = pickByLang(species?.flavor_text_entries, lang, true)
+    const flavor = flavorEntry ? cleanFlavor(flavorEntry.flavor_text, flavorEntry.language.name) : ""
+    const genusEntry = pickByLang(species?.genera, lang)
 
-    const genus = species?.genera?.find((g: any) => g.language?.name === "en")?.genus ?? ""
+    const abilities = useMemo(
+        () => local?.abilities ?? detail?.abilities.map((a) => ({ name: a.ability.name, hidden: a.is_hidden })) ?? [],
+        [local, detail],
+    )
 
-    const defensiveChart = useMemo(() => computeDefense(types), [types])
-    const weaknesses  = Object.entries(defensiveChart).filter(([, v]) => v > 1).sort((a, b) => b[1] - a[1])
-    const resistances = Object.entries(defensiveChart).filter(([, v]) => v < 1).sort((a, b) => a[1] - b[1])
+    const stats = useMemo(() => {
+        if (local) return STAT_KEYS.map((k) => ({ key: k, value: local.stats[k] }))
+        return (detail?.stats ?? [])
+            .map((s) => ({ key: API_STAT_KEY[s.stat.name], value: s.base_stat }))
+            .filter((s): s is { key: StatKey; value: number } => !!s.key)
+    }, [local, detail])
+    const statTotal = stats.reduce((sum, s) => sum + s.value, 0)
+    const statMax = stats.reduce((m, s) => Math.max(m, s.value), 0)
 
-    const statTotal = detail?.stats?.reduce((s: number, x: any) => s + x.base_stat, 0) ?? 0
+    const matchups = useMemo(() => computeDefense(types), [types])
 
-    const sortedMoves = useMemo(() => {
-        if (!detail?.moves) return []
-        return [...detail.moves].sort((a: any, b: any) =>
-            (a.version_group_details?.[0]?.level_learned_at ?? 0) - (b.version_group_details?.[0]?.level_learned_at ?? 0)
-        )
-    }, [detail?.moves])
+    const forms = useMemo(() => (speciesId ? ALL_POKEMON.filter((p) => getSpeciesId(p) === speciesId) : []), [speciesId])
 
-    const heldItems = detail?.held_items?.map((h: any) => h.item.name) ?? []
+    // 이전/다음: 전국도감 번호 기준 (기본 폼)
+    const prev = speciesId ? getDexPokemon(speciesId - 1) : undefined
+    const next = speciesId ? getDexPokemon(speciesId + 1) : undefined
+
+    // 다른 포켓몬으로 이동하면 맨 위로
+    useEffect(() => {
+        window.scrollTo({ top: 0 })
+    }, [param])
+
+    // 왼쪽/오른쪽 방향키로 이전/다음 포켓몬
+    useEffect(() => {
+        const onKey = (e: globalThis.KeyboardEvent) => {
+            if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+            const el = e.target as HTMLElement | null
+            if (el?.closest("input, textarea, select, [contenteditable], [role=tablist], [role=radiogroup], [role=listbox]")) return
+            const target = e.key === "ArrowLeft" ? prev : e.key === "ArrowRight" ? next : undefined
+            if (target) navigate(`/pokemon/${target.id}${tab === "overview" ? "" : `?tab=${tab}`}`)
+        }
+        window.addEventListener("keydown", onKey)
+        return () => window.removeEventListener("keydown", onKey)
+    }, [prev, next, navigate, tab])
+
+    // ── Guards ──
+    if (!local) {
+        if (apiKey && detailQ.isPending) return <DetailSkeleton label={tc("loading")} />
+        if (!detail) {
+            const notFound = !apiKey || (detailQ.error instanceof Error && detailQ.error.message.endsWith("404"))
+            return notFound ? (
+                <EmptyState
+                    headingLevel={1}
+                    title={t("notFoundTitle")}
+                    description={t("notFoundBody", { id: param })}
+                    actions={<Button href="/pokedex" variant="primary" label={t("backToDex")} />}
+                />
+            ) : (
+                <EmptyState
+                    headingLevel={1}
+                    title={t("loadErrorTitle")}
+                    description={t("loadErrorBody")}
+                    actions={
+                        <>
+                            <Button variant="primary" label={t("retry")} onClick={() => void detailQ.refetch()} />
+                            <Button href="/pokedex" label={t("backToDex")} />
+                        </>
+                    }
+                />
+            )
+        }
+    }
+
+    const id = local?.id ?? detail?.id ?? 0
+    const shownNo = speciesId ?? id
+    const generation = local ? getGeneration(local) : ROMAN[species?.generation.name.replace("generation-", "") ?? ""]
+    const artwork = local ? officialArtworkUrl(local.id) : (detail?.sprites.other?.["official-artwork"]?.front_default ?? "")
+    const spriteFallback = local?.sprite ?? detail?.sprites.front_default ?? null
+    const decimal = { minimumFractionDigits: 1, maximumFractionDigits: 1 }
+
     const genderRate = species?.gender_rate
-    const genderText = genderRate == null ? "—" : genderRate === -1 ? "Genderless" : genderRate === 0 ? "Male only" : genderRate === 8 ? "Female only"
-        : `${Math.round((1 - genderRate / 8) * 100)}% M / ${Math.round((genderRate / 8) * 100)}% F`
-    const generation = species?.generation?.name?.replace("generation-", "Gen ")?.toUpperCase()
+    const genderText =
+        genderRate == null
+            ? null
+            : genderRate === -1
+              ? t("genderless")
+              : genderRate === 0
+                ? t("maleOnly")
+                : genderRate === 8
+                  ? t("femaleOnly")
+                  : t("genderRatio", {
+                        m: formatNumber((1 - genderRate / 8) * 100, lang, { maximumFractionDigits: 1 }),
+                        f: formatNumber((genderRate / 8) * 100, lang, { maximumFractionDigits: 1 }),
+                    })
 
-    // Guards
-    if (!pokemonKey) return (
-        <div style={{ minHeight: "100vh", background: "#F8FAFC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif", color: "#94A3B8" }}>
-            Invalid route.
-        </div>
-    )
-    if (isLoading) return (
-        <div style={{ minHeight: "100vh", background: "#F8FAFC", padding: 40 }}>
-            {[1, 0.6, 0.3].map((op, i) => (
-                <div key={i} style={{ height: i === 0 ? 340 : 140, background: "#E2E8F0", borderRadius: 22, marginBottom: 20, opacity: op }} />
-            ))}
-        </div>
-    )
-    if (isError) return (
-        <div style={{ minHeight: "100vh", background: "#F8FAFC", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, fontFamily: "DM Sans, sans-serif" }}>
-            <button onClick={() => navigate(-1)} style={{ padding: "10px 20px", borderRadius: 12, background: "#0F172A", color: "#fff", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "Syne, sans-serif" }}>← Back</button>
-            <span style={{ color: "#94A3B8" }}>Failed: {String((error as any)?.message ?? "unknown")}</span>
-        </div>
-    )
-
-    const tabs: { key: Tab; label: string }[] = [
-        { key: "overview", label: "Overview" },
-        { key: "stats", label: "Stats" },
-        { key: "moves", label: `Moves (${detail.moves?.length ?? 0})` },
-        { key: "sprites", label: "Sprites" },
-    ]
+    const growthKey = species ? `growth_${species.growth_rate.name}` : ""
+    const colorKey = species ? `color_${species.color.name}` : ""
+    const retry = t("retry")
+    const pendingValue = detailQ.isError ? "-" : <Skeleton width={48} height={18} />
+    const moveCount = detail?.moves.length ?? local?.moves.length
 
     return (
-        <div style={{ minHeight: "100vh", background: "#F8FAFC", fontFamily: "DM Sans, sans-serif" }}>
+        <VStack gap={5}>
+            {/* ── 상단 내비게이션 ── */}
+            <HStack justify="between" vAlign="center" gap={3} wrap="wrap">
+                <Link href="/pokedex" hasUnderline={false}>
+                    <span className="inline-flex items-center gap-1">
+                        <Icon icon="chevronLeft" size="sm" />
+                        {t("backToDex")}
+                    </span>
+                </Link>
+                <nav aria-label={t("neighbors")} title={t("keyboardHint")}>
+                    <HStack gap={4} vAlign="center">
+                        <NeighborLink p={prev} dir="prev" lang={lang} label={t("prev")} />
+                        <NeighborLink p={next} dir="next" lang={lang} label={t("next")} />
+                    </HStack>
+                </nav>
+            </HStack>
 
-            {/* ── HERO PANEL ── */}
-            <div style={{ background: "#fff", borderBottom: "1px solid #F1F5F9", position: "relative", overflow: "hidden" }}>
-                {/* Accent blob */}
-                <div style={{ position: "absolute", top: -120, right: -100, width: 500, height: 500, borderRadius: "50%", background: `${theme.primary}10`, pointerEvents: "none" }} />
-                <div style={{ position: "absolute", bottom: -60, left: -60, width: 240, height: 240, borderRadius: "50%", background: `${theme.primary}06`, pointerEvents: "none" }} />
+            {/* ── 표본 ── */}
+            <Card>
+                <Grid columns={{ minWidth: 260, repeat: "fit" }} gap={6} align="start">
+                    <figure className="flex flex-col items-center gap-2">
+                        <span className="flex w-full items-center justify-center rounded-lg border border-border bg-muted p-4">
+                            <Artwork key={id} src={artwork} fallback={spriteFallback} alt={t("artworkAlt", { name })} />
+                        </span>
+                        <figcaption>
+                            <Text type="supporting" hasTabularNumbers>
+                                {dexNumber(shownNo)}
+                            </Text>
+                        </figcaption>
+                    </figure>
 
-                <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 36px 0" }}>
-
-                    {/* Nav */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 36 }}>
-                        <button
-                            onClick={() => navigate(-1)}
-                            style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 20px", borderRadius: 12, background: "#F8FAFC", border: "1px solid #E2E8F0", cursor: "pointer", fontSize: 14, fontWeight: 600, color: "#374151", fontFamily: "DM Sans, sans-serif" }}
-                        >
-                            ← Back
-                        </button>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            {species?.is_legendary && <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: theme.primary, background: theme.light, padding: "5px 12px", borderRadius: 999, fontFamily: "Syne, sans-serif", border: `1px solid ${theme.primary}25` }}>LEGENDARY</span>}
-                            {species?.is_mythical  && <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "#BE185D", background: "#FDF2F8", padding: "5px 12px", borderRadius: 999, fontFamily: "Syne, sans-serif" }}>MYTHICAL</span>}
-                            {species?.is_baby      && <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "#7C3AED", background: "#F5F3FF", padding: "5px 12px", borderRadius: 999, fontFamily: "Syne, sans-serif" }}>BABY</span>}
-                            <span style={{ fontSize: 14, fontWeight: 800, color: "#CBD5E1", fontFamily: "Syne, sans-serif", letterSpacing: "0.05em" }}>#{String(detail.id).padStart(4, "0")}</span>
-                        </div>
-                    </div>
-
-                    {/* Hero body */}
-                    <div style={{ display: "flex", gap: 56, alignItems: "flex-start", flexWrap: "wrap" }}>
-
-                        {/* Text */}
-                        <div style={{ flex: 1, minWidth: 280, paddingBottom: 44 }}>
-                            {generation && (
-                                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: theme.primary, fontFamily: "Syne, sans-serif", marginBottom: 12 }}>{generation}</div>
+                    <VStack gap={4}>
+                        <VStack gap={1}>
+                            <Heading level={1}>{name}</Heading>
+                            {form && (
+                                <Text type="large" color="secondary">
+                                    {form}
+                                </Text>
                             )}
-                            <h1 style={{ fontSize: "clamp(2.8rem, 5vw, 4.2rem)", fontWeight: 800, fontFamily: "Syne, sans-serif", color: "#0F172A", lineHeight: 1.02, textTransform: "capitalize", margin: "0 0 6px" }}>
-                                {titleCase(detail.name)}
-                            </h1>
-                            {genus && <div style={{ fontSize: 15, color: "#94A3B8", fontFamily: "DM Sans, sans-serif", fontStyle: "italic", marginBottom: 16 }}>{genus}</div>}
-
-                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
-                                {types.map(t => <TypeBadge key={t} type={t} />)}
-                            </div>
-
-                            {flavor && (
-                                <p style={{ fontSize: 15, lineHeight: 1.75, color: "#64748B", fontFamily: "DM Sans, sans-serif", maxWidth: 420, fontStyle: "italic", margin: "0 0 28px", fontWeight: 300 }}>
-                                    "{flavor}"
-                                </p>
-                            )}
-
-                            {/* Quick metrics */}
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, maxWidth: 420, marginBottom: 28 }}>
-                                {[
-                                    { label: "Height", value: `${(detail.height / 10).toFixed(1)} m` },
-                                    { label: "Weight", value: `${(detail.weight / 10).toFixed(1)} kg` },
-                                    { label: "Base EXP", value: detail.base_experience ?? "—" },
-                                ].map(({ label, value }) => (
-                                    <div key={label} style={{ background: "#F8FAFC", borderRadius: 14, padding: "16px 18px", border: "1px solid #F1F5F9" }}>
-                                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#CBD5E1", fontFamily: "Syne, sans-serif", marginBottom: 6 }}>{label}</div>
-                                        <div style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", fontFamily: "Syne, sans-serif" }}>{value}</div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Abilities */}
-                            <div>
-                                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: "#CBD5E1", fontFamily: "Syne, sans-serif", marginBottom: 10 }}>Abilities</div>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                    {detail.abilities?.map((a: any) => (
-                                        <div key={a.ability.name} style={{
-                                            padding: "8px 18px", borderRadius: 12, fontSize: 13, fontWeight: 600,
-                                            fontFamily: "DM Sans, sans-serif", textTransform: "capitalize",
-                                            ...(a.is_hidden
-                                                ? { background: theme.light, color: theme.dark, border: `1.5px solid ${theme.primary}30` }
-                                                : { background: "#F8FAFC", color: "#374151", border: "1px solid #E2E8F0" })
-                                        }}>
-                                            {titleCase(a.ability.name)}{a.is_hidden ? " ✦" : ""}
-                                        </div>
-                                    ))}
-                                </div>
-                                {detail.abilities?.some((a: any) => a.is_hidden) && (
-                                    <div style={{ fontSize: 11, color: "#C4B5FD", marginTop: 6, fontFamily: "DM Sans, sans-serif" }}>✦ Hidden ability</div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Artwork */}
-                        <div style={{ width: 300, display: "flex", alignItems: "flex-end", justifyContent: "center", flexShrink: 0 }}>
-                            {artwork ? (
-                                <img src={artwork} alt={detail.name} style={{ width: 280, height: 280, objectFit: "contain", filter: `drop-shadow(0 24px 48px ${theme.primary}50)` }} />
-                            ) : (
-                                <div style={{ width: 280, height: 280, background: "#F1F5F9", borderRadius: 24 }} />
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Tab bar */}
-                    <div style={{ display: "flex", marginTop: 32, borderTop: "1px solid #F1F5F9" }}>
-                        {tabs.map(({ key, label }) => (
-                            <button key={key} onClick={() => setTab(key)} style={{
-                                padding: "15px 26px",
-                                fontSize: 13, fontWeight: 700,
-                                fontFamily: "Syne, sans-serif",
-                                background: "transparent", border: "none", cursor: "pointer",
-                                color: tab === key ? theme.primary : "#94A3B8",
-                                borderBottom: tab === key ? `2.5px solid ${theme.primary}` : "2.5px solid transparent",
-                                marginBottom: -1,
-                                letterSpacing: "0.04em",
-                                transition: "color .15s",
-                            }}>
-                                {label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* ── CONTENT ── */}
-            <div style={{ maxWidth: 1100, margin: "0 auto", padding: "36px 36px 60px" }}>
-
-                {/* OVERVIEW */}
-                {tab === "overview" && (
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
-
-                        <Card>
-                            <SecLabel>Species</SecLabel>
-                            {[
-                                { label: "Generation", value: generation },
-                                { label: "Growth Rate", value: species?.growth_rate?.name ? titleCase(species.growth_rate.name) : undefined },
-                                { label: "Capture Rate", value: (species?.capture_rate != null) ? `${species.capture_rate} (${Math.round((species.capture_rate / 255) * 100)}%)` : undefined },
-                                { label: "Base Happiness", value: species?.base_happiness },
-                                { label: "Color", value: species?.color?.name },
-                                { label: "Shape", value: species?.shape?.name },
-                                { label: "Habitat", value: species?.habitat?.name },
-                            ].filter(x => x.value !== undefined && x.value !== null).map(({ label, value }) => (
-                                <InfoRow key={label} label={label} value={String(value)} />
-                            ))}
-                        </Card>
-
-                        <Card>
-                            <SecLabel>Breeding</SecLabel>
-                            <InfoRow label="Gender" value={genderText} />
-                            {species?.hatch_counter != null && (
-                                <InfoRow label="Hatch Steps" value={`${(species.hatch_counter + 1) * 255} steps`} />
-                            )}
-                            {species?.egg_groups && species.egg_groups.length > 0 && (
-                                <div style={{ paddingTop: 14 }}>
-                                    <div style={{ fontSize: 14, color: "#94A3B8", marginBottom: 10, fontFamily: "DM Sans, sans-serif" }}>Egg Groups</div>
-                                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                                        {species.egg_groups.map((g: any) => (
-                                            <span key={g.name} style={{ fontSize: 13, fontWeight: 600, padding: "5px 14px", borderRadius: 999, background: "#F8FAFC", border: "1px solid #E2E8F0", color: "#374151", textTransform: "capitalize", fontFamily: "DM Sans, sans-serif" }}>
-                                                {titleCase(g.name)}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </Card>
-
-                        {(weaknesses.length > 0 || resistances.length > 0) && (
-                            <Card style={{ gridColumn: "1 / -1" }}>
-                                <SecLabel>Type Matchup — Defense</SecLabel>
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
-                                    {weaknesses.length > 0 && (
-                                        <div>
-                                            <div style={{ fontSize: 12, fontWeight: 700, color: "#EF4444", fontFamily: "Syne, sans-serif", marginBottom: 12, letterSpacing: "0.06em" }}>Weak against</div>
-                                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                                {weaknesses.map(([type, mult]) => <MatchupBadge key={type} type={type} mult={mult} />)}
-                                            </div>
-                                        </div>
-                                    )}
-                                    {resistances.length > 0 && (
-                                        <div>
-                                            <div style={{ fontSize: 12, fontWeight: 700, color: "#3B82F6", fontFamily: "Syne, sans-serif", marginBottom: 12, letterSpacing: "0.06em" }}>Resists / Immune</div>
-                                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                                {resistances.map(([type, mult]) => <MatchupBadge key={type} type={type} mult={mult} />)}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </Card>
-                        )}
-
-                        {heldItems.length > 0 && (
-                            <Card>
-                                <SecLabel>Held Items (Wild)</SecLabel>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                    {heldItems.map((item: string) => (
-                                        <span key={item} style={{ fontSize: 13, fontWeight: 600, padding: "6px 16px", borderRadius: 999, background: theme.light, color: theme.dark, border: `1px solid ${theme.primary}20`, textTransform: "capitalize", fontFamily: "DM Sans, sans-serif" }}>
-                                            {titleCase(item)}
+                            {otherNames.length > 0 && (
+                                <span className="flex flex-wrap gap-x-3" aria-label={t("otherNames")}>
+                                    {otherNames.map((o) => (
+                                        <span key={o.n} lang={o.lang}>
+                                            <Text color="secondary">{o.n}</Text>
                                         </span>
                                     ))}
-                                </div>
-                            </Card>
+                                </span>
+                            )}
+                            {genusEntry ? (
+                                <Text color="secondary">{genusEntry.genus}</Text>
+                            ) : speciesQ.isPending && speciesId ? (
+                                <Skeleton width={128} height={16} />
+                            ) : null}
+                        </VStack>
+
+                        <TypeIcon types={types} size="lg" />
+
+                        {(generation || species?.is_legendary || species?.is_mythical || species?.is_baby) && (
+                            <HStack gap={1.5} wrap="wrap">
+                                {generation ? <Token size="sm" label={generationName(generation, lang)} /> : null}
+                                {species?.is_legendary && <Token size="sm" color="yellow" label={t("legendary")} />}
+                                {species?.is_mythical && <Token size="sm" color="pink" label={t("mythical")} />}
+                                {species?.is_baby && <Token size="sm" color="purple" label={t("baby")} />}
+                            </HStack>
                         )}
 
-                        <Card style={{ gridColumn: "1 / -1" }}>
-                            <SecLabel>Evolution Chain</SecLabel>
-                            {evoLoading && <span style={{ fontSize: 14, color: "#94A3B8" }}>Loading…</span>}
-                            {evo?.chain ? (
-                                <EvoChain chain={evo.chain} theme={theme} />
-                            ) : !evoLoading && (
-                                <span style={{ fontSize: 14, color: "#94A3B8" }}>Does not evolve.</span>
+                        {flavor ? (
+                            <span lang={flavorEntry?.language.name.split("-")[0]} className="block max-w-prose">
+                                <Text as="p">{flavor}</Text>
+                            </span>
+                        ) : speciesQ.isPending && speciesId ? (
+                            <VStack gap={1.5}>
+                                <Skeleton height={14} />
+                                <Skeleton width="80%" height={14} />
+                            </VStack>
+                        ) : null}
+
+                        <MetadataList columns={3}>
+                            <MetadataListItem label={t("height")}>
+                                {detail ? <Text hasTabularNumbers>{`${formatNumber(detail.height / 10, lang, decimal)} m`}</Text> : pendingValue}
+                            </MetadataListItem>
+                            <MetadataListItem label={t("weight")}>
+                                {detail ? <Text hasTabularNumbers>{`${formatNumber(detail.weight / 10, lang, decimal)} kg`}</Text> : pendingValue}
+                            </MetadataListItem>
+                            <MetadataListItem label={t("baseExp")}>
+                                {detail ? <Text hasTabularNumbers>{detail.base_experience ?? "-"}</Text> : pendingValue}
+                            </MetadataListItem>
+                        </MetadataList>
+                    </VStack>
+                </Grid>
+            </Card>
+
+            {/* ── 탭 ── */}
+            <TabList value={tab} onChange={(v) => setTab(parseTab(v))} role="tablist" aria-label={t("detailTabs")} hasDivider>
+                {TABS.map((key) => (
+                    <Tab
+                        key={key}
+                        id={`pokemon-tab-${key}`}
+                        value={key}
+                        label={t(TAB_LABEL[key])}
+                        panelId={`pokemon-panel-${key}`}
+                        endContent={
+                            key === "moves" && moveCount ? (
+                                <Text type="supporting" hasTabularNumbers>
+                                    {moveCount}
+                                </Text>
+                            ) : undefined
+                        }
+                    />
+                ))}
+            </TabList>
+
+            <div role="tabpanel" id={`pokemon-panel-${tab}`} aria-labelledby={`pokemon-tab-${tab}`} tabIndex={-1} className="focus:outline-none">
+                {tab === "overview" && (
+                    <Grid columns={{ minWidth: 300, repeat: "fit" }} gap={4}>
+                        {abilities.length > 0 && (
+                            <Panel title={t("abilities")} className="col-span-full">
+                                <ul className="flex flex-col divide-y divide-border">
+                                    {abilities.map((a) => {
+                                        const desc = localText(ABILITY_BY_NAME.get(a.name)?.desc, lang)
+                                        return (
+                                            <li key={a.name} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+                                                <HStack gap={2} vAlign="center" wrap="wrap">
+                                                    <Link href={`/abilities/${a.name}`} weight="semibold">
+                                                        {abilityName(a.name, lang)}
+                                                    </Link>
+                                                    {a.hidden && <Token size="sm" color="purple" label={t("hiddenAbility")} />}
+                                                </HStack>
+                                                <Text color="secondary" as="p">
+                                                    {desc ?? t("abilityNoDesc")}
+                                                </Text>
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
+                            </Panel>
+                        )}
+
+                        <Panel title={t("species")}>
+                            {speciesQ.isError ? (
+                                <LoadError message={t("loadErrorTitle")} onRetry={() => void speciesQ.refetch()} retryLabel={retry} />
+                            ) : !species ? (
+                                <SkeletonRows n={5} />
+                            ) : (
+                                <MetadataList>
+                                    <MetadataListItem label={t("generation")}>
+                                        {generation ? generationName(generation, lang) : "-"}
+                                    </MetadataListItem>
+                                    <MetadataListItem label={t("growthRate")}>
+                                        {isPokedexKey(growthKey) ? t(growthKey) : titleCaseSlug(species.growth_rate.name)}
+                                    </MetadataListItem>
+                                    <MetadataListItem label={t("captureRate")}>
+                                        {`${species.capture_rate} (${formatNumber((species.capture_rate / 255) * 100, lang, { maximumFractionDigits: 1 })}%)`}
+                                    </MetadataListItem>
+                                    <MetadataListItem label={t("baseHappiness")}>{species.base_happiness ?? "-"}</MetadataListItem>
+                                    <MetadataListItem label={t("color")}>
+                                        {isPokedexKey(colorKey) ? t(colorKey) : titleCaseSlug(species.color.name)}
+                                    </MetadataListItem>
+                                </MetadataList>
                             )}
-                        </Card>
-                    </div>
-                )}
+                        </Panel>
 
-                {/* STATS */}
-                {tab === "stats" && (
-                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20, alignItems: "start" }}>
-                        <Card>
-                            <SecLabel>Base Stats</SecLabel>
-                            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                                {detail.stats?.map((s: any) => (
-                                    <StatRow key={s.stat.name} statName={s.stat.name} value={s.base_stat} />
-                                ))}
-                            </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 28, paddingTop: 20, borderTop: "2px solid #F1F5F9" }}>
-                                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#CBD5E1", fontFamily: "Syne, sans-serif" }}>Total</span>
-                                <span style={{ fontSize: 36, fontWeight: 800, fontFamily: "Syne, sans-serif", color: theme.primary }}>{statTotal}</span>
-                            </div>
-                        </Card>
-                        <Card>
-                            <SecLabel>EV Yield</SecLabel>
-                            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                                {detail.stats?.filter((s: any) => s.effort > 0).map((s: any) => (
-                                    <div key={s.stat.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 0", borderBottom: "1px solid #F8FAFC" }}>
-                                        <span style={{ fontSize: 12, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "Syne, sans-serif" }}>{STAT_META[s.stat.name]?.label ?? s.stat.name}</span>
-                                        <span style={{ fontSize: 18, fontWeight: 800, color: theme.primary, fontFamily: "Syne, sans-serif" }}>+{s.effort}</span>
-                                    </div>
-                                ))}
-                                {!detail.stats?.some((s: any) => s.effort > 0) && (
-                                    <span style={{ fontSize: 14, color: "#94A3B8" }}>None</span>
-                                )}
-                            </div>
-                        </Card>
-                    </div>
-                )}
+                        <Panel title={t("breeding")}>
+                            {speciesQ.isError ? (
+                                <LoadError message={t("loadErrorTitle")} onRetry={() => void speciesQ.refetch()} retryLabel={retry} />
+                            ) : !species ? (
+                                <SkeletonRows n={3} />
+                            ) : (
+                                <MetadataList>
+                                    <MetadataListItem label={t("gender")}>{genderText ?? "-"}</MetadataListItem>
+                                    {species.hatch_counter != null ? (
+                                        <MetadataListItem label={t("eggCycles")}>
+                                            {t("eggCyclesValue", { n: species.hatch_counter, steps: (species.hatch_counter + 1) * 255 })}
+                                        </MetadataListItem>
+                                    ) : null}
+                                    {species.egg_groups && species.egg_groups.length > 0 ? (
+                                        <MetadataListItem label={t("eggGroups")}>
+                                            <HStack gap={1} wrap="wrap">
+                                                {species.egg_groups.map((g) => (
+                                                    <Token key={g.name} size="sm" label={eggGroupName(g.name, lang)} />
+                                                ))}
+                                            </HStack>
+                                        </MetadataListItem>
+                                    ) : null}
+                                </MetadataList>
+                            )}
+                        </Panel>
 
-                {/* BATTLE STATS (engine) */}
-                {tab === "stats" && (
-                    <div style={{ marginTop: 20 }}>
-                        <BattleStatsPanel dexId={detail.id} />
-                    </div>
-                )}
+                        <Panel title={t("typeMatchup")} className="col-span-full">
+                            {matchups.length === 0 ? (
+                                <Text color="secondary">{t("noMatchups")}</Text>
+                            ) : (
+                                <dl className="flex flex-col divide-y divide-border">
+                                    {MULTIPLIER_GROUPS.map(({ mult, label }) => {
+                                        const list = matchups.filter(([, m]) => m === mult)
+                                        if (list.length === 0) return null
+                                        return (
+                                            <div key={mult} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-baseline sm:gap-4">
+                                                <dt className="flex w-32 shrink-0 items-baseline gap-2">
+                                                    <Text type="label">{t(label)}</Text>
+                                                    <Text type="supporting" hasTabularNumbers>{`x${mult}`}</Text>
+                                                </dt>
+                                                <dd className="flex flex-wrap gap-1.5">
+                                                    {list.map(([type]) => (
+                                                        <TypeTag key={type} type={type} size="sm" />
+                                                    ))}
+                                                </dd>
+                                            </div>
+                                        )
+                                    })}
+                                </dl>
+                            )}
+                        </Panel>
 
-                {/* MOVES */}
-                {tab === "moves" && (
-                    <Card>
-                        <SecLabel>All Moves</SecLabel>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 8, maxHeight: "65vh", overflowY: "auto", paddingRight: 6 }}>
-                            {sortedMoves.map((m: any) => {
-                                const det0 = m.version_group_details?.[0]
-                                const method = det0?.move_learn_method?.name
-                                const level  = det0?.level_learned_at
-                                return (
-                                    <div key={m.move.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 16px", borderRadius: 12, background: "#F8FAFC", border: "1px solid #F1F5F9", transition: "background .1s" }}
-                                         onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "#F1F5F9")}
-                                         onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "#F8FAFC")}>
-                                        <span style={{ fontSize: 14, fontWeight: 600, textTransform: "capitalize", color: "#1E293B", fontFamily: "DM Sans, sans-serif" }}>{titleCase(m.move.name)}</span>
-                                        {level ? (
-                                            <span style={{ fontSize: 11, fontWeight: 700, color: theme.primary, background: theme.light, padding: "2px 8px", borderRadius: 999, fontFamily: "Syne, sans-serif", flexShrink: 0 }}>Lv.{level}</span>
-                                        ) : method ? (
-                                            <span style={{ fontSize: 10, color: "#C4B5FD", fontFamily: "DM Sans, sans-serif", textTransform: "capitalize", flexShrink: 0 }}>{titleCase(method)}</span>
-                                        ) : null}
-                                    </div>
+                        {detail && detail.held_items.length > 0 && (
+                            <Panel title={t("heldItems")} className="col-span-full">
+                                <HStack gap={1.5} wrap="wrap">
+                                    {detail.held_items.map((h) => (
+                                        <Token key={h.item.name} label={itemName(h.item.name, lang)} />
+                                    ))}
+                                </HStack>
+                            </Panel>
+                        )}
+
+                        <Panel title={t("evolution")} className="col-span-full">
+                            {evoQ.isError || speciesQ.isError ? (
+                                <LoadError
+                                    message={t("evoLoadError")}
+                                    onRetry={() => void (speciesQ.isError ? speciesQ.refetch() : evoQ.refetch())}
+                                    retryLabel={retry}
+                                />
+                            ) : !evoQ.data ? (
+                                species && !species.evolution_chain?.url ? (
+                                    <Text color="secondary">{t("noEvolution")}</Text>
+                                ) : (
+                                    <HStack gap={4}>
+                                        {[0, 1, 2].map((i) => (
+                                            <Skeleton key={i} width={120} height={128} index={i} />
+                                        ))}
+                                    </HStack>
                                 )
-                            })}
-                        </div>
-                    </Card>
+                            ) : evoQ.data.chain.evolves_to.length === 0 ? (
+                                <Text color="secondary">{t("noEvolution")}</Text>
+                            ) : (
+                                <div className="overflow-x-auto pb-1">
+                                    <EvolutionTree link={evoQ.data.chain} currentSpeciesId={speciesId} lang={lang} t={t} />
+                                </div>
+                            )}
+                        </Panel>
+
+                        {forms.length > 1 && (
+                            <Panel title={t("forms")} className="col-span-full">
+                                <ul className="flex flex-wrap gap-2">
+                                    {forms.map((f) => {
+                                        const current = f.id === id
+                                        const label = formLabel(f, lang) ?? pokemonName(f, lang)
+                                        const icon = f.sprite ? (
+                                            <img src={f.sprite} alt="" loading="lazy" className="h-6 w-6 object-contain [image-rendering:pixelated]" />
+                                        ) : undefined
+                                        return (
+                                            <li key={f.id} aria-current={current ? "page" : undefined}>
+                                                {current ? (
+                                                    <Token label={label} icon={icon} color="blue" />
+                                                ) : (
+                                                    <Token label={label} icon={icon} href={`/pokemon/${f.id}`} />
+                                                )}
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
+                            </Panel>
+                        )}
+                    </Grid>
                 )}
 
-                {/* SPRITES */}
-                {tab === "sprites" && (
-                    <Card>
-                        <SpritesGallery sprites={detail.sprites} />
-                    </Card>
+                {tab === "stats" && (
+                    <VStack gap={4}>
+                        <Grid columns={{ minWidth: 300, repeat: "fit" }} gap={4}>
+                            <Panel title={t("baseStats")}>
+                                <div className="overflow-x-auto">
+                                    <Table density="compact" aria-label={t("baseStats")}>
+                                        <TableHeader>
+                                            <TableRow isHeaderRow>
+                                                <TableHeaderCell scope="col">{t("tabStats")}</TableHeaderCell>
+                                                <TableHeaderCell scope="col" className="text-right">{t("colBase")}</TableHeaderCell>
+                                                <TableHeaderCell scope="col">
+                                                    <span className="sr-only">{t("baseStats")}</span>
+                                                </TableHeaderCell>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {stats.map((s) => {
+                                                const top = s.value === statMax && statMax > 0
+                                                return (
+                                                    <TableRow key={s.key}>
+                                                        <TableCell scope="row">
+                                                            <Text weight="medium">{statLabel(s.key, lang)}</Text>
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <Text weight={top ? "bold" : "normal"} hasTabularNumbers>
+                                                                {s.value}
+                                                            </Text>
+                                                        </TableCell>
+                                                        <TableCell className="w-1/2">
+                                                            <span className="flex items-center gap-2">
+                                                                <StatBar value={s.value} highlight={top} label={statLabel(s.key, lang)} className="min-w-20 flex-1" />
+                                                                {top && <Text type="supporting">{t("highestStat")}</Text>}
+                                                            </span>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                        </TableBody>
+                                        <TableFooter>
+                                            <TableRow>
+                                                <TableCell scope="row">
+                                                    <Text weight="semibold">{t("total")}</Text>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Text weight="bold" hasTabularNumbers>
+                                                        {statTotal}
+                                                    </Text>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="sr-only">{t("total")}</span>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableFooter>
+                                    </Table>
+                                </div>
+                            </Panel>
+                            <Panel title={t("evYield")}>
+                                {detail ? (
+                                    detail.stats.some((s) => s.effort > 0) ? (
+                                        <MetadataList>
+                                            {detail.stats
+                                                .filter((s) => s.effort > 0)
+                                                .map((s) => {
+                                                    const key = API_STAT_KEY[s.stat.name]
+                                                    return (
+                                                        <MetadataListItem key={s.stat.name} label={key ? statLabel(key, lang) : s.stat.name}>
+                                                            <Text weight="semibold" hasTabularNumbers>{`+${s.effort}`}</Text>
+                                                        </MetadataListItem>
+                                                    )
+                                                })}
+                                        </MetadataList>
+                                    ) : (
+                                        <Text color="secondary">{t("none")}</Text>
+                                    )
+                                ) : detailQ.isError ? (
+                                    <LoadError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
+                                ) : (
+                                    <SkeletonRows n={2} />
+                                )}
+                            </Panel>
+                        </Grid>
+                        <BattleStatsPanel dexId={id} />
+                    </VStack>
                 )}
+
+                {tab === "moves" && (
+                    <MovesPanel
+                        key={id}
+                        detail={detail}
+                        loading={detailQ.isPending}
+                        error={detailQ.isError}
+                        onRetry={() => void detailQ.refetch()}
+                        fallbackMoves={detailQ.isError ? local?.moves : undefined}
+                        lang={lang}
+                        t={t}
+                        allLabel={tc("all")}
+                    />
+                )}
+
+                {tab === "sprites" &&
+                    (detail ? (
+                        <SpritesGallery sprites={detail.sprites} lang={lang} t={t} />
+                    ) : detailQ.isError ? (
+                        <LoadError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
+                    ) : (
+                        <Card>
+                            <SkeletonRows n={4} />
+                        </Card>
+                    ))}
             </div>
-        </div>
+        </VStack>
     )
 }

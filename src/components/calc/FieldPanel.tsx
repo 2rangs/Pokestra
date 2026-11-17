@@ -1,35 +1,58 @@
 import type { Terrain, Weather } from '@kyasi/pokebattle-engine'
-import { TERRAIN_OPTIONS, WEATHER_OPTIONS, type FieldState } from './calcState'
-import { FieldLabel, Toggle, inputCls } from './ui'
+import { Button } from '@astryxdesign/core/Button'
+import { Card } from '@astryxdesign/core/Card'
+import { Selector } from '@astryxdesign/core/Selector'
+import { Switch } from '@astryxdesign/core/Switch'
+import { Text } from '@astryxdesign/core/Text'
+import { VStack } from '@astryxdesign/core/VStack'
+import { useT } from '../../i18n'
+import { calcMessages } from '../../i18n/messages/calc'
+import { SectionTitle } from '../ui/shared'
+import { DEFAULT_FIELD, TERRAIN_IDS, WEATHER_IDS, type FieldState } from './calcState'
+
+const NONE = 'none'
 
 export function FieldPanel({ field, onChange }: { field: FieldState; onChange: (f: FieldState) => void }) {
+    const t = useT(calcMessages)
     const set = <K extends keyof FieldState>(k: K, v: FieldState[K]) => onChange({ ...field, [k]: v })
+    const dirty = (Object.keys(DEFAULT_FIELD) as (keyof FieldState)[]).some(k => field[k] !== DEFAULT_FIELD[k])
+
+    const weatherOptions = [{ value: NONE, label: t('none') }, ...WEATHER_IDS.map(id => ({ value: id, label: t(`weather_${id}`) }))]
+    const terrainOptions = [{ value: NONE, label: t('none') }, ...TERRAIN_IDS.map(id => ({ value: id, label: t(`terrain_${id}`) }))]
+
     return (
-        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
-            <h2 className="mb-3 text-sm font-bold text-slate-800">필드 조건</h2>
-            <div className="grid grid-cols-2 gap-2">
-                <FieldLabel label="날씨">
-                    <select className={inputCls} value={field.weather ?? ''} onChange={e => set('weather', (e.target.value || null) as Weather)}>
-                        {WEATHER_OPTIONS.map(o => <option key={o.id ?? 'none'} value={o.id ?? ''}>{o.ko}</option>)}
-                    </select>
-                </FieldLabel>
-                <FieldLabel label="필드">
-                    <select className={inputCls} value={field.terrain ?? ''} onChange={e => set('terrain', (e.target.value || null) as Terrain)}>
-                        {TERRAIN_OPTIONS.map(o => <option key={o.id ?? 'none'} value={o.id ?? ''}>{o.ko}</option>)}
-                    </select>
-                </FieldLabel>
-            </div>
-            <div className="mt-3 text-[11px] font-semibold text-slate-500">방어 측 벽</div>
-            <div className="mt-1 flex flex-wrap gap-1.5">
-                <Toggle label="리플렉터" checked={field.reflect} onChange={v => set('reflect', v)} />
-                <Toggle label="빛의장막" checked={field.lightScreen} onChange={v => set('lightScreen', v)} />
-                <Toggle label="오로라베일" checked={field.auroraVeil} onChange={v => set('auroraVeil', v)} />
-            </div>
-            <div className="mt-3 text-[11px] font-semibold text-slate-500">기타</div>
-            <div className="mt-1 flex flex-wrap gap-1.5">
-                <Toggle label="급소" checked={field.crit} onChange={v => set('crit', v)} />
-                <Toggle label="중력" checked={field.gravity} onChange={v => set('gravity', v)} />
-            </div>
-        </section>
+        <Card role="region" aria-labelledby="calc-field-title" className="min-w-0">
+            <SectionTitle
+                id="calc-field-title"
+                aside={dirty ? <Button size="sm" variant="ghost" label={t('resetField')} onClick={() => onChange(DEFAULT_FIELD)} /> : undefined}
+            >
+                {t('fieldTitle')}
+            </SectionTitle>
+            <VStack gap={4}>
+                <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-1">
+                    <Selector
+                        label={t('weather')} width="100%" options={weatherOptions}
+                        value={field.weather ?? NONE}
+                        onChange={v => set('weather', (v === NONE ? null : v) as Weather)}
+                    />
+                    <Selector
+                        label={t('terrain')} width="100%" options={terrainOptions}
+                        value={field.terrain ?? NONE}
+                        onChange={v => set('terrain', (v === NONE ? null : v) as Terrain)}
+                    />
+                </div>
+                <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+                    <legend className="mb-2 p-0"><Text type="label">{t('screens')}</Text></legend>
+                    <Switch size="sm" label={t('reflect')} value={field.reflect} onChange={v => set('reflect', v)} />
+                    <Switch size="sm" label={t('lightScreen')} value={field.lightScreen} onChange={v => set('lightScreen', v)} />
+                    <Switch size="sm" label={t('auroraVeil')} value={field.auroraVeil} onChange={v => set('auroraVeil', v)} />
+                </fieldset>
+                <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+                    <legend className="mb-2 p-0"><Text type="label">{t('other')}</Text></legend>
+                    <Switch size="sm" label={t('crit')} value={field.crit} onChange={v => set('crit', v)} />
+                    <Switch size="sm" label={t('gravity')} value={field.gravity} onChange={v => set('gravity', v)} />
+                </fieldset>
+            </VStack>
+        </Card>
     )
 }

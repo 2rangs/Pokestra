@@ -1,42 +1,93 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { BattleConfig, PokemonSet } from '@kyasi/pokebattle-engine'
-import { useEngineReady, buildRandomTeam, pokemonNameKo, spriteUrl, dexIdOf } from '../../lib/battle'
+import { Banner } from '@astryxdesign/core/Banner'
+import { Button } from '@astryxdesign/core/Button'
+import { Card } from '@astryxdesign/core/Card'
+import { Grid } from '@astryxdesign/core/Grid'
+import { HStack } from '@astryxdesign/core/HStack'
+import { VStack } from '@astryxdesign/core/VStack'
+import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl'
+import { Text } from '@astryxdesign/core/Text'
+import { useEngineReady, buildRandomTeam, spriteUrl, dexIdOf } from '../../lib/battle'
+import { pokemonLabel } from '../../lib/battleLog'
 import { useBattleStore, type BattleMode } from '../../stores/battleStore'
+import { useDocumentTitle, useLang, useT } from '../../i18n'
+import { battleMessages } from '../../i18n/messages/battle'
+import { PageTitle, SectionTitle, Spinner } from '../../components/ui/shared'
 import { TeamBuilder } from './TeamBuilder'
 import { BattleView } from './BattleView'
 import { useBattleSession, type Difficulty } from './useBattleSession'
 
-const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
-    { id: 'easy',   label: '쉬움',   desc: '무작위로 행동' },
-    { id: 'normal', label: '보통',   desc: '데미지·상성을 계산' },
-    { id: 'hard',   label: '어려움', desc: '거의 항상 최선의 수' },
-]
+const DIFFICULTIES = [
+    { id: 'easy', label: 'diffEasy', desc: 'diffEasyDesc' },
+    { id: 'normal', label: 'diffNormal', desc: 'diffNormalDesc' },
+    { id: 'hard', label: 'diffHard', desc: 'diffHardDesc' },
+] as const satisfies readonly { id: Difficulty; label: string; desc: string }[]
 
+const MODES = [
+    { id: 'vs-cpu', label: 'modeVsCpu' },
+    { id: 'cpu-vs-cpu', label: 'modeSpectate' },
+] as const satisfies readonly { id: BattleMode; label: string }[]
+
+const SIZES = [1, 3, 6] as const
+
+const newSeed = () => Math.floor(Math.random() * 1e9)
+
+/** 상대 팀 미리보기: 작은 그림 + 이름 */
 function TeamStrip({ team }: { team: PokemonSet[] }) {
+    const lang = useLang()
     return (
-        <div className="flex flex-wrap gap-1">
+        <ul className="flex flex-wrap gap-2">
             {team.map((s, i) => {
                 const id = dexIdOf(s.species)
+                const name = pokemonLabel(s.species, s.nickname, lang)
                 return (
-                    <span key={i} className="flex items-center gap-1 rounded-lg bg-white px-1.5 py-0.5 text-xs text-slate-700 shadow-sm" title={pokemonNameKo(s.species)}>
-                        {id && <img src={spriteUrl(id)} alt="" className="h-7 w-7 object-contain [image-rendering:pixelated]" loading="lazy" />}
-                        <span className="hidden sm:inline">{s.nickname ?? pokemonNameKo(s.species)}</span>
-                    </span>
+                    <li key={i} title={name} className="flex items-center gap-1.5 rounded-md border border-border bg-surface py-0.5 pr-2.5 pl-1">
+                        <span className="flex h-8 w-8 items-center justify-center">
+                            {id && <img src={spriteUrl(id)} alt="" className="h-8 w-8 object-contain [image-rendering:pixelated]" loading="lazy" />}
+                        </span>
+                        <span className="sr-only sm:not-sr-only"><Text type="supporting">{name}</Text></span>
+                    </li>
                 )
             })}
-        </div>
+        </ul>
+    )
+}
+
+/** 보이는 이름표 + 컨트롤 (SegmentedControl 의 label 은 화면에 그려지지 않는다) */
+function Setting({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+    return (
+        <VStack gap={1.5} className="min-w-0">
+            <Text type="label">{label}</Text>
+            {children}
+            {hint && <Text type="supporting" color="secondary">{hint}</Text>}
+        </VStack>
     )
 }
 
 export default function BattlePage() {
+    const t = useT(battleMessages)
     const { ready, error } = useEngineReady()
     const store = useBattleStore()
     const session = useBattleSession()
     const [inBattle, setInBattle] = useState(false)
     const [lastConfig, setLastConfig] = useState<BattleConfig | null>(null)
 
-    if (error) return <p className="p-8 text-center text-red-500">배틀 데이터를 불러오지 못했습니다: {error.message}</p>
-    if (!ready) return <p className="p-8 text-center text-slate-400">배틀 엔진 데이터 불러오는 중…</p>
+    useDocumentTitle(t('title'))
+
+    if (error) {
+        return (
+            <span role="alert" className="block">
+                <Banner
+                    status="error"
+                    title={t('loadError')}
+                    description={error.message}
+                    endContent={<Button label={t('retry')} size="sm" onClick={() => window.location.reload()} />}
+                />
+            </span>
+        )
+    }
+    if (!ready) return <Spinner label={t('loadingEngine')} />
 
     const size = store.teamSize
     const myTeam = store.myTeam.slice(0, size)
@@ -44,24 +95,25 @@ export default function BattlePage() {
     const spectate = store.mode === 'cpu-vs-cpu'
 
     const rerollFoe = () => {
-        const seed = Math.floor(Math.random() * 1e9)
+        const seed = newSeed()
         store.setFoeTeam(buildRandomTeam(seed, 6), seed)
     }
-    const randomMine = () => store.setMyTeam(buildRandomTeam(Math.floor(Math.random() * 1e9), 6))
+    const randomMine = () => store.setMyTeam(buildRandomTeam(newSeed(), 6))
 
     const begin = (config?: BattleConfig) => {
         let foe = foeTeam
         if (foe.length === 0) {
-            const seed = Math.floor(Math.random() * 1e9)
-            const t = buildRandomTeam(seed, 6)
-            store.setFoeTeam(t, seed)
-            foe = t.slice(0, size)
+            const seed = newSeed()
+            const team = buildRandomTeam(seed, 6)
+            store.setFoeTeam(team, seed)
+            foe = team.slice(0, size)
         }
+        // 진영 이름은 화면에서 현재 언어로 다시 정하므로 여기서는 고정 식별자만 둔다
         const cfg: BattleConfig = config ?? {
             format: 'singles',
-            seed: Math.floor(Math.random() * 1e9),
-            p1: { name: spectate ? 'CPU 1' : '나', team: myTeam },
-            p2: { name: spectate ? 'CPU 2' : '상대 트레이너', team: foe },
+            seed: newSeed(),
+            p1: { name: spectate ? 'CPU 1' : 'Player', team: myTeam },
+            p2: { name: spectate ? 'CPU 2' : 'CPU', team: foe },
         }
         setLastConfig(cfg)
         session.start(cfg, {
@@ -78,86 +130,73 @@ export default function BattlePage() {
             <BattleView
                 session={session}
                 onExit={() => setInBattle(false)}
-                onRematch={() => lastConfig && begin({ ...lastConfig, seed: Math.floor(Math.random() * 1e9) })}
+                onRematch={() => lastConfig && begin({ ...lastConfig, seed: newSeed() })}
             />
         )
     }
 
     const canStart = myTeam.length > 0
+    const diff = DIFFICULTIES.find(d => d.id === store.difficulty) ?? DIFFICULTIES[1]
 
     return (
-        <div className="space-y-6">
-            <header>
-                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">배틀 시뮬레이터</h1>
-                <p className="mt-1 text-sm text-slate-500">
-                    도감의 기술표로 팀을 짜서 CPU와 싱글 배틀을 하거나, CPU끼리의 배틀을 관전하세요. 9세대 규칙(테라스탈 포함)을 따릅니다.
-                </p>
-            </header>
+        <VStack gap={8}>
+            <PageTitle title={t('title')} lead={t('intro')} className="mb-0" />
 
-            <section className="grid grid-cols-1 gap-3 rounded-3xl border border-slate-200 bg-white p-4 sm:grid-cols-3">
-                <div>
-                    <p className="mb-1.5 text-xs font-bold text-slate-400">모드</p>
-                    <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                        {([['vs-cpu', 'CPU와 대전'], ['cpu-vs-cpu', 'CPU 관전']] as [BattleMode, string][]).map(([id, label]) => (
-                            <button key={id} type="button" onClick={() => store.setMode(id)}
-                                className={`flex-1 rounded-lg px-2 py-1.5 text-sm font-semibold transition ${store.mode === id ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}>
-                                {label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <div>
-                    <p className="mb-1.5 text-xs font-bold text-slate-400">CPU 난이도</p>
-                    <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                        {DIFFICULTIES.map(d => (
-                            <button key={d.id} type="button" onClick={() => store.setDifficulty(d.id)} title={d.desc}
-                                className={`flex-1 rounded-lg px-2 py-1.5 text-sm font-semibold transition ${store.difficulty === d.id ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}>
-                                {d.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <div>
-                    <p className="mb-1.5 text-xs font-bold text-slate-400">마릿수</p>
-                    <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                        {[1, 3, 6].map(n => (
-                            <button key={n} type="button" onClick={() => store.setTeamSize(n)}
-                                className={`flex-1 rounded-lg px-2 py-1.5 text-sm font-semibold transition ${size === n ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}>
-                                {n} vs {n}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+            <Card padding={4}>
+                <Grid columns={{ minWidth: 220 }} gap={4}>
+                    <Setting label={t('mode')}>
+                        <SegmentedControl label={t('mode')} layout="fill" value={store.mode} onChange={v => store.setMode(v as BattleMode)}>
+                            {MODES.map(m => <SegmentedControlItem key={m.id} value={m.id} label={t(m.label)} />)}
+                        </SegmentedControl>
+                    </Setting>
+                    <Setting label={t('difficulty')} hint={t(diff.desc)}>
+                        <SegmentedControl label={t('difficulty')} layout="fill" value={store.difficulty} onChange={v => store.setDifficulty(v as Difficulty)}>
+                            {DIFFICULTIES.map(d => <SegmentedControlItem key={d.id} value={d.id} label={t(d.label)} />)}
+                        </SegmentedControl>
+                    </Setting>
+                    <Setting label={t('teamSize')}>
+                        <SegmentedControl label={t('teamSize')} layout="fill" value={String(size)} onChange={v => store.setTeamSize(Number(v))}>
+                            {SIZES.map(n => <SegmentedControlItem key={n} value={String(n)} label={t('sizeOption', { n })} />)}
+                        </SegmentedControl>
+                    </Setting>
+                </Grid>
+            </Card>
+
+            <section aria-labelledby="battle-my-team">
+                <SectionTitle
+                    id="battle-my-team"
+                    aside={store.myTeam.length > size ? t('onlyFirstN', { n: size }) : undefined}
+                >
+                    {spectate ? t('cpuTeam', { name: t('cpu1') }) : t('myTeam')}
+                </SectionTitle>
+                <TeamBuilder team={store.myTeam} onChange={store.setMyTeam} onRandom={randomMine} activeCount={size} />
             </section>
 
-            <section className="space-y-3">
-                <div className="flex items-baseline justify-between">
-                    <h2 className="text-lg font-bold text-slate-900">{spectate ? 'CPU 1 팀' : '내 팀'}</h2>
-                    {store.myTeam.length > size && <p className="text-xs text-slate-400">앞의 {size}마리만 출전합니다</p>}
-                </div>
-                <TeamBuilder team={store.myTeam} onChange={store.setMyTeam} onRandom={randomMine} />
-            </section>
-
-            <section className="space-y-2 rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="text-lg font-bold text-slate-900">{spectate ? 'CPU 2 팀' : '상대 팀'}</h2>
-                    <button type="button" onClick={rerollFoe} className="rounded-xl bg-white px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-100">🎲 상대 팀 바꾸기</button>
-                </div>
+            <section aria-labelledby="battle-foe-team">
+                <SectionTitle
+                    id="battle-foe-team"
+                    aside={<Button size="sm" label={t('rerollFoe')} onClick={rerollFoe} />}
+                >
+                    {spectate ? t('cpuTeam', { name: t('cpu2') }) : t('foeTeam')}
+                </SectionTitle>
                 {foeTeam.length > 0
                     ? <TeamStrip team={foeTeam} />
-                    : <p className="text-sm text-slate-400">시작하면 랜덤 팀이 정해집니다.</p>}
+                    : <Text as="p" color="secondary">{t('foeRandomHint')}</Text>}
             </section>
 
-            <div className="sticky bottom-3 z-20 flex justify-center">
-                <button
-                    type="button"
-                    disabled={!canStart}
-                    onClick={() => begin()}
-                    className="rounded-2xl bg-red-500 px-8 py-3 text-lg font-extrabold text-white shadow-lg shadow-red-500/30 transition hover:-translate-y-0.5 hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
-                >
-                    {canStart ? (spectate ? '관전 시작' : '배틀 시작!') : '팀에 포켓몬을 추가하세요'}
-                </button>
+            <div className="sticky bottom-3 z-20">
+                <Card padding={3} elevation="med">
+                    <HStack gap={3} vAlign="center" hAlign="end" wrap="wrap">
+                        <Button
+                            variant="primary"
+                            size="lg"
+                            label={canStart ? (spectate ? t('startSpectate') : t('startBattle')) : t('addPokemonFirst')}
+                            isDisabled={!canStart}
+                            onClick={() => canStart && begin()}
+                        />
+                    </HStack>
+                </Card>
             </div>
-        </div>
+        </VStack>
     )
 }

@@ -1,7 +1,10 @@
-import { useMemo, useRef, useState } from 'react'
-import { displayNameKo, type DexPokemon } from '../../lib/dex'
-import { battleReadyPokemon, spriteUrl } from '../../lib/battle'
-import { TypeBadge } from './TypeBadge'
+import { useMemo } from 'react'
+import { Typeahead, TypeaheadItem, type SearchableItem, type SearchSource } from '@astryxdesign/core/Typeahead'
+import { displayName, searchKey, type DexPokemon } from '../../lib/dex'
+import { battleReadyPokemon, spriteUrl, typeNameL } from '../../lib/battle'
+import { useLang, useT } from '../../i18n'
+import { battleMessages } from '../../i18n/messages/battle'
+import { commonMessages } from '../../i18n/messages/common'
 
 interface Props {
     onPick: (p: DexPokemon) => void
@@ -10,70 +13,67 @@ interface Props {
     autoFocus?: boolean
 }
 
-/** 배틀 가능한 포켓몬 검색 (한국어/영어/번호) */
-export function PokemonSearch({ onPick, placeholder = '포켓몬 이름 또는 번호', includeForms = true, autoFocus }: Props) {
-    const [query, setQuery] = useState('')
-    const [open, setOpen] = useState(false)
-    const [cursor, setCursor] = useState(0)
-    const inputRef = useRef<HTMLInputElement>(null)
-    const pool = useMemo(() => battleReadyPokemon(includeForms), [includeForms])
+type Hit = SearchableItem<DexPokemon>
 
-    const results = useMemo(() => {
-        const q = query.trim().toLowerCase().replace(/\s+/g, '')
-        if (!q) return []
-        const num = Number(q.replace('#', ''))
-        return pool.filter(p => {
-            if (Number.isFinite(num) && num > 0) return p.id === num
-            return p.nameKo.replace(/\s+/g, '').includes(q) || p.name.includes(q.replace(/\s/g, '-'))
-        }).slice(0, 10)
-    }, [query, pool])
+const norm = (s: string) => s.toLowerCase().replace(/[\s\-_.'’:]/g, '')
 
-    const pick = (p: DexPokemon) => {
-        onPick(p)
-        setQuery('')
-        setOpen(false)
-        inputRef.current?.blur()
-    }
+/** 배틀 가능한 포켓몬 검색 (한국어/영어/일본어/번호). 고르면 입력칸은 비워진다 */
+export function PokemonSearch({ onPick, placeholder, includeForms = true, autoFocus }: Props) {
+    const lang = useLang()
+    const t = useT(battleMessages)
+    const tc = useT(commonMessages)
+    const pool = useMemo(
+        () => battleReadyPokemon(includeForms).map(p => ({ p, key: norm(searchKey(p)) })),
+        [includeForms],
+    )
+
+    const source = useMemo<SearchSource<Hit>>(() => {
+        const toHit = (p: DexPokemon): Hit => ({ id: String(p.id), label: displayName(p, lang), auxiliaryData: p })
+        return {
+            bootstrap: () => [],
+            search: (query: string) => {
+                const q = norm(query.trim())
+                if (!q) return []
+                const num = Number(q.replace('#', ''))
+                if (Number.isFinite(num) && num > 0) return pool.filter(x => x.p.id === num).slice(0, 10).map(x => toHit(x.p))
+                // 앞부분 일치를 먼저
+                const starts: DexPokemon[] = []
+                const contains: DexPokemon[] = []
+                for (const x of pool) {
+                    const i = x.key.indexOf(q)
+                    if (i < 0) continue
+                    const prefix = i === 0 || [x.p.name, x.p.nameKo, x.p.nameEn, x.p.nameJa].some(n => n && norm(n).startsWith(q))
+                    ;(prefix ? starts : contains).push(x.p)
+                    if (starts.length >= 10) break
+                }
+                return [...starts, ...contains].slice(0, 10).map(toHit)
+            },
+        }
+    }, [pool, lang])
 
     return (
-        <div className="relative">
-            <input
-                ref={inputRef}
-                value={query}
-                autoFocus={autoFocus}
-                onChange={e => { setQuery(e.target.value); setOpen(true); setCursor(0) }}
-                onFocus={() => setOpen(true)}
-                onBlur={() => setTimeout(() => setOpen(false), 150)}
-                onKeyDown={e => {
-                    if (e.key === 'ArrowDown') { e.preventDefault(); setCursor(c => Math.min(c + 1, results.length - 1)) }
-                    if (e.key === 'ArrowUp') { e.preventDefault(); setCursor(c => Math.max(c - 1, 0)) }
-                    if (e.key === 'Enter' && results[cursor]) { e.preventDefault(); pick(results[cursor]!) }
-                    if (e.key === 'Escape') setOpen(false)
-                }}
-                placeholder={placeholder}
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100"
-            />
-            {open && results.length > 0 && (
-                <ul className="absolute z-30 mt-1 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
-                    {results.map((p, i) => (
-                        <li key={p.id}>
-                            <button
-                                type="button"
-                                onMouseDown={e => { e.preventDefault(); pick(p) }}
-                                onMouseEnter={() => setCursor(i)}
-                                className={`flex w-full items-center gap-2 px-2 py-1.5 text-left text-sm ${i === cursor ? 'bg-slate-100' : ''}`}
-                            >
-                                <img src={p.sprite ?? spriteUrl(p.id)} alt="" className="h-8 w-8 shrink-0 object-contain" loading="lazy" />
-                                <span className="min-w-0 flex-1 truncate">
-                                    <span className="font-semibold text-slate-800">{displayNameKo(p)}</span>
-                                    <span className="ml-1 text-xs text-slate-400">{p.name}</span>
-                                </span>
-                                <span className="flex shrink-0 gap-1">{p.types.map(t => <TypeBadge key={t} type={t} size="xs" />)}</span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+        <Typeahead<Hit>
+            label={t('searchLabel')}
+            isLabelHidden
+            placeholder={placeholder ?? t('searchPlaceholder')}
+            searchSource={source}
+            value={null}
+            onChange={item => { if (item?.auxiliaryData) onPick(item.auxiliaryData) }}
+            hasClear={false}
+            hasAutoFocus={autoFocus}
+            debounceMs={0}
+            width="100%"
+            emptySearchText={tc('noResults')}
+            renderItem={item => {
+                const p = item.auxiliaryData!
+                return (
+                    <TypeaheadItem
+                        item={item}
+                        icon={<img src={p.sprite ?? spriteUrl(p.id)} alt="" className="h-8 w-8 object-contain" loading="lazy" />}
+                        description={`#${p.id}, ${p.types.map(ty => typeNameL(ty, lang)).join(' / ')}`}
+                    />
+                )
+            }}
+        />
     )
 }
