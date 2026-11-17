@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useEvolutionChain, usePokemonDetail, usePokemonSpecies } from "../../hooks/usePokemon"
+import BattleStatsPanel from "../../components/BattleStatsPanel"
 
 // ─── Google Fonts injection ───────────────────────────────────────────────────
 const FONT_LINK = "https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
@@ -282,7 +283,7 @@ export default function PokemonDetailPage() {
         detail?.sprites?.front_default ?? ""
 
     const speciesId = useMemo(() => getIdFromUrl(detail?.species?.url), [detail?.species?.url])
-    const { data: species, isLoading: speciesLoading } = usePokemonSpecies(speciesId)
+    const { data: species } = usePokemonSpecies(speciesId)
     const { data: evo, isLoading: evoLoading } = useEvolutionChain(species?.evolution_chain?.url)
 
     const flavor = useMemo(() => {
@@ -308,7 +309,7 @@ export default function PokemonDetailPage() {
 
     const heldItems = detail?.held_items?.map((h: any) => h.item.name) ?? []
     const genderRate = species?.gender_rate
-    const genderText = genderRate === -1 ? "Genderless" : genderRate === 0 ? "Male only" : genderRate === 8 ? "Female only"
+    const genderText = genderRate == null ? "—" : genderRate === -1 ? "Genderless" : genderRate === 0 ? "Male only" : genderRate === 8 ? "Female only"
         : `${Math.round((1 - genderRate / 8) * 100)}% M / ${Math.round((genderRate / 8) * 100)}% F`
     const generation = species?.generation?.name?.replace("generation-", "Gen ")?.toUpperCase()
 
@@ -484,7 +485,7 @@ export default function PokemonDetailPage() {
                             {species?.hatch_counter != null && (
                                 <InfoRow label="Hatch Steps" value={`${(species.hatch_counter + 1) * 255} steps`} />
                             )}
-                            {species?.egg_groups?.length > 0 && (
+                            {species?.egg_groups && species.egg_groups.length > 0 && (
                                 <div style={{ paddingTop: 14 }}>
                                     <div style={{ fontSize: 14, color: "#94A3B8", marginBottom: 10, fontFamily: "DM Sans, sans-serif" }}>Egg Groups</div>
                                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -576,6 +577,13 @@ export default function PokemonDetailPage() {
                                 )}
                             </div>
                         </Card>
+                    </div>
+                )}
+
+                {/* BATTLE STATS (engine) */}
+                {tab === "stats" && (
+                    <div style={{ marginTop: 20 }}>
+                        <BattleStatsPanel dexId={detail.id} />
                     </div>
                 )}
 

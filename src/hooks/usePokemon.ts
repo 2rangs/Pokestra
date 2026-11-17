@@ -44,14 +44,42 @@ export interface PokemonDetail {
     weight: number
 }
 
+/** PokeAPI의 `{ name, url }` 형태 참조 */
+export interface NamedAPIResource {
+    name: string
+    url: string
+}
+
+/** PokeAPI `pokemon-species/{id}` 응답 (사용하는 필드 위주) */
 export interface PokemonSpecies {
     id: number
     name: string
+    order: number
+    /** 암컷 비율 (1/8 단위). -1 = 성별 없음 */
+    gender_rate: number
+    /** 0~255 */
+    capture_rate: number
+    /** null 가능 (일부 9세대 종) */
+    base_happiness: number | null
+    is_baby: boolean
+    is_legendary: boolean
+    is_mythical: boolean
+    /** null 가능 (일부 9세대 종) */
+    hatch_counter: number | null
+    has_gender_differences: boolean
+    forms_switchable: boolean
+    growth_rate: NamedAPIResource
+    generation: NamedAPIResource
+    color: NamedAPIResource
+    shape: NamedAPIResource | null
+    habitat: NamedAPIResource | null
+    evolves_from_species: NamedAPIResource | null
+    pokedex_numbers: { entry_number: number; pokedex: NamedAPIResource }[]
     names: { language: { name: string }; name: string }[]
     genera: { genus: string; language: { name: string } }[]
     flavor_text_entries: { flavor_text: string; language: { name: string }; version: { name: string } }[]
     evolution_chain: { url: string }
-    egg_groups: { name: string; url: string }[]
+    egg_groups?: NamedAPIResource[]
     varieties: { is_default: boolean; pokemon: { name: string; url: string } }[]
 }
 
