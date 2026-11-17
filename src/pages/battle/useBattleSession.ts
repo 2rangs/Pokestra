@@ -1,12 +1,14 @@
 // ─── 배틀 세션 훅 ─────────────────────────────────────────────
 // 엔진 이벤트마다 화면용 프레임을 기록하고, 일정 간격으로 하나씩 재생한다.
+// 로그 문장은 프레임에 저장하지 않고 화면을 그릴 때 현재 언어로 만든다 (frameText).
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
-    BattleEngine, formatEvent, createAI,
+    BattleEngine, createAI,
     type Action, type BattleAI, type BattleConfig, type BattleEvent, type BattlePokemon,
-    type BattleRequest, type PlayerID, type Side,
+    type BattleRequest, type FormatContext, type PlayerID, type Side,
 } from '@kyasi/pokebattle-engine'
-import { KO_NAMES } from '../../lib/battle'
+import { formatBattleEvent } from '../../lib/battleLog'
+import type { Lang } from '../../i18n'
 
 export type Difficulty = 'easy' | 'normal' | 'hard'
 export type Controller = 'human' | Difficulty
@@ -14,6 +16,8 @@ export type Controller = 'human' | Difficulty
 export interface PokeView {
     id:            string
     species:       string
+    /** 세트의 원래 종 (폼 체인지 전) */
+    setSpecies:    string
     nickname:      string
     level:         number
     hp:            number
@@ -41,7 +45,8 @@ export interface SideView {
 export interface Frame {
     index:   number
     event:   BattleEvent
-    text:    string | null
+    /** 로그에 보이지 않는 이벤트 (재생 시 대기 없이 넘김) */
+    silent:  boolean
     turn:    number
     p1:      SideView
     p2:      SideView
@@ -54,7 +59,7 @@ function viewPokemon(p: BattlePokemon): PokeView {
     const stages: Record<string, number> = {}
     for (const [k, v] of Object.entries(p.stages)) if (v !== 0) stages[k] = v
     return {
-        id: p.id, species: p.species, nickname: p.nickname, level: p.level,
+        id: p.id, species: p.species, setSpecies: p.set?.species ?? p.species, nickname: p.nickname, level: p.level,
         hp: p.hp, max_hp: p.max_hp, status: p.status, types: p.types.filter(Boolean) as string[],
         tera_type: p.tera_type ?? null, terastallized: !!p.terastallized, stages,
         item: p.item, ability: p.ability, fainted: p.fainted,
@@ -71,6 +76,26 @@ function viewSide(side: Side): SideView {
         conditions: Object.entries(side.conditions).map(([id, c]) => ({ id, layers: c?.layers ?? 1 })),
         usedTera: !!side.used_tera,
     }
+}
+
+/** 프레임 시점의 포켓몬 정보로 로그 포매터 컨텍스트를 만든다 */
+function frameContext(f: Pick<Frame, 'p1' | 'p2'>, sideName?: (p: PlayerID) => string): FormatContext {
+    return {
+        getPokemon: id => {
+            const p = f.p1.team.find(x => x.id === id) ?? f.p2.team.find(x => x.id === id)
+            // 포매터는 species / nickname / max_hp 만 읽는다
+            return p ? ({ ...p, set: { species: p.setSpecies } } as unknown as BattlePokemon) : undefined
+        },
+        sideName,
+    }
+}
+
+/**
+ * 프레임의 로그 문장 (현재 언어).
+ * sideName 은 관전 모드처럼 진영 이름을 직접 보여줄 때만 넘긴다.
+ */
+export function frameText(f: Frame, lang: Lang, sideName?: (p: PlayerID) => string): string | null {
+    return formatBattleEvent(f.event, frameContext(f, sideName), lang)
 }
 
 export interface SessionOptions {
@@ -105,13 +130,16 @@ export function useBattleSession() {
             const st = e.getState()
             // 팀 등록 전(battle_start) 이벤트는 화면에 그릴 포켓몬이 없다
             if (!st.sides.p1.active[0] || !st.sides.p2.active[0]) return
+            const p1 = viewSide(st.sides.p1)
+            const p2 = viewSide(st.sides.p2)
             const frame: Frame = {
                 index:   framesRef.current.length,
                 event:   ev,
-                text:    formatEvent(ev, { getPokemon: id => e.getPokemon(id), sideName: p => (p === 'p1' ? st.sides.p1.name : st.sides.p2.name) ?? p }, KO_NAMES),
+                // 숨김 여부는 언어와 무관하다
+                silent:  formatBattleEvent(ev, frameContext({ p1, p2 }), 'en') === null,
                 turn:    st.turn,
-                p1:      viewSide(st.sides.p1),
-                p2:      viewSide(st.sides.p2),
+                p1,
+                p2,
                 weather: st.field.weather,
                 terrain: st.field.terrain,
                 field:   Object.keys(st.field.conditions),
@@ -178,8 +206,7 @@ export function useBattleSession() {
     useEffect(() => {
         if (revealed >= frames.length || paused) return
         const next = frames[revealed]!
-        const silent = next.text === null
-        const t = setTimeout(() => setRevealed(r => r + 1), silent ? 0 : speed)
+        const t = setTimeout(() => setRevealed(r => r + 1), next.silent ? 0 : speed)
         return () => clearTimeout(t)
     }, [revealed, frames, paused, speed])
 

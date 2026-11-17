@@ -1,7 +1,9 @@
 import { Link } from 'react-router'
 import { calcBaseStat, calcHP, getSpecies } from '@kyasi/pokebattle-engine'
-import { BATTLE_STAT_LABEL_KO, useEngineReady, abilityNameKo } from '../lib/battle'
-import { getDexPokemon } from '../lib/dex'
+import { useLang, useT } from '../i18n'
+import { pokedexMessages } from '../i18n/messages/pokedex'
+import { abilityNameL, battleStatLabel, useEngineReady } from '../lib/battle'
+import { ABILITY_BY_NAME, getDexPokemon } from '../lib/dex'
 
 const KEYS = ['hp', 'attack', 'defense', 'special_attack', 'special_defense', 'speed'] as const
 type Key = typeof KEYS[number]
@@ -22,45 +24,55 @@ function realStats(base: number, key: Key, level: number) {
 }
 
 export default function BattleStatsPanel({ dexId }: { dexId: number }) {
+    const lang = useLang()
+    const t = useT(pokedexMessages)
     const { ready, error } = useEngineReady()
     const dex = getDexPokemon(dexId)
     const species = ready && dex ? getSpecies(dex.name) : undefined
 
     return (
-        <section className="rounded-[22px] border border-slate-100 bg-white p-4 shadow-sm sm:p-6">
+        <section aria-labelledby="battle-stats-title" className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-6">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-300">Battle Stats · 실능치</h3>
-                    <p className="mt-1 text-xs text-slate-400">최저 0 IV·0 EV·하락 성격 / 무보정 31 IV·0 EV / 최고 31 IV·252 EV·상승 성격</p>
+                <div className="min-w-0">
+                    <h3 id="battle-stats-title" className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">
+                        {t('battleTitle')}
+                    </h3>
+                    <p className="mt-1 text-xs leading-relaxed text-slate-400">{t('battleNote')}</p>
                 </div>
                 {dex && species && (
                     <Link
                         to={`/calc?atk=${encodeURIComponent(dex.name)}`}
-                        className="inline-flex items-center gap-1 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600"
+                        className="inline-flex items-center gap-1 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
                     >
-                        데미지 계산기에서 열기 →
+                        {t('openInCalc')}
                     </Link>
                 )}
             </div>
 
             {error ? (
-                <p className="text-sm text-red-600">배틀 데이터를 불러오지 못했습니다.</p>
+                <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600" role="alert">{t('battleLoadError')}</p>
             ) : !ready ? (
-                <p className="text-sm text-slate-400">배틀 데이터 불러오는 중…</p>
+                <div className="space-y-2" role="status" aria-live="polite">
+                    <span className="sr-only">{t('battleLoading')}</span>
+                    {[0, 1, 2].map(i => (
+                        <div key={i} className="h-8 animate-pulse rounded-xl bg-slate-100" aria-hidden />
+                    ))}
+                </div>
             ) : !species ? (
-                <p className="text-sm text-slate-400">배틀 엔진에 이 포켓몬의 데이터가 없습니다.</p>
+                <p className="rounded-2xl border border-dashed border-slate-200 px-4 py-6 text-center text-sm text-slate-400">{t('battleNoData')}</p>
             ) : (
                 <>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {LEVELS.map(lv => (
                             <table key={lv} className="w-full border-collapse text-sm tabular-nums">
+                                <caption className="sr-only">{`${t('battleTitle')} Lv.${lv}`}</caption>
                                 <thead>
                                     <tr className="text-[11px] font-semibold text-slate-400">
-                                        <th className="py-1.5 pr-2 text-left"><span className="text-slate-700">Lv.{lv}</span></th>
-                                        <th className="px-1 py-1.5 text-right">종족값</th>
-                                        <th className="px-1 py-1.5 text-right">최저</th>
-                                        <th className="px-1 py-1.5 text-right">무보정</th>
-                                        <th className="px-1 py-1.5 text-right">최고</th>
+                                        <th scope="col" className="py-1.5 pr-2 text-left"><span className="text-slate-700">Lv.{lv}</span></th>
+                                        <th scope="col" className="px-1 py-1.5 text-right">{t('colBase')}</th>
+                                        <th scope="col" className="px-1 py-1.5 text-right">{t('colMin')}</th>
+                                        <th scope="col" className="px-1 py-1.5 text-right">{t('colNeutral')}</th>
+                                        <th scope="col" className="px-1 py-1.5 text-right">{t('colMax')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -69,7 +81,7 @@ export default function BattleStatsPanel({ dexId }: { dexId: number }) {
                                         const r = realStats(base, k, lv)
                                         return (
                                             <tr key={k} className="border-t border-slate-100">
-                                                <td className="py-2 pr-2 font-semibold text-slate-700">{BATTLE_STAT_LABEL_KO[k]}</td>
+                                                <th scope="row" className="py-2 pr-2 text-left font-semibold text-slate-700">{battleStatLabel(k, lang)}</th>
                                                 <td className="px-1 py-2 text-right text-slate-400">{base}</td>
                                                 <td className="px-1 py-2 text-right text-blue-600">{r.min}</td>
                                                 <td className="px-1 py-2 text-right text-slate-700">{r.neutral}</td>
@@ -81,20 +93,27 @@ export default function BattleStatsPanel({ dexId }: { dexId: number }) {
                             </table>
                         ))}
                     </div>
-                    <p className="mt-2 text-[11px] text-slate-400">HP는 성격의 영향을 받지 않습니다.</p>
+                    <p className="mt-2 text-[11px] text-slate-400">{t('hpNatureNote')}</p>
 
                     <div className="mt-4">
-                        <div className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-300">특성 (배틀 엔진)</div>
+                        <div className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-slate-400">{t('engineAbilities')}</div>
                         <div className="flex flex-wrap gap-2">
-                            {species.abilities.map(a => (
-                                <span
-                                    key={a.name}
-                                    className={`rounded-xl border px-3 py-1.5 text-sm font-semibold ${a.hidden ? 'border-violet-200 bg-violet-50 text-violet-700' : 'border-slate-200 bg-slate-50 text-slate-700'}`}
-                                >
-                                    {abilityNameKo(a.name)}
-                                    {a.hidden && <span className="ml-1.5 text-[10px] font-bold text-violet-500">숨겨진 특성</span>}
-                                </span>
-                            ))}
+                            {species.abilities.map(a => {
+                                const cls = `rounded-xl border px-3 py-1.5 text-sm font-semibold transition ${a.hidden ? 'border-violet-200 bg-violet-50 text-violet-700' : 'border-slate-200 bg-slate-50 text-slate-700'}`
+                                const body = (
+                                    <>
+                                        {abilityNameL(a.name, lang)}
+                                        {a.hidden && <span className="ml-1.5 text-[10px] font-bold text-violet-500">{t('hiddenAbility')}</span>}
+                                    </>
+                                )
+                                return ABILITY_BY_NAME.has(a.name) ? (
+                                    <Link key={a.name} to={`/abilities/${a.name}`} className={`${cls} hover:border-slate-300 hover:bg-white`}>
+                                        {body}
+                                    </Link>
+                                ) : (
+                                    <span key={a.name} className={cls}>{body}</span>
+                                )
+                            })}
                         </div>
                     </div>
                 </>
@@ -102,4 +121,3 @@ export default function BattleStatsPanel({ dexId }: { dexId: number }) {
         </section>
     )
 }
-

@@ -1,40 +1,71 @@
-import { useMemo, useState } from "react"
-import { useNavigate, useParams } from "react-router"
-import { useEvolutionChain, usePokemonDetail, usePokemonSpecies } from "../../hooks/usePokemon"
+import { type CSSProperties, type KeyboardEvent, type ReactNode, useEffect, useMemo, useState } from "react"
+import { Link, useNavigate, useParams, useSearchParams } from "react-router"
 import BattleStatsPanel from "../../components/BattleStatsPanel"
+import { TypeIcon } from "../../components/TypeIcon"
+import { getIdFromUrl } from "../../common/utils"
+import {
+    type EvolutionChainLink,
+    type EvolutionDetail,
+    type PokemonDetail,
+    type PokemonMoveEntry,
+    type PokemonSpecies,
+    type PokemonSprites,
+    useEvolutionChain,
+    usePokemonDetail,
+    usePokemonSpecies,
+} from "../../hooks/usePokemon"
+import { LANGS, type Lang, type TFunction, collator, formatNumber, useDocumentTitle, useLang, useT } from "../../i18n"
+import { commonMessages } from "../../i18n/messages/common"
+import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
+import { itemName } from "../../lib/battle"
+import {
+    ABILITY_BY_NAME,
+    ALL_POKEMON,
+    MOVE_BY_NAME,
+    STAT_KEYS,
+    type DexPokemon,
+    type StatKey,
+    abilityName,
+    damageClassName,
+    eggGroupName,
+    findDexPokemonByName,
+    formLabel,
+    generationName,
+    getDexPokemon,
+    getGeneration,
+    getSpeciesId,
+    localText,
+    moveName,
+    officialArtworkUrl,
+    pokemonName,
+    statLabel,
+    titleCaseSlug,
+    typeName,
+} from "../../lib/dex"
 
-// ─── Google Fonts injection ───────────────────────────────────────────────────
-const FONT_LINK = "https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
-function injectFont() {
-    if (typeof document !== "undefined" && !document.getElementById("pokemon-fonts")) {
-        const link = document.createElement("link")
-        link.id = "pokemon-fonts"; link.rel = "stylesheet"; link.href = FONT_LINK
-        document.head.appendChild(link)
-    }
-}
+type T = TFunction<PokedexKey>
 
-// ─── Type palette ─────────────────────────────────────────────────────────────
-const TYPE_PALETTE: Record<string, { primary: string; light: string; dark: string }> = {
-    fire:     { primary: "#F97316", light: "#FEF3E2", dark: "#C2410C" },
-    water:    { primary: "#3B82F6", light: "#EFF6FF", dark: "#1D4ED8" },
-    grass:    { primary: "#22C55E", light: "#F0FDF4", dark: "#15803D" },
-    electric: { primary: "#EAB308", light: "#FEFCE8", dark: "#A16207" },
-    ice:      { primary: "#06B6D4", light: "#ECFEFF", dark: "#0E7490" },
-    fighting: { primary: "#EF4444", light: "#FEF2F2", dark: "#B91C1C" },
-    poison:   { primary: "#A855F7", light: "#FAF5FF", dark: "#7E22CE" },
-    ground:   { primary: "#F59E0B", light: "#FFFBEB", dark: "#B45309" },
-    flying:   { primary: "#6366F1", light: "#EEF2FF", dark: "#4338CA" },
-    psychic:  { primary: "#EC4899", light: "#FDF2F8", dark: "#BE185D" },
-    bug:      { primary: "#84CC16", light: "#F7FEE7", dark: "#4D7C0F" },
-    rock:     { primary: "#92400E", light: "#FEF3C7", dark: "#78350F" },
-    ghost:    { primary: "#7C3AED", light: "#F5F3FF", dark: "#5B21B6" },
-    dragon:   { primary: "#4F46E5", light: "#EEF2FF", dark: "#3730A3" },
-    dark:     { primary: "#374151", light: "#F9FAFB", dark: "#111827" },
-    steel:    { primary: "#6B7280", light: "#F9FAFB", dark: "#374151" },
-    fairy:    { primary: "#F472B6", light: "#FDF2F8", dark: "#BE185D" },
-    normal:   { primary: "#9CA3AF", light: "#F9FAFB", dark: "#4B5563" },
+// ─── Type accent palette ──────────────────────────────────────────────────────
+const TYPE_ACCENT: Record<string, string> = {
+    fire: "#F97316",
+    water: "#3B82F6",
+    grass: "#22C55E",
+    electric: "#EAB308",
+    ice: "#06B6D4",
+    fighting: "#EF4444",
+    poison: "#A855F7",
+    ground: "#F59E0B",
+    flying: "#6366F1",
+    psychic: "#EC4899",
+    bug: "#84CC16",
+    rock: "#92400E",
+    ghost: "#7C3AED",
+    dragon: "#4F46E5",
+    dark: "#374151",
+    steel: "#6B7280",
+    fairy: "#F472B6",
+    normal: "#9CA3AF",
 }
-function getTheme(types: string[]) { return TYPE_PALETTE[types[0]] ?? TYPE_PALETTE["normal"] }
 
 // ─── Defensive type chart ─────────────────────────────────────────────────────
 const TYPE_CHART: Record<string, Record<string, number>> = {
@@ -57,568 +88,1274 @@ const TYPE_CHART: Record<string, Record<string, number>> = {
     steel:    { fire: 0.5, water: 0.5, electric: 0.5, ice: 2, rock: 2, steel: 0.5, fairy: 2 },
     fairy:    { fire: 0.5, fighting: 2, poison: 0.5, dragon: 2, dark: 2, steel: 0.5 },
 }
-function computeDefense(types: string[]) {
-    const out: Record<string, number> = {}
-    Object.keys(TYPE_CHART).forEach(atk => {
+
+/** 공격 타입 → 배율 (1배 제외) */
+function computeDefense(types: readonly string[]): [string, number][] {
+    const out: [string, number][] = []
+    for (const atk of Object.keys(TYPE_CHART)) {
         let m = 1
-        types.forEach(def => { m *= TYPE_CHART[atk]?.[def] ?? 1 })
-        if (m !== 1) out[atk] = m
-    })
+        for (const def of types) m *= TYPE_CHART[atk]?.[def] ?? 1
+        if (m !== 1) out.push([atk, m])
+    }
     return out
 }
 
+function multLabel(m: number): string {
+    if (m === 0.25) return "¼×"
+    if (m === 0.5) return "½×"
+    return `${m}×`
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function titleCase(s: string) { return s.replace(/-/g, " ") }
-function getIdFromUrl(url?: string) {
-    if (!url) return undefined
-    const n = Number(url.split("/").filter(Boolean).at(-1))
-    return Number.isFinite(n) ? n : undefined
-}
-function getPokemonSprite(id: number) {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
-}
 
-const STAT_META: Record<string, { label: string; color: string }> = {
-    hp:               { label: "HP",     color: "#F87171" },
-    attack:           { label: "ATK",    color: "#FB923C" },
-    defense:          { label: "DEF",    color: "#FBBF24" },
-    "special-attack": { label: "Sp.ATK", color: "#818CF8" },
-    "special-defense":{ label: "Sp.DEF", color: "#34D399" },
-    speed:            { label: "SPD",    color: "#F472B6" },
+/** URL 파라미터(id 또는 slug)로 로컬 도감 데이터 찾기 */
+function resolveLocal(param: string): DexPokemon | undefined {
+    const s = param.trim()
+    if (!s) return undefined
+    if (/^\d+$/.test(s)) return getDexPokemon(Number(s))
+    return findDexPokemonByName(s)
 }
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function StatRow({ statName, value }: { statName: string; value: number }) {
-    const meta = STAT_META[statName] ?? { label: statName.toUpperCase(), color: "#9CA3AF" }
-    const pct = Math.min(100, Math.round((value / 255) * 100))
-    return (
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <span style={{ width: 56, fontSize: 11, fontWeight: 800, color: "#CBD5E1", fontFamily: "Syne, sans-serif", letterSpacing: "0.08em", textTransform: "uppercase", flexShrink: 0 }}>{meta.label}</span>
-            <span style={{ width: 36, textAlign: "right", fontSize: 16, fontWeight: 700, color: "#0F172A", fontFamily: "Syne, sans-serif", flexShrink: 0 }}>{value}</span>
-            <div style={{ flex: 1, height: 7, borderRadius: 999, background: "#F1F5F9", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${pct}%`, borderRadius: 999, background: meta.color }} />
-            </div>
-        </div>
-    )
+/** PokeAPI 언어 코드 우선순위 */
+const API_LANG_CODES: Record<Lang, readonly string[]> = {
+    ko: ["ko", "en"],
+    en: ["en"],
+    ja: ["ja", "ja-Hrkt", "en"],
 }
 
-function TypeBadge({ type }: { type: string }) {
-    const p = TYPE_PALETTE[type] ?? TYPE_PALETTE["normal"]
-    return (
-        <span style={{ padding: "5px 14px", borderRadius: 999, fontSize: 11, fontWeight: 700, fontFamily: "Syne, sans-serif", letterSpacing: "0.1em", textTransform: "uppercase", background: p.light, color: p.dark, border: `1.5px solid ${p.primary}35` }}>
-            {type}
-        </span>
-    )
-}
-
-function MatchupBadge({ type, mult }: { type: string; mult: number }) {
-    const multColor = mult >= 4 ? "#DC2626" : mult === 2 ? "#EA580C" : mult === 0.5 ? "#2563EB" : mult === 0 ? "#7C3AED" : "#6B7280"
-    return (
-        <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 12, background: "#FAFAFA", border: "1px solid #E5E7EB" }}>
-            <TypeBadge type={type} />
-            <span style={{ fontSize: 13, fontWeight: 800, color: multColor, fontFamily: "Syne, sans-serif" }}>{mult}×</span>
-        </div>
-    )
-}
-
-function InfoRow({ label, value }: { label: string; value: string | number }) {
-    return (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 0", borderBottom: "1px solid #F8FAFC" }}>
-            <span style={{ fontSize: 14, color: "#94A3B8", fontFamily: "DM Sans, sans-serif", fontWeight: 500 }}>{label}</span>
-            <span style={{ fontSize: 14, color: "#0F172A", fontFamily: "DM Sans, sans-serif", fontWeight: 600, textTransform: "capitalize" }}>{value}</span>
-        </div>
-    )
-}
-
-function SecLabel({ children }: { children: React.ReactNode }) {
-    return (
-        <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: "#CBD5E1", fontFamily: "Syne, sans-serif", marginBottom: 18 }}>
-            {children}
-        </div>
-    )
-}
-
-function Card({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) {
-    return (
-        <div style={{ background: "#fff", borderRadius: 22, padding: "28px", border: "1px solid #F1F5F9", boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 8px 32px rgba(0,0,0,0.05)", ...style }}>
-            {children}
-        </div>
-    )
-}
-
-// ─── Evolution chain ──────────────────────────────────────────────────────────
-interface EvoNode { id: number; name: string; level?: number; trigger?: string; item?: string }
-function flattenChain(chain: any): EvoNode[][] {
-    const paths: EvoNode[][] = []
-    function walk(node: any, path: EvoNode[]) {
-        const id = getIdFromUrl(node.species.url) ?? 0
-        const det = node.evolution_details?.[0]
-        const next = [...path, { id, name: node.species.name, level: det?.min_level, trigger: det?.trigger?.name, item: det?.item?.name ?? det?.held_item?.name }]
-        if (!node.evolves_to?.length) { paths.push(next); return }
-        node.evolves_to.forEach((n: any) => walk(n, next))
+/** 현재 언어에 맞는 항목 (last = 같은 언어 중 가장 최근 항목) */
+function pickByLang<E extends { language: { name: string } }>(
+    entries: readonly E[] | undefined,
+    lang: Lang,
+    last = false,
+): E | undefined {
+    if (!entries) return undefined
+    for (const code of API_LANG_CODES[lang]) {
+        const matches = entries.filter((e) => e.language.name === code)
+        if (matches.length) return last ? matches[matches.length - 1] : matches[0]
     }
-    walk(chain, [])
-    return paths
+    return undefined
 }
 
-function EvoChain({ chain, theme }: { chain: any; theme: { primary: string; light: string; dark: string } }) {
-    const paths = useMemo(() => flattenChain(chain), [chain])
+function cleanFlavor(text: string, code: string): string {
+    // 한자 일본어 텍스트는 줄바꿈이 단어 경계가 아니므로 그냥 붙인다
+    const joined = code === "ja" ? text.replace(/[\n\f\r]+/g, "") : text.replace(/­?[\n\f\r]+/g, " ")
+    return joined.replace(/[ \t]+/g, " ").trim()
+}
+
+/** PokeAPI 스탯 이름 → 로컬 StatKey */
+const API_STAT_KEY: Record<string, StatKey> = {
+    hp: "hp",
+    attack: "attack",
+    defense: "defense",
+    "special-attack": "spAtk",
+    "special-defense": "spDef",
+    speed: "speed",
+}
+
+const STAT_BAR_CLASS: Record<StatKey, string> = {
+    hp: "bg-red-400",
+    attack: "bg-orange-400",
+    defense: "bg-amber-400",
+    spAtk: "bg-indigo-400",
+    spDef: "bg-emerald-400",
+    speed: "bg-pink-400",
+}
+
+function dexNo(n: number): string {
+    return `#${String(n).padStart(4, "0")}`
+}
+
+type Tab = "overview" | "stats" | "moves" | "sprites"
+const TABS: readonly Tab[] = ["overview", "stats", "moves", "sprites"]
+const TAB_LABEL: Record<Tab, PokedexKey> = {
+    overview: "tabOverview",
+    stats: "tabStats",
+    moves: "tabMoves",
+    sprites: "tabSprites",
+}
+function parseTab(v: string | null): Tab {
+    return TABS.includes(v as Tab) ? (v as Tab) : "overview"
+}
+
+// ─── Small UI pieces ──────────────────────────────────────────────────────────
+
+function Card({ title, children, className = "", aside }: { title?: ReactNode; children: ReactNode; className?: string; aside?: ReactNode }) {
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-            {paths.map((path, pi) => (
-                <div key={pi} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
-                    {path.map((node, idx) => (
-                        <div key={node.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                                <div style={{ width: 80, height: 80, borderRadius: 18, background: "#FAFAFA", border: "1px solid #F1F5F9", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <img src={getPokemonSprite(node.id)} alt={node.name} style={{ width: 72, height: 72, objectFit: "contain" }} loading="lazy" onError={e => { (e.target as HTMLImageElement).style.opacity = "0" }} />
-                                </div>
-                                <span style={{ fontSize: 13, fontWeight: 600, textTransform: "capitalize", color: "#374151", fontFamily: "DM Sans, sans-serif" }}>{titleCase(node.name)}</span>
-                                {node.level && (
-                                    <span style={{ fontSize: 11, fontWeight: 700, color: theme.primary, background: theme.light, padding: "2px 10px", borderRadius: 999, fontFamily: "Syne, sans-serif" }}>Lv.{node.level}</span>
-                                )}
-                                {node.item && !node.level && (
-                                    <span style={{ fontSize: 11, color: "#9CA3AF", textTransform: "capitalize", fontFamily: "DM Sans, sans-serif" }}>{titleCase(node.item)}</span>
-                                )}
-                            </div>
-                            {idx < path.length - 1 && <span style={{ color: "#CBD5E1", fontSize: 20 }}>→</span>}
-                        </div>
-                    ))}
+        <section className={`min-w-0 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-6 ${className}`}>
+            {(title || aside) && (
+                <div className="mb-4 flex items-center justify-between gap-2">
+                    {title && <h2 className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">{title}</h2>}
+                    {aside}
                 </div>
+            )}
+            {children}
+        </section>
+    )
+}
+
+function InfoRow({ label, children }: { label: string; children: ReactNode }) {
+    return (
+        <div className="flex items-baseline justify-between gap-4 border-b border-slate-100 py-2.5 last:border-b-0">
+            <dt className="shrink-0 text-sm text-slate-400">{label}</dt>
+            <dd className="text-right text-sm font-semibold text-slate-800">{children}</dd>
+        </div>
+    )
+}
+
+function Skeleton({ className = "" }: { className?: string }) {
+    return <div className={`animate-pulse rounded-xl bg-slate-100 ${className}`} aria-hidden />
+}
+
+function SkeletonRows({ n = 4 }: { n?: number }) {
+    return (
+        <div className="space-y-2.5">
+            {Array.from({ length: n }, (_, i) => (
+                <Skeleton key={i} className="h-6" />
             ))}
         </div>
     )
 }
 
-// ─── Sprites ──────────────────────────────────────────────────────────────────
-function SpritesGallery({ sprites }: { sprites: any }) {
-    const main = [
-        { label: "Default", src: sprites?.front_default, pixelated: true },
-        { label: "Back", src: sprites?.back_default, pixelated: true },
-        { label: "Shiny", src: sprites?.front_shiny, pixelated: true },
-        { label: "Back Shiny", src: sprites?.back_shiny, pixelated: true },
-        { label: "Female", src: sprites?.front_female, pixelated: true },
-        { label: "Shiny ♀", src: sprites?.front_shiny_female, pixelated: true },
-    ].filter(x => x.src)
-
-    const extra = [
-        { label: "Dream World", src: sprites?.other?.dream_world?.front_default, pixelated: false },
-        { label: "Dream World ♀", src: sprites?.other?.dream_world?.front_female, pixelated: false },
-        { label: "HOME", src: sprites?.other?.home?.front_default, pixelated: false },
-        { label: "HOME Shiny", src: sprites?.other?.home?.front_shiny, pixelated: false },
-        { label: "HOME ♀", src: sprites?.other?.home?.front_female, pixelated: false },
-    ].filter(x => x.src)
-
-    const genItems: { label: string; src: string }[] = []
-    if (sprites?.versions) {
-        Object.entries(sprites.versions).forEach(([, games]: [string, any]) => {
-            Object.entries(games).forEach(([game, data]: [string, any]) => {
-                if (data?.front_default) genItems.push({ label: game, src: data.front_default })
-            })
-        })
-    }
-
-    const SpriteItem = ({ label, src, size = 80, pixelated = false }: { label: string; src: string; size?: number; pixelated?: boolean }) => (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-            <div style={{ width: size, height: size, background: "#FAFAFA", borderRadius: 14, border: "1px solid #F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <img src={src} alt={label} style={{ width: size - 10, height: size - 10, objectFit: "contain", imageRendering: pixelated ? "pixelated" : "auto" }} loading="lazy" />
-            </div>
-            <span style={{ fontSize: 11, color: "#94A3B8", fontFamily: "DM Sans, sans-serif", textAlign: "center", maxWidth: size }}>{label}</span>
+function InlineError({ message, onRetry, retryLabel }: { message: string; onRetry?: () => void; retryLabel: string }) {
+    return (
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600" role="alert">
+            <span>{message}</span>
+            {onRetry && (
+                <button type="button" onClick={onRetry} className="ml-auto rounded-lg px-2 py-0.5 font-semibold underline-offset-2 hover:underline">
+                    {retryLabel}
+                </button>
+            )}
         </div>
     )
+}
+
+function TypeChip({ type, lang, suffix }: { type: string; lang: Lang; suffix?: ReactNode }) {
+    return (
+        <span className={`${type} inline-flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-bold leading-none text-white`}>
+            <img src={`${import.meta.env.BASE_URL}assets/types/${type}.svg`} alt="" aria-hidden className="h-3.5 w-3.5 shrink-0" />
+            {typeName(type, lang)}
+            {suffix}
+        </span>
+    )
+}
+
+// ─── Artwork ──────────────────────────────────────────────────────────────────
+
+function Artwork({ src, fallback, alt }: { src: string; fallback?: string | null; alt: string }) {
+    const [stage, setStage] = useState<0 | 1 | 2>(src ? 0 : fallback ? 1 : 2)
+    if (stage === 2) {
+        return <div className="flex h-56 w-56 items-center justify-center rounded-full bg-slate-100 text-5xl font-black text-slate-200 sm:h-64 sm:w-64" aria-hidden>?</div>
+    }
+    const url = stage === 0 ? src : fallback ?? ""
+    return (
+        <img
+            src={url}
+            alt={alt}
+            width={256}
+            height={256}
+            onError={() => setStage(stage === 0 && fallback ? 1 : 2)}
+            className={`h-56 w-56 object-contain drop-shadow-[0_24px_32px_rgba(15,23,42,0.18)] sm:h-64 sm:w-64 ${stage === 1 ? "[image-rendering:pixelated]" : ""}`}
+        />
+    )
+}
+
+// ─── Prev / Next ──────────────────────────────────────────────────────────────
+
+function NeighborLink({ p, dir, lang, label }: { p: DexPokemon | undefined; dir: "prev" | "next"; lang: Lang; label: string }) {
+    const base = "flex min-w-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-sm shadow-sm transition"
+    if (!p) {
+        return (
+            <span className={`${base} cursor-not-allowed opacity-40`} aria-disabled>
+                <span aria-hidden>{dir === "prev" ? "←" : "→"}</span>
+                <span className="sr-only">{label}</span>
+            </span>
+        )
+    }
+    const name = pokemonName(p, lang)
+    return (
+        <Link
+            to={`/pokemon/${p.id}`}
+            rel={dir}
+            aria-label={`${label}: ${dexNo(p.id)} ${name}`}
+            className={`${base} text-slate-700 hover:border-slate-300 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400`}
+        >
+            {dir === "prev" && <span aria-hidden>←</span>}
+            <span className="hidden text-xs tabular-nums text-slate-400 sm:inline">{dexNo(p.id)}</span>
+            <span className="max-w-[6.5rem] truncate font-semibold sm:max-w-[9rem]">{name}</span>
+            {dir === "next" && <span aria-hidden>→</span>}
+        </Link>
+    )
+}
+
+// ─── Evolution chain ──────────────────────────────────────────────────────────
+
+function evoConditions(d: EvolutionDetail | undefined, lang: Lang, t: T): string[] {
+    if (!d) return []
+    const parts: string[] = []
+    if (d.min_level) parts.push(t("evoLevel", { n: d.min_level }))
+    if (d.trigger?.name === "trade") parts.push(t("evoTrade"))
+    if (d.item) parts.push(itemName(d.item.name, lang))
+    if (d.held_item) parts.push(t("evoHolding", { item: itemName(d.held_item.name, lang) }))
+    if (d.min_happiness) parts.push(t("evoFriendship"))
+    if (d.min_affection) parts.push(t("evoAffection"))
+    if (d.known_move) parts.push(t("evoKnowsMove", { move: moveName(d.known_move.name, lang) }))
+    if (d.known_move_type) parts.push(t("evoKnowsMoveType", { type: typeName(d.known_move_type.name, lang) }))
+    if (d.time_of_day === "day") parts.push(t("evoDay"))
+    if (d.time_of_day === "night") parts.push(t("evoNight"))
+    if (d.time_of_day === "dusk") parts.push(t("evoDusk"))
+    if (d.gender === 1) parts.push(t("evoFemale"))
+    if (d.gender === 2) parts.push(t("evoMale"))
+    if (d.location) parts.push(t("evoLocation"))
+    if (d.trade_species) {
+        const p = findDexPokemonByName(d.trade_species.name)
+        parts.push(t("evoTradeFor", { name: p ? pokemonName(p, lang) : titleCaseSlug(d.trade_species.name) }))
+    }
+    if (d.needs_overworld_rain) parts.push(t("evoRain"))
+    if (d.turn_upside_down) parts.push(t("evoUpsideDown"))
+    if (parts.length === 0) parts.push(d.trigger?.name === "level-up" ? t("evoLevelUp") : t("evoSpecial"))
+    return parts
+}
+
+function EvoNode({ link, currentSpeciesId, lang }: { link: EvolutionChainLink; currentSpeciesId: number | undefined; lang: Lang }) {
+    const id = getIdFromUrl(link.species.url) ?? 0
+    const p = getDexPokemon(id)
+    const name = p ? pokemonName(p, lang) : titleCaseSlug(link.species.name)
+    const current = id === currentSpeciesId
+    const inner = (
+        <>
+            <span
+                className={`flex h-20 w-20 items-center justify-center rounded-2xl border bg-slate-50 transition ${
+                    current ? "border-(--accent) ring-2 ring-(--accent)/30" : "border-slate-100 group-hover:border-slate-300"
+                }`}
+            >
+                <img src={officialArtworkUrl(id)} alt="" loading="lazy" className="h-16 w-16 object-contain" />
+            </span>
+            <span className={`max-w-24 truncate text-center text-xs font-semibold ${current ? "text-slate-900" : "text-slate-600"}`}>{name}</span>
+            <span className="text-[10px] tabular-nums text-slate-400">{dexNo(id)}</span>
+        </>
+    )
+    return p && !current ? (
+        <Link to={`/pokemon/${id}`} className="group flex shrink-0 flex-col items-center gap-1 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
+            {inner}
+        </Link>
+    ) : (
+        <span className="flex shrink-0 flex-col items-center gap-1" aria-current={current ? "page" : undefined}>
+            {inner}
+        </span>
+    )
+}
+
+function EvoTree({ link, currentSpeciesId, lang, t }: { link: EvolutionChainLink; currentSpeciesId: number | undefined; lang: Lang; t: T }) {
+    return (
+        <div className="flex flex-col items-center gap-2 sm:flex-row">
+            <EvoNode link={link} currentSpeciesId={currentSpeciesId} lang={lang} />
+            {link.evolves_to.length > 0 && (
+                <div className="flex flex-row flex-wrap justify-center gap-x-4 gap-y-3 sm:flex-col sm:items-start">
+                    {link.evolves_to.map((child) => (
+                        <div key={child.species.name} className="flex flex-col items-center gap-1 sm:flex-row sm:gap-2">
+                            <div className="flex w-24 flex-col items-center text-center sm:w-28">
+                                <span className="text-lg leading-none text-slate-300" aria-hidden>
+                                    <span className="sm:hidden">↓</span>
+                                    <span className="hidden sm:inline">→</span>
+                                </span>
+                                {evoConditions(child.evolution_details[0], lang, t).map((c) => (
+                                    <span key={c} className="mt-0.5 rounded-full bg-(--accent)/10 px-2 py-0.5 text-[10px] font-semibold leading-tight text-slate-700">
+                                        {c}
+                                    </span>
+                                ))}
+                            </div>
+                            <EvoTree link={child} currentSpeciesId={currentSpeciesId} lang={lang} t={t} />
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
+// ─── Moves ────────────────────────────────────────────────────────────────────
+
+type Method = "level-up" | "machine" | "egg" | "tutor" | "other" | "legacy"
+const METHOD_ORDER: readonly Method[] = ["level-up", "machine", "egg", "tutor", "other", "legacy"]
+const METHOD_LABEL: Record<Method, PokedexKey> = {
+    "level-up": "methodLevelUp",
+    machine: "methodMachine",
+    egg: "methodEgg",
+    tutor: "methodTutor",
+    other: "methodOther",
+    legacy: "methodLegacy",
+}
+
+interface MoveRow {
+    slug: string
+    method: Method
+    level: number | null
+}
+
+/**
+ * 습득 방법 기준으로 삼을 작품 (앞쪽 우선).
+ * PokeAPI 버전 그룹 id 는 발매 순서가 아니고(일본판 복각 등), 레벨업 데이터가 없는 작품도 있어서
+ * 본편 작품 목록에서 레벨업 기술이 있는 첫 작품을 고른다.
+ */
+const VERSION_GROUP_PRIORITY = [
+    "scarlet-violet",
+    "sword-shield",
+    "legends-za",
+    "brilliant-diamond-shining-pearl",
+    "legends-arceus",
+    "lets-go-pikachu-lets-go-eevee",
+    "ultra-sun-ultra-moon",
+    "sun-moon",
+    "omega-ruby-alpha-sapphire",
+    "x-y",
+    "black-2-white-2",
+    "black-white",
+    "heartgold-soulsilver",
+    "platinum",
+    "diamond-pearl",
+    "emerald",
+    "firered-leafgreen",
+    "ruby-sapphire",
+    "crystal",
+    "gold-silver",
+    "yellow",
+    "red-blue",
+] as const
+
+const VERSION_GROUP_NAME: Partial<Record<string, Record<Lang, string>>> = {
+    "scarlet-violet": { ko: "스칼렛·바이올렛", en: "Scarlet & Violet", ja: "スカーレット・バイオレット" },
+    "sword-shield": { ko: "소드·실드", en: "Sword & Shield", ja: "ソード・シールド" },
+    "legends-za": { ko: "포켓몬 레전드 Z-A", en: "Pokémon Legends: Z-A", ja: "Pokémon LEGENDS Z-A" },
+    "brilliant-diamond-shining-pearl": {
+        ko: "브릴리언트 다이아몬드·샤이닝 펄",
+        en: "Brilliant Diamond & Shining Pearl",
+        ja: "ブリリアントダイヤモンド・シャイニングパール",
+    },
+    "legends-arceus": { ko: "포켓몬스터 레전드 아르세우스", en: "Pokémon Legends: Arceus", ja: "Pokémon LEGENDS アルセウス" },
+    "lets-go-pikachu-lets-go-eevee": { ko: "레츠고! 피카츄·레츠고! 이브이", en: "Let's Go, Pikachu! & Eevee!", ja: "Let's Go! ピカチュウ・Let's Go! イーブイ" },
+    "ultra-sun-ultra-moon": { ko: "울트라썬·울트라문", en: "Ultra Sun & Ultra Moon", ja: "ウルトラサン・ウルトラムーン" },
+    "sun-moon": { ko: "썬·문", en: "Sun & Moon", ja: "サン・ムーン" },
+    "omega-ruby-alpha-sapphire": { ko: "오메가루비·알파사파이어", en: "Omega Ruby & Alpha Sapphire", ja: "オメガルビー・アルファサファイア" },
+    "x-y": { ko: "X·Y", en: "X & Y", ja: "X・Y" },
+}
+
+function versionGroupName(slug: string, lang: Lang): string {
+    return VERSION_GROUP_NAME[slug]?.[lang] ?? titleCaseSlug(slug)
+}
+
+/** 기준 작품 + 습득 방법 목록. 기준 작품에서 배울 수 없는 기술은 "이전 작품"으로 분류 */
+function buildMoveRows(entries: readonly PokemonMoveEntry[]): { game: string | null; rows: MoveRow[] } {
+    const withLevelUp = new Set<string>()
+    for (const e of entries) {
+        for (const d of e.version_group_details) if (d.move_learn_method.name === "level-up") withLevelUp.add(d.version_group.name)
+    }
+    const game = VERSION_GROUP_PRIORITY.find((g) => withLevelUp.has(g)) ?? null
+
+    const rows: MoveRow[] = []
+    for (const e of entries) {
+        const inLatest = e.version_group_details.filter((d) => d.version_group.name === game)
+        if (inLatest.length === 0) {
+            rows.push({ slug: e.move.name, method: "legacy", level: null })
+            continue
+        }
+        const seen = new Set<string>()
+        for (const d of inLatest) {
+            const m = d.move_learn_method.name
+            const method: Method = m === "level-up" || m === "machine" || m === "egg" || m === "tutor" ? m : "other"
+            const level = method === "level-up" ? d.level_learned_at : null
+            const key = `${method}:${level ?? ""}`
+            if (seen.has(key)) continue
+            seen.add(key)
+            rows.push({ slug: e.move.name, method, level })
+        }
+    }
+    return { game, rows }
+}
+
+const CLASS_STYLE: Record<string, string> = {
+    physical: "bg-orange-50 text-orange-600",
+    special: "bg-sky-50 text-sky-600",
+    status: "bg-slate-100 text-slate-500",
+}
+
+function MovesPanel({
+    detail,
+    loading,
+    error,
+    onRetry,
+    fallbackMoves,
+    lang,
+    t,
+    retryLabel,
+    allLabel,
+}: {
+    detail: PokemonDetail | undefined
+    loading: boolean
+    error: boolean
+    onRetry: () => void
+    fallbackMoves: readonly string[] | undefined
+    lang: Lang
+    t: T
+    retryLabel: string
+    allLabel: string
+}) {
+    const { game, rows } = useMemo<{ game: string | null; rows: MoveRow[] }>(() => {
+        if (detail) return buildMoveRows(detail.moves)
+        return { game: null, rows: (fallbackMoves ?? []).map((slug) => ({ slug, method: "other", level: null })) }
+    }, [detail, fallbackMoves])
+
+    const counts = useMemo(() => {
+        const c = new Map<Method, number>()
+        for (const r of rows) c.set(r.method, (c.get(r.method) ?? 0) + 1)
+        return c
+    }, [rows])
+    const methods = METHOD_ORDER.filter((m) => counts.has(m))
+
+    const [picked, setPicked] = useState<Method | "all" | null>(null)
+    const method: Method | "all" = picked && (picked === "all" || counts.has(picked)) ? picked : counts.has("level-up") ? "level-up" : "all"
+    const [query, setQuery] = useState("")
+
+    const visible = useMemo(() => {
+        const q = query.trim().toLowerCase()
+        const coll = collator(lang)
+        const name = (slug: string) => moveName(slug, lang)
+        const matches = (slug: string) => {
+            if (!q) return true
+            const m = MOVE_BY_NAME.get(slug)
+            return [slug, m?.nameEn, m?.hasKoreanName ? m.nameKo : null, m?.nameJa].some((s) => s?.toLowerCase().includes(q))
+        }
+        return rows
+            .filter((r) => (method === "all" || r.method === method) && matches(r.slug))
+            .sort(
+                (a, b) =>
+                    METHOD_ORDER.indexOf(a.method) - METHOD_ORDER.indexOf(b.method) ||
+                    (a.level ?? 0) - (b.level ?? 0) ||
+                    coll.compare(name(a.slug), name(b.slug)),
+            )
+    }, [rows, method, query, lang])
+
+    if (loading && !fallbackMoves) return <Card title={t("tabMoves")}><SkeletonRows n={8} /></Card>
+    if (error && rows.length === 0) {
+        return (
+            <Card title={t("tabMoves")}>
+                <InlineError message={t("loadErrorTitle")} onRetry={onRetry} retryLabel={retryLabel} />
+            </Card>
+        )
+    }
+
+    const showLevel = method === "level-up" || method === "all"
+    const chipCls = (active: boolean) =>
+        `shrink-0 rounded-full border px-3 py-1 text-xs font-semibold transition ${
+            active ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
+        }`
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-            {main.length > 0 && (
-                <div>
-                    <SecLabel>Game Sprites</SecLabel>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-                        {main.map(x => <SpriteItem key={x.label} {...x} size={90} />)}
-                    </div>
+        <Card title={t("tabMoves")}>
+            {error && <InlineError message={t("loadErrorTitle")} onRetry={onRetry} retryLabel={retryLabel} />}
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1" role="group" aria-label={t("methodFilter")}>
+                    <button type="button" aria-pressed={method === "all"} onClick={() => setPicked("all")} className={chipCls(method === "all")}>
+                        {allLabel} <span className="tabular-nums opacity-60">{rows.length}</span>
+                    </button>
+                    {methods.map((m) => (
+                        <button key={m} type="button" aria-pressed={method === m} onClick={() => setPicked(m)} className={chipCls(method === m)}>
+                            {t(METHOD_LABEL[m])} <span className="tabular-nums opacity-60">{counts.get(m)}</span>
+                        </button>
+                    ))}
                 </div>
+                <input
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={t("moveSearchPlaceholder")}
+                    aria-label={t("moveSearchLabel")}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-100 md:w-56"
+                />
+            </div>
+            {game && <p className="mt-2 text-[11px] text-slate-400">{t("movesNote", { game: versionGroupName(game, lang) })}</p>}
+
+            {visible.length === 0 ? (
+                <p className="mt-4 rounded-2xl border border-dashed border-slate-200 py-10 text-center text-sm text-slate-400">{t("noMoves")}</p>
+            ) : (
+                <div className="mt-3 overflow-x-auto">
+                    <table className="w-full border-collapse text-sm">
+                        <thead>
+                            <tr className="border-b border-slate-100 text-left text-[11px] font-semibold text-slate-400">
+                                {showLevel && <th scope="col" className="w-12 py-2 pr-2 font-semibold">{t("colLevel")}</th>}
+                                <th scope="col" className="py-2 pr-2 font-semibold">{t("colMove")}</th>
+                                <th scope="col" className="py-2 pr-2 font-semibold">{t("colType")}</th>
+                                <th scope="col" className="hidden py-2 pr-2 font-semibold sm:table-cell">{t("colClass")}</th>
+                                <th scope="col" className="py-2 pr-1 text-right font-semibold">{t("colPower")}</th>
+                                <th scope="col" className="hidden py-2 pr-1 text-right font-semibold sm:table-cell">{t("colAccuracy")}</th>
+                                <th scope="col" className="hidden py-2 text-right font-semibold sm:table-cell">{t("colPP")}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {visible.map((r) => {
+                                const m = MOVE_BY_NAME.get(r.slug)
+                                return (
+                                    <tr key={`${r.method}:${r.slug}:${r.level ?? ""}`} className="border-b border-slate-50 hover:bg-slate-50/70">
+                                        {showLevel && (
+                                            <td className="py-2 pr-2 text-xs font-bold tabular-nums text-slate-500">
+                                                {r.method === "level-up" ? (r.level === 0 ? t("evoMoveLevel") : r.level) : "—"}
+                                            </td>
+                                        )}
+                                        <td className="py-2 pr-2">
+                                            {m ? (
+                                                <Link to={`/moves/${r.slug}`} className="font-semibold text-slate-800 hover:text-red-500 hover:underline">
+                                                    {moveName(r.slug, lang)}
+                                                </Link>
+                                            ) : (
+                                                <span className="font-semibold text-slate-800">{moveName(r.slug, lang)}</span>
+                                            )}
+                                            {method === "all" && r.method !== "level-up" && (
+                                                <span className="ml-1.5 text-[10px] text-slate-400">{t(METHOD_LABEL[r.method])}</span>
+                                            )}
+                                        </td>
+                                        <td className="py-2 pr-2">{m && <TypeChip type={m.type} lang={lang} />}</td>
+                                        <td className="hidden py-2 pr-2 sm:table-cell">
+                                            {m && (
+                                                <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${CLASS_STYLE[m.damageClass] ?? CLASS_STYLE.status}`}>
+                                                    {damageClassName(m.damageClass, lang)}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="py-2 pr-1 text-right tabular-nums text-slate-700">{m?.power ?? "—"}</td>
+                                        <td className="hidden py-2 pr-1 text-right tabular-nums text-slate-500 sm:table-cell">{m?.accuracy ?? "—"}</td>
+                                        <td className="hidden py-2 text-right tabular-nums text-slate-500 sm:table-cell">{m?.pp ?? "—"}</td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </Card>
+    )
+}
+
+// ─── Sprites ──────────────────────────────────────────────────────────────────
+
+const ROMAN: Record<string, number> = { i: 1, ii: 2, iii: 3, iv: 4, v: 5, vi: 6, vii: 7, viii: 8, ix: 9 }
+
+function SpriteItem({ label, src, size, pixelated }: { label: string; src: string; size: "sm" | "md" | "lg"; pixelated?: boolean }) {
+    const box = size === "lg" ? "h-28 w-28" : size === "md" ? "h-24 w-24" : "h-[72px] w-[72px]"
+    return (
+        <figure className="flex flex-col items-center gap-1.5">
+            <div className={`${box} flex items-center justify-center rounded-2xl border border-slate-100 bg-slate-50`}>
+                <img src={src} alt={label} loading="lazy" className={`h-[88%] w-[88%] object-contain ${pixelated ? "[image-rendering:pixelated]" : ""}`} />
+            </div>
+            <figcaption className="max-w-28 text-center text-[11px] leading-tight text-slate-400">{label}</figcaption>
+        </figure>
+    )
+}
+
+/** URL 이 있는 항목만 */
+function present(list: [PokedexKey, string | null | undefined][]): [PokedexKey, string][] {
+    return list.flatMap(([k, src]) => (src ? [[k, src] as [PokedexKey, string]] : []))
+}
+
+function SpritesGallery({ sprites, lang, t }: { sprites: PokemonSprites; lang: Lang; t: T }) {
+    const main = present([
+            ["spriteDefault", sprites.front_default],
+            ["spriteBack", sprites.back_default],
+            ["spriteShiny", sprites.front_shiny],
+            ["spriteBackShiny", sprites.back_shiny],
+            ["spriteFemale", sprites.front_female],
+            ["spriteShinyFemale", sprites.front_shiny_female],
+    ])
+
+    const extra = present([
+            ["spriteHome", sprites.other?.home?.front_default],
+            ["spriteHomeShiny", sprites.other?.home?.front_shiny],
+            ["spriteHomeFemale", sprites.other?.home?.front_female],
+            ["spriteDreamWorld", sprites.other?.dream_world?.front_default],
+    ])
+
+    const gens: { gen: number; items: { label: string; src: string }[] }[] = []
+    for (const [genKey, games] of Object.entries(sprites.versions ?? {})) {
+        const gen = ROMAN[genKey.replace("generation-", "")] ?? 0
+        const items: { label: string; src: string }[] = []
+        for (const [game, data] of Object.entries(games)) {
+            if (data?.front_default) items.push({ label: titleCaseSlug(game), src: data.front_default })
+        }
+        if (items.length) gens.push({ gen, items })
+    }
+    gens.sort((a, b) => a.gen - b.gen)
+
+    if (!main.length && !extra.length && !gens.length) {
+        return <p className="rounded-2xl border border-dashed border-slate-200 py-10 text-center text-sm text-slate-400">{t("noSprites")}</p>
+    }
+
+    return (
+        <div className="space-y-4">
+            {main.length > 0 && (
+                <Card title={t("spritesGame")}>
+                    <div className="flex flex-wrap gap-3 sm:gap-4">
+                        {main.map(([k, src]) => (
+                            <SpriteItem key={k} label={t(k)} src={src} size="md" pixelated />
+                        ))}
+                    </div>
+                </Card>
             )}
             {extra.length > 0 && (
-                <div>
-                    <SecLabel>HD Artwork</SecLabel>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
-                        {extra.map(x => <SpriteItem key={x.label} {...x} size={110} />)}
+                <Card title={t("spritesArtwork")}>
+                    <div className="flex flex-wrap gap-3 sm:gap-4">
+                        {extra.map(([k, src]) => (
+                            <SpriteItem key={k} label={t(k)} src={src} size="lg" />
+                        ))}
                     </div>
-                </div>
+                </Card>
             )}
-            {genItems.length > 0 && (
-                <div>
-                    <SecLabel>All Generations</SecLabel>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-                        {genItems.map(x => <SpriteItem key={x.label} src={x.src} label={titleCase(x.label)} size={68} pixelated />)}
+            {gens.length > 0 && (
+                <Card title={t("spritesGenerations")}>
+                    <div className="space-y-5">
+                        {gens.map(({ gen, items }) => (
+                            <div key={gen}>
+                                <h3 className="mb-2 text-xs font-bold text-slate-500">{gen ? generationName(gen, lang) : "—"}</h3>
+                                <div className="flex flex-wrap gap-3">
+                                    {items.map((x) => (
+                                        <SpriteItem key={x.label} label={x.label} src={x.src} size="sm" pixelated />
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                </div>
+                </Card>
             )}
+        </div>
+    )
+}
+
+// ─── Page states ──────────────────────────────────────────────────────────────
+
+function DetailSkeleton({ label }: { label: string }) {
+    return (
+        <div className="space-y-5" role="status" aria-live="polite">
+            <span className="sr-only">{label}</span>
+            <div className="flex justify-between">
+                <Skeleton className="h-9 w-28" />
+                <Skeleton className="h-9 w-40" />
+            </div>
+            <div className="grid gap-6 rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-8 md:grid-cols-[1fr_256px]">
+                <div className="space-y-3">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-12 w-2/3" />
+                    <Skeleton className="h-6 w-40" />
+                    <Skeleton className="h-16 w-full" />
+                </div>
+                <Skeleton className="mx-auto h-56 w-56 rounded-full" />
+            </div>
+            <Skeleton className="h-40 rounded-3xl" />
+        </div>
+    )
+}
+
+function StatePanel({ title, body, children }: { title: string; body: string; children?: ReactNode }) {
+    return (
+        <div className="flex flex-col items-center rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center">
+            <svg viewBox="0 0 48 48" className="h-12 w-12 text-slate-200" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden>
+                <circle cx="24" cy="24" r="21" />
+                <path d="M3 24h42" />
+                <circle cx="24" cy="24" r="6" fill="white" />
+            </svg>
+            <h1 className="mt-3 text-lg font-bold text-slate-900">{title}</h1>
+            <p className="mt-1 max-w-sm text-sm text-slate-500">{body}</p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2">{children}</div>
         </div>
     )
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-type Tab = "overview" | "stats" | "moves" | "sprites"
 
 export default function PokemonDetailPage() {
-    injectFont()
-
-    const { id } = useParams()
+    const { id: param = "" } = useParams()
     const navigate = useNavigate()
-    const [tab, setTab] = useState<Tab>("overview")
+    const lang = useLang()
+    const t = useT(pokedexMessages)
+    const tc = useT(commonMessages)
+    const [searchParams, setSearchParams] = useSearchParams()
+    const tab = parseTab(searchParams.get("tab"))
+    const setTab = (next: Tab) => setSearchParams(next === "overview" ? {} : { tab: next }, { replace: true })
 
-    const pokemonKey = id ?? ""
-    const { data: detail, isLoading, isError, error } = usePokemonDetail(pokemonKey, !!pokemonKey)
+    const local = useMemo(() => resolveLocal(param), [param])
+    const apiKey = local ? String(local.id) : param.trim().toLowerCase()
+    const detailQ = usePokemonDetail(apiKey)
+    const detail = detailQ.data
 
-    const types: string[] = useMemo(() =>
-            detail?.types?.slice().sort((a: any, b: any) => a.slot - b.slot).map((t: any) => t.type.name) ?? []
-        , [detail])
+    const speciesId = local ? getSpeciesId(local) : getIdFromUrl(detail?.species.url)
+    const speciesQ = usePokemonSpecies(speciesId)
+    const species: PokemonSpecies | undefined = speciesQ.data
+    const evoQ = useEvolutionChain(species?.evolution_chain?.url)
 
-    const theme = useMemo(() => getTheme(types), [types])
+    const types = useMemo(
+        () => local?.types ?? detail?.types.slice().sort((a, b) => a.slot - b.slot).map((x) => x.type.name) ?? [],
+        [local, detail],
+    )
+    const accent = TYPE_ACCENT[types[0]] ?? TYPE_ACCENT.normal
 
-    const artwork =
-        detail?.sprites?.other?.["official-artwork"]?.front_default ??
-        detail?.sprites?.other?.["official-artwork"]?.front_shiny ??
-        detail?.sprites?.front_default ?? ""
+    const name = local
+        ? pokemonName(local, lang)
+        : (pickByLang(species?.names, lang)?.name ?? (detail ? titleCaseSlug(detail.name) : ""))
+    const form = local ? formLabel(local, lang) : null
+    useDocumentTitle(name ? (form ? `${name} (${form})` : name) : t("title"))
 
-    const speciesId = useMemo(() => getIdFromUrl(detail?.species?.url), [detail?.species?.url])
-    const { data: species } = usePokemonSpecies(speciesId)
-    const { data: evo, isLoading: evoLoading } = useEvolutionChain(species?.evolution_chain?.url)
+    const otherNames = useMemo(() => {
+        if (!local) return []
+        const seen = new Set([pokemonName(local, lang)])
+        const out: { n: string; lang: Lang }[] = []
+        for (const l of LANGS) {
+            const n = pokemonName(local, l)
+            if (seen.has(n)) continue
+            seen.add(n)
+            out.push({ n, lang: l })
+        }
+        return out
+    }, [local, lang])
 
-    const flavor = useMemo(() => {
-        const e = species?.flavor_text_entries ?? []
-        const en = e.find((x: any) => x.language?.name === "en")?.flavor_text ?? ""
-        return en.replace(/\f/g, " ").replace(/\s+/g, " ").trim()
-    }, [species?.flavor_text_entries])
+    const flavorEntry = pickByLang(species?.flavor_text_entries, lang, true)
+    const flavor = flavorEntry ? cleanFlavor(flavorEntry.flavor_text, flavorEntry.language.name) : ""
+    const genusEntry = pickByLang(species?.genera, lang)
 
-    const genus = species?.genera?.find((g: any) => g.language?.name === "en")?.genus ?? ""
+    const abilities = useMemo(
+        () => local?.abilities ?? detail?.abilities.map((a) => ({ name: a.ability.name, hidden: a.is_hidden })) ?? [],
+        [local, detail],
+    )
 
-    const defensiveChart = useMemo(() => computeDefense(types), [types])
-    const weaknesses  = Object.entries(defensiveChart).filter(([, v]) => v > 1).sort((a, b) => b[1] - a[1])
-    const resistances = Object.entries(defensiveChart).filter(([, v]) => v < 1).sort((a, b) => a[1] - b[1])
+    const stats = useMemo(() => {
+        if (local) return STAT_KEYS.map((k) => ({ key: k, value: local.stats[k] }))
+        return (detail?.stats ?? [])
+            .map((s) => ({ key: API_STAT_KEY[s.stat.name], value: s.base_stat }))
+            .filter((s): s is { key: StatKey; value: number } => !!s.key)
+    }, [local, detail])
+    const statTotal = stats.reduce((sum, s) => sum + s.value, 0)
 
-    const statTotal = detail?.stats?.reduce((s: number, x: any) => s + x.base_stat, 0) ?? 0
+    const matchups = useMemo(() => computeDefense(types), [types])
+    const weaknesses = matchups.filter(([, v]) => v > 1).sort((a, b) => b[1] - a[1])
+    const resistances = matchups.filter(([, v]) => v > 0 && v < 1).sort((a, b) => a[1] - b[1])
+    const immunities = matchups.filter(([, v]) => v === 0)
 
-    const sortedMoves = useMemo(() => {
-        if (!detail?.moves) return []
-        return [...detail.moves].sort((a: any, b: any) =>
-            (a.version_group_details?.[0]?.level_learned_at ?? 0) - (b.version_group_details?.[0]?.level_learned_at ?? 0)
-        )
-    }, [detail?.moves])
+    const forms = useMemo(() => (speciesId ? ALL_POKEMON.filter((p) => getSpeciesId(p) === speciesId) : []), [speciesId])
 
-    const heldItems = detail?.held_items?.map((h: any) => h.item.name) ?? []
+    // 이전/다음: 전국도감 번호 기준 (기본 폼)
+    const prev = speciesId ? getDexPokemon(speciesId - 1) : undefined
+    const next = speciesId ? getDexPokemon(speciesId + 1) : undefined
+
+    // 다른 포켓몬으로 이동하면 맨 위로
+    useEffect(() => {
+        window.scrollTo({ top: 0 })
+    }, [param])
+
+    // ← → 키로 이전/다음 포켓몬
+    useEffect(() => {
+        const onKey = (e: globalThis.KeyboardEvent) => {
+            if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+            const el = e.target as HTMLElement | null
+            if (el?.closest("input, textarea, select, [contenteditable], [role=tablist]")) return
+            const target = e.key === "ArrowLeft" ? prev : e.key === "ArrowRight" ? next : undefined
+            if (target) navigate(`/pokemon/${target.id}${tab === "overview" ? "" : `?tab=${tab}`}`)
+        }
+        window.addEventListener("keydown", onKey)
+        return () => window.removeEventListener("keydown", onKey)
+    }, [prev, next, navigate, tab])
+
+    const onTabKey = (e: KeyboardEvent<HTMLDivElement>) => {
+        const i = TABS.indexOf(tab)
+        let n = -1
+        if (e.key === "ArrowRight") n = (i + 1) % TABS.length
+        else if (e.key === "ArrowLeft") n = (i - 1 + TABS.length) % TABS.length
+        else if (e.key === "Home") n = 0
+        else if (e.key === "End") n = TABS.length - 1
+        if (n < 0) return
+        e.preventDefault()
+        setTab(TABS[n])
+        document.getElementById(`pokemon-tab-${TABS[n]}`)?.focus()
+    }
+
+    // ── Guards ──
+    if (!local) {
+        if (apiKey && detailQ.isPending) return <DetailSkeleton label={tc("loading")} />
+        if (!detail) {
+            const notFound = !apiKey || (detailQ.error instanceof Error && detailQ.error.message.endsWith("404"))
+            return notFound ? (
+                <StatePanel title={t("notFoundTitle")} body={t("notFoundBody", { id: param })}>
+                    <Link to="/pokedex" className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-red-500">
+                        {t("backToDex")}
+                    </Link>
+                </StatePanel>
+            ) : (
+                <StatePanel title={t("loadErrorTitle")} body={t("loadErrorBody")}>
+                    <button
+                        type="button"
+                        onClick={() => void detailQ.refetch()}
+                        className="rounded-full bg-red-500 px-5 py-2 text-sm font-semibold text-white hover:bg-red-600"
+                    >
+                        {t("retry")}
+                    </button>
+                    <Link to="/pokedex" className="rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300">
+                        {t("backToDex")}
+                    </Link>
+                </StatePanel>
+            )
+        }
+    }
+
+    const id = local?.id ?? detail?.id ?? 0
+    const shownNo = speciesId ?? id
+    const generation = local ? getGeneration(local) : ROMAN[species?.generation.name.replace("generation-", "") ?? ""]
+    const artwork = local ? officialArtworkUrl(local.id) : (detail?.sprites.other?.["official-artwork"]?.front_default ?? "")
+    const spriteFallback = local?.sprite ?? detail?.sprites.front_default ?? null
+    const decimal = { minimumFractionDigits: 1, maximumFractionDigits: 1 }
+
     const genderRate = species?.gender_rate
-    const genderText = genderRate == null ? "—" : genderRate === -1 ? "Genderless" : genderRate === 0 ? "Male only" : genderRate === 8 ? "Female only"
-        : `${Math.round((1 - genderRate / 8) * 100)}% M / ${Math.round((genderRate / 8) * 100)}% F`
-    const generation = species?.generation?.name?.replace("generation-", "Gen ")?.toUpperCase()
+    const genderText =
+        genderRate == null
+            ? null
+            : genderRate === -1
+              ? t("genderless")
+              : genderRate === 0
+                ? t("maleOnly")
+                : genderRate === 8
+                  ? t("femaleOnly")
+                  : t("genderRatio", {
+                        m: formatNumber((1 - genderRate / 8) * 100, lang, { maximumFractionDigits: 1 }),
+                        f: formatNumber((genderRate / 8) * 100, lang, { maximumFractionDigits: 1 }),
+                    })
 
-    // Guards
-    if (!pokemonKey) return (
-        <div style={{ minHeight: "100vh", background: "#F8FAFC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif", color: "#94A3B8" }}>
-            Invalid route.
-        </div>
-    )
-    if (isLoading) return (
-        <div style={{ minHeight: "100vh", background: "#F8FAFC", padding: 40 }}>
-            {[1, 0.6, 0.3].map((op, i) => (
-                <div key={i} style={{ height: i === 0 ? 340 : 140, background: "#E2E8F0", borderRadius: 22, marginBottom: 20, opacity: op }} />
-            ))}
-        </div>
-    )
-    if (isError) return (
-        <div style={{ minHeight: "100vh", background: "#F8FAFC", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, fontFamily: "DM Sans, sans-serif" }}>
-            <button onClick={() => navigate(-1)} style={{ padding: "10px 20px", borderRadius: 12, background: "#0F172A", color: "#fff", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "Syne, sans-serif" }}>← Back</button>
-            <span style={{ color: "#94A3B8" }}>Failed: {String((error as any)?.message ?? "unknown")}</span>
-        </div>
-    )
+    const growthKey = species ? `growth_${species.growth_rate.name}` : ""
+    const colorKey = species ? `color_${species.color.name}` : ""
+    const retry = t("retry")
 
-    const tabs: { key: Tab; label: string }[] = [
-        { key: "overview", label: "Overview" },
-        { key: "stats", label: "Stats" },
-        { key: "moves", label: `Moves (${detail.moves?.length ?? 0})` },
-        { key: "sprites", label: "Sprites" },
-    ]
+    const speciesRows: { label: string; value: ReactNode }[] = species
+        ? [
+              { label: t("generation"), value: generation ? generationName(generation, lang) : "—" },
+              { label: t("growthRate"), value: isPokedexKey(growthKey) ? t(growthKey) : titleCaseSlug(species.growth_rate.name) },
+              {
+                  label: t("captureRate"),
+                  value: `${species.capture_rate} (${formatNumber((species.capture_rate / 255) * 100, lang, { maximumFractionDigits: 1 })}%)`,
+              },
+              { label: t("baseHappiness"), value: species.base_happiness ?? "—" },
+              { label: t("color"), value: isPokedexKey(colorKey) ? t(colorKey) : titleCaseSlug(species.color.name) },
+          ]
+        : []
 
     return (
-        <div style={{ minHeight: "100vh", background: "#F8FAFC", fontFamily: "DM Sans, sans-serif" }}>
+        <div className="space-y-5" style={{ "--accent": accent } as CSSProperties}>
+            {/* ── 상단 내비게이션 ── */}
+            <nav className="flex items-center justify-between gap-2" aria-label={t("detailTabs")}>
+                <Link
+                    to="/pokedex"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:text-slate-900"
+                >
+                    <span aria-hidden>←</span>
+                    {t("backToDex")}
+                </Link>
+                <div className="flex min-w-0 items-center gap-1.5" title={t("keyboardHint")}>
+                    <NeighborLink p={prev} dir="prev" lang={lang} label={t("prev")} />
+                    <NeighborLink p={next} dir="next" lang={lang} label={t("next")} />
+                </div>
+            </nav>
 
-            {/* ── HERO PANEL ── */}
-            <div style={{ background: "#fff", borderBottom: "1px solid #F1F5F9", position: "relative", overflow: "hidden" }}>
-                {/* Accent blob */}
-                <div style={{ position: "absolute", top: -120, right: -100, width: 500, height: 500, borderRadius: "50%", background: `${theme.primary}10`, pointerEvents: "none" }} />
-                <div style={{ position: "absolute", bottom: -60, left: -60, width: 240, height: 240, borderRadius: "50%", background: `${theme.primary}06`, pointerEvents: "none" }} />
+            {/* ── HERO ── */}
+            <section className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm">
+                <div className="pointer-events-none absolute -right-24 -top-28 h-96 w-96 rounded-full bg-(--accent)/10" aria-hidden />
+                <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-(--accent)/5" aria-hidden />
 
-                <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 36px 0" }}>
-
-                    {/* Nav */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 36 }}>
-                        <button
-                            onClick={() => navigate(-1)}
-                            style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 20px", borderRadius: 12, background: "#F8FAFC", border: "1px solid #E2E8F0", cursor: "pointer", fontSize: 14, fontWeight: 600, color: "#374151", fontFamily: "DM Sans, sans-serif" }}
-                        >
-                            ← Back
-                        </button>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            {species?.is_legendary && <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: theme.primary, background: theme.light, padding: "5px 12px", borderRadius: 999, fontFamily: "Syne, sans-serif", border: `1px solid ${theme.primary}25` }}>LEGENDARY</span>}
-                            {species?.is_mythical  && <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "#BE185D", background: "#FDF2F8", padding: "5px 12px", borderRadius: 999, fontFamily: "Syne, sans-serif" }}>MYTHICAL</span>}
-                            {species?.is_baby      && <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", color: "#7C3AED", background: "#F5F3FF", padding: "5px 12px", borderRadius: 999, fontFamily: "Syne, sans-serif" }}>BABY</span>}
-                            <span style={{ fontSize: 14, fontWeight: 800, color: "#CBD5E1", fontFamily: "Syne, sans-serif", letterSpacing: "0.05em" }}>#{String(detail.id).padStart(4, "0")}</span>
+                <div className="relative grid gap-4 p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_256px] md:items-center md:gap-8">
+                    <div className="order-2 min-w-0 md:order-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-sm font-extrabold tabular-nums text-slate-300">{dexNo(shownNo)}</span>
+                            {generation ? (
+                                <span className="rounded-full bg-(--accent)/10 px-2.5 py-0.5 text-[11px] font-bold text-slate-700">
+                                    {generationName(generation, lang)}
+                                </span>
+                            ) : null}
+                            {species?.is_legendary && (
+                                <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-700">{t("legendary")}</span>
+                            )}
+                            {species?.is_mythical && (
+                                <span className="rounded-full bg-pink-50 px-2.5 py-0.5 text-[11px] font-bold text-pink-700">{t("mythical")}</span>
+                            )}
+                            {species?.is_baby && (
+                                <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-[11px] font-bold text-violet-700">{t("baby")}</span>
+                            )}
                         </div>
-                    </div>
 
-                    {/* Hero body */}
-                    <div style={{ display: "flex", gap: 56, alignItems: "flex-start", flexWrap: "wrap" }}>
-
-                        {/* Text */}
-                        <div style={{ flex: 1, minWidth: 280, paddingBottom: 44 }}>
-                            {generation && (
-                                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.22em", textTransform: "uppercase", color: theme.primary, fontFamily: "Syne, sans-serif", marginBottom: 12 }}>{generation}</div>
-                            )}
-                            <h1 style={{ fontSize: "clamp(2.8rem, 5vw, 4.2rem)", fontWeight: 800, fontFamily: "Syne, sans-serif", color: "#0F172A", lineHeight: 1.02, textTransform: "capitalize", margin: "0 0 6px" }}>
-                                {titleCase(detail.name)}
-                            </h1>
-                            {genus && <div style={{ fontSize: 15, color: "#94A3B8", fontFamily: "DM Sans, sans-serif", fontStyle: "italic", marginBottom: 16 }}>{genus}</div>}
-
-                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
-                                {types.map(t => <TypeBadge key={t} type={t} />)}
-                            </div>
-
-                            {flavor && (
-                                <p style={{ fontSize: 15, lineHeight: 1.75, color: "#64748B", fontFamily: "DM Sans, sans-serif", maxWidth: 420, fontStyle: "italic", margin: "0 0 28px", fontWeight: 300 }}>
-                                    "{flavor}"
-                                </p>
-                            )}
-
-                            {/* Quick metrics */}
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, maxWidth: 420, marginBottom: 28 }}>
-                                {[
-                                    { label: "Height", value: `${(detail.height / 10).toFixed(1)} m` },
-                                    { label: "Weight", value: `${(detail.weight / 10).toFixed(1)} kg` },
-                                    { label: "Base EXP", value: detail.base_experience ?? "—" },
-                                ].map(({ label, value }) => (
-                                    <div key={label} style={{ background: "#F8FAFC", borderRadius: 14, padding: "16px 18px", border: "1px solid #F1F5F9" }}>
-                                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#CBD5E1", fontFamily: "Syne, sans-serif", marginBottom: 6 }}>{label}</div>
-                                        <div style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", fontFamily: "Syne, sans-serif" }}>{value}</div>
-                                    </div>
+                        <h1 className="mt-2 break-words text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-5xl">{name}</h1>
+                        {form && <p className="mt-0.5 text-base font-semibold text-slate-500">{form}</p>}
+                        {otherNames.length > 0 && (
+                            <p className="mt-1 text-sm text-slate-400" aria-label={t("otherNames")}>
+                                {otherNames.map((o, i) => (
+                                    <span key={o.n} lang={o.lang}>
+                                        {i > 0 && " · "}
+                                        {o.n}
+                                    </span>
                                 ))}
-                            </div>
+                            </p>
+                        )}
+                        {genusEntry ? (
+                            <p className="mt-1 text-sm italic text-slate-500">{genusEntry.genus}</p>
+                        ) : speciesQ.isPending && speciesId ? (
+                            <Skeleton className="mt-2 h-4 w-32" />
+                        ) : null}
 
-                            {/* Abilities */}
-                            <div>
-                                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", color: "#CBD5E1", fontFamily: "Syne, sans-serif", marginBottom: 10 }}>Abilities</div>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                    {detail.abilities?.map((a: any) => (
-                                        <div key={a.ability.name} style={{
-                                            padding: "8px 18px", borderRadius: 12, fontSize: 13, fontWeight: 600,
-                                            fontFamily: "DM Sans, sans-serif", textTransform: "capitalize",
-                                            ...(a.is_hidden
-                                                ? { background: theme.light, color: theme.dark, border: `1.5px solid ${theme.primary}30` }
-                                                : { background: "#F8FAFC", color: "#374151", border: "1px solid #E2E8F0" })
-                                        }}>
-                                            {titleCase(a.ability.name)}{a.is_hidden ? " ✦" : ""}
-                                        </div>
+                        <TypeIcon types={types} className="mt-4" />
+
+                        {flavor ? (
+                            <blockquote
+                                lang={flavorEntry?.language.name.split("-")[0]}
+                                className="mt-4 max-w-prose border-l-4 border-(--accent)/40 pl-3 text-sm leading-relaxed text-slate-600"
+                            >
+                                {flavor}
+                            </blockquote>
+                        ) : speciesQ.isPending && speciesId ? (
+                            <div className="mt-4 space-y-1.5">
+                                <Skeleton className="h-3.5 w-full max-w-md" />
+                                <Skeleton className="h-3.5 w-4/5 max-w-sm" />
+                            </div>
+                        ) : null}
+
+                        {/* Quick metrics */}
+                        <dl className="mt-5 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
+                            {[
+                                { label: t("height"), value: detail ? `${formatNumber(detail.height / 10, lang, decimal)} m` : null },
+                                { label: t("weight"), value: detail ? `${formatNumber(detail.weight / 10, lang, decimal)} kg` : null },
+                                { label: t("baseExp"), value: detail ? (detail.base_experience ?? "—") : null },
+                            ].map(({ label, value }) => (
+                                <div key={label} className="min-w-0 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2.5 sm:px-4 sm:py-3">
+                                    <dt className="truncate text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</dt>
+                                    <dd className="mt-1 text-base font-extrabold tabular-nums text-slate-900 sm:text-lg">
+                                        {value ?? (detailQ.isError ? "—" : <Skeleton className="h-5 w-12" />)}
+                                    </dd>
+                                </div>
+                            ))}
+                        </dl>
+
+                        {/* Abilities (compact) */}
+                        {abilities.length > 0 && (
+                            <div className="mt-5">
+                                <div className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-400">{t("abilities")}</div>
+                                <div className="flex flex-wrap gap-2">
+                                    {abilities.map((a) => (
+                                        <Link
+                                            key={a.name}
+                                            to={`/abilities/${a.name}`}
+                                            className={`rounded-xl border px-3 py-1.5 text-sm font-semibold transition hover:shadow-sm ${
+                                                a.hidden
+                                                    ? "border-violet-200 bg-violet-50 text-violet-700 hover:border-violet-300"
+                                                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                                            }`}
+                                        >
+                                            {abilityName(a.name, lang)}
+                                            {a.hidden && <span className="ml-1.5 text-[10px] font-bold text-violet-500">{t("hiddenAbility")}</span>}
+                                        </Link>
                                     ))}
                                 </div>
-                                {detail.abilities?.some((a: any) => a.is_hidden) && (
-                                    <div style={{ fontSize: 11, color: "#C4B5FD", marginTop: 6, fontFamily: "DM Sans, sans-serif" }}>✦ Hidden ability</div>
-                                )}
                             </div>
-                        </div>
-
-                        {/* Artwork */}
-                        <div style={{ width: 300, display: "flex", alignItems: "flex-end", justifyContent: "center", flexShrink: 0 }}>
-                            {artwork ? (
-                                <img src={artwork} alt={detail.name} style={{ width: 280, height: 280, objectFit: "contain", filter: `drop-shadow(0 24px 48px ${theme.primary}50)` }} />
-                            ) : (
-                                <div style={{ width: 280, height: 280, background: "#F1F5F9", borderRadius: 24 }} />
-                            )}
-                        </div>
+                        )}
                     </div>
 
-                    {/* Tab bar */}
-                    <div style={{ display: "flex", marginTop: 32, borderTop: "1px solid #F1F5F9" }}>
-                        {tabs.map(({ key, label }) => (
-                            <button key={key} onClick={() => setTab(key)} style={{
-                                padding: "15px 26px",
-                                fontSize: 13, fontWeight: 700,
-                                fontFamily: "Syne, sans-serif",
-                                background: "transparent", border: "none", cursor: "pointer",
-                                color: tab === key ? theme.primary : "#94A3B8",
-                                borderBottom: tab === key ? `2.5px solid ${theme.primary}` : "2.5px solid transparent",
-                                marginBottom: -1,
-                                letterSpacing: "0.04em",
-                                transition: "color .15s",
-                            }}>
-                                {label}
-                            </button>
-                        ))}
+                    <div className="order-1 flex justify-center md:order-2">
+                        <Artwork key={id} src={artwork} fallback={spriteFallback} alt={t("artworkAlt", { name })} />
                     </div>
                 </div>
-            </div>
+
+                {/* Tab bar */}
+                <div
+                    role="tablist"
+                    aria-label={t("detailTabs")}
+                    onKeyDown={onTabKey}
+                    className="relative flex overflow-x-auto border-t border-slate-100 px-2 sm:px-6"
+                >
+                    {TABS.map((key) => {
+                        const active = tab === key
+                        const count = key === "moves" ? (detail?.moves.length ?? local?.moves.length) : undefined
+                        return (
+                            <button
+                                key={key}
+                                id={`pokemon-tab-${key}`}
+                                type="button"
+                                role="tab"
+                                aria-selected={active}
+                                aria-controls={`pokemon-panel-${key}`}
+                                tabIndex={active ? 0 : -1}
+                                onClick={() => setTab(key)}
+                                className={`-mb-px shrink-0 border-b-2 px-4 py-3.5 text-sm font-bold transition focus:outline-none focus-visible:bg-slate-50 sm:px-5 ${
+                                    active ? "border-(--accent) text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"
+                                }`}
+                            >
+                                {t(TAB_LABEL[key])}
+                                {count ? <span className="ml-1 text-xs font-semibold tabular-nums text-slate-400">{count}</span> : null}
+                            </button>
+                        )
+                    })}
+                </div>
+            </section>
 
             {/* ── CONTENT ── */}
-            <div style={{ maxWidth: 1100, margin: "0 auto", padding: "36px 36px 60px" }}>
-
-                {/* OVERVIEW */}
+            <div role="tabpanel" id={`pokemon-panel-${tab}`} aria-labelledby={`pokemon-tab-${tab}`} tabIndex={-1} className="focus:outline-none">
                 {tab === "overview" && (
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
-
-                        <Card>
-                            <SecLabel>Species</SecLabel>
-                            {[
-                                { label: "Generation", value: generation },
-                                { label: "Growth Rate", value: species?.growth_rate?.name ? titleCase(species.growth_rate.name) : undefined },
-                                { label: "Capture Rate", value: (species?.capture_rate != null) ? `${species.capture_rate} (${Math.round((species.capture_rate / 255) * 100)}%)` : undefined },
-                                { label: "Base Happiness", value: species?.base_happiness },
-                                { label: "Color", value: species?.color?.name },
-                                { label: "Shape", value: species?.shape?.name },
-                                { label: "Habitat", value: species?.habitat?.name },
-                            ].filter(x => x.value !== undefined && x.value !== null).map(({ label, value }) => (
-                                <InfoRow key={label} label={label} value={String(value)} />
-                            ))}
-                        </Card>
-
-                        <Card>
-                            <SecLabel>Breeding</SecLabel>
-                            <InfoRow label="Gender" value={genderText} />
-                            {species?.hatch_counter != null && (
-                                <InfoRow label="Hatch Steps" value={`${(species.hatch_counter + 1) * 255} steps`} />
-                            )}
-                            {species?.egg_groups && species.egg_groups.length > 0 && (
-                                <div style={{ paddingTop: 14 }}>
-                                    <div style={{ fontSize: 14, color: "#94A3B8", marginBottom: 10, fontFamily: "DM Sans, sans-serif" }}>Egg Groups</div>
-                                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                                        {species.egg_groups.map((g: any) => (
-                                            <span key={g.name} style={{ fontSize: 13, fontWeight: 600, padding: "5px 14px", borderRadius: 999, background: "#F8FAFC", border: "1px solid #E2E8F0", color: "#374151", textTransform: "capitalize", fontFamily: "DM Sans, sans-serif" }}>
-                                                {titleCase(g.name)}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </Card>
-
-                        {(weaknesses.length > 0 || resistances.length > 0) && (
-                            <Card style={{ gridColumn: "1 / -1" }}>
-                                <SecLabel>Type Matchup — Defense</SecLabel>
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
-                                    {weaknesses.length > 0 && (
-                                        <div>
-                                            <div style={{ fontSize: 12, fontWeight: 700, color: "#EF4444", fontFamily: "Syne, sans-serif", marginBottom: 12, letterSpacing: "0.06em" }}>Weak against</div>
-                                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                                {weaknesses.map(([type, mult]) => <MatchupBadge key={type} type={type} mult={mult} />)}
-                                            </div>
-                                        </div>
-                                    )}
-                                    {resistances.length > 0 && (
-                                        <div>
-                                            <div style={{ fontSize: 12, fontWeight: 700, color: "#3B82F6", fontFamily: "Syne, sans-serif", marginBottom: 12, letterSpacing: "0.06em" }}>Resists / Immune</div>
-                                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                                {resistances.map(([type, mult]) => <MatchupBadge key={type} type={type} mult={mult} />)}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        {abilities.length > 0 && (
+                            <Card title={t("abilities")} className="md:col-span-2">
+                                <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                    {abilities.map((a) => {
+                                        const desc = localText(ABILITY_BY_NAME.get(a.name)?.desc, lang)
+                                        return (
+                                            <li key={a.name}>
+                                                <Link
+                                                    to={`/abilities/${a.name}`}
+                                                    className={`block h-full rounded-2xl border p-3.5 transition hover:shadow-sm ${
+                                                        a.hidden ? "border-violet-200 bg-violet-50/60 hover:border-violet-300" : "border-slate-200 hover:border-slate-300"
+                                                    }`}
+                                                >
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        <span className="font-bold text-slate-900">{abilityName(a.name, lang)}</span>
+                                                        {a.hidden && (
+                                                            <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700">
+                                                                {t("hiddenAbility")}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <p className="mt-1 text-xs leading-relaxed text-slate-500">{desc ?? t("abilityNoDesc")}</p>
+                                                </Link>
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
                             </Card>
                         )}
 
-                        {heldItems.length > 0 && (
-                            <Card>
-                                <SecLabel>Held Items (Wild)</SecLabel>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                    {heldItems.map((item: string) => (
-                                        <span key={item} style={{ fontSize: 13, fontWeight: 600, padding: "6px 16px", borderRadius: 999, background: theme.light, color: theme.dark, border: `1px solid ${theme.primary}20`, textTransform: "capitalize", fontFamily: "DM Sans, sans-serif" }}>
-                                            {titleCase(item)}
+                        <Card title={t("species")}>
+                            {speciesQ.isError ? (
+                                <InlineError message={t("loadErrorTitle")} onRetry={() => void speciesQ.refetch()} retryLabel={retry} />
+                            ) : !species ? (
+                                <SkeletonRows n={5} />
+                            ) : (
+                                <dl>
+                                    {speciesRows.map((r) => (
+                                        <InfoRow key={r.label} label={r.label}>
+                                            {r.value}
+                                        </InfoRow>
+                                    ))}
+                                </dl>
+                            )}
+                        </Card>
+
+                        <Card title={t("breeding")}>
+                            {speciesQ.isError ? (
+                                <InlineError message={t("loadErrorTitle")} onRetry={() => void speciesQ.refetch()} retryLabel={retry} />
+                            ) : !species ? (
+                                <SkeletonRows n={3} />
+                            ) : (
+                                <dl>
+                                    <InfoRow label={t("gender")}>{genderText ?? "—"}</InfoRow>
+                                    {species.hatch_counter != null && (
+                                        <InfoRow label={t("eggCycles")}>
+                                            {t("eggCyclesValue", { n: species.hatch_counter, steps: (species.hatch_counter + 1) * 255 })}
+                                        </InfoRow>
+                                    )}
+                                    {species.egg_groups && species.egg_groups.length > 0 && (
+                                        <InfoRow label={t("eggGroups")}>
+                                            <span className="flex flex-wrap justify-end gap-1.5">
+                                                {species.egg_groups.map((g) => (
+                                                    <span key={g.name} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                                                        {eggGroupName(g.name, lang)}
+                                                    </span>
+                                                ))}
+                                            </span>
+                                        </InfoRow>
+                                    )}
+                                </dl>
+                            )}
+                        </Card>
+
+                        <Card title={t("typeMatchup")} className="md:col-span-2">
+                            {matchups.length === 0 ? (
+                                <p className="text-sm text-slate-400">{t("noMatchups")}</p>
+                            ) : (
+                                <div className="grid gap-5 sm:grid-cols-3">
+                                    {(
+                                        [
+                                            ["weakTo", weaknesses, "text-red-600"],
+                                            ["resists", resistances, "text-sky-600"],
+                                            ["immuneTo", immunities, "text-violet-600"],
+                                        ] as const
+                                    ).map(([label, list, color]) =>
+                                        list.length > 0 ? (
+                                            <div key={label}>
+                                                <h3 className={`mb-2 text-xs font-bold ${color}`}>{t(label)}</h3>
+                                                <ul className="flex flex-wrap gap-1.5">
+                                                    {list.map(([type, mult]) => (
+                                                        <li key={type}>
+                                                            <TypeChip
+                                                                type={type}
+                                                                lang={lang}
+                                                                suffix={<span className="ml-0.5 rounded bg-black/20 px-1 py-px text-[10px] tabular-nums">{multLabel(mult)}</span>}
+                                                            />
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        ) : null,
+                                    )}
+                                </div>
+                            )}
+                        </Card>
+
+                        {detail && detail.held_items.length > 0 && (
+                            <Card title={t("heldItems")} className="md:col-span-2">
+                                <div className="flex flex-wrap gap-2">
+                                    {detail.held_items.map((h) => (
+                                        <span key={h.item.name} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-700">
+                                            {itemName(h.item.name, lang)}
                                         </span>
                                     ))}
                                 </div>
                             </Card>
                         )}
 
-                        <Card style={{ gridColumn: "1 / -1" }}>
-                            <SecLabel>Evolution Chain</SecLabel>
-                            {evoLoading && <span style={{ fontSize: 14, color: "#94A3B8" }}>Loading…</span>}
-                            {evo?.chain ? (
-                                <EvoChain chain={evo.chain} theme={theme} />
-                            ) : !evoLoading && (
-                                <span style={{ fontSize: 14, color: "#94A3B8" }}>Does not evolve.</span>
-                            )}
-                        </Card>
-                    </div>
-                )}
-
-                {/* STATS */}
-                {tab === "stats" && (
-                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 20, alignItems: "start" }}>
-                        <Card>
-                            <SecLabel>Base Stats</SecLabel>
-                            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-                                {detail.stats?.map((s: any) => (
-                                    <StatRow key={s.stat.name} statName={s.stat.name} value={s.base_stat} />
-                                ))}
-                            </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: 28, paddingTop: 20, borderTop: "2px solid #F1F5F9" }}>
-                                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "#CBD5E1", fontFamily: "Syne, sans-serif" }}>Total</span>
-                                <span style={{ fontSize: 36, fontWeight: 800, fontFamily: "Syne, sans-serif", color: theme.primary }}>{statTotal}</span>
-                            </div>
-                        </Card>
-                        <Card>
-                            <SecLabel>EV Yield</SecLabel>
-                            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                                {detail.stats?.filter((s: any) => s.effort > 0).map((s: any) => (
-                                    <div key={s.stat.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 0", borderBottom: "1px solid #F8FAFC" }}>
-                                        <span style={{ fontSize: 12, fontWeight: 700, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "Syne, sans-serif" }}>{STAT_META[s.stat.name]?.label ?? s.stat.name}</span>
-                                        <span style={{ fontSize: 18, fontWeight: 800, color: theme.primary, fontFamily: "Syne, sans-serif" }}>+{s.effort}</span>
-                                    </div>
-                                ))}
-                                {!detail.stats?.some((s: any) => s.effort > 0) && (
-                                    <span style={{ fontSize: 14, color: "#94A3B8" }}>None</span>
-                                )}
-                            </div>
-                        </Card>
-                    </div>
-                )}
-
-                {/* BATTLE STATS (engine) */}
-                {tab === "stats" && (
-                    <div style={{ marginTop: 20 }}>
-                        <BattleStatsPanel dexId={detail.id} />
-                    </div>
-                )}
-
-                {/* MOVES */}
-                {tab === "moves" && (
-                    <Card>
-                        <SecLabel>All Moves</SecLabel>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 8, maxHeight: "65vh", overflowY: "auto", paddingRight: 6 }}>
-                            {sortedMoves.map((m: any) => {
-                                const det0 = m.version_group_details?.[0]
-                                const method = det0?.move_learn_method?.name
-                                const level  = det0?.level_learned_at
-                                return (
-                                    <div key={m.move.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 16px", borderRadius: 12, background: "#F8FAFC", border: "1px solid #F1F5F9", transition: "background .1s" }}
-                                         onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "#F1F5F9")}
-                                         onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "#F8FAFC")}>
-                                        <span style={{ fontSize: 14, fontWeight: 600, textTransform: "capitalize", color: "#1E293B", fontFamily: "DM Sans, sans-serif" }}>{titleCase(m.move.name)}</span>
-                                        {level ? (
-                                            <span style={{ fontSize: 11, fontWeight: 700, color: theme.primary, background: theme.light, padding: "2px 8px", borderRadius: 999, fontFamily: "Syne, sans-serif", flexShrink: 0 }}>Lv.{level}</span>
-                                        ) : method ? (
-                                            <span style={{ fontSize: 10, color: "#C4B5FD", fontFamily: "DM Sans, sans-serif", textTransform: "capitalize", flexShrink: 0 }}>{titleCase(method)}</span>
-                                        ) : null}
+                        <Card title={t("evolution")} className="md:col-span-2">
+                            {evoQ.isError || speciesQ.isError ? (
+                                <InlineError
+                                    message={t("evoLoadError")}
+                                    onRetry={() => void (speciesQ.isError ? speciesQ.refetch() : evoQ.refetch())}
+                                    retryLabel={retry}
+                                />
+                            ) : !evoQ.data ? (
+                                species && !species.evolution_chain?.url ? (
+                                    <p className="text-sm text-slate-400">{t("noEvolution")}</p>
+                                ) : (
+                                    <div className="flex gap-4">
+                                        <Skeleton className="h-28 w-24" />
+                                        <Skeleton className="h-28 w-24" />
+                                        <Skeleton className="h-28 w-24" />
                                     </div>
                                 )
-                            })}
-                        </div>
-                    </Card>
+                            ) : evoQ.data.chain.evolves_to.length === 0 ? (
+                                <p className="text-sm text-slate-400">{t("noEvolution")}</p>
+                            ) : (
+                                <div className="overflow-x-auto pb-1">
+                                    <div className="flex justify-center sm:justify-start">
+                                        <EvoTree link={evoQ.data.chain} currentSpeciesId={speciesId} lang={lang} t={t} />
+                                    </div>
+                                </div>
+                            )}
+                        </Card>
+
+                        {forms.length > 1 && (
+                            <Card title={t("forms")} className="md:col-span-2">
+                                <ul className="flex flex-wrap gap-2">
+                                    {forms.map((f) => {
+                                        const current = f.id === id
+                                        const label = formLabel(f, lang) ?? pokemonName(f, lang)
+                                        return (
+                                            <li key={f.id}>
+                                                <Link
+                                                    to={`/pokemon/${f.id}`}
+                                                    aria-current={current ? "page" : undefined}
+                                                    className={`flex items-center gap-2 rounded-2xl border py-1 pl-1 pr-3 text-sm font-semibold transition ${
+                                                        current
+                                                            ? "border-(--accent) bg-(--accent)/10 text-slate-900"
+                                                            : "border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                                                    }`}
+                                                >
+                                                    {f.sprite ? (
+                                                        <img src={f.sprite} alt="" loading="lazy" className="h-9 w-9 object-contain [image-rendering:pixelated]" />
+                                                    ) : (
+                                                        <span className="h-9 w-9" aria-hidden />
+                                                    )}
+                                                    {label}
+                                                </Link>
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
+                            </Card>
+                        )}
+                    </div>
                 )}
 
-                {/* SPRITES */}
-                {tab === "sprites" && (
-                    <Card>
-                        <SpritesGallery sprites={detail.sprites} />
-                    </Card>
+                {tab === "stats" && (
+                    <div className="space-y-4">
+                        <div className="grid gap-4 md:grid-cols-3">
+                            <Card title={t("baseStats")} className="md:col-span-2">
+                                <dl className="space-y-3">
+                                    {stats.map((s) => (
+                                        <div key={s.key} className="flex items-center gap-3">
+                                            <dt className="w-16 shrink-0 text-xs font-bold text-slate-500 sm:w-20">{statLabel(s.key, lang)}</dt>
+                                            <dd className="w-9 shrink-0 text-right text-sm font-extrabold tabular-nums text-slate-900">{s.value}</dd>
+                                            <dd className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100" aria-hidden>
+                                                <div
+                                                    className={`h-full rounded-full ${STAT_BAR_CLASS[s.key]}`}
+                                                    style={{ width: `${Math.min(100, Math.round((s.value / 255) * 100))}%` }}
+                                                />
+                                            </dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                                <div className="mt-5 flex items-baseline justify-between border-t border-slate-100 pt-4">
+                                    <span className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">{t("total")}</span>
+                                    <span className="text-3xl font-extrabold tabular-nums text-slate-900">{statTotal}</span>
+                                </div>
+                            </Card>
+                            <Card title={t("evYield")}>
+                                {detail ? (
+                                    detail.stats.some((s) => s.effort > 0) ? (
+                                        <dl>
+                                            {detail.stats
+                                                .filter((s) => s.effort > 0)
+                                                .map((s) => {
+                                                    const key = API_STAT_KEY[s.stat.name]
+                                                    return (
+                                                        <InfoRow key={s.stat.name} label={key ? statLabel(key, lang) : s.stat.name}>
+                                                            <span className="text-lg font-extrabold tabular-nums">+{s.effort}</span>
+                                                        </InfoRow>
+                                                    )
+                                                })}
+                                        </dl>
+                                    ) : (
+                                        <p className="text-sm text-slate-400">{t("none")}</p>
+                                    )
+                                ) : detailQ.isError ? (
+                                    <InlineError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
+                                ) : (
+                                    <SkeletonRows n={2} />
+                                )}
+                            </Card>
+                        </div>
+                        <BattleStatsPanel dexId={id} />
+                    </div>
                 )}
+
+                {tab === "moves" && (
+                    <MovesPanel
+                        key={id}
+                        detail={detail}
+                        loading={detailQ.isPending}
+                        error={detailQ.isError}
+                        onRetry={() => void detailQ.refetch()}
+                        fallbackMoves={detailQ.isError ? local?.moves : undefined}
+                        lang={lang}
+                        t={t}
+                        retryLabel={retry}
+                        allLabel={tc("all")}
+                    />
+                )}
+
+                {tab === "sprites" &&
+                    (detail ? (
+                        <SpritesGallery sprites={detail.sprites} lang={lang} t={t} />
+                    ) : detailQ.isError ? (
+                        <Card>
+                            <InlineError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
+                        </Card>
+                    ) : (
+                        <Card>
+                            <SkeletonRows n={4} />
+                        </Card>
+                    ))}
             </div>
         </div>
     )

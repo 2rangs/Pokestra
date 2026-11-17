@@ -6,6 +6,8 @@ import {
 } from '@kyasi/pokebattle-engine'
 import { buildSet } from '../../lib/battle'
 import { findDexPokemonByName, type DexPokemon } from '../../lib/dex'
+import { formatNumber, translate, type Lang } from '../../i18n'
+import { calcMessages } from '../../i18n/messages/calc'
 
 export const STAT_ORDER = ['hp', 'attack', 'defense', 'special_attack', 'special_defense', 'speed'] as const
 export type CalcStatKey = typeof STAT_ORDER[number]
@@ -44,18 +46,10 @@ export const DEFAULT_FIELD: FieldState = {
     weather: null, terrain: null, reflect: false, lightScreen: false, auroraVeil: false, crit: false, gravity: false,
 }
 
-export const WEATHER_OPTIONS: { id: Weather; ko: string }[] = [
-    { id: null, ko: '없음' }, { id: 'sun', ko: '쾌청' }, { id: 'rain', ko: '비' },
-    { id: 'sandstorm', ko: '모래바람' }, { id: 'snow', ko: '설경' },
-]
-export const TERRAIN_OPTIONS: { id: Terrain; ko: string }[] = [
-    { id: null, ko: '없음' }, { id: 'electric', ko: '일렉트릭' }, { id: 'grassy', ko: '그래스' },
-    { id: 'misty', ko: '미스트' }, { id: 'psychic', ko: '사이코' },
-]
-export const STATUS_OPTIONS: { id: PrimaryStatus; ko: string }[] = [
-    { id: null, ko: '없음' }, { id: 'burn', ko: '화상' }, { id: 'poison', ko: '독' }, { id: 'toxic', ko: '맹독' },
-    { id: 'paralysis', ko: '마비' }, { id: 'sleep', ko: '잠듦' }, { id: 'freeze', ko: '얼음' },
-]
+/** 선택지 (라벨은 calcMessages 의 `weather_*` / `terrain_*` / `status_*` 키) */
+export const WEATHER_IDS = ['sun', 'rain', 'sandstorm', 'snow'] as const satisfies readonly NonNullable<Weather>[]
+export const TERRAIN_IDS = ['electric', 'grassy', 'misty', 'psychic'] as const satisfies readonly NonNullable<Terrain>[]
+export const STATUS_IDS = ['burn', 'poison', 'toxic', 'paralysis', 'sleep', 'freeze'] as const satisfies readonly NonNullable<PrimaryStatus>[]
 
 export const TERA_TYPES = [
     'normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 'poison', 'ground', 'flying',
@@ -211,8 +205,14 @@ export interface MoveSummary {
     /** 현재 HP 대비 비율 */
     minRatio: number
     maxRatio: number
+    /** 데미지가 0 */
+    noDamage: boolean
+    /** KO 까지 타수 (0 = 계산 범위 밖) */
+    koHits: number
+    /** koHits 타 안에 KO 될 확률 (0~1) */
+    koProb: number
+    /** 'guaranteed' = 확정, 'rng' = 난수, 'impossible' = 범위 밖/데미지 없음 */
     koChance: 'guaranteed' | 'rng' | 'impossible'
-    koText: string
 }
 
 export interface MoveCalc {
@@ -240,11 +240,32 @@ export function calcMove(attacker: SideState, defender: SideState, slug: string,
         return null
     }
     const hp = Math.max(1, r.defenderHP)
-    const koChance: MoveSummary['koChance'] = r.koHits === 1 && r.koChance >= 1 ? 'guaranteed' : r.koHits === 1 && r.koChance > 0 ? 'rng' : 'impossible'
+    const noDamage = r.max <= 0
+    const koChance: MoveSummary['koChance'] = noDamage || !r.koHits || r.koChance <= 0
+        ? 'impossible'
+        : r.koChance >= 1 ? 'guaranteed' : 'rng'
     return {
         slug,
         move,
-        summary: { min: r.min, max: r.max, range: r.range, minRatio: r.min / hp, maxRatio: r.max / hp, koChance, koText: r.koText },
+        summary: {
+            min: r.min, max: r.max, range: r.range, minRatio: r.min / hp, maxRatio: r.max / hp,
+            noDamage, koHits: noDamage ? 0 : r.koHits, koProb: r.koChance, koChance,
+        },
         detail: r,
     }
+}
+
+// ─── 표시용 문구 ─────────────────────────────────────────────
+
+/** 비율(0~1+) → "43.8%" (언어별 숫자 형식) */
+export function pctText(ratio: number, lang: Lang): string {
+    return formatNumber(ratio, lang, { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 })
+}
+
+/** KO 문구: "확정 2타" / "guaranteed 2HKO" / "乱数1発 (43.8%)" */
+export function koLabel(s: MoveSummary, lang: Lang): string {
+    if (s.noDamage) return translate(calcMessages, 'noDamage', undefined, lang)
+    if (s.koChance === 'impossible') return translate(calcMessages, 'koNone', undefined, lang)
+    const vars = { n: s.koHits, hko: s.koHits === 1 ? 'OHKO' : `${s.koHits}HKO`, pct: pctText(s.koProb, lang) }
+    return translate(calcMessages, s.koChance === 'guaranteed' ? 'koGuaranteed' : 'koRandom', vars, lang)
 }

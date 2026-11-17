@@ -1,15 +1,27 @@
 # Pokestra
 
-A Korean Pokémon dex and battle site. It covers every Pokémon from Gen 1 to 9, and its battles and damage calculations run on [`@kyasi/pokebattle-engine`](https://github.com/2rangs/pokebattle-engine).
+A Pokémon dex and battle site in **Korean, English and Japanese**. It covers every Pokémon from Gen 1 to 9, and its battles and damage calculations run on [`@kyasi/pokebattle-engine`](https://github.com/2rangs/pokebattle-engine).
 
 ## Features
 
 | Route | Description |
 |---|---|
-| `/pokedex` | Instant search over local data: Korean or English name or number; filters for type (up to 2), generation, learnable moves and alternate forms; sorting by base stats |
-| `/pokemon/:id` | Detail page: base stats, type matchups, evolutions, plus a **battle stats panel** (min/max actual stats at Lv50/Lv100) |
-| `/battle` | **Battle simulator**: build a team from learnsets (or random / Showdown import) and fight the CPU in singles, or watch CPU vs CPU. 3 difficulty levels, Terastallization, damage-range preview on move buttons, Korean battle log |
+| `/` | Landing page: quick search, Pokémon of the day, section shortcuts |
+| `/pokedex` | Instant search over local data: name in any language or number; filters for type (up to 2), generation, learnable moves and alternate forms; sorting by base stats |
+| `/pokemon/:id` | Detail page: base stats, abilities, type matchups, evolutions, plus a **battle stats panel** (min/max actual stats at Lv50/Lv100) |
+| `/battle` | **Battle simulator**: build a team from learnsets (or random / Showdown import) and fight the CPU in singles, or watch CPU vs CPU. 3 difficulty levels, Terastallization, damage-range preview on move buttons, battle log in all three languages |
 | `/calc` | **Damage calculator**: EVs/IVs, nature, ability, item, stat stages, Tera, weather/terrain/screens/crit. Shows all 16 damage rolls and the KO text. `?atk=garchomp&def=gholdengo` links preselect the matchup |
+| `/moves`, `/moves/:slug` | Move list with type/class/generation filters and power/accuracy/PP sorting; detail with description and learners |
+| `/abilities`, `/abilities/:slug` | Ability list and detail with description and Pokémon that have it |
+| `/sprites` | Sprite gallery (normal/shiny, sprite/official artwork) |
+
+## Languages
+
+The language switcher in the header picks 한국어 / English / 日本語. The choice is saved in `localStorage`; on the first visit it follows the browser language.
+
+- `src/i18n/index.ts` — language store and `useT()` hook
+- `src/i18n/messages/*.ts` — UI strings per screen. `defineMessages({ ko, en, ja })` fails type-checking if `en` or `ja` is missing a key
+- Game data names (Pokémon, moves, abilities, types, items, natures) come from PokeAPI, through helpers like `displayName(p, lang)` and `moveName(slug, lang)` in `src/lib/dex.ts`
 
 ## Development
 
@@ -17,6 +29,17 @@ A Korean Pokémon dex and battle site. It covers every Pokémon from Gen 1 to 9,
 npm install
 npm run dev      # http://localhost:5173/Pokestra/
 npm run build
+```
+
+Requires Node 20.19+ (Vite 8).
+
+### Data
+
+`src/data/*.json` is generated from PokeAPI and committed:
+
+```bash
+node src/script/fetchData.mjs       # base data (REST API, slow)
+node src/script/buildI18nData.mjs   # en/ja names, move details, abilities, natures, items (PokeAPI CSV dump)
 ```
 
 ### Engine dependency
@@ -38,8 +61,9 @@ npm install --no-save ../pokebattle-engine/kyasi-pokebattle-engine-*.tgz
 
 ## Structure
 
-- `src/lib/dex.ts` — typed accessors over the local dex JSON (`src/data/*.json`)
-- `src/lib/battle.ts` — engine glue: data loading hook, Korean name resolver, items/natures, recommended sets built from learnsets
+- `src/lib/dex.ts` — typed accessors and per-language name helpers over the local dex JSON (`src/data/*.json`)
+- `src/lib/battle.ts` — engine glue: data loading hook, name resolvers, items/natures, recommended sets built from learnsets
+- `src/lib/battleLog.ts` — battle log formatter (Korean via the engine, English/Japanese in-app)
 - `src/pages/battle/` — battle simulator (`useBattleSession` records a frame for every engine event and replays them in order)
 - `src/pages/CalcPage.tsx`, `src/components/calc/` — damage calculator
 - Large pages are lazy-loaded (`React.lazy`), so data and the engine download only when needed

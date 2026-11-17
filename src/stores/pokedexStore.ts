@@ -8,9 +8,9 @@ export type SortDir = 'asc' | 'desc'
 export const MAX_SELECTED_TYPES = 2
 
 interface PokedexFilters {
-    /** 한국어/영어 이름 또는 도감번호 */
+    /** 이름(한국어/영어/일본어/slug) 또는 도감번호 */
     nameSearch: string
-    /** 기술 검색 입력값 */
+    /** 기술 검색 입력값 (기술이 확정되면 비움 — 화면에는 현재 언어의 기술 이름을 표시) */
     moveSearch: string
     /** 확정된 기술 slug (추천 목록에서 선택했거나 입력이 정확히 일치할 때) */
     selectedMove: string | null
@@ -29,7 +29,7 @@ interface PokedexFilters {
 interface PokedexState extends PokedexFilters {
     setNameSearch: (v: string) => void
     setMoveSearch: (v: string) => void
-    setSelectedMove: (slug: string | null, label?: string) => void
+    setSelectedMove: (slug: string | null) => void
     toggleType: (type: string) => void
     clearTypes: () => void
     toggleGeneration: (id: number) => void
@@ -62,8 +62,7 @@ export const usePokedexStore = create<PokedexState>()(
 
             setNameSearch: (v) => set({ nameSearch: v, page: 1 }),
             setMoveSearch: (v) => set({ moveSearch: v, selectedMove: null, page: 1 }),
-            setSelectedMove: (slug, label) =>
-                set((s) => ({ selectedMove: slug, moveSearch: label ?? (slug ? s.moveSearch : ''), page: 1 })),
+            setSelectedMove: (slug) => set({ selectedMove: slug, moveSearch: '', page: 1 }),
             toggleType: (type) =>
                 set((s) => {
                     if (s.selectedTypes.includes(type)) {

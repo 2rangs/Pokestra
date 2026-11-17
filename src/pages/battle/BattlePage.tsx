@@ -1,42 +1,102 @@
 import { useState } from 'react'
 import type { BattleConfig, PokemonSet } from '@kyasi/pokebattle-engine'
-import { useEngineReady, buildRandomTeam, pokemonNameKo, spriteUrl, dexIdOf } from '../../lib/battle'
+import { useEngineReady, buildRandomTeam, spriteUrl, dexIdOf } from '../../lib/battle'
+import { pokemonLabel } from '../../lib/battleLog'
 import { useBattleStore, type BattleMode } from '../../stores/battleStore'
+import { useDocumentTitle, useLang, useT } from '../../i18n'
+import { battleMessages } from '../../i18n/messages/battle'
 import { TeamBuilder } from './TeamBuilder'
 import { BattleView } from './BattleView'
 import { useBattleSession, type Difficulty } from './useBattleSession'
 
-const DIFFICULTIES: { id: Difficulty; label: string; desc: string }[] = [
-    { id: 'easy',   label: '쉬움',   desc: '무작위로 행동' },
-    { id: 'normal', label: '보통',   desc: '데미지·상성을 계산' },
-    { id: 'hard',   label: '어려움', desc: '거의 항상 최선의 수' },
-]
+const DIFFICULTIES = [
+    { id: 'easy', label: 'diffEasy', desc: 'diffEasyDesc' },
+    { id: 'normal', label: 'diffNormal', desc: 'diffNormalDesc' },
+    { id: 'hard', label: 'diffHard', desc: 'diffHardDesc' },
+] as const satisfies readonly { id: Difficulty; label: string; desc: string }[]
+
+const MODES = [
+    { id: 'vs-cpu', label: 'modeVsCpu' },
+    { id: 'cpu-vs-cpu', label: 'modeSpectate' },
+] as const satisfies readonly { id: BattleMode; label: string }[]
+
+const newSeed = () => Math.floor(Math.random() * 1e9)
 
 function TeamStrip({ team }: { team: PokemonSet[] }) {
+    const lang = useLang()
     return (
-        <div className="flex flex-wrap gap-1">
+        <ul className="flex flex-wrap gap-1.5">
             {team.map((s, i) => {
                 const id = dexIdOf(s.species)
+                const name = pokemonLabel(s.species, s.nickname, lang)
                 return (
-                    <span key={i} className="flex items-center gap-1 rounded-lg bg-white px-1.5 py-0.5 text-xs text-slate-700 shadow-sm" title={pokemonNameKo(s.species)}>
+                    <li key={i} className="flex items-center gap-1 rounded-lg bg-white px-1.5 py-0.5 text-xs text-slate-700 shadow-sm" title={name}>
                         {id && <img src={spriteUrl(id)} alt="" className="h-7 w-7 object-contain [image-rendering:pixelated]" loading="lazy" />}
-                        <span className="hidden sm:inline">{s.nickname ?? pokemonNameKo(s.species)}</span>
-                    </span>
+                        <span className="sr-only sm:not-sr-only">{name}</span>
+                    </li>
                 )
             })}
+        </ul>
+    )
+}
+
+/** 세그먼트 버튼 그룹 */
+function Segmented<T extends string | number>({ label, value, options, onChange }: {
+    label: string
+    value: T
+    options: readonly { id: T; label: string; title?: string }[]
+    onChange: (v: T) => void
+}) {
+    return (
+        <div role="group" aria-label={label}>
+            <p className="mb-1.5 text-xs font-bold text-slate-400">{label}</p>
+            <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
+                {options.map(o => (
+                    <button
+                        key={o.id}
+                        type="button"
+                        onClick={() => onChange(o.id)}
+                        title={o.title}
+                        aria-pressed={value === o.id}
+                        className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-red-400 ${value === o.id ? 'bg-white text-slate-900 shadow' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                        <span className="block truncate">{o.label}</span>
+                    </button>
+                ))}
+            </div>
         </div>
     )
 }
 
 export default function BattlePage() {
+    const t = useT(battleMessages)
     const { ready, error } = useEngineReady()
     const store = useBattleStore()
     const session = useBattleSession()
     const [inBattle, setInBattle] = useState(false)
     const [lastConfig, setLastConfig] = useState<BattleConfig | null>(null)
 
-    if (error) return <p className="p-8 text-center text-red-500">배틀 데이터를 불러오지 못했습니다: {error.message}</p>
-    if (!ready) return <p className="p-8 text-center text-slate-400">배틀 엔진 데이터 불러오는 중…</p>
+    useDocumentTitle(t('title'))
+
+    if (error) {
+        return (
+            <div role="alert" className="mx-auto max-w-md space-y-3 rounded-3xl border border-red-100 bg-red-50 p-6 text-center">
+                <p className="font-semibold text-red-600">{t('loadError')}</p>
+                <p className="break-words text-xs text-red-400">{error.message}</p>
+                <button type="button" onClick={() => window.location.reload()} className="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600">
+                    {t('retry')}
+                </button>
+            </div>
+        )
+    }
+    if (!ready) {
+        return (
+            <div role="status" className="flex flex-col items-center justify-center gap-3 p-12 text-sm text-slate-400">
+                <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-red-500" aria-hidden />
+                {t('loadingEngine')}
+            </div>
+        )
+    }
 
     const size = store.teamSize
     const myTeam = store.myTeam.slice(0, size)
@@ -44,24 +104,25 @@ export default function BattlePage() {
     const spectate = store.mode === 'cpu-vs-cpu'
 
     const rerollFoe = () => {
-        const seed = Math.floor(Math.random() * 1e9)
+        const seed = newSeed()
         store.setFoeTeam(buildRandomTeam(seed, 6), seed)
     }
-    const randomMine = () => store.setMyTeam(buildRandomTeam(Math.floor(Math.random() * 1e9), 6))
+    const randomMine = () => store.setMyTeam(buildRandomTeam(newSeed(), 6))
 
     const begin = (config?: BattleConfig) => {
         let foe = foeTeam
         if (foe.length === 0) {
-            const seed = Math.floor(Math.random() * 1e9)
-            const t = buildRandomTeam(seed, 6)
-            store.setFoeTeam(t, seed)
-            foe = t.slice(0, size)
+            const seed = newSeed()
+            const team = buildRandomTeam(seed, 6)
+            store.setFoeTeam(team, seed)
+            foe = team.slice(0, size)
         }
+        // 진영 이름은 화면에서 현재 언어로 다시 정하므로 여기서는 고정 식별자만 둔다
         const cfg: BattleConfig = config ?? {
             format: 'singles',
-            seed: Math.floor(Math.random() * 1e9),
-            p1: { name: spectate ? 'CPU 1' : '나', team: myTeam },
-            p2: { name: spectate ? 'CPU 2' : '상대 트레이너', team: foe },
+            seed: newSeed(),
+            p1: { name: spectate ? 'CPU 1' : 'Player', team: myTeam },
+            p2: { name: spectate ? 'CPU 2' : 'CPU', team: foe },
         }
         setLastConfig(cfg)
         session.start(cfg, {
@@ -78,7 +139,7 @@ export default function BattlePage() {
             <BattleView
                 session={session}
                 onExit={() => setInBattle(false)}
-                onRematch={() => lastConfig && begin({ ...lastConfig, seed: Math.floor(Math.random() * 1e9) })}
+                onRematch={() => lastConfig && begin({ ...lastConfig, seed: newSeed() })}
             />
         )
     }
@@ -88,74 +149,63 @@ export default function BattlePage() {
     return (
         <div className="space-y-6">
             <header>
-                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">배틀 시뮬레이터</h1>
-                <p className="mt-1 text-sm text-slate-500">
-                    도감의 기술표로 팀을 짜서 CPU와 싱글 배틀을 하거나, CPU끼리의 배틀을 관전하세요. 9세대 규칙(테라스탈 포함)을 따릅니다.
-                </p>
+                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">{t('title')}</h1>
+                <p className="mt-1 text-sm text-slate-500">{t('intro')}</p>
             </header>
 
             <section className="grid grid-cols-1 gap-3 rounded-3xl border border-slate-200 bg-white p-4 sm:grid-cols-3">
-                <div>
-                    <p className="mb-1.5 text-xs font-bold text-slate-400">모드</p>
-                    <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                        {([['vs-cpu', 'CPU와 대전'], ['cpu-vs-cpu', 'CPU 관전']] as [BattleMode, string][]).map(([id, label]) => (
-                            <button key={id} type="button" onClick={() => store.setMode(id)}
-                                className={`flex-1 rounded-lg px-2 py-1.5 text-sm font-semibold transition ${store.mode === id ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}>
-                                {label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <div>
-                    <p className="mb-1.5 text-xs font-bold text-slate-400">CPU 난이도</p>
-                    <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                        {DIFFICULTIES.map(d => (
-                            <button key={d.id} type="button" onClick={() => store.setDifficulty(d.id)} title={d.desc}
-                                className={`flex-1 rounded-lg px-2 py-1.5 text-sm font-semibold transition ${store.difficulty === d.id ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}>
-                                {d.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                <div>
-                    <p className="mb-1.5 text-xs font-bold text-slate-400">마릿수</p>
-                    <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                        {[1, 3, 6].map(n => (
-                            <button key={n} type="button" onClick={() => store.setTeamSize(n)}
-                                className={`flex-1 rounded-lg px-2 py-1.5 text-sm font-semibold transition ${size === n ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}>
-                                {n} vs {n}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+                <Segmented
+                    label={t('mode')}
+                    value={store.mode}
+                    options={MODES.map(m => ({ id: m.id, label: t(m.label) }))}
+                    onChange={store.setMode}
+                />
+                <Segmented
+                    label={t('difficulty')}
+                    value={store.difficulty}
+                    options={DIFFICULTIES.map(d => ({ id: d.id, label: t(d.label), title: t(d.desc) }))}
+                    onChange={store.setDifficulty}
+                />
+                <Segmented
+                    label={t('teamSize')}
+                    value={size}
+                    options={[1, 3, 6].map(n => ({ id: n, label: t('sizeOption', { n }) }))}
+                    onChange={store.setTeamSize}
+                />
             </section>
 
-            <section className="space-y-3">
-                <div className="flex items-baseline justify-between">
-                    <h2 className="text-lg font-bold text-slate-900">{spectate ? 'CPU 1 팀' : '내 팀'}</h2>
-                    {store.myTeam.length > size && <p className="text-xs text-slate-400">앞의 {size}마리만 출전합니다</p>}
+            <section className="space-y-3" aria-labelledby="battle-my-team">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                    <h2 id="battle-my-team" className="text-lg font-bold text-slate-900">
+                        {spectate ? t('cpuTeam', { name: t('cpu1') }) : t('myTeam')}
+                    </h2>
+                    {store.myTeam.length > size && <p className="text-xs text-slate-400">{t('onlyFirstN', { n: size })}</p>}
                 </div>
                 <TeamBuilder team={store.myTeam} onChange={store.setMyTeam} onRandom={randomMine} />
             </section>
 
-            <section className="space-y-2 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+            <section className="space-y-2 rounded-3xl border border-slate-200 bg-slate-50 p-4" aria-labelledby="battle-foe-team">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="text-lg font-bold text-slate-900">{spectate ? 'CPU 2 팀' : '상대 팀'}</h2>
-                    <button type="button" onClick={rerollFoe} className="rounded-xl bg-white px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-100">🎲 상대 팀 바꾸기</button>
+                    <h2 id="battle-foe-team" className="text-lg font-bold text-slate-900">
+                        {spectate ? t('cpuTeam', { name: t('cpu2') }) : t('foeTeam')}
+                    </h2>
+                    <button type="button" onClick={rerollFoe} className="rounded-xl bg-white px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-100">
+                        <span aria-hidden>🎲 </span>{t('rerollFoe')}
+                    </button>
                 </div>
                 {foeTeam.length > 0
                     ? <TeamStrip team={foeTeam} />
-                    : <p className="text-sm text-slate-400">시작하면 랜덤 팀이 정해집니다.</p>}
+                    : <p className="text-sm text-slate-400">{t('foeRandomHint')}</p>}
             </section>
 
-            <div className="sticky bottom-3 z-20 flex justify-center">
+            <div className="sticky bottom-3 z-20 flex justify-center px-2">
                 <button
                     type="button"
                     disabled={!canStart}
                     onClick={() => begin()}
-                    className="rounded-2xl bg-red-500 px-8 py-3 text-lg font-extrabold text-white shadow-lg shadow-red-500/30 transition hover:-translate-y-0.5 hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+                    className="w-full max-w-xs rounded-2xl bg-red-500 px-8 py-3 text-lg font-extrabold text-white shadow-lg shadow-red-500/30 transition hover:-translate-y-0.5 hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none disabled:hover:translate-y-0 sm:w-auto sm:max-w-none"
                 >
-                    {canStart ? (spectate ? '관전 시작' : '배틀 시작!') : '팀에 포켓몬을 추가하세요'}
+                    {canStart ? (spectate ? t('startSpectate') : t('startBattle')) : t('addPokemonFirst')}
                 </button>
             </div>
         </div>

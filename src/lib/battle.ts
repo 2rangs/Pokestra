@@ -119,25 +119,17 @@ export function battleReadyPokemon(includeForms = false): DexPokemon[] {
 
 /** 도감 포켓몬 → 배울 수 있는 기술 안에서 추천 세트 */
 export function buildSet(p: DexPokemon, rng: PRNG = new PRNG(), level = 50): PokemonSet {
-    const set = generateRandomSet(p.name, { rng, level, learnset: p.moves })
-    return { ...set, nickname: displayNameKo(p) }
+    // 닉네임은 붙이지 않는다: 표시 이름은 화면에서 현재 언어로 정한다
+    return generateRandomSet(p.name, { rng, level, learnset: p.moves })
 }
 
 /** 랜덤 팀 (Showdown 랜덤배틀 세트, 공정하게 레벨 통일) */
 export function buildRandomTeam(seed: number, size = 6, level = 50): PokemonSet[] {
-    return generateRandomTeam({ seed, size, level }).map(s => ({
-        ...s,
-        nickname: pokemonNameKo(s.species),
-    }))
+    return generateRandomTeam({ seed, size, level })
 }
 
 // ─── 타입 색 ─────────────────────────────────────────────────
-export const TYPE_COLOR: Record<string, string> = {
-    normal: '#A0A29F', fire: '#FBA54C', water: '#4D90D5', electric: '#F4D23B', grass: '#5FBD58', ice: '#74CEC0',
-    fighting: '#D3425F', poison: '#B763CF', ground: '#DA7C4D', flying: '#A1BBEC', psychic: '#FA8581', bug: '#92BC2C',
-    rock: '#C9BB8A', ghost: '#5F6DBC', dragon: '#0C69C8', dark: '#595761', steel: '#5695A3', fairy: '#EE90E6',
-    stellar: '#7c6cf0', typeless: '#94a3b8',
-}
+export { TYPE_COLOR } from './dex'
 
 export const artworkUrl = (id: number) =>
     `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
@@ -158,9 +150,19 @@ const NATURE_NAMES = natureNamesJson as Record<string, L10n>
 const ITEM_NAMES = itemNamesJson as Record<string, L10n>
 
 export function pokemonNameL(species: string, lang: Lang): string {
-    if (lang === 'ko') return pokemonNameKo(species)
     const p = findDexPokemonByName(species)
-    return p ? dexDisplayName(p, lang) : getSpecies(species)?.name ?? prettify(species)
+    if (p) return lang === 'ko' ? displayNameKo(p) : dexDisplayName(p, lang)
+    if (lang === 'ko' && koName.species(species)) return koName.species(species)!
+    // 도감에 없는 폼 (예: arceus-grass): 가장 긴 알려진 접두어 + 폼 라벨
+    const parts = species.split('-')
+    for (let i = parts.length - 1; i >= 1; i--) {
+        const base = findDexPokemonByName(parts.slice(0, i).join('-'))
+        if (base) {
+            const baseName = lang === 'ko' ? base.nameKo : dexDisplayName(base, lang)
+            return `${baseName} (${prettify(parts.slice(i).join('-'))})`
+        }
+    }
+    return getSpecies(species)?.name ?? prettify(species)
 }
 
 export function moveNameL(name: string, lang: Lang): string {
@@ -179,7 +181,7 @@ export function typeNameL(type: string, lang: Lang): string {
 }
 
 export function itemName(id: string, lang: Lang): string {
-    if (lang === 'ko') return itemNameKo(id)
+    if (lang === 'ko') return ITEM_NAME_KO[id] ?? ITEM_NAMES[id]?.ko ?? itemNameKo(id)
     return ITEM_NAMES[id]?.[lang] ?? ITEM_NAMES[id]?.en ?? prettify(id)
 }
 

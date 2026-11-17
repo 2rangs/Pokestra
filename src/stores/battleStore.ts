@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { PokemonSet } from '@kyasi/pokebattle-engine'
 import type { Controller } from '../pages/battle/useBattleSession'
+import { stripAutoNickname } from '../lib/battleLog'
 
 export type BattleMode = 'vs-cpu' | 'cpu-vs-cpu'
 
@@ -24,6 +25,9 @@ interface BattleStore {
     setTeamSize: (n: number) => void
     setSpeed:   (ms: number) => void
 }
+
+/** 자동 닉네임(예전 버전의 한국어 이름 등)은 저장하지 않는다 → 표시 언어를 따라간다 */
+const clean = (team: PokemonSet[]) => team.map(stripAutoNickname)
 
 const safeStorage = createJSONStorage(() => {
     try {
@@ -50,16 +54,29 @@ export const useBattleStore = create<BattleStore>()(
             teamSize:   6,
             speed:      450,
 
-            setMyTeam:  (team) => set({ myTeam: team.slice(0, 6) }),
-            updateSlot: (index, s) => set(st => ({ myTeam: st.myTeam.map((x, i) => (i === index ? s : x)) })),
+            setMyTeam:  (team) => set({ myTeam: clean(team.slice(0, 6)) }),
+            updateSlot: (index, s) => set(st => ({ myTeam: st.myTeam.map((x, i) => (i === index ? stripAutoNickname(s) : x)) })),
             removeSlot: (index) => set(st => ({ myTeam: st.myTeam.filter((_, i) => i !== index) })),
-            addSlot:    (s) => set(st => ({ myTeam: st.myTeam.length >= 6 ? st.myTeam : [...st.myTeam, s] })),
-            setFoeTeam: (team, seed) => set({ foeTeam: team, foeSeed: seed }),
+            addSlot:    (s) => set(st => ({ myTeam: st.myTeam.length >= 6 ? st.myTeam : [...st.myTeam, stripAutoNickname(s)] })),
+            setFoeTeam: (team, seed) => set({ foeTeam: clean(team), foeSeed: seed }),
             setMode:    (mode) => set({ mode }),
             setDifficulty: (difficulty) => set({ difficulty }),
             setTeamSize: (teamSize) => set({ teamSize }),
             setSpeed:   (speed) => set({ speed }),
         }),
-        { name: 'pokestra-battle', storage: safeStorage, version: 1 },
+        {
+            name: 'pokestra-battle',
+            storage: safeStorage,
+            version: 2,
+            // v1 → v2: 세트에 저장된 자동 한국어 닉네임 제거
+            migrate: (persisted, version) => {
+                const st = (persisted ?? {}) as Partial<BattleStore>
+                if (version < 2) {
+                    if (Array.isArray(st.myTeam)) st.myTeam = clean(st.myTeam)
+                    if (Array.isArray(st.foeTeam)) st.foeTeam = clean(st.foeTeam)
+                }
+                return st as BattleStore
+            },
+        },
     ),
 )
