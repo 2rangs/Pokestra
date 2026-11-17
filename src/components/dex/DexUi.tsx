@@ -1,126 +1,125 @@
 /**
- * 기술/특성/스프라이트 페이지에서 함께 쓰는 작은 UI 조각들.
- * 스타일은 "연구 노트" 디자인 시스템 (src/styles.css, src/components/ui/notebook.tsx).
+ * 기술/특성/스프라이트/홈 페이지에서 함께 쓰는 작은 UI 조각들.
+ * 모두 Astryx 컴포넌트(기본 neutral 테마)를 얇게 감싼 것이다.
  */
-import { memo, useId, useState, type ReactNode, type RefObject } from 'react'
-import { Link } from 'react-router'
+import { memo, useState, type ReactNode, type RefObject } from 'react'
+import { Button } from '@astryxdesign/core/Button'
+import { ClickableCard } from '@astryxdesign/core/ClickableCard'
+import { EmptyState as AxEmptyState } from '@astryxdesign/core/EmptyState'
+import { HStack } from '@astryxdesign/core/HStack'
+import { Icon } from '@astryxdesign/core/Icon'
+import { Link } from '@astryxdesign/core/Link'
+import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl'
+import { Selector } from '@astryxdesign/core/Selector'
+import { Text } from '@astryxdesign/core/Text'
+import { TextInput } from '@astryxdesign/core/TextInput'
+import { ToggleButton } from '@astryxdesign/core/ToggleButton'
+import { VStack } from '@astryxdesign/core/VStack'
 import { useLang, useT } from '../../i18n'
 import { commonMessages } from '../../i18n/messages/common'
 import { type DexPokemon, displayName, getSpeciesId } from '../../lib/dex'
-import { EmptyNote, PageTitle, TypeTag } from '../ui/notebook'
+import { PageTitle, TypeTag } from '../ui/shared'
 import { padDexNo } from './text'
 
-// ── 타입 배지 ──
+// ── 타입 / 분류 ──
 
 export function TypeBadge({ type, size = 'sm' }: { type: string; size?: 'sm' | 'md' }) {
     return <TypeTag type={type} size={size} />
 }
 
-// ── 분류(물리/특수/변화) 배지 ──
-
-/** 물리 = 빨간 펜, 특수 = 잉크, 변화 = 연한 잉크. 글자 앞 기호로도 구분 */
-const CLASS_STYLE: Record<string, { cls: string; mark: string }> = {
-    physical: { cls: 'text-pen', mark: '◆' },
-    special: { cls: 'text-ink', mark: '◎' },
-    status: { cls: 'text-ink-faint', mark: '○' },
-}
-
+/** 물리/특수/변화 분류: 글자로만 표시 (변화는 보조색) */
 export function ClassBadge({ label, damageClass }: { label: string; damageClass: string }) {
-    const s = CLASS_STYLE[damageClass] ?? CLASS_STYLE.status
     return (
-        <span className={`inline-flex shrink-0 items-center gap-1 text-xs font-semibold whitespace-nowrap ${s.cls}`}>
-            <span aria-hidden className="text-[0.7em]">
-                {s.mark}
-            </span>
+        <Text size="sm" weight="medium" color={damageClass === 'status' ? 'secondary' : 'primary'}>
             {label}
-        </span>
+        </Text>
     )
 }
 
-// ── 필터 칩 ──
+// ── 필터 ──
 
+/** 켜고 끄는 필터 버튼 (Astryx ToggleButton) */
 export function FilterChip({
     active,
     onClick,
     children,
-    color,
+    label,
+    icon,
 }: {
     active: boolean
     onClick: () => void
-    children: ReactNode
-    /** 타입 칩 등: 켜지면 아래에 이 색 밑줄 */
-    color?: string
+    /** 보이는 글자 (생략하면 label) */
+    children?: ReactNode
+    /** 접근성 이름 */
+    label: string
+    icon?: ReactNode
 }) {
     return (
-        <button
-            type="button"
-            onClick={onClick}
-            aria-pressed={active}
-            className="chip"
-            style={active && color ? { boxShadow: `inset 0 -3px 0 ${color}` } : undefined}
-        >
-            {children}
-        </button>
+        <ToggleButton size="sm" label={label} icon={icon} isPressed={active} onPressedChange={() => onClick()}>
+            {children ?? label}
+        </ToggleButton>
     )
 }
 
-/** 두세 개 중 하나를 고르는 세그먼트 버튼 */
+/** 필드 위의 작은 라벨 */
+export function FieldLabel({ children }: { children: ReactNode }) {
+    return (
+        <Text type="label" color="secondary">
+            {children}
+        </Text>
+    )
+}
+
+/** 두세 개 중 하나를 고르는 세그먼트 (Astryx SegmentedControl) + 보이는 라벨 */
 export function Segmented<V extends string>({
     label,
     value,
     options,
     onChange,
+    isLabelHidden,
 }: {
     label: string
     value: V
     options: { value: V; label: string }[]
     onChange: (v: V) => void
+    isLabelHidden?: boolean
 }) {
     return (
-        <div role="radiogroup" aria-label={label} className="inline-flex flex-wrap gap-1">
-            {options.map((o) => (
-                <button
-                    key={o.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={value === o.value}
-                    onClick={() => onChange(o.value)}
-                    className="chip"
-                >
-                    {o.label}
-                </button>
-            ))}
-        </div>
+        <VStack gap={1} hAlign="start">
+            {!isLabelHidden && <FieldLabel>{label}</FieldLabel>}
+            <SegmentedControl size="sm" label={label} value={value} onChange={(v) => onChange(v as V)}>
+                {options.map((o) => (
+                    <SegmentedControlItem key={o.value} value={o.value} label={o.label} />
+                ))}
+            </SegmentedControl>
+        </VStack>
     )
 }
 
-export function FieldLabel({ children, htmlFor }: { children: ReactNode; htmlFor?: string }) {
-    return (
-        <label htmlFor={htmlFor} className="mb-1 block text-xs font-semibold text-ink-soft">
-            {children}
-        </label>
-    )
-}
-
+/** 드롭다운 선택 (Astryx Selector). 빈 문자열 값은 "전체"로 보여 준다 */
 export function SelectField({
     label,
     value,
     onChange,
-    children,
+    options,
+    width = 160,
 }: {
     label: string
     value: string
     onChange: (v: string) => void
-    children: ReactNode
+    options: { value: string; label: string }[]
+    width?: number
 }) {
-    const id = useId()
+    const ALL = '__all__'
     return (
-        <div className="min-w-0">
-            <FieldLabel htmlFor={id}>{label}</FieldLabel>
-            <select id={id} value={value} onChange={(e) => onChange(e.target.value)} className="box-input w-full">
-                {children}
-            </select>
-        </div>
+        <Selector
+            size="sm"
+            width={width}
+            label={label}
+            value={value || ALL}
+            onChange={(v) => onChange(v === ALL ? '' : v)}
+            options={options.map((o) => ({ value: o.value || ALL, label: o.label }))}
+        />
     )
 }
 
@@ -137,39 +136,20 @@ export function SearchField({
     label: string
     placeholder?: string
 }) {
-    const t = useT(commonMessages)
-    const id = useId()
     return (
-        <div className="relative">
-            <label htmlFor={id} className="sr-only">
-                {label}
-            </label>
-            <svg
-                aria-hidden
-                viewBox="0 0 20 20"
-                className="pointer-events-none absolute top-1/2 left-0.5 h-4 w-4 -translate-y-1/2 text-ink-faint"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-            >
-                <circle cx="9" cy="9" r="6" />
-                <path d="m14 14 4 4" strokeLinecap="round" />
-            </svg>
-            <input
-                id={id}
-                type="search"
-                value={value}
-                placeholder={placeholder}
-                onChange={(e) => onChange(e.target.value)}
-                autoComplete="off"
-                className="line-input !pr-16 !pl-7 text-base"
-            />
-            {value && (
-                <button type="button" onClick={() => onChange('')} className="btn-text absolute top-1/2 right-0 -translate-y-1/2 text-xs">
-                    {t('clear')}
-                </button>
-            )}
-        </div>
+        <TextInput
+            type="search"
+            enterKeyHint="search"
+            label={label}
+            isLabelHidden
+            value={value}
+            onChange={(v) => onChange(v)}
+            placeholder={placeholder}
+            autoComplete="off"
+            hasClear
+            startIcon={<Icon icon="search" />}
+            width="100%"
+        />
     )
 }
 
@@ -183,28 +163,21 @@ export function PageHeader({ title, subtitle, children }: { title: string; subti
     )
 }
 
-export function EmptyState({ children }: { children?: ReactNode }) {
+export function EmptyState({ title, description }: { title?: string; description?: string }) {
     const t = useT(commonMessages)
-    return <EmptyNote>{children ?? t('noResults')}</EmptyNote>
+    return <AxEmptyState title={title ?? t('noResults')} description={description} />
 }
 
 export function BackLink({ to, children }: { to: string; children: ReactNode }) {
     return (
-        <Link to={to} className="btn-text mb-5 inline-flex items-center gap-1 text-sm">
-            <span aria-hidden>←</span>
-            {children}
-        </Link>
-    )
-}
-
-/** 측정값 한 칸: 작은 라벨 + 큰 숫자 (명조) */
-export function StatTile({ label, value, hint }: { label: string; value: ReactNode; hint?: ReactNode }) {
-    return (
-        <div className="border-l-2 border-rule-strong pl-3">
-            <dt className="text-xs text-ink-soft">{label}</dt>
-            <dd className="font-serif text-2xl font-bold tnum text-ink">{value}</dd>
-            {hint && <dd className="text-[11px] text-ink-faint">{hint}</dd>}
-        </div>
+        <span className="mb-4 inline-flex">
+            <Link href={to}>
+                <HStack gap={1} align="center" as="span">
+                    <Icon icon="chevronLeft" size="sm" />
+                    {children}
+                </HStack>
+            </Link>
+        </span>
     )
 }
 
@@ -223,47 +196,49 @@ export function LoadMore({
     if (!hasMore) return null
     return (
         <div ref={sentinelRef} className="mt-6 flex justify-center">
-            <button type="button" onClick={onMore} className="btn btn-line">
-                {t('showMore')}
-            </button>
+            <Button variant="secondary" label={t('showMore')} onClick={onMore} />
         </div>
     )
 }
 
-// ── 포켓몬 칩 (스프라이트 + 이름) ──
+// ── 포켓몬 타일 (스프라이트 + 이름 + 번호) ──
 
 function PokemonChipImpl({ pokemon: p, badge }: { pokemon: DexPokemon; badge?: ReactNode }) {
     const lang = useLang()
     const [failed, setFailed] = useState(false)
     const name = displayName(p, lang)
     return (
-        <Link to={`/pokemon/${p.id}`} className="plate group flex min-w-0 items-center gap-2 p-1.5 pr-2.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center">
-                {p.sprite && !failed ? (
-                    <img
-                        src={p.sprite}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        width={40}
-                        height={40}
-                        onError={() => setFailed(true)}
-                        className="h-10 w-10 object-contain [image-rendering:pixelated]"
-                    />
-                ) : (
-                    <span className="text-sm text-ink-faint" aria-hidden>
-                        ?
-                    </span>
-                )}
-            </span>
-            <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold text-ink group-hover:underline">{name}</span>
-                <span className="flex items-center gap-1.5 text-[11px] tnum text-ink-faint">
-                    {padDexNo(getSpeciesId(p))}
-                    {badge}
+        <ClickableCard href={`/pokemon/${p.id}`} label={name} padding={2} height="100%">
+            <HStack gap={2} align="center">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center">
+                    {p.sprite && !failed ? (
+                        <img
+                            src={p.sprite}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            width={40}
+                            height={40}
+                            onError={() => setFailed(true)}
+                            className="h-10 w-10 object-contain [image-rendering:pixelated]"
+                        />
+                    ) : (
+                        <span aria-hidden className="h-8 w-8 rounded-full bg-muted" />
+                    )}
                 </span>
-            </span>
-        </Link>
+                <VStack gap={0.5} className="min-w-0">
+                    <Text size="sm" weight="semibold" maxLines={1}>
+                        {name}
+                    </Text>
+                    <HStack gap={1.5} align="center" wrap="wrap">
+                        <Text type="supporting" hasTabularNumbers>
+                            {padDexNo(getSpeciesId(p))}
+                        </Text>
+                        {badge}
+                    </HStack>
+                </VStack>
+            </HStack>
+        </ClickableCard>
     )
 }
 

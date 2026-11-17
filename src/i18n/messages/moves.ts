@@ -4,7 +4,7 @@ import { defineMessages } from '..'
 export const movesMessages = defineMessages({
     ko: {
         title: '기술',
-        subtitle: '기술 {n}개를 이름·타입·분류·세대로 찾아보세요.',
+        subtitle: '기술 {n}개를 이름, 타입, 분류, 세대로 찾을 수 있습니다.',
         searchLabel: '기술 검색',
         searchPlaceholder: '기술 이름 (예: 10만볼트, Thunderbolt, 10まんボルト)',
         filterType: '타입',
@@ -43,7 +43,7 @@ export const movesMessages = defineMessages({
     },
     en: {
         title: 'Moves',
-        subtitle: 'Browse {n} moves by name, type, category and generation.',
+        subtitle: 'Find any of {n} moves by name, type, category or generation.',
         searchLabel: 'Search moves',
         searchPlaceholder: 'Move name (e.g. Thunderbolt, 10만볼트, 10まんボルト)',
         filterType: 'Type',
@@ -82,7 +82,7 @@ export const movesMessages = defineMessages({
     },
     ja: {
         title: 'わざ',
-        subtitle: '{n}種類のわざを、名前・タイプ・分類・世代でさがせます。',
+        subtitle: '{n}種類のわざを、名前、タイプ、分類、世代で探せます。',
         searchLabel: 'わざを検索',
         searchPlaceholder: 'わざの名前（例: 10まんボルト、Thunderbolt）',
         filterType: 'タイプ',

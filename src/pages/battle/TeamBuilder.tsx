@@ -3,18 +3,33 @@ import {
     getMove, getSpecies, parseShowdownTeam, exportShowdownTeam, PRNG, toId,
     type PokemonSet,
 } from '@kyasi/pokebattle-engine'
+import { Button } from '@astryxdesign/core/Button'
+import { Card } from '@astryxdesign/core/Card'
+import { Grid } from '@astryxdesign/core/Grid'
+import { HStack } from '@astryxdesign/core/HStack'
+import { VStack } from '@astryxdesign/core/VStack'
+import { Icon } from '@astryxdesign/core/Icon'
+import { IconButton } from '@astryxdesign/core/IconButton'
+import { Selector, type SelectorOptionType } from '@astryxdesign/core/Selector'
+import { Text } from '@astryxdesign/core/Text'
+import { TextArea } from '@astryxdesign/core/TextArea'
+import { Token } from '@astryxdesign/core/Token'
 import { findDexPokemonByName, TYPES, damageClassName, type DexPokemon } from '../../lib/dex'
 import {
     ITEMS, NATURES, buildSet, itemName, moveNameL, abilityNameL, natureName, typeNameL, spriteUrl, dexIdOf,
-    battleStatLabel, TYPE_COLOR,
+    battleStatLabel,
 } from '../../lib/battle'
 import { pokemonLabel, stripAutoNickname } from '../../lib/battleLog'
 import { collator, useLang, useT, type Lang } from '../../i18n'
 import { battleMessages } from '../../i18n/messages/battle'
 import { PokemonSearch } from '../../components/battle/PokemonSearch'
 import { TypeBadge } from '../../components/battle/TypeBadge'
+import { TypeIconDot } from '../../components/ui/shared'
 
 type BattleKey = keyof typeof battleMessages.ko
+
+/** Selector 는 빈 문자열 값을 '선택 없음'으로 다루므로, '없음' 옵션은 따로 표시값을 둔다 */
+const NONE = '__none'
 
 const EV_PRESETS: { id: string; label: BattleKey; stats: [string, string]; evs: PokemonSet['evs'] }[] = [
     { id: 'phys', label: 'evPhys', stats: ['attack', 'speed'], evs: { attack: 252, speed: 252, hp: 4 } },
@@ -41,14 +56,26 @@ function moveMeta(m: { category: string; power: number | null }, lang: Lang) {
     return m.category === 'status' ? damageClassName('status', lang) : `${damageClassName(m.category, lang)} ${m.power ?? '-'}`
 }
 
+/** 포켓몬 그림 자리 (테두리 있는 작은 상자) */
+function SpriteBox({ id, size = 'md' }: { id?: number; size?: 'sm' | 'md' }) {
+    const box = size === 'md' ? 'h-16 w-16' : 'h-10 w-10'
+    return (
+        <span className={`flex shrink-0 items-center justify-center rounded-md border border-border bg-muted ${box}`}>
+            {id && <img src={spriteUrl(id)} alt="" className="h-full w-full object-contain [image-rendering:pixelated]" loading="lazy" />}
+        </span>
+    )
+}
+
 interface SlotEditorProps {
+    slot: number
+    bench: boolean
     set: PokemonSet
     onChange: (s: PokemonSet) => void
     onRemove: () => void
     onReroll: () => void
 }
 
-function SlotEditor({ set, onChange, onRemove, onReroll }: SlotEditorProps) {
+function SlotEditor({ slot, bench, set, onChange, onRemove, onReroll }: SlotEditorProps) {
     const lang = useLang()
     const t = useT(battleMessages)
     const [open, setOpen] = useState(false)
@@ -58,139 +85,195 @@ function SlotEditor({ set, onChange, onRemove, onReroll }: SlotEditorProps) {
     const id = dexIdOf(set.species)
     const name = pokemonLabel(set.species, set.nickname, lang)
 
-    const learnable = useMemo(() => {
-        const names = dex?.moves ?? []
+    const moveOptions = useMemo<SelectorOptionType[]>(() => {
         const coll = collator(lang)
-        return names
+        const learnable = (dex?.moves ?? [])
             .map(n => getMove(n))
             .filter((m): m is NonNullable<typeof m> => !!m)
             .map(m => ({ m, label: moveNameL(m.name, lang) }))
             .sort((a, b) => coll.compare(a.label, b.label))
-    }, [dex, lang])
+        return [
+            { value: NONE, label: t('none') },
+            ...learnable.map(({ m, label }) => ({
+                value: m.name,
+                label,
+                description: `${typeNameL(m.type, lang)}, ${moveMeta(m, lang)}`,
+                icon: <TypeIconDot type={m.type} className="h-4 w-4" />,
+            })),
+        ]
+    }, [dex, lang, t])
 
-    const items = useMemo(() => {
+    const itemOptions = useMemo<SelectorOptionType[]>(() => {
         const coll = collator(lang)
-        return ITEMS.map(i => ({ id: i.id, label: itemName(i.id, lang) })).sort((a, b) => coll.compare(a.label, b.label))
-    }, [lang])
+        return [
+            { value: NONE, label: t('none') },
+            ...ITEMS.map(i => ({ value: i.id, label: itemName(i.id, lang) })).sort((a, b) => coll.compare(a.label, b.label)),
+        ]
+    }, [lang, t])
 
     const setMove = (i: number, moveName: string) => {
         const moves = [...set.moves] as string[]
-        moves[i] = moveName
+        moves[i] = moveName === NONE ? '' : moveName
         onChange({ ...set, moves: moves.filter(Boolean) as PokemonSet['moves'] })
     }
 
     const types = species?.types ?? dex?.types ?? []
-    const select = 'mt-0.5 w-full rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-800 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100'
-    const fieldLabel = 'block text-xs font-semibold text-slate-500'
-    const iconBtn = 'rounded-lg px-2 py-1 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-red-400'
+    const moves = set.moves.filter(Boolean) as string[]
 
     return (
-        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-            <div className="flex items-start gap-3">
-                {id
-                    ? <img src={spriteUrl(id)} alt="" className="h-14 w-14 shrink-0 object-contain [image-rendering:pixelated]" loading="lazy" />
-                    : <div className="h-14 w-14 shrink-0 rounded-xl bg-slate-100" />}
-                <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="font-bold text-slate-900">{name}</span>
-                        <span className="text-xs text-slate-400">{t('level', { n: set.level })}</span>
-                        {types.map(ty => <TypeBadge key={ty} type={ty} size="xs" />)}
-                    </div>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-x-1 text-xs text-slate-500">
-                        <span>{abilityNameL(set.ability, lang)}</span>
-                        <span aria-hidden>·</span>
-                        <span>{set.item ? itemName(set.item, lang) : t('noItem')}</span>
-                        <span aria-hidden>·</span>
-                        <span>{natureName(set.nature, lang)}</span>
-                        {set.teraType && <><span aria-hidden>·</span><span>{t('tera')}</span> <TypeBadge type={set.teraType} size="xs" /></>}
-                    </div>
-                    <ul className="mt-1.5 grid grid-cols-2 gap-1">
-                        {set.moves.filter(Boolean).map(m => {
-                            const md = getMove(m!)
+        <Card padding={3} aria-label={name}>
+            <VStack gap={3}>
+                <HStack gap={3} vAlign="start">
+                    <SpriteBox id={id} />
+                    <VStack gap={1} className="min-w-0 flex-1">
+                        <HStack gap={2} vAlign="center" wrap="wrap">
+                            <Text type="supporting" color="secondary" hasTabularNumbers>{slot}</Text>
+                            <Text weight="semibold">{name}</Text>
+                            <Text type="supporting" color="secondary">{t('level', { n: set.level })}</Text>
+                            {types.map(ty => <TypeBadge key={ty} type={ty} size="xs" />)}
+                            {bench && <Token size="sm" color="gray" label={t('bench')} />}
+                        </HStack>
+                        <HStack gap={3} vAlign="center" wrap="wrap">
+                            <Text type="supporting" color="secondary">
+                                {[abilityNameL(set.ability, lang), set.item ? itemName(set.item, lang) : t('noItem'), natureName(set.nature, lang)].join(', ')}
+                            </Text>
+                            {set.teraType && (
+                                <HStack gap={1} vAlign="center">
+                                    <Text type="supporting" color="secondary">{t('tera')}</Text>
+                                    <TypeBadge type={set.teraType} size="xs" />
+                                </HStack>
+                            )}
+                        </HStack>
+                    </VStack>
+                    <IconButton
+                        label={t('removeNamed', { name })}
+                        tooltip={t('remove')}
+                        icon={<Icon icon="close" />}
+                        variant="ghost"
+                        size="sm"
+                        onClick={onRemove}
+                    />
+                </HStack>
+
+                {moves.length > 0 && (
+                    <ul className="grid grid-cols-1 gap-x-3 gap-y-1 min-[420px]:grid-cols-2">
+                        {moves.map(m => {
+                            const md = getMove(m)
                             return (
-                                <li key={m} className="flex min-w-0 items-center gap-1 rounded-md bg-slate-50 px-1.5 py-0.5 text-xs text-slate-700">
-                                    {md && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: TYPE_COLOR[md.type] ?? '#94a3b8' }} title={typeNameL(md.type, lang)} />}
-                                    <span className="truncate">{moveNameL(m!, lang)}</span>
+                                <li key={m} className="flex min-w-0 items-center gap-1.5">
+                                    {md && <TypeIconDot type={md.type} className="h-3.5 w-3.5" />}
+                                    <Text type="supporting" maxLines={1}>{moveNameL(m, lang)}</Text>
                                 </li>
                             )
                         })}
                     </ul>
-                </div>
-                <div className="flex shrink-0 flex-col gap-1">
-                    <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open} aria-controls={panelId}
-                        className={`${iconBtn} bg-slate-100 text-slate-600 hover:bg-slate-200`}>
-                        {open ? t('collapse') : t('edit')}
-                    </button>
-                    <button type="button" onClick={onReroll} title={t('reroll')} aria-label={t('reroll')}
-                        className={`${iconBtn} bg-slate-100 text-slate-600 hover:bg-slate-200`}>
-                        <span aria-hidden>🎲</span>
-                    </button>
-                    <button type="button" onClick={onRemove} aria-label={t('removeNamed', { name })}
-                        className={`${iconBtn} bg-red-50 text-red-500 hover:bg-red-100`}>
-                        {t('remove')}
-                    </button>
-                </div>
-            </div>
+                )}
 
-            {open && (
-                <div id={panelId} className="mt-3 grid grid-cols-1 gap-2 border-t border-slate-100 pt-3 sm:grid-cols-2">
-                    <label className={fieldLabel}>{t('ability')}
-                        <select className={select} value={set.ability} onChange={e => onChange({ ...set, ability: e.target.value })}>
-                            {(species?.abilities ?? []).map(a => (
-                                <option key={a.name} value={a.name}>{abilityNameL(a.name, lang)}{a.hidden ? ` ${t('hiddenAbility')}` : ''}</option>
+                <HStack gap={2} wrap="wrap">
+                    <Button
+                        size="sm"
+                        label={open ? t('collapse') : t('edit')}
+                        aria-expanded={open}
+                        aria-controls={panelId}
+                        endContent={<Icon icon={open ? 'chevronDown' : 'chevronRight'} />}
+                        onClick={() => setOpen(o => !o)}
+                    />
+                    <Button size="sm" variant="ghost" label={t('reroll')} tooltip={t('reroll')} onClick={onReroll}>
+                        {t('rerollShort')}
+                    </Button>
+                </HStack>
+
+                {open && (
+                    <div id={panelId}>
+                        <Grid columns={{ minWidth: 200 }} gap={3}>
+                            <Selector
+                                label={t('ability')}
+                                width="100%"
+                                value={set.ability}
+                                onChange={v => onChange({ ...set, ability: v })}
+                                options={(species?.abilities ?? []).map(a => ({
+                                    value: a.name,
+                                    label: `${abilityNameL(a.name, lang)}${a.hidden ? ` ${t('hiddenAbility')}` : ''}`,
+                                }))}
+                            />
+                            <Selector
+                                label={t('item')}
+                                width="100%"
+                                hasSearch
+                                value={set.item || NONE}
+                                onChange={v => onChange({ ...set, item: v === NONE ? undefined : v })}
+                                options={itemOptions}
+                            />
+                            <Selector
+                                label={t('nature')}
+                                width="100%"
+                                hasSearch
+                                value={set.nature}
+                                onChange={v => onChange({ ...set, nature: v as PokemonSet['nature'] })}
+                                options={NATURES.map(n => ({
+                                    value: n.id,
+                                    label: natureName(n.id, lang),
+                                    description: n.up ? `+${battleStatLabel(n.up, lang)} −${battleStatLabel(n.down!, lang)}` : undefined,
+                                }))}
+                            />
+                            <Selector
+                                label={t('teraType')}
+                                width="100%"
+                                value={set.teraType || NONE}
+                                onChange={v => onChange({ ...set, teraType: v === NONE ? undefined : v })}
+                                options={[
+                                    { value: NONE, label: t('none') },
+                                    ...[...TYPES.map(ty => ty.name), 'stellar'].map(ty => ({
+                                        value: ty,
+                                        label: typeNameL(ty, lang),
+                                        icon: <TypeIconDot type={ty} className="h-4 w-4" />,
+                                    })),
+                                ]}
+                            />
+                            <Selector
+                                label={t('evs')}
+                                width="100%"
+                                value={presetOf(set.evs)}
+                                placeholder={evSummary(set.evs, lang, t('noEvs'))}
+                                onChange={v => {
+                                    const p = EV_PRESETS.find(x => x.id === v)
+                                    if (p) onChange({ ...set, evs: p.evs })
+                                }}
+                                options={EV_PRESETS.map(p => ({
+                                    value: p.id,
+                                    label: t(p.label, { a: battleStatLabel(p.stats[0], lang), b: battleStatLabel(p.stats[1], lang) }),
+                                }))}
+                            />
+                            {[0, 1, 2, 3].map(i => (
+                                <Selector
+                                    key={i}
+                                    label={t('moveN', { n: i + 1 })}
+                                    width="100%"
+                                    hasSearch
+                                    value={set.moves[i] || NONE}
+                                    onChange={v => setMove(i, v)}
+                                    options={moveOptions}
+                                />
                             ))}
-                        </select>
-                    </label>
-                    <label className={fieldLabel}>{t('item')}
-                        <select className={select} value={set.item ?? ''} onChange={e => onChange({ ...set, item: e.target.value || undefined })}>
-                            <option value="">{t('none')}</option>
-                            {items.map(i => <option key={i.id} value={i.id}>{i.label}</option>)}
-                        </select>
-                    </label>
-                    <label className={fieldLabel}>{t('nature')}
-                        <select className={select} value={set.nature} onChange={e => onChange({ ...set, nature: e.target.value as PokemonSet['nature'] })}>
-                            {NATURES.map(n => (
-                                <option key={n.id} value={n.id}>
-                                    {natureName(n.id, lang)}{n.up ? ` (+${battleStatLabel(n.up, lang)} -${battleStatLabel(n.down!, lang)})` : ''}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label className={fieldLabel}>{t('teraType')}
-                        <select className={select} value={set.teraType ?? ''} onChange={e => onChange({ ...set, teraType: e.target.value || undefined })}>
-                            <option value="">{t('none')}</option>
-                            {TYPES.map(ty => <option key={ty.name} value={ty.name}>{typeNameL(ty.name, lang)}</option>)}
-                            <option value="stellar">{typeNameL('stellar', lang)}</option>
-                        </select>
-                    </label>
-                    <label className={`${fieldLabel} sm:col-span-2`}>{t('evs')}
-                        <select className={select} value={presetOf(set.evs)} onChange={e => {
-                            const p = EV_PRESETS.find(x => x.id === e.target.value)
-                            if (p) onChange({ ...set, evs: p.evs })
-                        }}>
-                            <option value="" disabled>{evSummary(set.evs, lang, t('noEvs'))}</option>
-                            {EV_PRESETS.map(p => (
-                                <option key={p.id} value={p.id}>
-                                    {t(p.label, { a: battleStatLabel(p.stats[0], lang), b: battleStatLabel(p.stats[1], lang) })}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    {[0, 1, 2, 3].map(i => (
-                        <label key={i} className={fieldLabel}>{t('moveN', { n: i + 1 })}
-                            <select className={select} value={set.moves[i] ?? ''} onChange={e => setMove(i, e.target.value)}>
-                                <option value="">—</option>
-                                {learnable.map(({ m, label }) => (
-                                    <option key={m.name} value={m.name}>
-                                        {label} · {typeNameL(m.type, lang)} · {moveMeta(m, lang)}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-                    ))}
-                </div>
-            )}
-        </div>
+                        </Grid>
+                    </div>
+                )}
+            </VStack>
+        </Card>
+    )
+}
+
+/** 비어 있는 자리 */
+function EmptySlot({ slot }: { slot: number }) {
+    const t = useT(battleMessages)
+    return (
+        <Card padding={3} variant="transparent" className="border-dashed">
+            <HStack gap={3} vAlign="center">
+                <SpriteBox size="sm" />
+                <Text type="supporting" color="secondary" hasTabularNumbers>{slot}</Text>
+                <Text type="supporting" color="secondary">{t('emptySlot')}</Text>
+            </HStack>
+        </Card>
     )
 }
 
@@ -199,9 +282,11 @@ interface TeamBuilderProps {
     onChange: (team: PokemonSet[]) => void
     onRandom: () => void
     maxSize?: number
+    /** 이 수를 넘는 자리는 '대기'로 표시한다 */
+    activeCount?: number
 }
 
-export function TeamBuilder({ team, onChange, onRandom, maxSize = 6 }: TeamBuilderProps) {
+export function TeamBuilder({ team, onChange, onRandom, maxSize = 6, activeCount = maxSize }: TeamBuilderProps) {
     const t = useT(battleMessages)
     const [ioOpen, setIoOpen] = useState(false)
     const [text, setText] = useState('')
@@ -240,58 +325,61 @@ export function TeamBuilder({ team, onChange, onRandom, maxSize = 6 }: TeamBuild
         }).catch(() => {})
     }
 
+    const empties = Array.from({ length: Math.max(0, maxSize - team.length) }, (_, i) => team.length + i + 1)
+
     return (
-        <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-                <div className="w-full sm:w-auto sm:min-w-[220px] sm:flex-1">
+        <VStack gap={4}>
+            <HStack gap={2} vAlign="center" wrap="wrap">
+                <div className="w-full sm:w-auto sm:min-w-[240px] sm:flex-1">
                     {team.length < maxSize
                         ? <PokemonSearch onPick={add} placeholder={t('addPokemon', { n: team.length, max: maxSize })} />
-                        : <p className="text-sm text-slate-400">{t('teamFull', { n: maxSize })}</p>}
+                        : <Text color="secondary">{t('teamFull', { n: maxSize })}</Text>}
                 </div>
-                <button type="button" onClick={onRandom} className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700">
-                    <span aria-hidden>🎲 </span>{t('randomTeam')}
-                </button>
-                <button type="button" aria-expanded={ioOpen} aria-controls={ioId}
+                <Button label={t('randomTeam')} onClick={onRandom} />
+                <Button
+                    label={t('showdownIO')}
+                    variant="ghost"
+                    aria-expanded={ioOpen}
+                    aria-controls={ioId}
                     onClick={() => { setText(exportShowdownTeam(team.map(stripAutoNickname))); setIoOpen(o => !o); setIoError(null) }}
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">
-                    {t('showdownIO')}
-                </button>
-                {team.length > 0 && (
-                    <button type="button" onClick={() => onChange([])} className="rounded-xl px-2 py-2 text-sm text-slate-400 hover:text-red-500">{t('clearTeam')}</button>
-                )}
-            </div>
+                />
+                {team.length > 0 && <Button label={t('clearTeam')} variant="ghost" onClick={() => onChange([])} />}
+            </HStack>
 
             {ioOpen && (
-                <div id={ioId} className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                    <textarea
-                        value={text}
-                        onChange={e => setText(e.target.value)}
-                        rows={10}
-                        spellCheck={false}
-                        aria-label={t('showdownIO')}
-                        aria-invalid={!!ioError}
-                        placeholder={'Garchomp @ Choice Scarf\nAbility: Rough Skin\nEVs: 252 Atk / 4 SpD / 252 Spe\nJolly Nature\n- Earthquake\n- Dragon Claw'}
-                        className="w-full rounded-xl border border-slate-200 bg-white p-2 font-mono text-xs outline-none focus:border-red-400"
-                    />
-                    {ioError && <p role="alert" className="text-xs text-red-500">{ioError}</p>}
-                    <div className="flex gap-2">
-                        <button type="button" onClick={importText} className="rounded-lg bg-red-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-600">{t('importTeam')}</button>
-                        <button type="button" onClick={copy} className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100">
-                            <span aria-live="polite">{copied ? t('copied') : t('copy')}</span>
-                        </button>
-                    </div>
+                <div id={ioId}>
+                    <Card padding={3} variant="muted">
+                        <VStack gap={2}>
+                            <TextArea
+                                label={t('showdownIO')}
+                                isLabelHidden
+                                value={text}
+                                onChange={v => setText(v)}
+                                rows={10}
+                                hasSpellCheck={false}
+                                status={ioError ? { type: 'error', message: ioError } : undefined}
+                                statusVariant="detached"
+                                placeholder={'Garchomp @ Choice Scarf\nAbility: Rough Skin\nEVs: 252 Atk / 4 SpD / 252 Spe\nJolly Nature\n- Earthquake\n- Dragon Claw'}
+                                controlClassName="font-mono"
+                            />
+                            <HStack gap={2}>
+                                <Button label={t('importTeam')} variant="primary" onClick={importText} />
+                                <Button label={copied ? t('copied') : t('copy')} icon={<Icon icon={copied ? 'checkDouble' : 'copy'} />} onClick={copy} />
+                                <span className="sr-only" aria-live="polite">{copied ? t('copied') : ''}</span>
+                            </HStack>
+                        </VStack>
+                    </Card>
                 </div>
             )}
 
-            {team.length === 0 ? (
-                <div className="rounded-2xl border-2 border-dashed border-slate-200 p-8 text-center text-sm text-slate-400">
-                    {t('emptyTeam')}
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
-                    {team.map((s, i) => (
+            {team.length === 0 && <Text as="p" color="secondary">{t('emptyTeam')}</Text>}
+
+            <ol className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                {team.map((s, i) => (
+                    <li key={`${s.species}-${i}`} className="min-w-0">
                         <SlotEditor
-                            key={`${s.species}-${i}`}
+                            slot={i + 1}
+                            bench={i >= activeCount}
                             set={s}
                             onChange={ns => onChange(team.map((x, j) => (j === i ? ns : x)))}
                             onRemove={() => onChange(team.filter((_, j) => j !== i))}
@@ -300,9 +388,10 @@ export function TeamBuilder({ team, onChange, onRandom, maxSize = 6 }: TeamBuild
                                 if (dex) onChange(team.map((x, j) => (j === i ? fresh(dex, s.level) : x)))
                             }}
                         />
-                    ))}
-                </div>
-            )}
-        </div>
+                    </li>
+                ))}
+                {empties.map(n => <li key={`empty-${n}`} className="min-w-0"><EmptySlot slot={n} /></li>)}
+            </ol>
+        </VStack>
     )
 }

@@ -15,14 +15,14 @@ const NAV_ITEMS = [
     { to: '/sprites', key: 'navSprites', match: ['/sprites'] },
 ] as const
 
-/** 펜으로 그린 듯한 몬스터볼 마크 */
+/** 몬스터볼 마크 */
 function Mark({ className }: { className?: string }) {
     return (
         <svg viewBox="0 0 40 40" className={className} aria-hidden fill="none" strokeLinecap="round">
-            <circle cx="20" cy="20" r="17" stroke="var(--color-ink)" strokeWidth="2.4" />
-            <path d="M3 20a17 17 0 0 1 34 0" fill="var(--color-pen)" fillOpacity="0.9" />
-            <path d="M3.5 20h11.2M25.3 20h11.2" stroke="var(--color-ink)" strokeWidth="2.4" />
-            <circle cx="20" cy="20" r="5.3" fill="var(--color-sheet)" stroke="var(--color-ink)" strokeWidth="2.4" />
+            <circle cx="20" cy="20" r="17" stroke="var(--color-text-primary)" strokeWidth="2.4" />
+            <path d="M3 20a17 17 0 0 1 34 0" fill="var(--color-error)" fillOpacity="0.9" />
+            <path d="M3.5 20h11.2M25.3 20h11.2" stroke="var(--color-text-primary)" strokeWidth="2.4" />
+            <circle cx="20" cy="20" r="5.3" fill="var(--color-background-surface)" stroke="var(--color-text-primary)" strokeWidth="2.4" />
         </svg>
     )
 }
@@ -83,12 +83,12 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
         <div className="flex min-h-screen flex-col">
             <a
                 href="#main"
-                className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:bg-sheet focus:px-3 focus:py-2 focus:text-sm focus:font-semibold"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:bg-surface focus:px-3 focus:py-2 focus:text-sm focus:font-semibold"
             >
                 {t('skipToContent')}
             </a>
 
-            <header className="sticky top-0 z-50 border-b border-rule-strong bg-sheet">
+            <header className="sticky top-0 z-50 border-b border-border bg-surface">
                 <div className="mx-auto max-w-6xl">
                     <TopNav
                         label="Main"
@@ -103,15 +103,15 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                 </nav>
             </header>
 
-            <main id="main" className="flex-1 px-2 py-4 sm:px-6 sm:py-8">
-                <div className="sheet sheet-margin mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10 md:pr-10">
+            <main id="main" className="flex-1">
+                <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
                     <Suspense fallback={fallback}>
                         <Outlet />
                     </Suspense>
                 </div>
             </main>
 
-            <footer className="px-4 pb-8 text-center text-xs leading-relaxed text-ink-faint">
+            <footer className="border-t border-border px-4 py-8 text-center text-xs leading-relaxed text-secondary">
                 <p>{t('footerData')}</p>
                 <p>{t('footerCopyright')}</p>
                 <p>{t('footerFan')}</p>

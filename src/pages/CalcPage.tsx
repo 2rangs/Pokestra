@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
+import { Banner } from '@astryxdesign/core/Banner'
+import { Icon } from '@astryxdesign/core/Icon'
+import { IconButton } from '@astryxdesign/core/IconButton'
+import { VStack } from '@astryxdesign/core/VStack'
 import { battleReadyPokemon, useEngineReady } from '../lib/battle'
 import { findDexPokemonByName, type DexPokemon } from '../lib/dex'
 import {
@@ -10,6 +14,7 @@ import { SidePanel } from '../components/calc/SidePanel'
 import { MoveResults } from '../components/calc/MoveResults'
 import { FieldPanel } from '../components/calc/FieldPanel'
 import { useDocumentTitle, useT } from '../i18n'
+import { PageTitle, Spinner } from '../components/ui/shared'
 import { calcMessages } from '../i18n/messages/calc'
 
 export default function CalcPage() {
@@ -17,26 +22,16 @@ export default function CalcPage() {
     const t = useT(calcMessages)
     useDocumentTitle(t('title'))
     return (
-        <div className="min-h-screen bg-slate-50">
-            <div className="mx-auto max-w-6xl px-3 py-5 sm:px-6 sm:py-8">
-                <header className="mb-4 sm:mb-6">
-                    <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{t('title')}</h1>
-                    <p className="mt-1 text-sm text-slate-500">{t('subtitle')}</p>
-                </header>
-                {error ? (
-                    <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
-                        {t('loadError', { msg: error.message })}
-                    </div>
-                ) : !ready ? (
-                    <div role="status" className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white py-24 text-sm text-slate-500">
-                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-red-500" aria-hidden />
-                        {t('loadingData')}
-                    </div>
-                ) : (
-                    <Calculator />
-                )}
-            </div>
-        </div>
+        <VStack gap={2}>
+            <PageTitle title={t('title')} lead={t('subtitle')} />
+            {error ? (
+                <Banner status="error" title={t('loadError', { msg: error.message })} />
+            ) : !ready ? (
+                <Spinner label={t('loadingData')} className="py-24" />
+            ) : (
+                <Calculator />
+            )}
+        </VStack>
     )
 }
 
@@ -100,22 +95,19 @@ function Calculator() {
     }
 
     return (
-        <div className="flex flex-col gap-4">
+        <VStack gap={4}>
             <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
                 <SidePanel role="atk" state={atk} bp={atkBp} onChange={setAtk} onPick={pickAtk} />
                 <div className="flex justify-center lg:pt-24">
-                    <button
-                        type="button" onClick={swap}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:border-red-300 hover:text-red-600"
-                        title={t('swapTitle')} aria-label={t('swapTitle')}
-                    >
-                        <span className="lg:hidden" aria-hidden>⇅</span><span className="hidden lg:inline" aria-hidden>⇄</span> {t('swap')}
-                    </button>
+                    <IconButton
+                        label={t('swapTitle')} tooltip={t('swap')} variant="secondary" onClick={swap}
+                        icon={<Icon icon="arrowsUpDown" className="lg:rotate-90" />}
+                    />
                 </div>
                 <SidePanel role="def" state={def} bp={defBp} onChange={setDef} onPick={pickDef} />
             </div>
 
-            <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
                 <MoveResults
                     attacker={atk.slug} defender={def.slug}
                     moves={atk.moves} pool={pool} results={results} defenderHp={defBp.hp}
@@ -123,6 +115,6 @@ function Calculator() {
                 />
                 <FieldPanel field={field} onChange={setField} />
             </div>
-        </div>
+        </VStack>
     )
 }

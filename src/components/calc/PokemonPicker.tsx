@@ -1,10 +1,11 @@
-import { useId, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
+import { Typeahead, TypeaheadItem, type SearchSource, type SearchableItem } from '@astryxdesign/core/Typeahead'
 import { battleReadyPokemon } from '../../lib/battle'
 import { displayName, officialArtworkUrl, searchKey, type DexPokemon } from '../../lib/dex'
 import { useLang, useT } from '../../i18n'
 import { calcMessages } from '../../i18n/messages/calc'
 import { commonMessages } from '../../i18n/messages/common'
-import { inputCls } from './ui'
 
 type Props = {
     current: DexPokemon | undefined
@@ -13,106 +14,76 @@ type Props = {
     onPick: (p: DexPokemon) => void
 }
 
+type PokemonItem = SearchableItem<{ p: DexPokemon }>
+
 const MAX_RESULTS = 40
+
+const dexNo = (p: DexPokemon) => (p.id < 10000 ? `No. ${String(p.id).padStart(4, '0')}` : p.name)
 
 /** 한/영/일 이름·도감 번호로 검색하는 포켓몬 선택기 (배틀 가능한 포켓몬만) */
 export function PokemonPicker({ current, sideLabel, onPick }: Props) {
     const lang = useLang()
     const t = useT(calcMessages)
     const tc = useT(commonMessages)
-    const listId = useId()
-    const [query, setQuery] = useState('')
-    const [open, setOpen] = useState(false)
     const [forms, setForms] = useState(false)
-    const [active, setActive] = useState(0)
 
     const pool = useMemo(
         () => battleReadyPokemon(forms).map(p => ({ p, key: searchKey(p) })),
         [forms],
     )
-    const results = useMemo(() => {
-        const q = query.trim().toLowerCase()
-        if (!q) return pool.slice(0, MAX_RESULTS).map(x => x.p)
-        const qSlug = q.replace(/\s+/g, '-')
-        const prefix: DexPokemon[] = []
-        const rest: DexPokemon[] = []
-        for (const { p, key } of pool) {
-            if (String(p.id) === q || key.split(' ').some(w => w.startsWith(q) || w.startsWith(qSlug))) prefix.push(p)
-            else if (key.includes(q) || key.includes(qSlug)) rest.push(p)
-            if (prefix.length >= MAX_RESULTS) break
+
+    const source = useMemo<SearchSource<PokemonItem>>(() => {
+        const toItem = (p: DexPokemon): PokemonItem => ({ id: String(p.id), label: displayName(p, lang), auxiliaryData: { p } })
+        return {
+            bootstrap: () => pool.slice(0, MAX_RESULTS).map(x => toItem(x.p)),
+            search: (query: string) => {
+                const q = query.trim().toLowerCase()
+                if (!q) return pool.slice(0, MAX_RESULTS).map(x => toItem(x.p))
+                const qSlug = q.replace(/\s+/g, '-')
+                const prefix: DexPokemon[] = []
+                const rest: DexPokemon[] = []
+                for (const { p, key } of pool) {
+                    if (String(p.id) === q || key.split(' ').some(w => w.startsWith(q) || w.startsWith(qSlug))) prefix.push(p)
+                    else if (key.includes(q) || key.includes(qSlug)) rest.push(p)
+                    if (prefix.length >= MAX_RESULTS) break
+                }
+                return [...prefix, ...rest].slice(0, MAX_RESULTS).map(toItem)
+            },
         }
-        return [...prefix, ...rest].slice(0, MAX_RESULTS)
-    }, [pool, query])
+    }, [pool, lang])
 
-    const pick = (p: DexPokemon) => {
-        onPick(p)
-        setQuery('')
-        setOpen(false)
-        setActive(0)
-    }
-
-    const activeIdx = Math.min(active, Math.max(0, results.length - 1))
-    const optionId = (i: number) => `${listId}-opt-${i}`
+    const value = useMemo<PokemonItem | null>(
+        () => (current ? { id: String(current.id), label: displayName(current, lang), auxiliaryData: { p: current } } : null),
+        [current, lang],
+    )
 
     return (
-        <div className="relative">
-            <div className="flex items-center gap-2">
-                <input
-                    type="search"
-                    role="combobox"
-                    aria-label={t('pickerLabel', { side: sideLabel })}
-                    aria-expanded={open}
-                    aria-controls={listId}
-                    aria-autocomplete="list"
-                    aria-activedescendant={open && results.length ? optionId(activeIdx) : undefined}
-                    className={inputCls}
-                    placeholder={current ? t('pickerPlaceholderCurrent', { name: displayName(current, lang) }) : t('pickerPlaceholder')}
-                    value={query}
-                    onChange={e => { setQuery(e.target.value); setOpen(true); setActive(0) }}
-                    onFocus={() => setOpen(true)}
-                    onBlur={() => setTimeout(() => setOpen(false), 150)}
-                    onKeyDown={e => {
-                        if (e.key === 'ArrowDown') {
-                            e.preventDefault()
-                            setOpen(true)
-                            setActive(Math.min(activeIdx + 1, results.length - 1))
-                        } else if (e.key === 'ArrowUp') {
-                            e.preventDefault()
-                            setActive(Math.max(activeIdx - 1, 0))
-                        } else if (e.key === 'Enter' && open && results[activeIdx]) {
-                            e.preventDefault()
-                            pick(results[activeIdx])
-                        } else if (e.key === 'Escape') {
-                            setOpen(false)
-                        }
-                    }}
-                />
-                <label className="flex shrink-0 cursor-pointer items-center gap-1 text-[11px] text-slate-500">
-                    <input type="checkbox" checked={forms} onChange={e => setForms(e.target.checked)} className="accent-red-500" />
-                    {t('includeForms')}
-                </label>
-            </div>
-            {open && (
-                <ul
-                    id={listId} role="listbox" aria-label={t('pickerLabel', { side: sideLabel })}
-                    className="absolute left-0 right-0 z-20 mt-1 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg"
-                >
-                    {results.length === 0 && <li className="px-3 py-2 text-sm text-slate-400">{tc('noResults')}</li>}
-                    {results.map((p, i) => (
-                        <li
-                            key={p.id} id={optionId(i)} role="option" aria-selected={i === activeIdx}
-                            onMouseDown={e => e.preventDefault()}
-                            onMouseEnter={() => setActive(i)}
-                            onClick={() => pick(p)}
-                            className={`flex cursor-pointer items-center gap-2 px-3 py-1.5 text-sm ${i === activeIdx ? 'bg-red-50' : 'hover:bg-slate-50'}`}
-                        >
-                            <img src={officialArtworkUrl(p.id)} alt="" loading="lazy" className="h-7 w-7 shrink-0 object-contain" />
-                            <span className="min-w-0 flex-1 truncate font-medium text-slate-800">{displayName(p, lang)}</span>
-                            <span className="shrink-0 text-[11px] tabular-nums text-slate-400">{p.id < 10000 ? `#${p.id}` : p.name}</span>
-                        </li>
-                    ))}
-                </ul>
-            )}
+        <div className="flex min-w-0 flex-col gap-2">
+            <Typeahead<PokemonItem>
+                label={t('pickerLabel', { side: sideLabel })}
+                isLabelHidden
+                width="100%"
+                searchSource={source}
+                value={value}
+                onChange={item => { if (item?.auxiliaryData) onPick(item.auxiliaryData.p) }}
+                hasClear={false}
+                hasEntriesOnFocus
+                debounceMs={0}
+                maxMenuItems={MAX_RESULTS}
+                placeholder={current ? t('pickerPlaceholderCurrent', { name: displayName(current, lang) }) : t('pickerPlaceholder')}
+                emptySearchText={tc('noResults')}
+                startIcon="search"
+                renderItem={item => (
+                    <TypeaheadItem
+                        item={item}
+                        description={item.auxiliaryData ? dexNo(item.auxiliaryData.p) : undefined}
+                        icon={item.auxiliaryData && (
+                            <img src={officialArtworkUrl(item.auxiliaryData.p.id)} alt="" loading="lazy" className="h-7 w-7 object-contain" />
+                        )}
+                    />
+                )}
+            />
+            <CheckboxInput size="sm" label={t('includeForms')} value={forms} onChange={setForms} />
         </div>
     )
 }

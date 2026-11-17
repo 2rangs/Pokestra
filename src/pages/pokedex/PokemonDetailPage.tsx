@@ -1,32 +1,46 @@
-import { type CSSProperties, type KeyboardEvent, type ReactNode, useEffect, useMemo, useState } from "react"
-import { Link, useNavigate, useParams, useSearchParams } from "react-router"
+import { type ReactNode, useEffect, useMemo, useState } from "react"
+import { useNavigate, useParams, useSearchParams } from "react-router"
+import { Banner } from "@astryxdesign/core/Banner"
+import { Button } from "@astryxdesign/core/Button"
+import { Card } from "@astryxdesign/core/Card"
+import { EmptyState } from "@astryxdesign/core/EmptyState"
+import { Grid } from "@astryxdesign/core/Grid"
+import { Heading } from "@astryxdesign/core/Heading"
+import { HStack } from "@astryxdesign/core/HStack"
+import { Icon } from "@astryxdesign/core/Icon"
+import { Link } from "@astryxdesign/core/Link"
+import { MetadataList, MetadataListItem } from "@astryxdesign/core/MetadataList"
+import { Skeleton } from "@astryxdesign/core/Skeleton"
+import { Tab, TabList } from "@astryxdesign/core/TabList"
+import { Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow } from "@astryxdesign/core/Table"
+import { Text } from "@astryxdesign/core/Text"
+import { Token } from "@astryxdesign/core/Token"
+import { VStack } from "@astryxdesign/core/VStack"
 import BattleStatsPanel from "../../components/BattleStatsPanel"
 import { TypeIcon } from "../../components/TypeIcon"
+import { EvolutionTree } from "../../components/pokedex/EvolutionChain"
+import { dexNumber, ROMAN } from "../../components/pokedex/format"
+import { MovesPanel } from "../../components/pokedex/MovesPanel"
+import { SpritesGallery } from "../../components/pokedex/SpritesGallery"
+import { StatBar, TypeTag } from "../../components/ui/shared"
 import { getIdFromUrl } from "../../common/utils"
 import {
-    type EvolutionChainLink,
-    type EvolutionDetail,
-    type PokemonDetail,
-    type PokemonMoveEntry,
     type PokemonSpecies,
-    type PokemonSprites,
     useEvolutionChain,
     usePokemonDetail,
     usePokemonSpecies,
 } from "../../hooks/usePokemon"
-import { LANGS, type Lang, type TFunction, collator, formatNumber, useDocumentTitle, useLang, useT } from "../../i18n"
+import { LANGS, type Lang, formatNumber, useDocumentTitle, useLang, useT } from "../../i18n"
 import { commonMessages } from "../../i18n/messages/common"
 import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
 import { itemName } from "../../lib/battle"
 import {
     ABILITY_BY_NAME,
     ALL_POKEMON,
-    MOVE_BY_NAME,
     STAT_KEYS,
     type DexPokemon,
     type StatKey,
     abilityName,
-    damageClassName,
     eggGroupName,
     findDexPokemonByName,
     formLabel,
@@ -35,37 +49,12 @@ import {
     getGeneration,
     getSpeciesId,
     localText,
-    moveName,
     officialArtworkUrl,
     pokemonName,
     statLabel,
     titleCaseSlug,
-    typeName,
 } from "../../lib/dex"
 
-type T = TFunction<PokedexKey>
-
-// ─── Type accent palette ──────────────────────────────────────────────────────
-const TYPE_ACCENT: Record<string, string> = {
-    fire: "#F97316",
-    water: "#3B82F6",
-    grass: "#22C55E",
-    electric: "#EAB308",
-    ice: "#06B6D4",
-    fighting: "#EF4444",
-    poison: "#A855F7",
-    ground: "#F59E0B",
-    flying: "#6366F1",
-    psychic: "#EC4899",
-    bug: "#84CC16",
-    rock: "#92400E",
-    ghost: "#7C3AED",
-    dragon: "#4F46E5",
-    dark: "#374151",
-    steel: "#6B7280",
-    fairy: "#F472B6",
-    normal: "#9CA3AF",
-}
 
 // ─── Defensive type chart ─────────────────────────────────────────────────────
 const TYPE_CHART: Record<string, Record<string, number>> = {
@@ -100,11 +89,14 @@ function computeDefense(types: readonly string[]): [string, number][] {
     return out
 }
 
-function multLabel(m: number): string {
-    if (m === 0.25) return "¼×"
-    if (m === 0.5) return "½×"
-    return `${m}×`
-}
+/** 배율 묶음 (큰 배율부터) */
+const MULTIPLIER_GROUPS: { mult: number; label: PokedexKey }[] = [
+    { mult: 4, label: "weakTo" },
+    { mult: 2, label: "weakTo" },
+    { mult: 0.5, label: "resists" },
+    { mult: 0.25, label: "resists" },
+    { mult: 0, label: "immuneTo" },
+]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -153,90 +145,52 @@ const API_STAT_KEY: Record<string, StatKey> = {
     speed: "speed",
 }
 
-const STAT_BAR_CLASS: Record<StatKey, string> = {
-    hp: "bg-red-400",
-    attack: "bg-orange-400",
-    defense: "bg-amber-400",
-    spAtk: "bg-indigo-400",
-    spDef: "bg-emerald-400",
-    speed: "bg-pink-400",
-}
-
-function dexNo(n: number): string {
-    return `#${String(n).padStart(4, "0")}`
-}
-
-type Tab = "overview" | "stats" | "moves" | "sprites"
-const TABS: readonly Tab[] = ["overview", "stats", "moves", "sprites"]
-const TAB_LABEL: Record<Tab, PokedexKey> = {
+type DetailTab = "overview" | "stats" | "moves" | "sprites"
+const TABS: readonly DetailTab[] = ["overview", "stats", "moves", "sprites"]
+const TAB_LABEL: Record<DetailTab, PokedexKey> = {
     overview: "tabOverview",
     stats: "tabStats",
     moves: "tabMoves",
     sprites: "tabSprites",
 }
-function parseTab(v: string | null): Tab {
-    return TABS.includes(v as Tab) ? (v as Tab) : "overview"
+function parseTab(v: string | null): DetailTab {
+    return TABS.includes(v as DetailTab) ? (v as DetailTab) : "overview"
 }
 
 // ─── Small UI pieces ──────────────────────────────────────────────────────────
 
-function Card({ title, children, className = "", aside }: { title?: ReactNode; children: ReactNode; className?: string; aside?: ReactNode }) {
+function Panel({ title, children, className = "" }: { title?: string; children: ReactNode; className?: string }) {
     return (
-        <section className={`min-w-0 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-6 ${className}`}>
-            {(title || aside) && (
-                <div className="mb-4 flex items-center justify-between gap-2">
-                    {title && <h2 className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">{title}</h2>}
-                    {aside}
-                </div>
-            )}
-            {children}
-        </section>
+        <span className={`block min-w-0 ${className}`}>
+            <Card height="100%">
+                <section>
+                    <VStack gap={4}>
+                        {title && <Heading level={2}>{title}</Heading>}
+                        {children}
+                    </VStack>
+                </section>
+            </Card>
+        </span>
     )
-}
-
-function InfoRow({ label, children }: { label: string; children: ReactNode }) {
-    return (
-        <div className="flex items-baseline justify-between gap-4 border-b border-slate-100 py-2.5 last:border-b-0">
-            <dt className="shrink-0 text-sm text-slate-400">{label}</dt>
-            <dd className="text-right text-sm font-semibold text-slate-800">{children}</dd>
-        </div>
-    )
-}
-
-function Skeleton({ className = "" }: { className?: string }) {
-    return <div className={`animate-pulse rounded-xl bg-slate-100 ${className}`} aria-hidden />
 }
 
 function SkeletonRows({ n = 4 }: { n?: number }) {
     return (
-        <div className="space-y-2.5">
+        <VStack gap={2}>
             {Array.from({ length: n }, (_, i) => (
-                <Skeleton key={i} className="h-6" />
+                <Skeleton key={i} height={24} index={i} />
             ))}
-        </div>
+        </VStack>
     )
 }
 
-function InlineError({ message, onRetry, retryLabel }: { message: string; onRetry?: () => void; retryLabel: string }) {
+function LoadError({ message, onRetry, retryLabel }: { message: string; onRetry?: () => void; retryLabel: string }) {
     return (
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600" role="alert">
-            <span>{message}</span>
-            {onRetry && (
-                <button type="button" onClick={onRetry} className="ml-auto rounded-lg px-2 py-0.5 font-semibold underline-offset-2 hover:underline">
-                    {retryLabel}
-                </button>
-            )}
-        </div>
-    )
-}
-
-function TypeChip({ type, lang, suffix }: { type: string; lang: Lang; suffix?: ReactNode }) {
-    return (
-        <span className={`${type} inline-flex items-center gap-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-bold leading-none text-white`}>
-            <img src={`${import.meta.env.BASE_URL}assets/types/${type}.svg`} alt="" aria-hidden className="h-3.5 w-3.5 shrink-0" />
-            {typeName(type, lang)}
-            {suffix}
-        </span>
+        <Banner
+            status="error"
+            title={message}
+            endContent={onRetry ? <Button size="sm" label={retryLabel} onClick={onRetry} /> : undefined}
+        />
     )
 }
 
@@ -245,7 +199,7 @@ function TypeChip({ type, lang, suffix }: { type: string; lang: Lang; suffix?: R
 function Artwork({ src, fallback, alt }: { src: string; fallback?: string | null; alt: string }) {
     const [stage, setStage] = useState<0 | 1 | 2>(src ? 0 : fallback ? 1 : 2)
     if (stage === 2) {
-        return <div className="flex h-56 w-56 items-center justify-center rounded-full bg-slate-100 text-5xl font-black text-slate-200 sm:h-64 sm:w-64" aria-hidden>?</div>
+        return <span className="block h-56 w-56 sm:h-64 sm:w-64" aria-hidden />
     }
     const url = stage === 0 ? src : fallback ?? ""
     return (
@@ -255,7 +209,7 @@ function Artwork({ src, fallback, alt }: { src: string; fallback?: string | null
             width={256}
             height={256}
             onError={() => setStage(stage === 0 && fallback ? 1 : 2)}
-            className={`h-56 w-56 object-contain drop-shadow-[0_24px_32px_rgba(15,23,42,0.18)] sm:h-64 sm:w-64 ${stage === 1 ? "[image-rendering:pixelated]" : ""}`}
+            className={`h-56 w-56 object-contain sm:h-64 sm:w-64 ${stage === 1 ? "[image-rendering:pixelated]" : ""}`}
         />
     )
 }
@@ -263,468 +217,17 @@ function Artwork({ src, fallback, alt }: { src: string; fallback?: string | null
 // ─── Prev / Next ──────────────────────────────────────────────────────────────
 
 function NeighborLink({ p, dir, lang, label }: { p: DexPokemon | undefined; dir: "prev" | "next"; lang: Lang; label: string }) {
-    const base = "flex min-w-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-sm shadow-sm transition"
-    if (!p) {
-        return (
-            <span className={`${base} cursor-not-allowed opacity-40`} aria-disabled>
-                <span aria-hidden>{dir === "prev" ? "←" : "→"}</span>
-                <span className="sr-only">{label}</span>
-            </span>
-        )
-    }
+    if (!p) return <span aria-hidden className="block" />
     const name = pokemonName(p, lang)
+    const no = dexNumber(p.id)
     return (
-        <Link
-            to={`/pokemon/${p.id}`}
-            rel={dir}
-            aria-label={`${label}: ${dexNo(p.id)} ${name}`}
-            className={`${base} text-slate-700 hover:border-slate-300 hover:text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400`}
-        >
-            {dir === "prev" && <span aria-hidden>←</span>}
-            <span className="hidden text-xs tabular-nums text-slate-400 sm:inline">{dexNo(p.id)}</span>
-            <span className="max-w-[6.5rem] truncate font-semibold sm:max-w-[9rem]">{name}</span>
-            {dir === "next" && <span aria-hidden>→</span>}
-        </Link>
-    )
-}
-
-// ─── Evolution chain ──────────────────────────────────────────────────────────
-
-function evoConditions(d: EvolutionDetail | undefined, lang: Lang, t: T): string[] {
-    if (!d) return []
-    const parts: string[] = []
-    if (d.min_level) parts.push(t("evoLevel", { n: d.min_level }))
-    if (d.trigger?.name === "trade") parts.push(t("evoTrade"))
-    if (d.item) parts.push(itemName(d.item.name, lang))
-    if (d.held_item) parts.push(t("evoHolding", { item: itemName(d.held_item.name, lang) }))
-    if (d.min_happiness) parts.push(t("evoFriendship"))
-    if (d.min_affection) parts.push(t("evoAffection"))
-    if (d.known_move) parts.push(t("evoKnowsMove", { move: moveName(d.known_move.name, lang) }))
-    if (d.known_move_type) parts.push(t("evoKnowsMoveType", { type: typeName(d.known_move_type.name, lang) }))
-    if (d.time_of_day === "day") parts.push(t("evoDay"))
-    if (d.time_of_day === "night") parts.push(t("evoNight"))
-    if (d.time_of_day === "dusk") parts.push(t("evoDusk"))
-    if (d.gender === 1) parts.push(t("evoFemale"))
-    if (d.gender === 2) parts.push(t("evoMale"))
-    if (d.location) parts.push(t("evoLocation"))
-    if (d.trade_species) {
-        const p = findDexPokemonByName(d.trade_species.name)
-        parts.push(t("evoTradeFor", { name: p ? pokemonName(p, lang) : titleCaseSlug(d.trade_species.name) }))
-    }
-    if (d.needs_overworld_rain) parts.push(t("evoRain"))
-    if (d.turn_upside_down) parts.push(t("evoUpsideDown"))
-    if (parts.length === 0) parts.push(d.trigger?.name === "level-up" ? t("evoLevelUp") : t("evoSpecial"))
-    return parts
-}
-
-function EvoNode({ link, currentSpeciesId, lang }: { link: EvolutionChainLink; currentSpeciesId: number | undefined; lang: Lang }) {
-    const id = getIdFromUrl(link.species.url) ?? 0
-    const p = getDexPokemon(id)
-    const name = p ? pokemonName(p, lang) : titleCaseSlug(link.species.name)
-    const current = id === currentSpeciesId
-    const inner = (
-        <>
-            <span
-                className={`flex h-20 w-20 items-center justify-center rounded-2xl border bg-slate-50 transition ${
-                    current ? "border-(--accent) ring-2 ring-(--accent)/30" : "border-slate-100 group-hover:border-slate-300"
-                }`}
-            >
-                <img src={officialArtworkUrl(id)} alt="" loading="lazy" className="h-16 w-16 object-contain" />
+        <Link href={`/pokemon/${p.id}`} label={`${label}: ${no} ${name}`} hasUnderline={false} color="secondary">
+            <span className={`inline-flex min-w-0 items-center gap-1.5 ${dir === "next" ? "flex-row-reverse" : ""}`}>
+                <Icon icon={dir === "prev" ? "chevronLeft" : "chevronRight"} size="sm" />
+                <span className="hidden tabular-nums sm:inline">{no}</span>
+                <span className="max-w-[8rem] truncate font-medium text-primary sm:max-w-[12rem]">{name}</span>
             </span>
-            <span className={`max-w-24 truncate text-center text-xs font-semibold ${current ? "text-slate-900" : "text-slate-600"}`}>{name}</span>
-            <span className="text-[10px] tabular-nums text-slate-400">{dexNo(id)}</span>
-        </>
-    )
-    return p && !current ? (
-        <Link to={`/pokemon/${id}`} className="group flex shrink-0 flex-col items-center gap-1 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-            {inner}
         </Link>
-    ) : (
-        <span className="flex shrink-0 flex-col items-center gap-1" aria-current={current ? "page" : undefined}>
-            {inner}
-        </span>
-    )
-}
-
-function EvoTree({ link, currentSpeciesId, lang, t }: { link: EvolutionChainLink; currentSpeciesId: number | undefined; lang: Lang; t: T }) {
-    return (
-        <div className="flex flex-col items-center gap-2 sm:flex-row">
-            <EvoNode link={link} currentSpeciesId={currentSpeciesId} lang={lang} />
-            {link.evolves_to.length > 0 && (
-                <div className="flex flex-row flex-wrap justify-center gap-x-4 gap-y-3 sm:flex-col sm:items-start">
-                    {link.evolves_to.map((child) => (
-                        <div key={child.species.name} className="flex flex-col items-center gap-1 sm:flex-row sm:gap-2">
-                            <div className="flex w-24 flex-col items-center text-center sm:w-28">
-                                <span className="text-lg leading-none text-slate-300" aria-hidden>
-                                    <span className="sm:hidden">↓</span>
-                                    <span className="hidden sm:inline">→</span>
-                                </span>
-                                {evoConditions(child.evolution_details[0], lang, t).map((c) => (
-                                    <span key={c} className="mt-0.5 rounded-full bg-(--accent)/10 px-2 py-0.5 text-[10px] font-semibold leading-tight text-slate-700">
-                                        {c}
-                                    </span>
-                                ))}
-                            </div>
-                            <EvoTree link={child} currentSpeciesId={currentSpeciesId} lang={lang} t={t} />
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    )
-}
-
-// ─── Moves ────────────────────────────────────────────────────────────────────
-
-type Method = "level-up" | "machine" | "egg" | "tutor" | "other" | "legacy"
-const METHOD_ORDER: readonly Method[] = ["level-up", "machine", "egg", "tutor", "other", "legacy"]
-const METHOD_LABEL: Record<Method, PokedexKey> = {
-    "level-up": "methodLevelUp",
-    machine: "methodMachine",
-    egg: "methodEgg",
-    tutor: "methodTutor",
-    other: "methodOther",
-    legacy: "methodLegacy",
-}
-
-interface MoveRow {
-    slug: string
-    method: Method
-    level: number | null
-}
-
-/**
- * 습득 방법 기준으로 삼을 작품 (앞쪽 우선).
- * PokeAPI 버전 그룹 id 는 발매 순서가 아니고(일본판 복각 등), 레벨업 데이터가 없는 작품도 있어서
- * 본편 작품 목록에서 레벨업 기술이 있는 첫 작품을 고른다.
- */
-const VERSION_GROUP_PRIORITY = [
-    "scarlet-violet",
-    "sword-shield",
-    "legends-za",
-    "brilliant-diamond-shining-pearl",
-    "legends-arceus",
-    "lets-go-pikachu-lets-go-eevee",
-    "ultra-sun-ultra-moon",
-    "sun-moon",
-    "omega-ruby-alpha-sapphire",
-    "x-y",
-    "black-2-white-2",
-    "black-white",
-    "heartgold-soulsilver",
-    "platinum",
-    "diamond-pearl",
-    "emerald",
-    "firered-leafgreen",
-    "ruby-sapphire",
-    "crystal",
-    "gold-silver",
-    "yellow",
-    "red-blue",
-] as const
-
-const VERSION_GROUP_NAME: Partial<Record<string, Record<Lang, string>>> = {
-    "scarlet-violet": { ko: "스칼렛·바이올렛", en: "Scarlet & Violet", ja: "スカーレット・バイオレット" },
-    "sword-shield": { ko: "소드·실드", en: "Sword & Shield", ja: "ソード・シールド" },
-    "legends-za": { ko: "포켓몬 레전드 Z-A", en: "Pokémon Legends: Z-A", ja: "Pokémon LEGENDS Z-A" },
-    "brilliant-diamond-shining-pearl": {
-        ko: "브릴리언트 다이아몬드·샤이닝 펄",
-        en: "Brilliant Diamond & Shining Pearl",
-        ja: "ブリリアントダイヤモンド・シャイニングパール",
-    },
-    "legends-arceus": { ko: "포켓몬스터 레전드 아르세우스", en: "Pokémon Legends: Arceus", ja: "Pokémon LEGENDS アルセウス" },
-    "lets-go-pikachu-lets-go-eevee": { ko: "레츠고! 피카츄·레츠고! 이브이", en: "Let's Go, Pikachu! & Eevee!", ja: "Let's Go! ピカチュウ・Let's Go! イーブイ" },
-    "ultra-sun-ultra-moon": { ko: "울트라썬·울트라문", en: "Ultra Sun & Ultra Moon", ja: "ウルトラサン・ウルトラムーン" },
-    "sun-moon": { ko: "썬·문", en: "Sun & Moon", ja: "サン・ムーン" },
-    "omega-ruby-alpha-sapphire": { ko: "오메가루비·알파사파이어", en: "Omega Ruby & Alpha Sapphire", ja: "オメガルビー・アルファサファイア" },
-    "x-y": { ko: "X·Y", en: "X & Y", ja: "X・Y" },
-}
-
-function versionGroupName(slug: string, lang: Lang): string {
-    return VERSION_GROUP_NAME[slug]?.[lang] ?? titleCaseSlug(slug)
-}
-
-/** 기준 작품 + 습득 방법 목록. 기준 작품에서 배울 수 없는 기술은 "이전 작품"으로 분류 */
-function buildMoveRows(entries: readonly PokemonMoveEntry[]): { game: string | null; rows: MoveRow[] } {
-    const withLevelUp = new Set<string>()
-    for (const e of entries) {
-        for (const d of e.version_group_details) if (d.move_learn_method.name === "level-up") withLevelUp.add(d.version_group.name)
-    }
-    const game = VERSION_GROUP_PRIORITY.find((g) => withLevelUp.has(g)) ?? null
-
-    const rows: MoveRow[] = []
-    for (const e of entries) {
-        const inLatest = e.version_group_details.filter((d) => d.version_group.name === game)
-        if (inLatest.length === 0) {
-            rows.push({ slug: e.move.name, method: "legacy", level: null })
-            continue
-        }
-        const seen = new Set<string>()
-        for (const d of inLatest) {
-            const m = d.move_learn_method.name
-            const method: Method = m === "level-up" || m === "machine" || m === "egg" || m === "tutor" ? m : "other"
-            const level = method === "level-up" ? d.level_learned_at : null
-            const key = `${method}:${level ?? ""}`
-            if (seen.has(key)) continue
-            seen.add(key)
-            rows.push({ slug: e.move.name, method, level })
-        }
-    }
-    return { game, rows }
-}
-
-const CLASS_STYLE: Record<string, string> = {
-    physical: "bg-orange-50 text-orange-600",
-    special: "bg-sky-50 text-sky-600",
-    status: "bg-slate-100 text-slate-500",
-}
-
-function MovesPanel({
-    detail,
-    loading,
-    error,
-    onRetry,
-    fallbackMoves,
-    lang,
-    t,
-    retryLabel,
-    allLabel,
-}: {
-    detail: PokemonDetail | undefined
-    loading: boolean
-    error: boolean
-    onRetry: () => void
-    fallbackMoves: readonly string[] | undefined
-    lang: Lang
-    t: T
-    retryLabel: string
-    allLabel: string
-}) {
-    const { game, rows } = useMemo<{ game: string | null; rows: MoveRow[] }>(() => {
-        if (detail) return buildMoveRows(detail.moves)
-        return { game: null, rows: (fallbackMoves ?? []).map((slug) => ({ slug, method: "other", level: null })) }
-    }, [detail, fallbackMoves])
-
-    const counts = useMemo(() => {
-        const c = new Map<Method, number>()
-        for (const r of rows) c.set(r.method, (c.get(r.method) ?? 0) + 1)
-        return c
-    }, [rows])
-    const methods = METHOD_ORDER.filter((m) => counts.has(m))
-
-    const [picked, setPicked] = useState<Method | "all" | null>(null)
-    const method: Method | "all" = picked && (picked === "all" || counts.has(picked)) ? picked : counts.has("level-up") ? "level-up" : "all"
-    const [query, setQuery] = useState("")
-
-    const visible = useMemo(() => {
-        const q = query.trim().toLowerCase()
-        const coll = collator(lang)
-        const name = (slug: string) => moveName(slug, lang)
-        const matches = (slug: string) => {
-            if (!q) return true
-            const m = MOVE_BY_NAME.get(slug)
-            return [slug, m?.nameEn, m?.hasKoreanName ? m.nameKo : null, m?.nameJa].some((s) => s?.toLowerCase().includes(q))
-        }
-        return rows
-            .filter((r) => (method === "all" || r.method === method) && matches(r.slug))
-            .sort(
-                (a, b) =>
-                    METHOD_ORDER.indexOf(a.method) - METHOD_ORDER.indexOf(b.method) ||
-                    (a.level ?? 0) - (b.level ?? 0) ||
-                    coll.compare(name(a.slug), name(b.slug)),
-            )
-    }, [rows, method, query, lang])
-
-    if (loading && !fallbackMoves) return <Card title={t("tabMoves")}><SkeletonRows n={8} /></Card>
-    if (error && rows.length === 0) {
-        return (
-            <Card title={t("tabMoves")}>
-                <InlineError message={t("loadErrorTitle")} onRetry={onRetry} retryLabel={retryLabel} />
-            </Card>
-        )
-    }
-
-    const showLevel = method === "level-up" || method === "all"
-    const chipCls = (active: boolean) =>
-        `shrink-0 rounded-full border px-3 py-1 text-xs font-semibold transition ${
-            active ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900"
-        }`
-
-    return (
-        <Card title={t("tabMoves")}>
-            {error && <InlineError message={t("loadErrorTitle")} onRetry={onRetry} retryLabel={retryLabel} />}
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1" role="group" aria-label={t("methodFilter")}>
-                    <button type="button" aria-pressed={method === "all"} onClick={() => setPicked("all")} className={chipCls(method === "all")}>
-                        {allLabel} <span className="tabular-nums opacity-60">{rows.length}</span>
-                    </button>
-                    {methods.map((m) => (
-                        <button key={m} type="button" aria-pressed={method === m} onClick={() => setPicked(m)} className={chipCls(method === m)}>
-                            {t(METHOD_LABEL[m])} <span className="tabular-nums opacity-60">{counts.get(m)}</span>
-                        </button>
-                    ))}
-                </div>
-                <input
-                    type="search"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder={t("moveSearchPlaceholder")}
-                    aria-label={t("moveSearchLabel")}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-red-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-100 md:w-56"
-                />
-            </div>
-            {game && <p className="mt-2 text-[11px] text-slate-400">{t("movesNote", { game: versionGroupName(game, lang) })}</p>}
-
-            {visible.length === 0 ? (
-                <p className="mt-4 rounded-2xl border border-dashed border-slate-200 py-10 text-center text-sm text-slate-400">{t("noMoves")}</p>
-            ) : (
-                <div className="mt-3 overflow-x-auto">
-                    <table className="w-full border-collapse text-sm">
-                        <thead>
-                            <tr className="border-b border-slate-100 text-left text-[11px] font-semibold text-slate-400">
-                                {showLevel && <th scope="col" className="w-12 py-2 pr-2 font-semibold">{t("colLevel")}</th>}
-                                <th scope="col" className="py-2 pr-2 font-semibold">{t("colMove")}</th>
-                                <th scope="col" className="py-2 pr-2 font-semibold">{t("colType")}</th>
-                                <th scope="col" className="hidden py-2 pr-2 font-semibold sm:table-cell">{t("colClass")}</th>
-                                <th scope="col" className="py-2 pr-1 text-right font-semibold">{t("colPower")}</th>
-                                <th scope="col" className="hidden py-2 pr-1 text-right font-semibold sm:table-cell">{t("colAccuracy")}</th>
-                                <th scope="col" className="hidden py-2 text-right font-semibold sm:table-cell">{t("colPP")}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {visible.map((r) => {
-                                const m = MOVE_BY_NAME.get(r.slug)
-                                return (
-                                    <tr key={`${r.method}:${r.slug}:${r.level ?? ""}`} className="border-b border-slate-50 hover:bg-slate-50/70">
-                                        {showLevel && (
-                                            <td className="py-2 pr-2 text-xs font-bold tabular-nums text-slate-500">
-                                                {r.method === "level-up" ? (r.level === 0 ? t("evoMoveLevel") : r.level) : "—"}
-                                            </td>
-                                        )}
-                                        <td className="py-2 pr-2">
-                                            {m ? (
-                                                <Link to={`/moves/${r.slug}`} className="font-semibold text-slate-800 hover:text-red-500 hover:underline">
-                                                    {moveName(r.slug, lang)}
-                                                </Link>
-                                            ) : (
-                                                <span className="font-semibold text-slate-800">{moveName(r.slug, lang)}</span>
-                                            )}
-                                            {method === "all" && r.method !== "level-up" && (
-                                                <span className="ml-1.5 text-[10px] text-slate-400">{t(METHOD_LABEL[r.method])}</span>
-                                            )}
-                                        </td>
-                                        <td className="py-2 pr-2">{m && <TypeChip type={m.type} lang={lang} />}</td>
-                                        <td className="hidden py-2 pr-2 sm:table-cell">
-                                            {m && (
-                                                <span className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${CLASS_STYLE[m.damageClass] ?? CLASS_STYLE.status}`}>
-                                                    {damageClassName(m.damageClass, lang)}
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="py-2 pr-1 text-right tabular-nums text-slate-700">{m?.power ?? "—"}</td>
-                                        <td className="hidden py-2 pr-1 text-right tabular-nums text-slate-500 sm:table-cell">{m?.accuracy ?? "—"}</td>
-                                        <td className="hidden py-2 text-right tabular-nums text-slate-500 sm:table-cell">{m?.pp ?? "—"}</td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-        </Card>
-    )
-}
-
-// ─── Sprites ──────────────────────────────────────────────────────────────────
-
-const ROMAN: Record<string, number> = { i: 1, ii: 2, iii: 3, iv: 4, v: 5, vi: 6, vii: 7, viii: 8, ix: 9 }
-
-function SpriteItem({ label, src, size, pixelated }: { label: string; src: string; size: "sm" | "md" | "lg"; pixelated?: boolean }) {
-    const box = size === "lg" ? "h-28 w-28" : size === "md" ? "h-24 w-24" : "h-[72px] w-[72px]"
-    return (
-        <figure className="flex flex-col items-center gap-1.5">
-            <div className={`${box} flex items-center justify-center rounded-2xl border border-slate-100 bg-slate-50`}>
-                <img src={src} alt={label} loading="lazy" className={`h-[88%] w-[88%] object-contain ${pixelated ? "[image-rendering:pixelated]" : ""}`} />
-            </div>
-            <figcaption className="max-w-28 text-center text-[11px] leading-tight text-slate-400">{label}</figcaption>
-        </figure>
-    )
-}
-
-/** URL 이 있는 항목만 */
-function present(list: [PokedexKey, string | null | undefined][]): [PokedexKey, string][] {
-    return list.flatMap(([k, src]) => (src ? [[k, src] as [PokedexKey, string]] : []))
-}
-
-function SpritesGallery({ sprites, lang, t }: { sprites: PokemonSprites; lang: Lang; t: T }) {
-    const main = present([
-            ["spriteDefault", sprites.front_default],
-            ["spriteBack", sprites.back_default],
-            ["spriteShiny", sprites.front_shiny],
-            ["spriteBackShiny", sprites.back_shiny],
-            ["spriteFemale", sprites.front_female],
-            ["spriteShinyFemale", sprites.front_shiny_female],
-    ])
-
-    const extra = present([
-            ["spriteHome", sprites.other?.home?.front_default],
-            ["spriteHomeShiny", sprites.other?.home?.front_shiny],
-            ["spriteHomeFemale", sprites.other?.home?.front_female],
-            ["spriteDreamWorld", sprites.other?.dream_world?.front_default],
-    ])
-
-    const gens: { gen: number; items: { label: string; src: string }[] }[] = []
-    for (const [genKey, games] of Object.entries(sprites.versions ?? {})) {
-        const gen = ROMAN[genKey.replace("generation-", "")] ?? 0
-        const items: { label: string; src: string }[] = []
-        for (const [game, data] of Object.entries(games)) {
-            if (data?.front_default) items.push({ label: titleCaseSlug(game), src: data.front_default })
-        }
-        if (items.length) gens.push({ gen, items })
-    }
-    gens.sort((a, b) => a.gen - b.gen)
-
-    if (!main.length && !extra.length && !gens.length) {
-        return <p className="rounded-2xl border border-dashed border-slate-200 py-10 text-center text-sm text-slate-400">{t("noSprites")}</p>
-    }
-
-    return (
-        <div className="space-y-4">
-            {main.length > 0 && (
-                <Card title={t("spritesGame")}>
-                    <div className="flex flex-wrap gap-3 sm:gap-4">
-                        {main.map(([k, src]) => (
-                            <SpriteItem key={k} label={t(k)} src={src} size="md" pixelated />
-                        ))}
-                    </div>
-                </Card>
-            )}
-            {extra.length > 0 && (
-                <Card title={t("spritesArtwork")}>
-                    <div className="flex flex-wrap gap-3 sm:gap-4">
-                        {extra.map(([k, src]) => (
-                            <SpriteItem key={k} label={t(k)} src={src} size="lg" />
-                        ))}
-                    </div>
-                </Card>
-            )}
-            {gens.length > 0 && (
-                <Card title={t("spritesGenerations")}>
-                    <div className="space-y-5">
-                        {gens.map(({ gen, items }) => (
-                            <div key={gen}>
-                                <h3 className="mb-2 text-xs font-bold text-slate-500">{gen ? generationName(gen, lang) : "—"}</h3>
-                                <div className="flex flex-wrap gap-3">
-                                    {items.map((x) => (
-                                        <SpriteItem key={x.label} label={x.label} src={x.src} size="sm" pixelated />
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-            )}
-        </div>
     )
 }
 
@@ -732,38 +235,25 @@ function SpritesGallery({ sprites, lang, t }: { sprites: PokemonSprites; lang: L
 
 function DetailSkeleton({ label }: { label: string }) {
     return (
-        <div className="space-y-5" role="status" aria-live="polite">
+        <VStack gap={5} role="status" aria-live="polite">
             <span className="sr-only">{label}</span>
-            <div className="flex justify-between">
-                <Skeleton className="h-9 w-28" />
-                <Skeleton className="h-9 w-40" />
-            </div>
-            <div className="grid gap-6 rounded-3xl border border-slate-200/80 bg-white p-5 sm:p-8 md:grid-cols-[1fr_256px]">
-                <div className="space-y-3">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-12 w-2/3" />
-                    <Skeleton className="h-6 w-40" />
-                    <Skeleton className="h-16 w-full" />
-                </div>
-                <Skeleton className="mx-auto h-56 w-56 rounded-full" />
-            </div>
-            <Skeleton className="h-40 rounded-3xl" />
-        </div>
-    )
-}
-
-function StatePanel({ title, body, children }: { title: string; body: string; children?: ReactNode }) {
-    return (
-        <div className="flex flex-col items-center rounded-3xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center">
-            <svg viewBox="0 0 48 48" className="h-12 w-12 text-slate-200" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden>
-                <circle cx="24" cy="24" r="21" />
-                <path d="M3 24h42" />
-                <circle cx="24" cy="24" r="6" fill="white" />
-            </svg>
-            <h1 className="mt-3 text-lg font-bold text-slate-900">{title}</h1>
-            <p className="mt-1 max-w-sm text-sm text-slate-500">{body}</p>
-            <div className="mt-5 flex flex-wrap justify-center gap-2">{children}</div>
-        </div>
+            <HStack justify="between">
+                <Skeleton width={112} height={28} />
+                <Skeleton width={180} height={28} />
+            </HStack>
+            <Card>
+                <Grid columns={{ minWidth: 260, repeat: "fit" }} gap={6}>
+                    <Skeleton height={256} />
+                    <VStack gap={3}>
+                        <Skeleton width={96} height={16} />
+                        <Skeleton width="60%" height={40} />
+                        <Skeleton width={160} height={24} />
+                        <Skeleton height={64} />
+                    </VStack>
+                </Grid>
+            </Card>
+            <Skeleton height={160} />
+        </VStack>
     )
 }
 
@@ -777,7 +267,7 @@ export default function PokemonDetailPage() {
     const tc = useT(commonMessages)
     const [searchParams, setSearchParams] = useSearchParams()
     const tab = parseTab(searchParams.get("tab"))
-    const setTab = (next: Tab) => setSearchParams(next === "overview" ? {} : { tab: next }, { replace: true })
+    const setTab = (next: DetailTab) => setSearchParams(next === "overview" ? {} : { tab: next }, { replace: true })
 
     const local = useMemo(() => resolveLocal(param), [param])
     const apiKey = local ? String(local.id) : param.trim().toLowerCase()
@@ -793,7 +283,6 @@ export default function PokemonDetailPage() {
         () => local?.types ?? detail?.types.slice().sort((a, b) => a.slot - b.slot).map((x) => x.type.name) ?? [],
         [local, detail],
     )
-    const accent = TYPE_ACCENT[types[0]] ?? TYPE_ACCENT.normal
 
     const name = local
         ? pokemonName(local, lang)
@@ -830,11 +319,9 @@ export default function PokemonDetailPage() {
             .filter((s): s is { key: StatKey; value: number } => !!s.key)
     }, [local, detail])
     const statTotal = stats.reduce((sum, s) => sum + s.value, 0)
+    const statMax = stats.reduce((m, s) => Math.max(m, s.value), 0)
 
     const matchups = useMemo(() => computeDefense(types), [types])
-    const weaknesses = matchups.filter(([, v]) => v > 1).sort((a, b) => b[1] - a[1])
-    const resistances = matchups.filter(([, v]) => v > 0 && v < 1).sort((a, b) => a[1] - b[1])
-    const immunities = matchups.filter(([, v]) => v === 0)
 
     const forms = useMemo(() => (speciesId ? ALL_POKEMON.filter((p) => getSpeciesId(p) === speciesId) : []), [speciesId])
 
@@ -847,12 +334,12 @@ export default function PokemonDetailPage() {
         window.scrollTo({ top: 0 })
     }, [param])
 
-    // ← → 키로 이전/다음 포켓몬
+    // 왼쪽/오른쪽 방향키로 이전/다음 포켓몬
     useEffect(() => {
         const onKey = (e: globalThis.KeyboardEvent) => {
             if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
             const el = e.target as HTMLElement | null
-            if (el?.closest("input, textarea, select, [contenteditable], [role=tablist]")) return
+            if (el?.closest("input, textarea, select, [contenteditable], [role=tablist], [role=radiogroup], [role=listbox]")) return
             const target = e.key === "ArrowLeft" ? prev : e.key === "ArrowRight" ? next : undefined
             if (target) navigate(`/pokemon/${target.id}${tab === "overview" ? "" : `?tab=${tab}`}`)
         }
@@ -860,43 +347,30 @@ export default function PokemonDetailPage() {
         return () => window.removeEventListener("keydown", onKey)
     }, [prev, next, navigate, tab])
 
-    const onTabKey = (e: KeyboardEvent<HTMLDivElement>) => {
-        const i = TABS.indexOf(tab)
-        let n = -1
-        if (e.key === "ArrowRight") n = (i + 1) % TABS.length
-        else if (e.key === "ArrowLeft") n = (i - 1 + TABS.length) % TABS.length
-        else if (e.key === "Home") n = 0
-        else if (e.key === "End") n = TABS.length - 1
-        if (n < 0) return
-        e.preventDefault()
-        setTab(TABS[n])
-        document.getElementById(`pokemon-tab-${TABS[n]}`)?.focus()
-    }
-
     // ── Guards ──
     if (!local) {
         if (apiKey && detailQ.isPending) return <DetailSkeleton label={tc("loading")} />
         if (!detail) {
             const notFound = !apiKey || (detailQ.error instanceof Error && detailQ.error.message.endsWith("404"))
             return notFound ? (
-                <StatePanel title={t("notFoundTitle")} body={t("notFoundBody", { id: param })}>
-                    <Link to="/pokedex" className="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-red-500">
-                        {t("backToDex")}
-                    </Link>
-                </StatePanel>
+                <EmptyState
+                    headingLevel={1}
+                    title={t("notFoundTitle")}
+                    description={t("notFoundBody", { id: param })}
+                    actions={<Button href="/pokedex" variant="primary" label={t("backToDex")} />}
+                />
             ) : (
-                <StatePanel title={t("loadErrorTitle")} body={t("loadErrorBody")}>
-                    <button
-                        type="button"
-                        onClick={() => void detailQ.refetch()}
-                        className="rounded-full bg-red-500 px-5 py-2 text-sm font-semibold text-white hover:bg-red-600"
-                    >
-                        {t("retry")}
-                    </button>
-                    <Link to="/pokedex" className="rounded-full border border-slate-200 px-5 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300">
-                        {t("backToDex")}
-                    </Link>
-                </StatePanel>
+                <EmptyState
+                    headingLevel={1}
+                    title={t("loadErrorTitle")}
+                    description={t("loadErrorBody")}
+                    actions={
+                        <>
+                            <Button variant="primary" label={t("retry")} onClick={() => void detailQ.refetch()} />
+                            <Button href="/pokedex" label={t("backToDex")} />
+                        </>
+                    }
+                />
             )
         }
     }
@@ -926,407 +400,368 @@ export default function PokemonDetailPage() {
     const growthKey = species ? `growth_${species.growth_rate.name}` : ""
     const colorKey = species ? `color_${species.color.name}` : ""
     const retry = t("retry")
-
-    const speciesRows: { label: string; value: ReactNode }[] = species
-        ? [
-              { label: t("generation"), value: generation ? generationName(generation, lang) : "—" },
-              { label: t("growthRate"), value: isPokedexKey(growthKey) ? t(growthKey) : titleCaseSlug(species.growth_rate.name) },
-              {
-                  label: t("captureRate"),
-                  value: `${species.capture_rate} (${formatNumber((species.capture_rate / 255) * 100, lang, { maximumFractionDigits: 1 })}%)`,
-              },
-              { label: t("baseHappiness"), value: species.base_happiness ?? "—" },
-              { label: t("color"), value: isPokedexKey(colorKey) ? t(colorKey) : titleCaseSlug(species.color.name) },
-          ]
-        : []
+    const pendingValue = detailQ.isError ? "-" : <Skeleton width={48} height={18} />
+    const moveCount = detail?.moves.length ?? local?.moves.length
 
     return (
-        <div className="space-y-5" style={{ "--accent": accent } as CSSProperties}>
+        <VStack gap={5}>
             {/* ── 상단 내비게이션 ── */}
-            <nav className="flex items-center justify-between gap-2" aria-label={t("detailTabs")}>
-                <Link
-                    to="/pokedex"
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:text-slate-900"
-                >
-                    <span aria-hidden>←</span>
-                    {t("backToDex")}
+            <HStack justify="between" vAlign="center" gap={3} wrap="wrap">
+                <Link href="/pokedex" hasUnderline={false}>
+                    <span className="inline-flex items-center gap-1">
+                        <Icon icon="chevronLeft" size="sm" />
+                        {t("backToDex")}
+                    </span>
                 </Link>
-                <div className="flex min-w-0 items-center gap-1.5" title={t("keyboardHint")}>
-                    <NeighborLink p={prev} dir="prev" lang={lang} label={t("prev")} />
-                    <NeighborLink p={next} dir="next" lang={lang} label={t("next")} />
-                </div>
-            </nav>
+                <nav aria-label={t("neighbors")} title={t("keyboardHint")}>
+                    <HStack gap={4} vAlign="center">
+                        <NeighborLink p={prev} dir="prev" lang={lang} label={t("prev")} />
+                        <NeighborLink p={next} dir="next" lang={lang} label={t("next")} />
+                    </HStack>
+                </nav>
+            </HStack>
 
-            {/* ── HERO ── */}
-            <section className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm">
-                <div className="pointer-events-none absolute -right-24 -top-28 h-96 w-96 rounded-full bg-(--accent)/10" aria-hidden />
-                <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-(--accent)/5" aria-hidden />
+            {/* ── 표본 ── */}
+            <Card>
+                <Grid columns={{ minWidth: 260, repeat: "fit" }} gap={6} align="start">
+                    <figure className="flex flex-col items-center gap-2">
+                        <span className="flex w-full items-center justify-center rounded-lg border border-border bg-muted p-4">
+                            <Artwork key={id} src={artwork} fallback={spriteFallback} alt={t("artworkAlt", { name })} />
+                        </span>
+                        <figcaption>
+                            <Text type="supporting" hasTabularNumbers>
+                                {dexNumber(shownNo)}
+                            </Text>
+                        </figcaption>
+                    </figure>
 
-                <div className="relative grid gap-4 p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_256px] md:items-center md:gap-8">
-                    <div className="order-2 min-w-0 md:order-1">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-sm font-extrabold tabular-nums text-slate-300">{dexNo(shownNo)}</span>
-                            {generation ? (
-                                <span className="rounded-full bg-(--accent)/10 px-2.5 py-0.5 text-[11px] font-bold text-slate-700">
-                                    {generationName(generation, lang)}
+                    <VStack gap={4}>
+                        <VStack gap={1}>
+                            <Heading level={1}>{name}</Heading>
+                            {form && (
+                                <Text type="large" color="secondary">
+                                    {form}
+                                </Text>
+                            )}
+                            {otherNames.length > 0 && (
+                                <span className="flex flex-wrap gap-x-3" aria-label={t("otherNames")}>
+                                    {otherNames.map((o) => (
+                                        <span key={o.n} lang={o.lang}>
+                                            <Text color="secondary">{o.n}</Text>
+                                        </span>
+                                    ))}
                                 </span>
+                            )}
+                            {genusEntry ? (
+                                <Text color="secondary">{genusEntry.genus}</Text>
+                            ) : speciesQ.isPending && speciesId ? (
+                                <Skeleton width={128} height={16} />
                             ) : null}
-                            {species?.is_legendary && (
-                                <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-bold text-amber-700">{t("legendary")}</span>
-                            )}
-                            {species?.is_mythical && (
-                                <span className="rounded-full bg-pink-50 px-2.5 py-0.5 text-[11px] font-bold text-pink-700">{t("mythical")}</span>
-                            )}
-                            {species?.is_baby && (
-                                <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-[11px] font-bold text-violet-700">{t("baby")}</span>
-                            )}
-                        </div>
+                        </VStack>
 
-                        <h1 className="mt-2 break-words text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-5xl">{name}</h1>
-                        {form && <p className="mt-0.5 text-base font-semibold text-slate-500">{form}</p>}
-                        {otherNames.length > 0 && (
-                            <p className="mt-1 text-sm text-slate-400" aria-label={t("otherNames")}>
-                                {otherNames.map((o, i) => (
-                                    <span key={o.n} lang={o.lang}>
-                                        {i > 0 && " · "}
-                                        {o.n}
-                                    </span>
-                                ))}
-                            </p>
+                        <TypeIcon types={types} size="lg" />
+
+                        {(generation || species?.is_legendary || species?.is_mythical || species?.is_baby) && (
+                            <HStack gap={1.5} wrap="wrap">
+                                {generation ? <Token size="sm" label={generationName(generation, lang)} /> : null}
+                                {species?.is_legendary && <Token size="sm" color="yellow" label={t("legendary")} />}
+                                {species?.is_mythical && <Token size="sm" color="pink" label={t("mythical")} />}
+                                {species?.is_baby && <Token size="sm" color="purple" label={t("baby")} />}
+                            </HStack>
                         )}
-                        {genusEntry ? (
-                            <p className="mt-1 text-sm italic text-slate-500">{genusEntry.genus}</p>
-                        ) : speciesQ.isPending && speciesId ? (
-                            <Skeleton className="mt-2 h-4 w-32" />
-                        ) : null}
-
-                        <TypeIcon types={types} className="mt-4" />
 
                         {flavor ? (
-                            <blockquote
-                                lang={flavorEntry?.language.name.split("-")[0]}
-                                className="mt-4 max-w-prose border-l-4 border-(--accent)/40 pl-3 text-sm leading-relaxed text-slate-600"
-                            >
-                                {flavor}
-                            </blockquote>
+                            <span lang={flavorEntry?.language.name.split("-")[0]} className="block max-w-prose">
+                                <Text as="p">{flavor}</Text>
+                            </span>
                         ) : speciesQ.isPending && speciesId ? (
-                            <div className="mt-4 space-y-1.5">
-                                <Skeleton className="h-3.5 w-full max-w-md" />
-                                <Skeleton className="h-3.5 w-4/5 max-w-sm" />
-                            </div>
+                            <VStack gap={1.5}>
+                                <Skeleton height={14} />
+                                <Skeleton width="80%" height={14} />
+                            </VStack>
                         ) : null}
 
-                        {/* Quick metrics */}
-                        <dl className="mt-5 grid max-w-md grid-cols-3 gap-2 sm:gap-3">
-                            {[
-                                { label: t("height"), value: detail ? `${formatNumber(detail.height / 10, lang, decimal)} m` : null },
-                                { label: t("weight"), value: detail ? `${formatNumber(detail.weight / 10, lang, decimal)} kg` : null },
-                                { label: t("baseExp"), value: detail ? (detail.base_experience ?? "—") : null },
-                            ].map(({ label, value }) => (
-                                <div key={label} className="min-w-0 rounded-2xl border border-slate-100 bg-slate-50 px-3 py-2.5 sm:px-4 sm:py-3">
-                                    <dt className="truncate text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</dt>
-                                    <dd className="mt-1 text-base font-extrabold tabular-nums text-slate-900 sm:text-lg">
-                                        {value ?? (detailQ.isError ? "—" : <Skeleton className="h-5 w-12" />)}
-                                    </dd>
-                                </div>
-                            ))}
-                        </dl>
+                        <MetadataList columns={3}>
+                            <MetadataListItem label={t("height")}>
+                                {detail ? <Text hasTabularNumbers>{`${formatNumber(detail.height / 10, lang, decimal)} m`}</Text> : pendingValue}
+                            </MetadataListItem>
+                            <MetadataListItem label={t("weight")}>
+                                {detail ? <Text hasTabularNumbers>{`${formatNumber(detail.weight / 10, lang, decimal)} kg`}</Text> : pendingValue}
+                            </MetadataListItem>
+                            <MetadataListItem label={t("baseExp")}>
+                                {detail ? <Text hasTabularNumbers>{detail.base_experience ?? "-"}</Text> : pendingValue}
+                            </MetadataListItem>
+                        </MetadataList>
+                    </VStack>
+                </Grid>
+            </Card>
 
-                        {/* Abilities (compact) */}
-                        {abilities.length > 0 && (
-                            <div className="mt-5">
-                                <div className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-slate-400">{t("abilities")}</div>
-                                <div className="flex flex-wrap gap-2">
-                                    {abilities.map((a) => (
-                                        <Link
-                                            key={a.name}
-                                            to={`/abilities/${a.name}`}
-                                            className={`rounded-xl border px-3 py-1.5 text-sm font-semibold transition hover:shadow-sm ${
-                                                a.hidden
-                                                    ? "border-violet-200 bg-violet-50 text-violet-700 hover:border-violet-300"
-                                                    : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
-                                            }`}
-                                        >
-                                            {abilityName(a.name, lang)}
-                                            {a.hidden && <span className="ml-1.5 text-[10px] font-bold text-violet-500">{t("hiddenAbility")}</span>}
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+            {/* ── 탭 ── */}
+            <TabList value={tab} onChange={(v) => setTab(parseTab(v))} role="tablist" aria-label={t("detailTabs")} hasDivider>
+                {TABS.map((key) => (
+                    <Tab
+                        key={key}
+                        id={`pokemon-tab-${key}`}
+                        value={key}
+                        label={t(TAB_LABEL[key])}
+                        panelId={`pokemon-panel-${key}`}
+                        endContent={
+                            key === "moves" && moveCount ? (
+                                <Text type="supporting" hasTabularNumbers>
+                                    {moveCount}
+                                </Text>
+                            ) : undefined
+                        }
+                    />
+                ))}
+            </TabList>
 
-                    <div className="order-1 flex justify-center md:order-2">
-                        <Artwork key={id} src={artwork} fallback={spriteFallback} alt={t("artworkAlt", { name })} />
-                    </div>
-                </div>
-
-                {/* Tab bar */}
-                <div
-                    role="tablist"
-                    aria-label={t("detailTabs")}
-                    onKeyDown={onTabKey}
-                    className="relative flex overflow-x-auto border-t border-slate-100 px-2 sm:px-6"
-                >
-                    {TABS.map((key) => {
-                        const active = tab === key
-                        const count = key === "moves" ? (detail?.moves.length ?? local?.moves.length) : undefined
-                        return (
-                            <button
-                                key={key}
-                                id={`pokemon-tab-${key}`}
-                                type="button"
-                                role="tab"
-                                aria-selected={active}
-                                aria-controls={`pokemon-panel-${key}`}
-                                tabIndex={active ? 0 : -1}
-                                onClick={() => setTab(key)}
-                                className={`-mb-px shrink-0 border-b-2 px-4 py-3.5 text-sm font-bold transition focus:outline-none focus-visible:bg-slate-50 sm:px-5 ${
-                                    active ? "border-(--accent) text-slate-900" : "border-transparent text-slate-400 hover:text-slate-700"
-                                }`}
-                            >
-                                {t(TAB_LABEL[key])}
-                                {count ? <span className="ml-1 text-xs font-semibold tabular-nums text-slate-400">{count}</span> : null}
-                            </button>
-                        )
-                    })}
-                </div>
-            </section>
-
-            {/* ── CONTENT ── */}
             <div role="tabpanel" id={`pokemon-panel-${tab}`} aria-labelledby={`pokemon-tab-${tab}`} tabIndex={-1} className="focus:outline-none">
                 {tab === "overview" && (
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <Grid columns={{ minWidth: 300, repeat: "fit" }} gap={4}>
                         {abilities.length > 0 && (
-                            <Card title={t("abilities")} className="md:col-span-2">
-                                <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <Panel title={t("abilities")} className="col-span-full">
+                                <ul className="flex flex-col divide-y divide-border">
                                     {abilities.map((a) => {
                                         const desc = localText(ABILITY_BY_NAME.get(a.name)?.desc, lang)
                                         return (
-                                            <li key={a.name}>
-                                                <Link
-                                                    to={`/abilities/${a.name}`}
-                                                    className={`block h-full rounded-2xl border p-3.5 transition hover:shadow-sm ${
-                                                        a.hidden ? "border-violet-200 bg-violet-50/60 hover:border-violet-300" : "border-slate-200 hover:border-slate-300"
-                                                    }`}
-                                                >
-                                                    <div className="flex flex-wrap items-center gap-1.5">
-                                                        <span className="font-bold text-slate-900">{abilityName(a.name, lang)}</span>
-                                                        {a.hidden && (
-                                                            <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold text-violet-700">
-                                                                {t("hiddenAbility")}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <p className="mt-1 text-xs leading-relaxed text-slate-500">{desc ?? t("abilityNoDesc")}</p>
-                                                </Link>
+                                            <li key={a.name} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+                                                <HStack gap={2} vAlign="center" wrap="wrap">
+                                                    <Link href={`/abilities/${a.name}`} weight="semibold">
+                                                        {abilityName(a.name, lang)}
+                                                    </Link>
+                                                    {a.hidden && <Token size="sm" color="purple" label={t("hiddenAbility")} />}
+                                                </HStack>
+                                                <Text color="secondary" as="p">
+                                                    {desc ?? t("abilityNoDesc")}
+                                                </Text>
                                             </li>
                                         )
                                     })}
                                 </ul>
-                            </Card>
+                            </Panel>
                         )}
 
-                        <Card title={t("species")}>
+                        <Panel title={t("species")}>
                             {speciesQ.isError ? (
-                                <InlineError message={t("loadErrorTitle")} onRetry={() => void speciesQ.refetch()} retryLabel={retry} />
+                                <LoadError message={t("loadErrorTitle")} onRetry={() => void speciesQ.refetch()} retryLabel={retry} />
                             ) : !species ? (
                                 <SkeletonRows n={5} />
                             ) : (
-                                <dl>
-                                    {speciesRows.map((r) => (
-                                        <InfoRow key={r.label} label={r.label}>
-                                            {r.value}
-                                        </InfoRow>
-                                    ))}
-                                </dl>
+                                <MetadataList>
+                                    <MetadataListItem label={t("generation")}>
+                                        {generation ? generationName(generation, lang) : "-"}
+                                    </MetadataListItem>
+                                    <MetadataListItem label={t("growthRate")}>
+                                        {isPokedexKey(growthKey) ? t(growthKey) : titleCaseSlug(species.growth_rate.name)}
+                                    </MetadataListItem>
+                                    <MetadataListItem label={t("captureRate")}>
+                                        {`${species.capture_rate} (${formatNumber((species.capture_rate / 255) * 100, lang, { maximumFractionDigits: 1 })}%)`}
+                                    </MetadataListItem>
+                                    <MetadataListItem label={t("baseHappiness")}>{species.base_happiness ?? "-"}</MetadataListItem>
+                                    <MetadataListItem label={t("color")}>
+                                        {isPokedexKey(colorKey) ? t(colorKey) : titleCaseSlug(species.color.name)}
+                                    </MetadataListItem>
+                                </MetadataList>
                             )}
-                        </Card>
+                        </Panel>
 
-                        <Card title={t("breeding")}>
+                        <Panel title={t("breeding")}>
                             {speciesQ.isError ? (
-                                <InlineError message={t("loadErrorTitle")} onRetry={() => void speciesQ.refetch()} retryLabel={retry} />
+                                <LoadError message={t("loadErrorTitle")} onRetry={() => void speciesQ.refetch()} retryLabel={retry} />
                             ) : !species ? (
                                 <SkeletonRows n={3} />
                             ) : (
-                                <dl>
-                                    <InfoRow label={t("gender")}>{genderText ?? "—"}</InfoRow>
-                                    {species.hatch_counter != null && (
-                                        <InfoRow label={t("eggCycles")}>
+                                <MetadataList>
+                                    <MetadataListItem label={t("gender")}>{genderText ?? "-"}</MetadataListItem>
+                                    {species.hatch_counter != null ? (
+                                        <MetadataListItem label={t("eggCycles")}>
                                             {t("eggCyclesValue", { n: species.hatch_counter, steps: (species.hatch_counter + 1) * 255 })}
-                                        </InfoRow>
-                                    )}
-                                    {species.egg_groups && species.egg_groups.length > 0 && (
-                                        <InfoRow label={t("eggGroups")}>
-                                            <span className="flex flex-wrap justify-end gap-1.5">
+                                        </MetadataListItem>
+                                    ) : null}
+                                    {species.egg_groups && species.egg_groups.length > 0 ? (
+                                        <MetadataListItem label={t("eggGroups")}>
+                                            <HStack gap={1} wrap="wrap">
                                                 {species.egg_groups.map((g) => (
-                                                    <span key={g.name} className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-                                                        {eggGroupName(g.name, lang)}
-                                                    </span>
+                                                    <Token key={g.name} size="sm" label={eggGroupName(g.name, lang)} />
                                                 ))}
-                                            </span>
-                                        </InfoRow>
-                                    )}
+                                            </HStack>
+                                        </MetadataListItem>
+                                    ) : null}
+                                </MetadataList>
+                            )}
+                        </Panel>
+
+                        <Panel title={t("typeMatchup")} className="col-span-full">
+                            {matchups.length === 0 ? (
+                                <Text color="secondary">{t("noMatchups")}</Text>
+                            ) : (
+                                <dl className="flex flex-col divide-y divide-border">
+                                    {MULTIPLIER_GROUPS.map(({ mult, label }) => {
+                                        const list = matchups.filter(([, m]) => m === mult)
+                                        if (list.length === 0) return null
+                                        return (
+                                            <div key={mult} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-baseline sm:gap-4">
+                                                <dt className="flex w-32 shrink-0 items-baseline gap-2">
+                                                    <Text type="label">{t(label)}</Text>
+                                                    <Text type="supporting" hasTabularNumbers>{`x${mult}`}</Text>
+                                                </dt>
+                                                <dd className="flex flex-wrap gap-1.5">
+                                                    {list.map(([type]) => (
+                                                        <TypeTag key={type} type={type} size="sm" />
+                                                    ))}
+                                                </dd>
+                                            </div>
+                                        )
+                                    })}
                                 </dl>
                             )}
-                        </Card>
-
-                        <Card title={t("typeMatchup")} className="md:col-span-2">
-                            {matchups.length === 0 ? (
-                                <p className="text-sm text-slate-400">{t("noMatchups")}</p>
-                            ) : (
-                                <div className="grid gap-5 sm:grid-cols-3">
-                                    {(
-                                        [
-                                            ["weakTo", weaknesses, "text-red-600"],
-                                            ["resists", resistances, "text-sky-600"],
-                                            ["immuneTo", immunities, "text-violet-600"],
-                                        ] as const
-                                    ).map(([label, list, color]) =>
-                                        list.length > 0 ? (
-                                            <div key={label}>
-                                                <h3 className={`mb-2 text-xs font-bold ${color}`}>{t(label)}</h3>
-                                                <ul className="flex flex-wrap gap-1.5">
-                                                    {list.map(([type, mult]) => (
-                                                        <li key={type}>
-                                                            <TypeChip
-                                                                type={type}
-                                                                lang={lang}
-                                                                suffix={<span className="ml-0.5 rounded bg-black/20 px-1 py-px text-[10px] tabular-nums">{multLabel(mult)}</span>}
-                                                            />
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ) : null,
-                                    )}
-                                </div>
-                            )}
-                        </Card>
+                        </Panel>
 
                         {detail && detail.held_items.length > 0 && (
-                            <Card title={t("heldItems")} className="md:col-span-2">
-                                <div className="flex flex-wrap gap-2">
+                            <Panel title={t("heldItems")} className="col-span-full">
+                                <HStack gap={1.5} wrap="wrap">
                                     {detail.held_items.map((h) => (
-                                        <span key={h.item.name} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-700">
-                                            {itemName(h.item.name, lang)}
-                                        </span>
+                                        <Token key={h.item.name} label={itemName(h.item.name, lang)} />
                                     ))}
-                                </div>
-                            </Card>
+                                </HStack>
+                            </Panel>
                         )}
 
-                        <Card title={t("evolution")} className="md:col-span-2">
+                        <Panel title={t("evolution")} className="col-span-full">
                             {evoQ.isError || speciesQ.isError ? (
-                                <InlineError
+                                <LoadError
                                     message={t("evoLoadError")}
                                     onRetry={() => void (speciesQ.isError ? speciesQ.refetch() : evoQ.refetch())}
                                     retryLabel={retry}
                                 />
                             ) : !evoQ.data ? (
                                 species && !species.evolution_chain?.url ? (
-                                    <p className="text-sm text-slate-400">{t("noEvolution")}</p>
+                                    <Text color="secondary">{t("noEvolution")}</Text>
                                 ) : (
-                                    <div className="flex gap-4">
-                                        <Skeleton className="h-28 w-24" />
-                                        <Skeleton className="h-28 w-24" />
-                                        <Skeleton className="h-28 w-24" />
-                                    </div>
+                                    <HStack gap={4}>
+                                        {[0, 1, 2].map((i) => (
+                                            <Skeleton key={i} width={120} height={128} index={i} />
+                                        ))}
+                                    </HStack>
                                 )
                             ) : evoQ.data.chain.evolves_to.length === 0 ? (
-                                <p className="text-sm text-slate-400">{t("noEvolution")}</p>
+                                <Text color="secondary">{t("noEvolution")}</Text>
                             ) : (
                                 <div className="overflow-x-auto pb-1">
-                                    <div className="flex justify-center sm:justify-start">
-                                        <EvoTree link={evoQ.data.chain} currentSpeciesId={speciesId} lang={lang} t={t} />
-                                    </div>
+                                    <EvolutionTree link={evoQ.data.chain} currentSpeciesId={speciesId} lang={lang} t={t} />
                                 </div>
                             )}
-                        </Card>
+                        </Panel>
 
                         {forms.length > 1 && (
-                            <Card title={t("forms")} className="md:col-span-2">
+                            <Panel title={t("forms")} className="col-span-full">
                                 <ul className="flex flex-wrap gap-2">
                                     {forms.map((f) => {
                                         const current = f.id === id
                                         const label = formLabel(f, lang) ?? pokemonName(f, lang)
+                                        const icon = f.sprite ? (
+                                            <img src={f.sprite} alt="" loading="lazy" className="h-6 w-6 object-contain [image-rendering:pixelated]" />
+                                        ) : undefined
                                         return (
-                                            <li key={f.id}>
-                                                <Link
-                                                    to={`/pokemon/${f.id}`}
-                                                    aria-current={current ? "page" : undefined}
-                                                    className={`flex items-center gap-2 rounded-2xl border py-1 pl-1 pr-3 text-sm font-semibold transition ${
-                                                        current
-                                                            ? "border-(--accent) bg-(--accent)/10 text-slate-900"
-                                                            : "border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900"
-                                                    }`}
-                                                >
-                                                    {f.sprite ? (
-                                                        <img src={f.sprite} alt="" loading="lazy" className="h-9 w-9 object-contain [image-rendering:pixelated]" />
-                                                    ) : (
-                                                        <span className="h-9 w-9" aria-hidden />
-                                                    )}
-                                                    {label}
-                                                </Link>
+                                            <li key={f.id} aria-current={current ? "page" : undefined}>
+                                                {current ? (
+                                                    <Token label={label} icon={icon} color="blue" />
+                                                ) : (
+                                                    <Token label={label} icon={icon} href={`/pokemon/${f.id}`} />
+                                                )}
                                             </li>
                                         )
                                     })}
                                 </ul>
-                            </Card>
+                            </Panel>
                         )}
-                    </div>
+                    </Grid>
                 )}
 
                 {tab === "stats" && (
-                    <div className="space-y-4">
-                        <div className="grid gap-4 md:grid-cols-3">
-                            <Card title={t("baseStats")} className="md:col-span-2">
-                                <dl className="space-y-3">
-                                    {stats.map((s) => (
-                                        <div key={s.key} className="flex items-center gap-3">
-                                            <dt className="w-16 shrink-0 text-xs font-bold text-slate-500 sm:w-20">{statLabel(s.key, lang)}</dt>
-                                            <dd className="w-9 shrink-0 text-right text-sm font-extrabold tabular-nums text-slate-900">{s.value}</dd>
-                                            <dd className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100" aria-hidden>
-                                                <div
-                                                    className={`h-full rounded-full ${STAT_BAR_CLASS[s.key]}`}
-                                                    style={{ width: `${Math.min(100, Math.round((s.value / 255) * 100))}%` }}
-                                                />
-                                            </dd>
-                                        </div>
-                                    ))}
-                                </dl>
-                                <div className="mt-5 flex items-baseline justify-between border-t border-slate-100 pt-4">
-                                    <span className="text-xs font-extrabold uppercase tracking-[0.18em] text-slate-400">{t("total")}</span>
-                                    <span className="text-3xl font-extrabold tabular-nums text-slate-900">{statTotal}</span>
+                    <VStack gap={4}>
+                        <Grid columns={{ minWidth: 300, repeat: "fit" }} gap={4}>
+                            <Panel title={t("baseStats")}>
+                                <div className="overflow-x-auto">
+                                    <Table density="compact" aria-label={t("baseStats")}>
+                                        <TableHeader>
+                                            <TableRow isHeaderRow>
+                                                <TableHeaderCell scope="col">{t("tabStats")}</TableHeaderCell>
+                                                <TableHeaderCell scope="col" className="text-right">{t("colBase")}</TableHeaderCell>
+                                                <TableHeaderCell scope="col">
+                                                    <span className="sr-only">{t("baseStats")}</span>
+                                                </TableHeaderCell>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {stats.map((s) => {
+                                                const top = s.value === statMax && statMax > 0
+                                                return (
+                                                    <TableRow key={s.key}>
+                                                        <TableCell scope="row">
+                                                            <Text weight="medium">{statLabel(s.key, lang)}</Text>
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <Text weight={top ? "bold" : "normal"} hasTabularNumbers>
+                                                                {s.value}
+                                                            </Text>
+                                                        </TableCell>
+                                                        <TableCell className="w-1/2">
+                                                            <span className="flex items-center gap-2">
+                                                                <StatBar value={s.value} highlight={top} label={statLabel(s.key, lang)} className="min-w-20 flex-1" />
+                                                                {top && <Text type="supporting">{t("highestStat")}</Text>}
+                                                            </span>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                        </TableBody>
+                                        <TableFooter>
+                                            <TableRow>
+                                                <TableCell scope="row">
+                                                    <Text weight="semibold">{t("total")}</Text>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Text weight="bold" hasTabularNumbers>
+                                                        {statTotal}
+                                                    </Text>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="sr-only">{t("total")}</span>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableFooter>
+                                    </Table>
                                 </div>
-                            </Card>
-                            <Card title={t("evYield")}>
+                            </Panel>
+                            <Panel title={t("evYield")}>
                                 {detail ? (
                                     detail.stats.some((s) => s.effort > 0) ? (
-                                        <dl>
+                                        <MetadataList>
                                             {detail.stats
                                                 .filter((s) => s.effort > 0)
                                                 .map((s) => {
                                                     const key = API_STAT_KEY[s.stat.name]
                                                     return (
-                                                        <InfoRow key={s.stat.name} label={key ? statLabel(key, lang) : s.stat.name}>
-                                                            <span className="text-lg font-extrabold tabular-nums">+{s.effort}</span>
-                                                        </InfoRow>
+                                                        <MetadataListItem key={s.stat.name} label={key ? statLabel(key, lang) : s.stat.name}>
+                                                            <Text weight="semibold" hasTabularNumbers>{`+${s.effort}`}</Text>
+                                                        </MetadataListItem>
                                                     )
                                                 })}
-                                        </dl>
+                                        </MetadataList>
                                     ) : (
-                                        <p className="text-sm text-slate-400">{t("none")}</p>
+                                        <Text color="secondary">{t("none")}</Text>
                                     )
                                 ) : detailQ.isError ? (
-                                    <InlineError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
+                                    <LoadError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
                                 ) : (
                                     <SkeletonRows n={2} />
                                 )}
-                            </Card>
-                        </div>
+                            </Panel>
+                        </Grid>
                         <BattleStatsPanel dexId={id} />
-                    </div>
+                    </VStack>
                 )}
 
                 {tab === "moves" && (
@@ -1339,7 +774,6 @@ export default function PokemonDetailPage() {
                         fallbackMoves={detailQ.isError ? local?.moves : undefined}
                         lang={lang}
                         t={t}
-                        retryLabel={retry}
                         allLabel={tc("all")}
                     />
                 )}
@@ -1348,15 +782,13 @@ export default function PokemonDetailPage() {
                     (detail ? (
                         <SpritesGallery sprites={detail.sprites} lang={lang} t={t} />
                     ) : detailQ.isError ? (
-                        <Card>
-                            <InlineError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
-                        </Card>
+                        <LoadError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
                     ) : (
                         <Card>
                             <SkeletonRows n={4} />
                         </Card>
                     ))}
             </div>
-        </div>
+        </VStack>
     )
 }

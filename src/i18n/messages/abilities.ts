@@ -4,7 +4,7 @@ import { defineMessages } from '..'
 export const abilitiesMessages = defineMessages({
     ko: {
         title: '특성',
-        subtitle: '특성 {n}개와 그 특성을 가진 포켓몬을 찾아보세요.',
+        subtitle: '특성 {n}개의 효과와 그 특성을 가진 포켓몬을 볼 수 있습니다.',
         searchLabel: '특성 검색',
         searchPlaceholder: '특성 이름 또는 설명 (예: 위협, Intimidate, いかく)',
         filterGen: '세대',
@@ -13,7 +13,7 @@ export const abilitiesMessages = defineMessages({
         noDescription: '설명이 없어요.',
         holders: '이 특성을 가진 포켓몬',
         holdersCount: '{n}마리',
-        holdersSummary: '일반 {normal} · 숨겨진 특성 {hidden}',
+        holdersSummary: '일반 특성 {normal}마리, 숨겨진 특성 {hidden}마리',
         noHolders: '이 특성을 가진 포켓몬이 없어요.',
         hidden: '숨겨진 특성',
         hiddenShort: '숨특',
@@ -28,7 +28,7 @@ export const abilitiesMessages = defineMessages({
     },
     en: {
         title: 'Abilities',
-        subtitle: 'Explore {n} abilities and the Pokémon that have them.',
+        subtitle: 'What each of the {n} abilities does, and which Pokémon have it.',
         searchLabel: 'Search abilities',
         searchPlaceholder: 'Ability name or effect (e.g. Intimidate, 위협, いかく)',
         filterGen: 'Generation',
@@ -37,7 +37,7 @@ export const abilitiesMessages = defineMessages({
         noDescription: 'No description available.',
         holders: 'Pokémon with this ability',
         holdersCount: '{n} Pokémon',
-        holdersSummary: 'Standard {normal} · Hidden {hidden}',
+        holdersSummary: '{normal} standard, {hidden} hidden',
         noHolders: 'No Pokémon have this ability.',
         hidden: 'Hidden Ability',
         hiddenShort: 'Hidden',
@@ -52,7 +52,7 @@ export const abilitiesMessages = defineMessages({
     },
     ja: {
         title: 'とくせい',
-        subtitle: '{n}種類のとくせいと、それを持つポケモンをさがせます。',
+        subtitle: '{n}種類のとくせいの効果と、それを持つポケモンを確認できます。',
         searchLabel: 'とくせいを検索',
         searchPlaceholder: 'とくせいの名前や効果（例: いかく、Intimidate）',
         filterGen: '世代',
@@ -61,7 +61,7 @@ export const abilitiesMessages = defineMessages({
         noDescription: '説明がありません。',
         holders: 'このとくせいを持つポケモン',
         holdersCount: '{n}匹',
-        holdersSummary: '通常 {normal} · 隠れ特性 {hidden}',
+        holdersSummary: '通常特性 {normal}匹、隠れ特性 {hidden}匹',
         noHolders: 'このとくせいを持つポケモンはいません。',
         hidden: '隠れ特性',
         hiddenShort: '隠れ',

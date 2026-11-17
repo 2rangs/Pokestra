@@ -1,11 +1,19 @@
-import { useId, useMemo, useState, type ReactNode } from 'react'
+import { Fragment, useId, useMemo, useState } from 'react'
 import type { MoveData } from '@kyasi/pokebattle-engine'
+import { Button } from '@astryxdesign/core/Button'
+import { Card } from '@astryxdesign/core/Card'
+import { Heading } from '@astryxdesign/core/Heading'
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from '@astryxdesign/core/Table'
+import { Text } from '@astryxdesign/core/Text'
+import { TextInput } from '@astryxdesign/core/TextInput'
+import { VStack } from '@astryxdesign/core/VStack'
 import { moveNameL, pokemonNameL } from '../../lib/battle'
 import { moveName, typeName } from '../../lib/dex'
 import { LANGS, formatNumber, useLang, useT } from '../../i18n'
 import { calcMessages } from '../../i18n/messages/calc'
+import { SectionTitle, TypeTag } from '../ui/shared'
 import { koLabel, pctText, type MoveCalc, type MoveSummary } from './calcState'
-import { CategoryBadge, CopyButton, TypeChip, inputCls } from './ui'
+import { CategoryLabel, CopyButton, HpBar } from './ui'
 
 type Props = {
     attacker: string
@@ -38,54 +46,46 @@ function MoveSearch({ pool, exclude, onPick, onClose }: {
     }, [keyed, q, exclude])
 
     return (
-        <div className="mt-2 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
-            <div className="mb-2 flex gap-2">
-                <input
-                    type="search" autoFocus className={inputCls} placeholder={t('moveSearchPlaceholder')} value={q}
-                    aria-label={t('moveSearchLabel')}
-                    onChange={e => setQ(e.target.value)}
-                    onKeyDown={e => {
-                        if (e.key === 'Escape') onClose()
-                        if (e.key === 'Enter' && list[0]) onPick(list[0].name)
-                    }}
-                />
-                <button type="button" onClick={onClose} className="shrink-0 rounded-lg px-2 text-sm text-slate-500 hover:bg-slate-100">{t('close')}</button>
+        <VStack gap={2} className="py-1">
+            <div className="flex items-end gap-2">
+                <div className="min-w-0 flex-1">
+                    <TextInput
+                        type="search" hasAutoFocus width="100%" size="sm" startIcon="search"
+                        label={t('moveSearchLabel')} isLabelHidden
+                        placeholder={t('moveSearchPlaceholder')} value={q}
+                        onChange={v => setQ(v)}
+                        onKeyDown={e => {
+                            if (e.key === 'Escape') onClose()
+                            if (e.key === 'Enter' && list[0]) { e.preventDefault(); onPick(list[0].name) }
+                        }}
+                    />
+                </div>
+                <Button size="sm" variant="ghost" label={t('close')} onClick={onClose} />
             </div>
-            <ul className="max-h-64 overflow-y-auto" aria-label={t('moveSearchLabel')}>
-                {list.length === 0 && <li className="px-2 py-2 text-sm text-slate-400">{t('noMoves')}</li>}
+            <ul className="m-0 max-h-64 list-none overflow-y-auto rounded-lg border border-border p-1" aria-label={t('moveSearchLabel')}>
+                {list.length === 0 && <li className="px-2 py-2"><Text color="secondary">{t('noMoves')}</Text></li>}
                 {list.map(m => (
                     <li key={m.name}>
                         <button
                             type="button" onClick={() => onPick(m.name)}
-                            className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm hover:bg-slate-50"
+                            className="flex w-full cursor-pointer items-center gap-2 rounded-md bg-transparent px-2 py-1.5 text-left hover:bg-muted focus-visible:bg-muted"
                         >
-                            <TypeChip type={m.type} small />
-                            <span className="min-w-0 flex-1 truncate font-medium text-slate-800">{moveNameL(m.name, lang)}</span>
-                            <CategoryBadge category={m.category} />
-                            <span className="w-8 shrink-0 text-right text-xs tabular-nums text-slate-500">{m.power ?? '—'}</span>
+                            <span className="min-w-0 flex-1 truncate"><Text weight="medium">{moveNameL(m.name, lang)}</Text></span>
+                            <TypeTag type={m.type} size="xs" />
+                            <span className="hidden w-12 shrink-0 min-[420px]:inline"><CategoryLabel category={m.category} /></span>
+                            <span className="w-8 shrink-0 text-right">
+                                <Text type="supporting" color="secondary" hasTabularNumbers>{m.power ?? '-'}</Text>
+                            </span>
                         </button>
                     </li>
                 ))}
             </ul>
-        </div>
+        </VStack>
     )
 }
 
-function HpBar({ min, max, label }: { min: number; max: number; label: string }) {
-    const a = Math.min(100, min * 100)
-    const b = Math.min(100, max * 100)
-    const ko = min >= 1 ? 'bg-red-500' : 'bg-red-400'
-    return (
-        <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-emerald-100" role="img" aria-label={label} title={label}>
-            <div className="absolute inset-y-0 left-0 bg-red-200" style={{ width: `${b}%` }} />
-            <div className={`absolute inset-y-0 left-0 ${ko}`} style={{ width: `${a}%` }} />
-        </div>
-    )
-}
-
-const koColor = (s: MoveSummary) =>
-    s.koChance === 'guaranteed' ? (s.koHits === 1 ? 'text-red-600' : 'text-red-500')
-        : s.koChance === 'rng' ? 'text-orange-600' : 'text-slate-500'
+const koTone = (s: MoveSummary) =>
+    s.koChance === 'guaranteed' ? 'text-error' : s.koChance === 'rng' ? 'text-warning' : 'text-secondary'
 
 export function MoveResults({ attacker, defender, moves, pool, results, defenderHp, onChangeMove }: Props) {
     const lang = useLang()
@@ -110,126 +110,170 @@ export function MoveResults({ attacker, defender, moves, pool, results, defender
     })
 
     return (
-        <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4" aria-labelledby={`${baseId}-title`}>
-            <h2 id={`${baseId}-title`} className="mb-3 text-sm font-bold text-slate-800">{t('movesTitle')}</h2>
-            <ol className="flex flex-col gap-2">
-                {slots.map(i => {
-                    const slug = moves[i]
-                    const r = results[i]
-                    const isSel = selIdx === i && !!r
-                    return (
-                        <li key={i} className={`rounded-xl border p-2.5 transition-colors ${isSel ? 'border-red-300 bg-red-50/40' : 'border-slate-100 bg-slate-50/60'}`}>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setEditing(editing === i ? null : i)}
-                                    aria-expanded={editing === i}
-                                    aria-label={`${t('moveSlot', { n: i + 1 })}: ${slug ? moveNameL(slug, lang) : t('chooseMove')} — ${t('changeMove')}`}
-                                    className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-1 py-0.5 text-left hover:bg-white"
-                                    title={t('changeMove')}
+        <Card role="region" aria-labelledby={`${baseId}-title`} className="min-w-0">
+            <SectionTitle id={`${baseId}-title`}>{t('movesTitle')}</SectionTitle>
+
+            <Table density="balanced" dividers="rows" hasHover>
+                <TableHeader>
+                    <TableRow isHeaderRow>
+                        <TableHeaderCell scope="col">{t('colMove')}</TableHeaderCell>
+                        <TableHeaderCell scope="col" className="hidden sm:table-cell">{t('colType')}</TableHeaderCell>
+                        <TableHeaderCell scope="col">{t('colDamage')}</TableHeaderCell>
+                        <TableHeaderCell scope="col" className="text-right">{t('colKo')}</TableHeaderCell>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {slots.map(i => {
+                        const slug = moves[i]
+                        const r = results[i]
+                        const isSel = selIdx === i && !!r
+                        const moveLabel = slug ? moveNameL(slug, lang) : t('chooseMove')
+                        const type = r ? (r.detail.moveType ?? r.move.type) : null
+                        const category = r ? (r.detail.category ?? r.move.category) : null
+                        return (
+                            <Fragment key={i}>
+                                <TableRow
+                                    className={`${r ? 'cursor-pointer' : ''} ${isSel ? 'bg-accent-muted' : ''}`}
+                                    onClick={r ? () => setSelected(i) : undefined}
                                 >
-                                    {r ? <TypeChip type={r.detail.moveType ?? r.move.type} small /> : <span className="h-4 w-8 shrink-0 rounded bg-slate-200" />}
-                                    <span className="min-w-0 truncate text-sm font-semibold text-slate-800">
-                                        {slug ? moveNameL(slug, lang) : t('chooseMove')}
-                                    </span>
-                                    {r && <CategoryBadge category={r.detail.category ?? r.move.category} />}
-                                    {r && (
-                                        <span className="hidden shrink-0 text-[11px] tabular-nums text-slate-400 min-[400px]:inline">
-                                            {t('power', { n: r.detail.basePower || r.move.power || '—' })}
+                                    <TableCell>
+                                        <span className="flex flex-col items-start gap-1">
+                                            <Button
+                                                size="sm" variant="ghost"
+                                                label={`${t('moveSlot', { n: i + 1 })}: ${moveLabel}, ${t('changeMove')}`}
+                                                tooltip={t('changeMove')}
+                                                aria-expanded={editing === i}
+                                                onClick={e => { e.stopPropagation(); setEditing(editing === i ? null : i) }}
+                                                className="-ml-2 max-w-full"
+                                            >
+                                                <span className="truncate font-semibold">{moveLabel}</span>
+                                            </Button>
+                                            {r && category && (
+                                                <span className="flex items-center gap-2 sm:hidden">
+                                                    {type && <TypeTag type={type} size="xs" />}
+                                                    <CategoryLabel category={category} />
+                                                </span>
+                                            )}
                                         </span>
-                                    )}
-                                    <span className="ml-auto shrink-0 text-xs text-slate-400" aria-hidden>▾</span>
-                                </button>
-                                {r && (
-                                    <button
-                                        type="button" onClick={() => setSelected(i)} aria-pressed={isSel}
-                                        className={`shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold ${isSel ? 'bg-red-500 text-white' : 'bg-white text-slate-500 ring-1 ring-slate-200 hover:text-slate-700'}`}
-                                    >
-                                        {t('details')}
-                                    </button>
+                                    </TableCell>
+                                    <TableCell className="hidden sm:table-cell">
+                                        {r && type && category && (
+                                            <span className="flex flex-col items-start gap-1">
+                                                <TypeTag type={type} size="sm" />
+                                                <CategoryLabel category={category} />
+                                            </span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {r && (
+                                            <button
+                                                type="button"
+                                                aria-pressed={isSel}
+                                                aria-label={t('selectMove', { move: moveLabel })}
+                                                onClick={e => { e.stopPropagation(); setSelected(i) }}
+                                                className="flex w-full min-w-24 cursor-pointer flex-col gap-1 rounded-md bg-transparent p-0 text-left"
+                                            >
+                                                <Text weight="semibold" hasTabularNumbers>
+                                                    {pctText(r.summary.minRatio, lang)} – {pctText(r.summary.maxRatio, lang)}
+                                                </Text>
+                                                <HpBar
+                                                    min={r.summary.minRatio} max={r.summary.maxRatio}
+                                                    label={t('hpBarLabel', { min: pctText(r.summary.minRatio, lang), max: pctText(r.summary.maxRatio, lang) })}
+                                                />
+                                            </button>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {r && (
+                                            <span className={koTone(r.summary)}>
+                                                <Text weight="semibold" color="inherit">{koLabel(r.summary, lang)}</Text>
+                                            </span>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                                {editing === i && (
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <MoveSearch
+                                                pool={pool} exclude={moves.filter((m, j) => j !== i && !!m)}
+                                                onPick={s => { onChangeMove(i, s); setEditing(null); setSelected(i) }}
+                                                onClose={() => setEditing(null)}
+                                            />
+                                        </TableCell>
+                                    </TableRow>
                                 )}
-                            </div>
-                            {editing === i && (
-                                <MoveSearch
-                                    pool={pool} exclude={moves.filter((m, j) => j !== i && !!m)}
-                                    onPick={s => { onChangeMove(i, s); setEditing(null); setSelected(i) }}
-                                    onClose={() => setEditing(null)}
-                                />
-                            )}
-                            {r && (
-                                <div className="mt-2 cursor-pointer" onClick={() => setSelected(i)}>
-                                    <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-                                        <span className="text-sm font-bold tabular-nums text-slate-900">
-                                            {pctText(r.summary.minRatio, lang)} – {pctText(r.summary.maxRatio, lang)}
-                                        </span>
-                                        <span className="text-xs tabular-nums text-slate-500">
-                                            {formatNumber(r.summary.min, lang)} – {formatNumber(r.summary.max, lang)} / {formatNumber(defenderHp, lang)}
-                                        </span>
-                                        <span className={`text-xs font-bold ${koColor(r.summary)}`}>{koLabel(r.summary, lang)}</span>
-                                    </div>
-                                    <HpBar
-                                        min={r.summary.minRatio} max={r.summary.maxRatio}
-                                        label={t('hpBarLabel', { min: pctText(r.summary.minRatio, lang), max: pctText(r.summary.maxRatio, lang) })}
-                                    />
-                                </div>
-                            )}
-                        </li>
-                    )
-                })}
-            </ol>
+                            </Fragment>
+                        )
+                    })}
+                </TableBody>
+            </Table>
 
             {sel && (
-                <div className="mt-3 rounded-xl border border-slate-100 p-3 text-xs text-slate-600" aria-live="polite">
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                        <div className="min-w-0 truncate font-bold text-slate-800">{t('detailTitle', { move: moveNameL(sel.slug, lang) })}</div>
+                <section className="mt-6 flex flex-col gap-4 border-t border-border pt-5" aria-live="polite" aria-labelledby={`${baseId}-detail`}>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                        <VStack gap={1} className="min-w-0">
+                            <span id={`${baseId}-detail`}>
+                                <Heading level={3}>{t('detailTitle', { move: moveNameL(sel.slug, lang) })}</Heading>
+                            </span>
+                            <span className={koTone(sel.summary)}>
+                                <Text type="display-3" color="inherit">{koLabel(sel.summary, lang)}</Text>
+                            </span>
+                        </VStack>
                         <CopyButton text={resultLine(sel)} label={t('copyResult')} copiedLabel={t('copied')} />
                     </div>
-                    <p className="mb-2 rounded-lg bg-slate-50 px-2 py-1.5 text-[12px] font-medium leading-relaxed text-slate-800">
-                        {resultLine(sel)}
-                    </p>
-                    <div className="mb-2 flex flex-wrap gap-1.5">
-                        <Tag tone={sel.detail.effectiveness > 1 ? 'up' : sel.detail.effectiveness < 1 ? 'down' : undefined}>
-                            {t('effectiveness', { n: String(sel.detail.effectiveness) })}
-                        </Tag>
-                        <Tag>{sel.detail.isSTAB ? t('stabYes') : t('stabNo')}</Tag>
-                        <Tag>{t('power', { n: sel.detail.basePower })}</Tag>
+
+                    <Text type="large" as="p">{resultLine(sel)}</Text>
+
+                    <VStack gap={1}>
+                        <HpBar
+                            size="md" min={sel.summary.minRatio} max={sel.summary.maxRatio}
+                            label={t('hpBarLabel', { min: pctText(sel.summary.minRatio, lang), max: pctText(sel.summary.maxRatio, lang) })}
+                        />
+                        <Text type="supporting" color="secondary" hasTabularNumbers>
+                            {formatNumber(sel.summary.min, lang)} – {formatNumber(sel.summary.max, lang)} / {formatNumber(defenderHp, lang)} HP
+                        </Text>
+                    </VStack>
+
+                    <div className="flex flex-wrap gap-x-6 gap-y-1">
+                        <span className={sel.detail.effectiveness > 1 ? 'text-error' : sel.detail.effectiveness < 1 ? 'text-info' : 'text-primary'}>
+                            <Text color="inherit">{t('effectiveness', { n: String(sel.detail.effectiveness) })}</Text>
+                        </span>
+                        <Text>{sel.detail.isSTAB ? t('stabYes') : t('stabNo')}</Text>
+                        <Text>{t('power', { n: sel.detail.basePower })}</Text>
                     </div>
 
-                    <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-2">
-                        <span className="text-[11px] font-semibold text-slate-500">{t('rolls')}</span>
-                        <span className="text-[10px] text-slate-400">{t('rollsHint')}</span>
-                    </div>
-                    <ol className="mb-3 grid grid-cols-4 gap-1 sm:grid-cols-8">
-                        {sel.summary.range.map((d, i) => {
-                            const kills = d >= defenderHp
-                            return (
-                                <li
-                                    key={i}
-                                    title={`${i + 1}/16 · ${pctText(d / Math.max(1, defenderHp), lang)}`}
-                                    className={`rounded-md px-1 py-1 text-center font-mono text-[11px] tabular-nums ${
-                                        kills ? 'bg-red-500 font-bold text-white' : 'bg-slate-100 text-slate-700'
-                                    }`}
-                                >
-                                    {d}
-                                </li>
-                            )
-                        })}
-                    </ol>
+                    <VStack gap={2}>
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                            <Text type="label">{t('rolls')}</Text>
+                            <Text type="supporting" color="secondary">{t('rollsHint')}</Text>
+                        </div>
+                        <ol className="m-0 grid list-none grid-cols-4 gap-1 p-0 sm:grid-cols-8">
+                            {sel.summary.range.map((d, i) => {
+                                const kills = d >= defenderHp
+                                return (
+                                    <li
+                                        key={i}
+                                        title={`${i + 1}/16, ${pctText(d / Math.max(1, defenderHp), lang)}`}
+                                        className={`rounded-md px-1 py-1.5 text-center ${kills ? 'bg-error-muted text-error' : 'bg-muted text-primary'}`}
+                                    >
+                                        <Text color="inherit" weight={kills ? 'bold' : 'normal'} hasTabularNumbers>{d}</Text>
+                                    </li>
+                                )
+                            })}
+                        </ol>
+                    </VStack>
 
-                    <div className="mb-1 flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-semibold text-slate-500">{t('showdownDesc')}</span>
-                        <CopyButton text={sel.detail.desc} label={t('copy')} copiedLabel={t('copied')} />
-                    </div>
-                    <div className="break-words rounded-lg bg-white px-2 py-1.5 font-mono text-[11px] leading-relaxed text-slate-600 ring-1 ring-slate-100" lang="en">
-                        {sel.detail.desc}
-                    </div>
-                </div>
+                    <VStack gap={2}>
+                        <div className="flex items-center justify-between gap-2">
+                            <Text type="label">{t('showdownDesc')}</Text>
+                            <CopyButton text={sel.detail.desc} label={t('copy')} copiedLabel={t('copied')} />
+                        </div>
+                        <div className="break-words rounded-lg bg-muted px-3 py-2" lang="en">
+                            <Text type="code">{sel.detail.desc}</Text>
+                        </div>
+                    </VStack>
+                </section>
             )}
-        </section>
+        </Card>
     )
-}
-
-function Tag({ children, tone }: { children: ReactNode; tone?: 'up' | 'down' }) {
-    const cls = tone === 'up' ? 'bg-red-50 text-red-700' : tone === 'down' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-700'
-    return <span className={`rounded-md px-2 py-0.5 font-semibold ${cls}`}>{children}</span>
 }

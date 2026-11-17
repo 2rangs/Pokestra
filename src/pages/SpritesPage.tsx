@@ -1,8 +1,15 @@
 import { memo, useDeferredValue, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
-import { EmptyState, FieldLabel, LoadMore, PageHeader, SearchField, Segmented, SelectField } from '../components/dex/DexUi'
+import { Card } from '@astryxdesign/core/Card'
+import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
+import { ClickableCard } from '@astryxdesign/core/ClickableCard'
+import { Grid } from '@astryxdesign/core/Grid'
+import { HStack } from '@astryxdesign/core/HStack'
+import { Text } from '@astryxdesign/core/Text'
+import { VStack } from '@astryxdesign/core/VStack'
+import { EmptyState, LoadMore, PageHeader, SearchField, Segmented, SelectField } from '../components/dex/DexUi'
 import { artworkUrl, buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
 import { useProgressive } from '../components/dex/useProgressive'
+import { useUrlParams } from '../components/dex/useUrlParams'
 import { useDocumentTitle, useLang, useT } from '../i18n'
 import { commonMessages } from '../i18n/messages/common'
 import { spritesMessages } from '../i18n/messages/sprites'
@@ -40,7 +47,7 @@ export default function SpritesPage() {
     const lang = useLang()
     const t = useT(spritesMessages)
     const tc = useT(commonMessages)
-    const [params, setParams] = useSearchParams()
+    const [params, update] = useUrlParams()
     useDocumentTitle(t('title'))
 
     const q = params.get('q') ?? ''
@@ -48,19 +55,6 @@ export default function SpritesPage() {
     const style: Style = params.get('style') === 'artwork' ? 'artwork' : 'sprite'
     const color: Color = params.get('shiny') === '1' ? 'shiny' : 'normal'
     const forms = params.get('forms') === '1'
-
-    const update = (patch: Record<string, string | null>) =>
-        setParams(
-            (prev) => {
-                const next = new URLSearchParams(prev)
-                for (const [k, v] of Object.entries(patch)) {
-                    if (v) next.set(k, v)
-                    else next.delete(k)
-                }
-                return next
-            },
-            { replace: true },
-        )
 
     const deferredQ = useDeferredValue(q)
     const filtered = useMemo(() => {
@@ -81,33 +75,32 @@ export default function SpritesPage() {
     const shiny = color === 'shiny'
 
     return (
-        <div>
+        <VStack gap={5}>
             <PageHeader title={t('title')} subtitle={t('subtitle')} />
 
-            <section className="space-y-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                    <div className="min-w-0 flex-1">
-                        <SearchField
-                            value={q}
-                            onChange={(v) => update({ q: v })}
-                            label={t('searchLabel')}
-                            placeholder={t('searchPlaceholder')}
+            <Card>
+                <VStack gap={4}>
+                    <HStack gap={3} wrap="wrap" vAlign="end">
+                        <span className="min-w-[14rem] flex-1">
+                            <SearchField
+                                value={q}
+                                onChange={(v) => update({ q: v })}
+                                label={t('searchLabel')}
+                                placeholder={t('searchPlaceholder')}
+                            />
+                        </span>
+                        <SelectField
+                            label={t('filterGen')}
+                            value={gen}
+                            onChange={(v) => update({ gen: v || null })}
+                            width={150}
+                            options={[
+                                { value: '', label: tc('all') },
+                                ...GENERATIONS.map((g) => ({ value: String(g.id), label: generationName(g.id, lang) })),
+                            ]}
                         />
-                    </div>
-                    <div className="sm:w-40">
-                        <SelectField label={t('filterGen')} value={gen} onChange={(v) => update({ gen: v || null })}>
-                            <option value="">{tc('all')}</option>
-                            {GENERATIONS.map((g) => (
-                                <option key={g.id} value={g.id}>
-                                    {generationName(g.id, lang)}
-                                </option>
-                            ))}
-                        </SelectField>
-                    </div>
-                </div>
-                <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
-                    <div>
-                        <FieldLabel>{t('style')}</FieldLabel>
+                    </HStack>
+                    <HStack gap={5} wrap="wrap" vAlign="end">
                         <Segmented<Style>
                             label={t('style')}
                             value={style}
@@ -117,48 +110,44 @@ export default function SpritesPage() {
                                 { value: 'artwork', label: t('styleArtwork') },
                             ]}
                         />
-                    </div>
-                    <div>
-                        <FieldLabel>{t('color')}</FieldLabel>
                         <Segmented<Color>
                             label={t('color')}
                             value={color}
                             onChange={(v) => update({ shiny: v === 'shiny' ? '1' : null })}
                             options={[
                                 { value: 'normal', label: t('normal') },
-                                { value: 'shiny', label: `✦ ${t('shiny')}` },
+                                { value: 'shiny', label: t('shiny') },
                             ]}
                         />
-                    </div>
-                    <label className="inline-flex cursor-pointer items-center gap-2 pb-2 text-xs font-semibold text-slate-500">
-                        <input
-                            type="checkbox"
-                            checked={forms}
-                            onChange={(e) => update({ forms: e.target.checked ? '1' : null })}
-                            className="h-4 w-4 accent-red-500"
+                        <CheckboxInput
+                            size="sm"
+                            label={t('includeForms')}
+                            value={forms}
+                            onChange={(checked) => update({ forms: checked ? '1' : null })}
                         />
-                        {t('includeForms')}
-                    </label>
-                </div>
-            </section>
+                    </HStack>
+                </VStack>
+            </Card>
 
-            <p className="mt-5 mb-2 px-1 text-xs font-semibold text-slate-400" aria-live="polite">
-                {tc('results', { n: filtered.length })}
-            </p>
+            <VStack gap={2}>
+                <span aria-live="polite">
+                    <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
+                </span>
 
-            {filtered.length === 0 ? (
-                <EmptyState />
-            ) : (
-                <ul aria-label={t('gallery')} className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6">
-                    {filtered.slice(0, shown).map((e) => (
-                        <li key={e.p.id}>
-                            <SpriteCard entry={e} style={style} shiny={shiny} />
-                        </li>
-                    ))}
-                </ul>
-            )}
-            <LoadMore hasMore={hasMore} onMore={more} sentinelRef={sentinelRef} />
-        </div>
+                {filtered.length === 0 ? (
+                    <EmptyState />
+                ) : (
+                    <Grid columns={{ minWidth: 104 }} gap={2} role="list" aria-label={t('gallery')}>
+                        {filtered.slice(0, shown).map((e) => (
+                            <span key={e.p.id} role="listitem" className="block min-w-0">
+                                <SpriteCard entry={e} style={style} shiny={shiny} />
+                            </span>
+                        ))}
+                    </Grid>
+                )}
+                <LoadMore hasMore={hasMore} onMore={more} sentinelRef={sentinelRef} />
+            </VStack>
+        </VStack>
     )
 }
 
@@ -171,42 +160,32 @@ const SpriteCard = memo(function SpriteCard({ entry: e, style, shiny }: { entry:
     const failed = !src || failedSrc === src
 
     return (
-        <Link
-            to={`/pokemon/${e.p.id}`}
-            className={[
-                'group relative flex h-full flex-col items-center rounded-2xl border bg-white p-2 pt-5 text-center transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400',
-                shiny ? 'border-amber-200 hover:border-amber-300' : 'border-slate-200 hover:border-slate-300',
-            ].join(' ')}
-        >
-            <span className="absolute left-2 top-1.5 text-[10px] font-semibold tabular-nums text-slate-400">{padDexNo(e.speciesId)}</span>
-            {shiny && (
-                <span className="absolute right-2 top-1 text-xs text-amber-400" aria-hidden>
-                    ✦
+        <ClickableCard href={`/pokemon/${e.p.id}`} label={shiny ? `${name} (${t('shiny')})` : name} padding={2} height="100%">
+            <VStack gap={1} hAlign="center">
+                <span className="flex aspect-square w-full max-w-24 items-center justify-center">
+                    {failed ? (
+                        <Text type="supporting">{t('noImage')}</Text>
+                    ) : (
+                        <img
+                            key={src}
+                            src={src}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            width={96}
+                            height={96}
+                            onError={() => setFailedSrc(src)}
+                            className={`h-full w-full object-contain ${style === 'sprite' ? '[image-rendering:pixelated]' : ''}`}
+                        />
+                    )}
                 </span>
-            )}
-            <span className="flex aspect-square w-full max-w-[96px] items-center justify-center">
-                {failed ? (
-                    <span className="text-[10px] text-slate-300">{t('noImage')}</span>
-                ) : (
-                    <img
-                        key={src}
-                        src={src}
-                        alt={name}
-                        loading="lazy"
-                        decoding="async"
-                        width={96}
-                        height={96}
-                        onError={() => setFailedSrc(src)}
-                        className={[
-                            'h-full w-full object-contain transition-transform group-hover:scale-110',
-                            style === 'sprite' ? '[image-rendering:pixelated]' : '',
-                        ].join(' ')}
-                    />
-                )}
-            </span>
-            <span className="mt-1 line-clamp-2 w-full text-[11px] font-bold leading-tight text-slate-700 group-hover:text-red-500">
-                {name}
-            </span>
-        </Link>
+                <Text type="supporting" hasTabularNumbers>
+                    {padDexNo(e.speciesId)}
+                </Text>
+                <Text size="sm" weight="semibold" justify="center" maxLines={2}>
+                    {name}
+                </Text>
+            </VStack>
+        </ClickableCard>
     )
 })

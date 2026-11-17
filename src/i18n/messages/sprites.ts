@@ -4,7 +4,7 @@ import { defineMessages } from '..'
 export const spritesMessages = defineMessages({
     ko: {
         title: '스프라이트',
-        subtitle: '모든 포켓몬의 도트 스프라이트와 공식 일러스트를 한눈에 보세요.',
+        subtitle: '모든 포켓몬의 도트 스프라이트와 공식 일러스트입니다.',
         searchLabel: '포켓몬 검색',
         searchPlaceholder: '이름 또는 번호 (예: 피카츄, Pikachu, 25)',
         style: '이미지',
@@ -20,7 +20,7 @@ export const spritesMessages = defineMessages({
     },
     en: {
         title: 'Sprites',
-        subtitle: 'Pixel sprites and official artwork for every Pokémon, at a glance.',
+        subtitle: 'Pixel sprites and official artwork for every Pokémon.',
         searchLabel: 'Search Pokémon',
         searchPlaceholder: 'Name or number (e.g. Pikachu, 피카츄, 25)',
         style: 'Image',
@@ -36,7 +36,7 @@ export const spritesMessages = defineMessages({
     },
     ja: {
         title: 'スプライト',
-        subtitle: 'すべてのポケモンのドット絵と公式イラストを一覧で見られます。',
+        subtitle: 'すべてのポケモンのドット絵と公式イラストです。',
         searchLabel: 'ポケモンを検索',
         searchPlaceholder: '名前または番号（例: ピカチュウ、Pikachu、25）',
         style: '画像',

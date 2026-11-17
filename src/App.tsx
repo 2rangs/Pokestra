@@ -1,8 +1,10 @@
 import { lazy } from 'react'
-import { Routes, Route, Navigate, Link } from 'react-router'
+import { Routes, Route, Navigate } from 'react-router'
+import { Button } from '@astryxdesign/core/Button'
+import { EmptyState } from '@astryxdesign/core/EmptyState'
 import { useDocumentTitle, useT } from './i18n'
 import { commonMessages } from './i18n/messages/common'
-import { PenNote, Spinner } from './components/ui/notebook'
+import { Spinner } from './components/ui/shared'
 import MainLayout from './layouts/MainLayout'
 
 // 큰 페이지(도감 데이터/배틀 엔진)는 지연 로드
@@ -24,14 +26,14 @@ function NotFound() {
     const t = useT(commonMessages)
     useDocumentTitle(t('notFoundTitle'))
     return (
-        <div className="py-16">
-            <PenNote className="-rotate-2 text-5xl">404</PenNote>
-            <h1 className="mt-3 font-serif text-3xl font-bold text-ink">{t('notFoundTitle')}</h1>
-            <p className="mt-2 text-ink-soft">{t('notFoundBody')}</p>
-            <Link to="/" className="btn btn-ink mt-6">
-                {t('goHome')}
-            </Link>
-        </div>
+        <span className="block py-16">
+            <EmptyState
+                headingLevel={1}
+                title={t('notFoundTitle')}
+                description={t('notFoundBody')}
+                actions={<Button variant="primary" href="/" label={t('goHome')} />}
+            />
+        </span>
     )
 }
 

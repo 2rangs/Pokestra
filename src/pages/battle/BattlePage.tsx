@@ -1,10 +1,19 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { BattleConfig, PokemonSet } from '@kyasi/pokebattle-engine'
+import { Banner } from '@astryxdesign/core/Banner'
+import { Button } from '@astryxdesign/core/Button'
+import { Card } from '@astryxdesign/core/Card'
+import { Grid } from '@astryxdesign/core/Grid'
+import { HStack } from '@astryxdesign/core/HStack'
+import { VStack } from '@astryxdesign/core/VStack'
+import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl'
+import { Text } from '@astryxdesign/core/Text'
 import { useEngineReady, buildRandomTeam, spriteUrl, dexIdOf } from '../../lib/battle'
 import { pokemonLabel } from '../../lib/battleLog'
 import { useBattleStore, type BattleMode } from '../../stores/battleStore'
 import { useDocumentTitle, useLang, useT } from '../../i18n'
 import { battleMessages } from '../../i18n/messages/battle'
+import { PageTitle, SectionTitle, Spinner } from '../../components/ui/shared'
 import { TeamBuilder } from './TeamBuilder'
 import { BattleView } from './BattleView'
 import { useBattleSession, type Difficulty } from './useBattleSession'
@@ -20,19 +29,24 @@ const MODES = [
     { id: 'cpu-vs-cpu', label: 'modeSpectate' },
 ] as const satisfies readonly { id: BattleMode; label: string }[]
 
+const SIZES = [1, 3, 6] as const
+
 const newSeed = () => Math.floor(Math.random() * 1e9)
 
+/** 상대 팀 미리보기: 작은 그림 + 이름 */
 function TeamStrip({ team }: { team: PokemonSet[] }) {
     const lang = useLang()
     return (
-        <ul className="flex flex-wrap gap-1.5">
+        <ul className="flex flex-wrap gap-2">
             {team.map((s, i) => {
                 const id = dexIdOf(s.species)
                 const name = pokemonLabel(s.species, s.nickname, lang)
                 return (
-                    <li key={i} className="flex items-center gap-1 rounded-lg bg-white px-1.5 py-0.5 text-xs text-slate-700 shadow-sm" title={name}>
-                        {id && <img src={spriteUrl(id)} alt="" className="h-7 w-7 object-contain [image-rendering:pixelated]" loading="lazy" />}
-                        <span className="sr-only sm:not-sr-only">{name}</span>
+                    <li key={i} title={name} className="flex items-center gap-1.5 rounded-md border border-border bg-surface py-0.5 pr-2.5 pl-1">
+                        <span className="flex h-8 w-8 items-center justify-center">
+                            {id && <img src={spriteUrl(id)} alt="" className="h-8 w-8 object-contain [image-rendering:pixelated]" loading="lazy" />}
+                        </span>
+                        <span className="sr-only sm:not-sr-only"><Text type="supporting">{name}</Text></span>
                     </li>
                 )
             })}
@@ -40,31 +54,14 @@ function TeamStrip({ team }: { team: PokemonSet[] }) {
     )
 }
 
-/** 세그먼트 버튼 그룹 */
-function Segmented<T extends string | number>({ label, value, options, onChange }: {
-    label: string
-    value: T
-    options: readonly { id: T; label: string; title?: string }[]
-    onChange: (v: T) => void
-}) {
+/** 보이는 이름표 + 컨트롤 (SegmentedControl 의 label 은 화면에 그려지지 않는다) */
+function Setting({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
     return (
-        <div role="group" aria-label={label}>
-            <p className="mb-1.5 text-xs font-bold text-slate-400">{label}</p>
-            <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-                {options.map(o => (
-                    <button
-                        key={o.id}
-                        type="button"
-                        onClick={() => onChange(o.id)}
-                        title={o.title}
-                        aria-pressed={value === o.id}
-                        className={`min-w-0 flex-1 rounded-lg px-2 py-1.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-red-400 ${value === o.id ? 'bg-white text-slate-900 shadow' : 'text-slate-500 hover:text-slate-700'}`}
-                    >
-                        <span className="block truncate">{o.label}</span>
-                    </button>
-                ))}
-            </div>
-        </div>
+        <VStack gap={1.5} className="min-w-0">
+            <Text type="label">{label}</Text>
+            {children}
+            {hint && <Text type="supporting" color="secondary">{hint}</Text>}
+        </VStack>
     )
 }
 
@@ -80,23 +77,17 @@ export default function BattlePage() {
 
     if (error) {
         return (
-            <div role="alert" className="mx-auto max-w-md space-y-3 rounded-3xl border border-red-100 bg-red-50 p-6 text-center">
-                <p className="font-semibold text-red-600">{t('loadError')}</p>
-                <p className="break-words text-xs text-red-400">{error.message}</p>
-                <button type="button" onClick={() => window.location.reload()} className="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600">
-                    {t('retry')}
-                </button>
-            </div>
+            <span role="alert" className="block">
+                <Banner
+                    status="error"
+                    title={t('loadError')}
+                    description={error.message}
+                    endContent={<Button label={t('retry')} size="sm" onClick={() => window.location.reload()} />}
+                />
+            </span>
         )
     }
-    if (!ready) {
-        return (
-            <div role="status" className="flex flex-col items-center justify-center gap-3 p-12 text-sm text-slate-400">
-                <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-red-500" aria-hidden />
-                {t('loadingEngine')}
-            </div>
-        )
-    }
+    if (!ready) return <Spinner label={t('loadingEngine')} />
 
     const size = store.teamSize
     const myTeam = store.myTeam.slice(0, size)
@@ -145,69 +136,67 @@ export default function BattlePage() {
     }
 
     const canStart = myTeam.length > 0
+    const diff = DIFFICULTIES.find(d => d.id === store.difficulty) ?? DIFFICULTIES[1]
 
     return (
-        <div className="space-y-6">
-            <header>
-                <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">{t('title')}</h1>
-                <p className="mt-1 text-sm text-slate-500">{t('intro')}</p>
-            </header>
+        <VStack gap={8}>
+            <PageTitle title={t('title')} lead={t('intro')} className="mb-0" />
 
-            <section className="grid grid-cols-1 gap-3 rounded-3xl border border-slate-200 bg-white p-4 sm:grid-cols-3">
-                <Segmented
-                    label={t('mode')}
-                    value={store.mode}
-                    options={MODES.map(m => ({ id: m.id, label: t(m.label) }))}
-                    onChange={store.setMode}
-                />
-                <Segmented
-                    label={t('difficulty')}
-                    value={store.difficulty}
-                    options={DIFFICULTIES.map(d => ({ id: d.id, label: t(d.label), title: t(d.desc) }))}
-                    onChange={store.setDifficulty}
-                />
-                <Segmented
-                    label={t('teamSize')}
-                    value={size}
-                    options={[1, 3, 6].map(n => ({ id: n, label: t('sizeOption', { n }) }))}
-                    onChange={store.setTeamSize}
-                />
+            <Card padding={4}>
+                <Grid columns={{ minWidth: 220 }} gap={4}>
+                    <Setting label={t('mode')}>
+                        <SegmentedControl label={t('mode')} layout="fill" value={store.mode} onChange={v => store.setMode(v as BattleMode)}>
+                            {MODES.map(m => <SegmentedControlItem key={m.id} value={m.id} label={t(m.label)} />)}
+                        </SegmentedControl>
+                    </Setting>
+                    <Setting label={t('difficulty')} hint={t(diff.desc)}>
+                        <SegmentedControl label={t('difficulty')} layout="fill" value={store.difficulty} onChange={v => store.setDifficulty(v as Difficulty)}>
+                            {DIFFICULTIES.map(d => <SegmentedControlItem key={d.id} value={d.id} label={t(d.label)} />)}
+                        </SegmentedControl>
+                    </Setting>
+                    <Setting label={t('teamSize')}>
+                        <SegmentedControl label={t('teamSize')} layout="fill" value={String(size)} onChange={v => store.setTeamSize(Number(v))}>
+                            {SIZES.map(n => <SegmentedControlItem key={n} value={String(n)} label={t('sizeOption', { n })} />)}
+                        </SegmentedControl>
+                    </Setting>
+                </Grid>
+            </Card>
+
+            <section aria-labelledby="battle-my-team">
+                <SectionTitle
+                    id="battle-my-team"
+                    aside={store.myTeam.length > size ? t('onlyFirstN', { n: size }) : undefined}
+                >
+                    {spectate ? t('cpuTeam', { name: t('cpu1') }) : t('myTeam')}
+                </SectionTitle>
+                <TeamBuilder team={store.myTeam} onChange={store.setMyTeam} onRandom={randomMine} activeCount={size} />
             </section>
 
-            <section className="space-y-3" aria-labelledby="battle-my-team">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                    <h2 id="battle-my-team" className="text-lg font-bold text-slate-900">
-                        {spectate ? t('cpuTeam', { name: t('cpu1') }) : t('myTeam')}
-                    </h2>
-                    {store.myTeam.length > size && <p className="text-xs text-slate-400">{t('onlyFirstN', { n: size })}</p>}
-                </div>
-                <TeamBuilder team={store.myTeam} onChange={store.setMyTeam} onRandom={randomMine} />
-            </section>
-
-            <section className="space-y-2 rounded-3xl border border-slate-200 bg-slate-50 p-4" aria-labelledby="battle-foe-team">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 id="battle-foe-team" className="text-lg font-bold text-slate-900">
-                        {spectate ? t('cpuTeam', { name: t('cpu2') }) : t('foeTeam')}
-                    </h2>
-                    <button type="button" onClick={rerollFoe} className="rounded-xl bg-white px-3 py-1.5 text-sm font-semibold text-slate-600 shadow-sm hover:bg-slate-100">
-                        <span aria-hidden>🎲 </span>{t('rerollFoe')}
-                    </button>
-                </div>
+            <section aria-labelledby="battle-foe-team">
+                <SectionTitle
+                    id="battle-foe-team"
+                    aside={<Button size="sm" label={t('rerollFoe')} onClick={rerollFoe} />}
+                >
+                    {spectate ? t('cpuTeam', { name: t('cpu2') }) : t('foeTeam')}
+                </SectionTitle>
                 {foeTeam.length > 0
                     ? <TeamStrip team={foeTeam} />
-                    : <p className="text-sm text-slate-400">{t('foeRandomHint')}</p>}
+                    : <Text as="p" color="secondary">{t('foeRandomHint')}</Text>}
             </section>
 
-            <div className="sticky bottom-3 z-20 flex justify-center px-2">
-                <button
-                    type="button"
-                    disabled={!canStart}
-                    onClick={() => begin()}
-                    className="w-full max-w-xs rounded-2xl bg-red-500 px-8 py-3 text-lg font-extrabold text-white shadow-lg shadow-red-500/30 transition hover:-translate-y-0.5 hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none disabled:hover:translate-y-0 sm:w-auto sm:max-w-none"
-                >
-                    {canStart ? (spectate ? t('startSpectate') : t('startBattle')) : t('addPokemonFirst')}
-                </button>
+            <div className="sticky bottom-3 z-20">
+                <Card padding={3} elevation="med">
+                    <HStack gap={3} vAlign="center" hAlign="end" wrap="wrap">
+                        <Button
+                            variant="primary"
+                            size="lg"
+                            label={canStart ? (spectate ? t('startSpectate') : t('startBattle')) : t('addPokemonFirst')}
+                            isDisabled={!canStart}
+                            onClick={() => canStart && begin()}
+                        />
+                    </HStack>
+                </Card>
             </div>
-        </div>
+        </VStack>
     )
 }

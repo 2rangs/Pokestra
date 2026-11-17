@@ -1,5 +1,15 @@
-import { useId, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { Button } from '@astryxdesign/core/Button'
+import { Card } from '@astryxdesign/core/Card'
+import { ClickableCard } from '@astryxdesign/core/ClickableCard'
+import { Grid } from '@astryxdesign/core/Grid'
+import { Heading } from '@astryxdesign/core/Heading'
+import { HStack } from '@astryxdesign/core/HStack'
+import { Icon } from '@astryxdesign/core/Icon'
+import { Text } from '@astryxdesign/core/Text'
+import { Typeahead, TypeaheadItem, type SearchableItem, type SearchSource } from '@astryxdesign/core/Typeahead'
+import { VStack } from '@astryxdesign/core/VStack'
 import { TypeBadge } from '../components/dex/DexUi'
 import { artworkUrl, buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
 import { formatNumber, useDocumentTitle, useLang, useT } from '../i18n'
@@ -10,24 +20,13 @@ import {
     baseStatTotal,
     type DexPokemon,
     displayName,
-    GENERATIONS,
     getSpeciesId,
     isAlternateForm,
     MOVES,
-    TYPES,
 } from '../lib/dex'
 import { usePokedexStore } from '../stores/pokedexStore'
 
 type HomeKey = keyof typeof homeMessages.ko
-
-const FEATURES: { to: string; title: HomeKey; desc: HomeKey; emoji: string; tone: string }[] = [
-    { to: '/pokedex', title: 'featPokedexTitle', desc: 'featPokedexDesc', emoji: '📖', tone: 'from-red-50' },
-    { to: '/battle', title: 'featBattleTitle', desc: 'featBattleDesc', emoji: '⚔️', tone: 'from-sky-50' },
-    { to: '/calc', title: 'featCalcTitle', desc: 'featCalcDesc', emoji: '🧮', tone: 'from-amber-50' },
-    { to: '/moves', title: 'featMovesTitle', desc: 'featMovesDesc', emoji: '💥', tone: 'from-orange-50' },
-    { to: '/abilities', title: 'featAbilitiesTitle', desc: 'featAbilitiesDesc', emoji: '✨', tone: 'from-violet-50' },
-    { to: '/sprites', title: 'featSpritesTitle', desc: 'featSpritesDesc', emoji: '🖼️', tone: 'from-emerald-50' },
-]
 
 // ── 데이터 ──
 
@@ -48,14 +47,22 @@ const INDEX: readonly Indexed[] = ALL_POKEMON.map((p) => ({
 const SPECIES = ALL_POKEMON.filter((p) => !isAlternateForm(p))
 const POTD_POOL = SPECIES.filter((p) => p.sprite)
 
-const STATS = {
+const COUNTS = {
     species: SPECIES.length,
-    forms: ALL_POKEMON.length - SPECIES.length,
+    all: ALL_POKEMON.length,
     moves: MOVES.filter((m) => m.type !== 'shadow').length,
     abilities: ABILITIES.length,
-    types: TYPES.length,
-    gens: GENERATIONS.length,
 }
+
+/** 홈의 메뉴: 제목, 한 줄 설명, (있으면) 개수 */
+const SECTIONS: { to: string; title: HomeKey; desc: HomeKey; count?: { key: HomeKey; n: number } }[] = [
+    { to: '/pokedex', title: 'featPokedexTitle', desc: 'featPokedexDesc', count: { key: 'countSpecies', n: COUNTS.species } },
+    { to: '/moves', title: 'featMovesTitle', desc: 'featMovesDesc', count: { key: 'countMoves', n: COUNTS.moves } },
+    { to: '/abilities', title: 'featAbilitiesTitle', desc: 'featAbilitiesDesc', count: { key: 'countAbilities', n: COUNTS.abilities } },
+    { to: '/sprites', title: 'featSpritesTitle', desc: 'featSpritesDesc', count: { key: 'countSprites', n: COUNTS.all } },
+    { to: '/battle', title: 'featBattleTitle', desc: 'featBattleDesc' },
+    { to: '/calc', title: 'featCalcTitle', desc: 'featCalcDesc' },
+]
 
 const MAX_SUGGESTIONS = 6
 
@@ -110,208 +117,156 @@ export default function HomePage() {
     useDocumentTitle(null)
 
     return (
-        <div className="space-y-12">
-            <Hero />
+        <VStack gap={10}>
+            <Grid columns={{ minWidth: 300 }} gap={6} align="center">
+                <VStack gap={4}>
+                    <VStack gap={2}>
+                        <Heading level={1}>{t('heroTitle')}</Heading>
+                        <span className="max-w-[60ch]">
+                            <Text as="p" type="large" color="secondary">
+                                {t('heroLead')}
+                            </Text>
+                        </span>
+                    </VStack>
+                    <HeroSearch />
+                </VStack>
+                <PokemonOfTheDay />
+            </Grid>
 
-            <section aria-labelledby="explore-heading">
-                <h2 id="explore-heading" className="mb-3 text-sm font-bold uppercase tracking-wider text-slate-400">
-                    {t('sectionExplore')}
-                </h2>
-                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
-                    {FEATURES.map((f) => (
-                        <Link
-                            key={f.to}
-                            to={f.to}
-                            className={`group rounded-3xl border border-slate-200 bg-gradient-to-b ${f.tone} to-white p-4 transition hover:-translate-y-1 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 sm:p-5`}
-                        >
-                            <span className="text-2xl sm:text-3xl" aria-hidden>
-                                {f.emoji}
-                            </span>
-                            <h3 className="mt-2 text-sm font-bold text-slate-900 group-hover:text-red-500 sm:mt-3 sm:text-lg">{t(f.title)}</h3>
-                            <p className="mt-1 text-xs leading-snug text-slate-500 sm:text-sm">{t(f.desc)}</p>
-                        </Link>
-                    ))}
-                </div>
-            </section>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
-                <div className="md:col-span-2">
-                    <PokemonOfTheDay />
-                </div>
-                <section aria-labelledby="stats-heading" className="md:col-span-3">
-                    <h2 id="stats-heading" className="mb-3 text-sm font-bold uppercase tracking-wider text-slate-400">
-                        {t('statsHeading')}
-                    </h2>
-                    <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-                        {(
-                            [
-                                ['statsSpecies', STATS.species, '/pokedex'],
-                                ['statsForms', STATS.forms, '/sprites?forms=1'],
-                                ['statsMoves', STATS.moves, '/moves'],
-                                ['statsAbilities', STATS.abilities, '/abilities'],
-                                ['statsTypes', STATS.types, '/moves'],
-                                ['statsGens', STATS.gens, '/pokedex'],
-                            ] as const
-                        ).map(([label, n, to]) => (
-                            <li key={label}>
-                                <Link
-                                    to={to}
-                                    className="block h-full rounded-2xl border border-slate-200 bg-white px-4 py-4 transition hover:border-slate-300 hover:shadow-sm"
-                                >
-                                    <span className="block text-2xl font-extrabold tabular-nums text-slate-900 sm:text-3xl">{formatNumber(n, lang)}</span>
-                                    <span className="mt-0.5 block text-xs font-semibold text-slate-500">{t(label)}</span>
-                                </Link>
-                            </li>
+            <section aria-labelledby="sections-heading">
+                <VStack gap={3}>
+                    <Heading level={2} id="sections-heading">
+                        {t('sectionsHeading')}
+                    </Heading>
+                    <Grid columns={{ minWidth: 260 }} gap={3}>
+                        {SECTIONS.map((s) => (
+                            <ClickableCard key={s.to} href={s.to} label={t(s.title)} height="100%">
+                                <VStack gap={1.5}>
+                                    <HStack gap={2} align="center" justify="between" wrap="wrap">
+                                        <Heading level={3}>{t(s.title)}</Heading>
+                                        {s.count && (
+                                            <Text type="supporting" hasTabularNumbers>
+                                                {t(s.count.key, { n: formatNumber(s.count.n, lang) })}
+                                            </Text>
+                                        )}
+                                    </HStack>
+                                    <Text color="secondary">{t(s.desc)}</Text>
+                                </VStack>
+                            </ClickableCard>
                         ))}
-                    </ul>
-                </section>
-            </div>
-        </div>
+                    </Grid>
+                </VStack>
+            </section>
+        </VStack>
     )
 }
 
-function Hero() {
+// ── 검색 (Astryx Typeahead) ──
+
+type Suggestion = SearchableItem<{ kind: 'pokemon'; p: DexPokemon } | { kind: 'all'; q: string }>
+
+function HeroSearch() {
     const lang = useLang()
     const t = useT(homeMessages)
     const navigate = useNavigate()
     const setNameSearch = usePokedexStore((s) => s.setNameSearch)
-    const [query, setQuery] = useState('')
-    const [open, setOpen] = useState(false)
-    const [active, setActive] = useState(0)
-    const inputId = useId()
-    const listId = useId()
+    const queryRef = useRef('')
 
-    const suggestions = useMemo(() => findPokemon(query), [query])
-    const trimmed = query.trim()
-    // 마지막 항목: 도감에서 검색
-    const optionCount = trimmed ? suggestions.length + 1 : 0
-    const showList = open && optionCount > 0
-
-    const goPokedex = () => {
-        setNameSearch(trimmed)
+    const goPokedex = (q: string) => {
+        setNameSearch(q)
         navigate('/pokedex')
     }
-    const choose = (i: number) => {
-        if (i < suggestions.length) navigate(`/pokemon/${suggestions[i].id}`)
-        else goPokedex()
+
+    // 후보: 맞는 포켓몬 몇 개 + 마지막에 "도감에서 검색"
+    const source = useMemo<SearchSource<Suggestion>>(
+        () => ({
+            search(query) {
+                const q = query.trim()
+                if (!q) return []
+                const items: Suggestion[] = findPokemon(q).map((p) => ({
+                    id: `p-${p.id}`,
+                    label: displayName(p, lang),
+                    auxiliaryData: { kind: 'pokemon', p },
+                }))
+                items.push({ id: 'all', label: t('searchAll', { q }), auxiliaryData: { kind: 'all', q } })
+                return items
+            },
+            bootstrap: () => [],
+        }),
+        [lang, t],
+    )
+
+    const choose = (item: Suggestion | null) => {
+        const d = item?.auxiliaryData
+        if (!d) return
+        if (d.kind === 'pokemon') navigate(`/pokemon/${d.p.id}`)
+        else goPokedex(d.q)
+    }
+
+    const submit = () => {
+        const q = queryRef.current.trim()
+        if (!q) return
+        const first = findPokemon(q)[0]
+        if (first) navigate(`/pokemon/${first.id}`)
+        else goPokedex(q)
     }
 
     return (
-        <section className="relative z-10 rounded-[2rem] border border-slate-200 bg-gradient-to-br from-red-50 via-white to-sky-50 px-5 pt-10 pb-8 text-center sm:px-10 sm:pt-14 sm:pb-12">
-            <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]">
-                <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full border-[28px] border-red-500/10" />
-                <div className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full border-[28px] border-sky-500/10" />
-            </div>
-            <p className="relative text-xs font-bold uppercase tracking-widest text-red-500">{t('heroEyebrow')}</p>
-            <h1 className="relative mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
-                {t('heroTitle')} <span className="text-red-500">Pokestra</span>
-            </h1>
-            <p className="relative mx-auto mt-3 max-w-xl text-sm text-slate-500 sm:text-base">
-                {t('heroSubtitle', { species: STATS.species, forms: STATS.forms, moves: STATS.moves })}
-            </p>
-
-            <form
-                role="search"
-                className="relative mx-auto mt-6 max-w-lg text-left"
-                onSubmit={(e) => {
-                    e.preventDefault()
-                    if (!trimmed) return
-                    choose(showList ? Math.min(active, optionCount - 1) : 0)
-                }}
-            >
-                <label htmlFor={inputId} className="sr-only">
-                    {t('searchLabel')}
-                </label>
-                <div className="flex gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-slate-200/60 focus-within:border-red-300 focus-within:ring-4 focus-within:ring-red-100">
-                    <input
-                        id={inputId}
-                        type="text"
-                        value={query}
+        <form
+            role="search"
+            onSubmit={(e) => {
+                e.preventDefault()
+                submit()
+            }}
+        >
+            <HStack gap={2} vAlign="end">
+                <span className="min-w-0 flex-1">
+                    <Typeahead<Suggestion>
+                        label={t('searchLabel')}
+                        isLabelHidden
                         placeholder={t('searchPlaceholder')}
-                        autoComplete="off"
-                        role="combobox"
-                        aria-expanded={showList}
-                        aria-controls={listId}
-                        aria-autocomplete="list"
-                        aria-activedescendant={showList ? `${listId}-${active}` : undefined}
-                        onChange={(e) => {
-                            setQuery(e.target.value)
-                            setActive(0)
-                            setOpen(true)
+                        size="lg"
+                        width="100%"
+                        startIcon={<Icon icon="search" />}
+                        searchSource={source}
+                        debounceMs={0}
+                        maxMenuItems={MAX_SUGGESTIONS + 1}
+                        value={null}
+                        onChange={choose}
+                        onChangeQuery={(q) => {
+                            queryRef.current = q
                         }}
-                        onFocus={() => setOpen(true)}
-                        onBlur={() => setOpen(false)}
-                        onKeyDown={(e) => {
-                            if (!showList) return
-                            if (e.key === 'ArrowDown') {
-                                e.preventDefault()
-                                setActive((i) => (i + 1) % optionCount)
-                            } else if (e.key === 'ArrowUp') {
-                                e.preventDefault()
-                                setActive((i) => (i - 1 + optionCount) % optionCount)
-                            } else if (e.key === 'Escape') {
-                                setOpen(false)
-                            }
+                        emptySearchText={t('searchEmpty')}
+                        renderItem={(item) => {
+                            const d = item.auxiliaryData
+                            if (d?.kind !== 'pokemon') return <TypeaheadItem item={item} icon={<Icon icon="search" />} />
+                            return (
+                                <TypeaheadItem
+                                    item={item}
+                                    description={padDexNo(getSpeciesId(d.p))}
+                                    icon={
+                                        d.p.sprite ? (
+                                            <img
+                                                src={d.p.sprite}
+                                                alt=""
+                                                width={32}
+                                                height={32}
+                                                className="h-8 w-8 object-contain [image-rendering:pixelated]"
+                                            />
+                                        ) : undefined
+                                    }
+                                />
+                            )
                         }}
-                        className="min-w-0 flex-1 bg-transparent px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none"
                     />
-                    <button
-                        type="submit"
-                        className="shrink-0 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-500"
-                    >
-                        {t('searchSubmit')}
-                    </button>
-                </div>
-
-                {showList && (
-                    <ul
-                        id={listId}
-                        role="listbox"
-                        aria-label={t('searchLabel')}
-                        className="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white py-1 shadow-xl"
-                    >
-                        {suggestions.map((p, i) => (
-                            <li
-                                key={p.id}
-                                id={`${listId}-${i}`}
-                                role="option"
-                                aria-selected={active === i}
-                                onMouseDown={(e) => {
-                                    e.preventDefault()
-                                    choose(i)
-                                }}
-                                onMouseEnter={() => setActive(i)}
-                                className={`flex cursor-pointer items-center gap-3 px-3 py-1.5 ${active === i ? 'bg-red-50' : ''}`}
-                            >
-                                {p.sprite ? (
-                                    <img src={p.sprite} alt="" width={40} height={40} className="h-10 w-10 shrink-0 object-contain [image-rendering:pixelated]" />
-                                ) : (
-                                    <span className="h-10 w-10 shrink-0" />
-                                )}
-                                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-800">{displayName(p, lang)}</span>
-                                <span className="shrink-0 text-xs tabular-nums text-slate-400">{padDexNo(getSpeciesId(p))}</span>
-                            </li>
-                        ))}
-                        <li
-                            id={`${listId}-${suggestions.length}`}
-                            role="option"
-                            aria-selected={active === suggestions.length}
-                            onMouseDown={(e) => {
-                                e.preventDefault()
-                                goPokedex()
-                            }}
-                            onMouseEnter={() => setActive(suggestions.length)}
-                            className={`flex cursor-pointer items-center gap-2 border-t border-slate-100 px-4 py-2.5 text-sm font-semibold text-red-500 ${active === suggestions.length ? 'bg-red-50' : ''}`}
-                        >
-                            <span aria-hidden>🔍</span>
-                            <span className="truncate">{t('searchAll', { q: trimmed })}</span>
-                        </li>
-                    </ul>
-                )}
-            </form>
-        </section>
+                </span>
+                <Button type="submit" variant="primary" size="lg" label={t('searchSubmit')} />
+            </HStack>
+        </form>
     )
 }
+
+// ── 오늘의 포켓몬 ──
 
 function PokemonOfTheDay() {
     const lang = useLang()
@@ -322,40 +277,49 @@ function PokemonOfTheDay() {
     const name = displayName(p, lang)
 
     return (
-        <section aria-labelledby="potd-heading" className="h-full">
-            <h2 id="potd-heading" className="mb-3 text-sm font-bold uppercase tracking-wider text-slate-400">
-                {t('potdTitle')}
-            </h2>
-            <Link
-                to={`/pokemon/${p.id}`}
-                className="group relative flex items-center gap-4 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400 md:flex-col md:text-center"
-            >
-                <div className="relative flex h-28 w-28 shrink-0 items-center justify-center md:h-40 md:w-40">
-                    <span aria-hidden className="absolute inset-2 rounded-full bg-red-100/60" />
-                    <img
-                        src={failed ? (p.sprite ?? '') : artworkUrl(p.id)}
-                        alt={name}
-                        loading="lazy"
-                        onError={() => setFailed(true)}
-                        className="relative h-full w-full object-contain drop-shadow-md transition-transform group-hover:scale-105"
-                    />
-                </div>
-                <div className="min-w-0">
-                    <p className="text-xs font-semibold tabular-nums text-slate-400">{padDexNo(getSpeciesId(p))}</p>
-                    <p className="truncate text-xl font-extrabold text-slate-900 group-hover:text-red-500">{name}</p>
-                    <div className="mt-1.5 flex flex-wrap gap-1 md:justify-center">
-                        {p.types.map((ty) => (
-                            <TypeBadge key={ty} type={ty} />
-                        ))}
-                    </div>
-                    <p className="mt-2 text-xs text-slate-500">
-                        {t('potdTotal')} <span className="font-bold tabular-nums text-slate-800">{baseStatTotal(p)}</span>
-                    </p>
-                    <p className="mt-2 text-xs font-bold text-red-500">
-                        {t('potdCta')} <span aria-hidden>→</span>
-                    </p>
-                </div>
-            </Link>
+        <section aria-labelledby="potd-heading">
+            <Card>
+                <HStack gap={4} align="center" wrap="wrap">
+                    <span className="flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <img
+                            src={failed ? (p.sprite ?? '') : artworkUrl(p.id)}
+                            alt={name}
+                            width={128}
+                            height={128}
+                            loading="lazy"
+                            onError={() => setFailed(true)}
+                            className="h-28 w-28 object-contain"
+                        />
+                    </span>
+                    <VStack gap={1.5} className="min-w-0 flex-1">
+                        <Text type="supporting" id="potd-heading">
+                            {t('potdTitle')}
+                        </Text>
+                        <VStack gap={0.5}>
+                            <Text type="supporting" hasTabularNumbers>
+                                {padDexNo(getSpeciesId(p))}
+                            </Text>
+                            <Heading level={2} maxLines={1}>
+                                {name}
+                            </Heading>
+                        </VStack>
+                        <HStack gap={1} wrap="wrap">
+                            {p.types.map((ty) => (
+                                <TypeBadge key={ty} type={ty} />
+                            ))}
+                        </HStack>
+                        <Text size="sm" color="secondary">
+                            {t('potdTotal')}{' '}
+                            <Text size="sm" weight="semibold" hasTabularNumbers>
+                                {baseStatTotal(p)}
+                            </Text>
+                        </Text>
+                        <span className="pt-1">
+                            <Button size="sm" variant="secondary" href={`/pokemon/${p.id}`} label={t('potdCta')} />
+                        </span>
+                    </VStack>
+                </HStack>
+            </Card>
         </section>
     )
 }

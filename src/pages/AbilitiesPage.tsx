@@ -1,18 +1,21 @@
 import { useDeferredValue, useMemo, useState } from 'react'
-import { Link, useLocation, useParams, useSearchParams } from 'react-router'
-import {
-    BackLink,
-    EmptyState,
-    LoadMore,
-    PageHeader,
-    PokemonChip,
-    SearchField,
-    SelectField,
-    StatTile,
-} from '../components/dex/DexUi'
+import { useLocation, useParams } from 'react-router'
+import { Badge } from '@astryxdesign/core/Badge'
+import { Card } from '@astryxdesign/core/Card'
+import { Grid } from '@astryxdesign/core/Grid'
+import { Heading } from '@astryxdesign/core/Heading'
+import { HStack } from '@astryxdesign/core/HStack'
+import { List, ListItem } from '@astryxdesign/core/List'
+import { MetadataList, MetadataListItem } from '@astryxdesign/core/MetadataList'
+import { Switch } from '@astryxdesign/core/Switch'
+import { Text } from '@astryxdesign/core/Text'
+import { Token } from '@astryxdesign/core/Token'
+import { VStack } from '@astryxdesign/core/VStack'
+import { BackLink, EmptyState, LoadMore, PageHeader, PokemonChip, SearchField, SelectField } from '../components/dex/DexUi'
 import { buildSearchKey, cleanDesc, foldSearch } from '../components/dex/text'
 import { useProgressive } from '../components/dex/useProgressive'
-import { collator, LANGS, useDocumentTitle, useLang, useT, type Lang } from '../i18n'
+import { useUrlParams } from '../components/dex/useUrlParams'
+import { collator, formatNumber, LANGS, useDocumentTitle, useLang, useT, type Lang } from '../i18n'
 import { abilitiesMessages } from '../i18n/messages/abilities'
 import { commonMessages } from '../i18n/messages/common'
 import {
@@ -33,6 +36,8 @@ import {
 const LIST_ABILITIES: readonly DexAbility[] = ABILITIES
 const NAME_INDEX = new Map(LIST_ABILITIES.map((a) => [a.name, buildSearchKey(a.name, a.nameKo, a.nameEn, a.nameJa)]))
 const ABILITY_GENS = [...new Set(LIST_ABILITIES.map((a) => a.generation).filter((g): g is number => g != null))].sort((a, b) => a - b)
+/** 특성별 보유 포켓몬 수 (목록에서 매번 세지 않도록) */
+const HOLDER_COUNT = new Map(LIST_ABILITIES.map((a) => [a.name, pokemonWithAbility(a.name).length]))
 
 export default function AbilitiesPage() {
     const { slug } = useParams()
@@ -46,23 +51,11 @@ function AbilityList() {
     const t = useT(abilitiesMessages)
     const tc = useT(commonMessages)
     const location = useLocation()
-    const [params, setParams] = useSearchParams()
+    const [params, update] = useUrlParams()
     useDocumentTitle(t('title'))
 
     const q = params.get('q') ?? ''
     const gen = params.get('gen') ?? ''
-    const update = (patch: Record<string, string | null>) =>
-        setParams(
-            (prev) => {
-                const next = new URLSearchParams(prev)
-                for (const [k, v] of Object.entries(patch)) {
-                    if (v) next.set(k, v)
-                    else next.delete(k)
-                }
-                return next
-            },
-            { replace: true },
-        )
 
     const deferredQ = useDeferredValue(q)
     const filtered = useMemo(() => {
@@ -92,72 +85,72 @@ function AbilityList() {
     const { shown, hasMore, more, sentinelRef } = useProgressive(filtered.length, `${deferredQ}|${gen}|${lang}`, 80)
 
     return (
-        <div>
+        <VStack gap={5}>
             <PageHeader title={t('title')} subtitle={t('subtitle', { n: LIST_ABILITIES.length })} />
 
-            <section className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end">
-                <div className="min-w-0 flex-1">
-                    <SearchField
-                        value={q}
-                        onChange={(v) => update({ q: v })}
-                        label={t('searchLabel')}
-                        placeholder={t('searchPlaceholder')}
+            <Card>
+                <HStack gap={3} wrap="wrap" vAlign="end">
+                    <span className="min-w-[14rem] flex-1">
+                        <SearchField
+                            value={q}
+                            onChange={(v) => update({ q: v })}
+                            label={t('searchLabel')}
+                            placeholder={t('searchPlaceholder')}
+                        />
+                    </span>
+                    <SelectField
+                        label={t('filterGen')}
+                        value={gen}
+                        onChange={(v) => update({ gen: v || null })}
+                        width={150}
+                        options={[
+                            { value: '', label: tc('all') },
+                            ...ABILITY_GENS.map((g) => ({ value: String(g), label: generationName(g, lang) })),
+                        ]}
                     />
-                </div>
-                <div className="sm:w-40">
-                    <SelectField label={t('filterGen')} value={gen} onChange={(v) => update({ gen: v || null })}>
-                        <option value="">{tc('all')}</option>
-                        {ABILITY_GENS.map((g) => (
-                            <option key={g} value={g}>
-                                {generationName(g, lang)}
-                            </option>
+                </HStack>
+            </Card>
+
+            <VStack gap={2}>
+                <span aria-live="polite">
+                    <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
+                </span>
+
+                {filtered.length === 0 ? (
+                    <EmptyState />
+                ) : (
+                    <List aria-label={t('list')} hasDividers edge="flush">
+                        {filtered.slice(0, shown).map((a) => (
+                            <AbilityRow key={a.name} ability={a} lang={lang} search={location.search} />
                         ))}
-                    </SelectField>
-                </div>
-            </section>
-
-            <p className="mt-5 mb-2 px-1 text-xs font-semibold text-slate-400" aria-live="polite">
-                {tc('results', { n: filtered.length })}
-            </p>
-
-            {filtered.length === 0 ? (
-                <EmptyState />
-            ) : (
-                <ul aria-label={t('list')} className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {filtered.slice(0, shown).map((a) => (
-                        <AbilityRow key={a.name} ability={a} lang={lang} search={location.search} />
-                    ))}
-                </ul>
-            )}
-            <LoadMore hasMore={hasMore} onMore={more} sentinelRef={sentinelRef} />
-        </div>
+                    </List>
+                )}
+                <LoadMore hasMore={hasMore} onMore={more} sentinelRef={sentinelRef} />
+            </VStack>
+        </VStack>
     )
 }
 
 function AbilityRow({ ability: a, lang, search }: { ability: DexAbility; lang: Lang; search: string }) {
     const t = useT(abilitiesMessages)
     const desc = cleanDesc(localText(a.desc, lang), lang)
-    const count = pokemonWithAbility(a.name).length
+    const count = HOLDER_COUNT.get(a.name) ?? 0
     return (
-        <li>
-            <Link
-                to={`/abilities/${a.name}${search}`}
-                className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-            >
-                <div className="flex items-start justify-between gap-2">
-                    <h2 className="min-w-0 truncate text-base font-bold text-slate-900 group-hover:text-red-500">
-                        {abilityName(a.name, lang)}
-                    </h2>
+        <ListItem
+            href={`/abilities/${a.name}${search}`}
+            label={abilityName(a.name, lang)}
+            description={desc ?? t('noDescription')}
+            endContent={
+                <HStack gap={3} align="center">
                     {a.generation != null && (
-                        <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">
-                            {generationName(a.generation, lang)}
+                        <span className="hidden sm:inline">
+                            <Text type="supporting">{generationName(a.generation, lang)}</Text>
                         </span>
                     )}
-                </div>
-                <p className="mt-1 line-clamp-2 text-sm leading-snug text-slate-500">{desc ?? t('noDescription')}</p>
-                <p className="mt-auto pt-2 text-[11px] font-semibold text-slate-400">{t('pokemonCount', { n: count })}</p>
-            </Link>
-        </li>
+                    <Badge variant="neutral" label={formatNumber(count, lang)} aria-label={t('pokemonCount', { n: count })} />
+                </HStack>
+            }
+        />
     )
 }
 
@@ -179,13 +172,10 @@ function AbilityDetail({ slug }: { slug: string }) {
 
     if (!ability) {
         return (
-            <div>
+            <VStack gap={2}>
                 <BackLink to={backTo}>{t('back')}</BackLink>
-                <EmptyState>
-                    <p className="text-base font-bold text-slate-700">{t('notFound')}</p>
-                    <p className="mt-1">{t('notFoundBody')}</p>
-                </EmptyState>
-            </div>
+                <EmptyState title={t('notFound')} description={t('notFoundBody')} />
+            </VStack>
         )
     }
 
@@ -196,34 +186,45 @@ function AbilityDetail({ slug }: { slug: string }) {
         .filter((o, i, arr) => o.n !== name && arr.findIndex((x) => x.n === o.n) === i)
 
     return (
-        <div>
-            <BackLink to={backTo}>{t('back')}</BackLink>
+        <VStack gap={6}>
+            <VStack gap={3}>
+                <BackLink to={backTo}>{t('back')}</BackLink>
+                <VStack gap={1}>
+                    <Heading level={1}>{name}</Heading>
+                    {others.length > 0 && (
+                        <HStack gap={3} wrap="wrap" aria-label={t('otherNames')}>
+                            {others.map((o) => (
+                                <span key={o.l} lang={o.l}>
+                                    <Text color="secondary">{o.n}</Text>
+                                </span>
+                            ))}
+                        </HStack>
+                    )}
+                </VStack>
+            </VStack>
 
-            <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{name}</h1>
-                {others.length > 0 && (
-                    <p className="mt-1 text-sm text-slate-400">
-                        <span className="sr-only">{t('otherNames')}: </span>
-                        {others.map((o) => (
-                            <span key={o.l} lang={o.l} className="mr-3">
-                                {o.n}
-                            </span>
-                        ))}
-                    </p>
-                )}
-                <section className="mt-4">
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">{t('description')}</h2>
-                    <p className="mt-1.5 text-[15px] leading-relaxed text-slate-700">{desc ?? t('noDescription')}</p>
-                </section>
-                {a.generation != null && (
-                    <dl className="mt-5 grid max-w-xs grid-cols-1">
-                        <StatTile label={t('introduced')} value={<span className="text-base">{generationName(a.generation, lang)}</span>} />
-                    </dl>
-                )}
-            </article>
+            <Card>
+                <VStack gap={4}>
+                    <VStack gap={1.5}>
+                        <Heading level={2}>{t('description')}</Heading>
+                        <span className="max-w-[70ch]">
+                            <Text as="p" color={desc ? 'primary' : 'secondary'}>
+                                {desc ?? t('noDescription')}
+                            </Text>
+                        </span>
+                    </VStack>
+                    {a.generation != null && (
+                        <MetadataList>
+                            <MetadataListItem label={t('introduced')}>
+                                <Text>{generationName(a.generation, lang)}</Text>
+                            </MetadataListItem>
+                        </MetadataList>
+                    )}
+                </VStack>
+            </Card>
 
             <Holders key={a.name} slug={a.name} />
-        </div>
+        </VStack>
     )
 }
 
@@ -234,7 +235,12 @@ function Holders({ slug }: { slug: string }) {
     const all = useMemo<Holder[]>(
         () =>
             pokemonWithAbility(slug)
-                .map((p) => ({ p, hidden: !!p.abilities.find((x) => x.name === slug && x.hidden) && !p.abilities.some((x) => x.name === slug && !x.hidden) }))
+                .map((p) => ({
+                    p,
+                    hidden:
+                        !!p.abilities.find((x) => x.name === slug && x.hidden) &&
+                        !p.abilities.some((x) => x.name === slug && !x.hidden),
+                }))
                 .sort((x, y) => getSpeciesId(x.p) - getSpeciesId(y.p) || x.p.id - y.p.id),
         [slug],
     )
@@ -245,38 +251,34 @@ function Holders({ slug }: { slug: string }) {
     const hidden = list.filter((h) => h.hidden)
 
     return (
-        <section className="mt-6" aria-labelledby="holders-heading">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <div>
-                    <h2 id="holders-heading" className="text-lg font-bold text-slate-900">
-                        {t('holders')}{' '}
-                        <span className="text-sm font-semibold text-slate-400">{t('holdersCount', { n: list.length })}</span>
-                    </h2>
-                    {list.length > 0 && (
-                        <p className="text-xs text-slate-400">{t('holdersSummary', { normal: standard.length, hidden: hidden.length })}</p>
+        <section aria-labelledby="holders-heading">
+            <VStack gap={4}>
+                <HStack gap={3} align="center" justify="between" wrap="wrap">
+                    <VStack gap={0.5}>
+                        <HStack gap={2} align="center">
+                            <Heading level={2} id="holders-heading">
+                                {t('holders')}
+                            </Heading>
+                            <Badge variant="neutral" label={list.length} aria-label={t('holdersCount', { n: list.length })} />
+                        </HStack>
+                        {list.length > 0 && (
+                            <Text type="supporting">{t('holdersSummary', { normal: standard.length, hidden: hidden.length })}</Text>
+                        )}
+                    </VStack>
+                    {hasForms && base.length > 0 && (
+                        <Switch size="sm" label={t('includeForms')} value={withForms} onChange={setWithForms} />
                     )}
-                </div>
-                {hasForms && base.length > 0 && (
-                    <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold text-slate-500">
-                        <input
-                            type="checkbox"
-                            checked={withForms}
-                            onChange={(e) => setWithForms(e.target.checked)}
-                            className="h-4 w-4 accent-red-500"
-                        />
-                        {t('includeForms')}
-                    </label>
-                )}
-            </div>
+                </HStack>
 
-            {list.length === 0 ? (
-                <EmptyState>{t('noHolders')}</EmptyState>
-            ) : (
-                <div className="space-y-5">
-                    <HolderGroup title={t('standard')} items={standard} resetKey={`${slug}|${withForms}|s`} />
-                    <HolderGroup title={t('hidden')} items={hidden} resetKey={`${slug}|${withForms}|h`} hidden />
-                </div>
-            )}
+                {list.length === 0 ? (
+                    <EmptyState title={t('noHolders')} />
+                ) : (
+                    <VStack gap={6}>
+                        <HolderGroup title={t('standard')} items={standard} resetKey={`${slug}|${withForms}|s`} />
+                        <HolderGroup title={t('hidden')} items={hidden} resetKey={`${slug}|${withForms}|h`} hidden />
+                    </VStack>
+                )}
+            </VStack>
         </section>
     )
 }
@@ -286,27 +288,21 @@ function HolderGroup({ title, items, resetKey, hidden }: { title: string; items:
     const { shown, hasMore, more, sentinelRef } = useProgressive(items.length, resetKey, 96)
     if (items.length === 0) return null
     return (
-        <div>
-            <h3 className="mb-2 flex items-center gap-2 text-sm font-bold text-slate-600">
-                {hidden && <span className="h-2 w-2 rounded-full bg-violet-500" aria-hidden />}
-                {title}
-                <span className="font-semibold text-slate-400">{items.length}</span>
-            </h3>
-            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+        <VStack gap={2}>
+            <HStack gap={2} align="center">
+                <Heading level={3}>{title}</Heading>
+                <Badge variant={hidden ? 'purple' : 'neutral'} label={items.length} />
+            </HStack>
+            <Grid columns={{ minWidth: 176 }} gap={2}>
                 {items.slice(0, shown).map((h) => (
-                    <li key={h.p.id}>
-                        <PokemonChip
-                            pokemon={h.p}
-                            badge={
-                                h.hidden ? (
-                                    <span className="rounded bg-violet-100 px-1 font-bold text-violet-700">{t('hiddenShort')}</span>
-                                ) : undefined
-                            }
-                        />
-                    </li>
+                    <PokemonChip
+                        key={h.p.id}
+                        pokemon={h.p}
+                        badge={h.hidden ? <Token size="sm" color="purple" label={t('hiddenShort')} /> : undefined}
+                    />
                 ))}
-            </ul>
+            </Grid>
             <LoadMore hasMore={hasMore} onMore={more} sentinelRef={sentinelRef} />
-        </div>
+        </VStack>
     )
 }
