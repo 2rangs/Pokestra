@@ -8,7 +8,12 @@ import {
 import {
     ALL_POKEMON, MOVE_BY_NAME, TYPE_NAME_KO, findDexPokemonByName, displayNameKo, isAlternateForm,
     type DexPokemon,
+    displayName as dexDisplayName, moveName as dexMoveName, abilityName as dexAbilityName,
+    typeName as dexTypeName, ABILITY_BY_NAME,
 } from './dex'
+import natureNamesJson from '../data/natureNames.json'
+import itemNamesJson from '../data/itemNames.json'
+import type { Lang } from '../i18n'
 
 // ─── 데이터 로드 훅 ───────────────────────────────────────────
 /** 엔진 데이터(종족값/기술/상성) 로드. 첫 호출 시 지연 청크를 받아온다 */
@@ -144,4 +149,70 @@ export const backSpriteUrl = (id: number) =>
 /** 종 slug → 도감 id (스프라이트용) */
 export function dexIdOf(species: string): number | undefined {
     return findDexPokemonByName(species)?.id ?? getSpecies(species)?.id
+}
+
+// ─── 다국어 이름 (ko / en / ja) ──────────────────────────────
+
+type L10n = { ko: string | null; en: string | null; ja: string | null }
+const NATURE_NAMES = natureNamesJson as Record<string, L10n>
+const ITEM_NAMES = itemNamesJson as Record<string, L10n>
+
+export function pokemonNameL(species: string, lang: Lang): string {
+    if (lang === 'ko') return pokemonNameKo(species)
+    const p = findDexPokemonByName(species)
+    return p ? dexDisplayName(p, lang) : getSpecies(species)?.name ?? prettify(species)
+}
+
+export function moveNameL(name: string, lang: Lang): string {
+    if (lang === 'ko') return moveNameKo(name)
+    return MOVE_BY_NAME.has(name) ? dexMoveName(name, lang) : prettify(name)
+}
+
+export function abilityNameL(slug: string, lang: Lang): string {
+    if (lang === 'ko') return abilityNameKo(slug)
+    return ABILITY_BY_NAME.has(slug) ? dexAbilityName(slug, lang) : prettify(slug)
+}
+
+export function typeNameL(type: string, lang: Lang): string {
+    if (lang === 'ko') return typeNameKo(type)
+    return dexTypeName(type, lang)
+}
+
+export function itemName(id: string, lang: Lang): string {
+    if (lang === 'ko') return itemNameKo(id)
+    return ITEM_NAMES[id]?.[lang] ?? ITEM_NAMES[id]?.en ?? prettify(id)
+}
+
+export function natureName(id: string, lang: Lang): string {
+    const n = NATURE_NAMES[id]
+    if (lang === 'ko') return NATURES.find(x => x.id === id)?.ko ?? n?.ko ?? prettify(id)
+    return n?.[lang] ?? n?.en ?? prettify(id)
+}
+
+export const BATTLE_STAT_LABELS: Record<Lang, Record<string, string>> = {
+    ko: BATTLE_STAT_LABEL_KO,
+    en: {
+        hp: 'HP', attack: 'Attack', defense: 'Defense', special_attack: 'Sp. Atk', special_defense: 'Sp. Def', speed: 'Speed',
+        accuracy: 'Accuracy', evasion: 'Evasion',
+    },
+    ja: {
+        hp: 'HP', attack: 'こうげき', defense: 'ぼうぎょ', special_attack: 'とくこう', special_defense: 'とくぼう', speed: 'すばやさ',
+        accuracy: 'めいちゅう', evasion: 'かいひ',
+    },
+}
+
+export function battleStatLabel(key: string, lang: Lang): string {
+    return BATTLE_STAT_LABELS[lang][key] ?? key
+}
+
+/** 언어별 이름 변환기 (formatEvent 등) */
+export function namesFor(lang: Lang): NameResolver {
+    if (lang === 'ko') return KO_NAMES
+    return {
+        pokemon: s => pokemonNameL(s, lang),
+        move: m => moveNameL(m, lang),
+        type: t => typeNameL(t, lang),
+        item: id => (ITEM_NAMES[id] ? itemName(id, lang) : MOVE_BY_NAME.has(id) ? moveNameL(id, lang) : prettify(id)),
+        ability: a => abilityNameL(a, lang),
+    }
 }

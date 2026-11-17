@@ -1,62 +1,92 @@
 [
   {
     "name": "monster",
-    "nameKo": "괴수"
+    "nameKo": "괴수",
+    "nameEn": "Monster",
+    "nameJa": "かいじゅう"
   },
   {
     "name": "water1",
-    "nameKo": "수중 1"
+    "nameKo": "수중 1",
+    "nameEn": "Water 1",
+    "nameJa": "すいちゅう１"
   },
   {
     "name": "bug",
-    "nameKo": "벌레"
+    "nameKo": "벌레",
+    "nameEn": "Bug",
+    "nameJa": "むし"
   },
   {
     "name": "flying",
-    "nameKo": "비행"
+    "nameKo": "비행",
+    "nameEn": "Flying",
+    "nameJa": "ひこう"
   },
   {
     "name": "ground",
-    "nameKo": "육상"
+    "nameKo": "육상",
+    "nameEn": "Field",
+    "nameJa": "りくじょう"
   },
   {
     "name": "fairy",
-    "nameKo": "요정"
+    "nameKo": "요정",
+    "nameEn": "Fairy",
+    "nameJa": "ようせい"
   },
   {
     "name": "plant",
-    "nameKo": "식물"
+    "nameKo": "식물",
+    "nameEn": "Grass",
+    "nameJa": "しょくぶつ"
   },
   {
     "name": "humanshape",
-    "nameKo": "인간형"
+    "nameKo": "인간형",
+    "nameEn": "Human-Like",
+    "nameJa": "ひとがた"
   },
   {
     "name": "water3",
-    "nameKo": "수중 3"
+    "nameKo": "수중 3",
+    "nameEn": "Water 3",
+    "nameJa": "すいちゅう３"
   },
   {
     "name": "mineral",
-    "nameKo": "광물"
+    "nameKo": "광물",
+    "nameEn": "Mineral",
+    "nameJa": "こうぶつ"
   },
   {
     "name": "indeterminate",
-    "nameKo": "부정형"
+    "nameKo": "부정형",
+    "nameEn": "Amorphous",
+    "nameJa": "ふていけい"
   },
   {
     "name": "water2",
-    "nameKo": "수중 2"
+    "nameKo": "수중 2",
+    "nameEn": "Water 2",
+    "nameJa": "すいちゅう２"
   },
   {
     "name": "ditto",
-    "nameKo": "메타몽"
+    "nameKo": "메타몽",
+    "nameEn": "Ditto",
+    "nameJa": "メタモン"
   },
   {
     "name": "dragon",
-    "nameKo": "드래곤"
+    "nameKo": "드래곤",
+    "nameEn": "Dragon",
+    "nameJa": "ドラゴン"
   },
   {
     "name": "no-eggs",
-    "nameKo": "알미발견"
+    "nameKo": "알미발견",
+    "nameEn": "Undiscovered",
+    "nameJa": "タマゴみはっけん"
   }
 ]

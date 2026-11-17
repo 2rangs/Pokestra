@@ -2,91 +2,127 @@
   {
     "id": 1,
     "name": "normal",
-    "nameKo": "노말"
+    "nameKo": "노말",
+    "nameEn": "Normal",
+    "nameJa": "ノーマル"
   },
   {
     "id": 2,
     "name": "fighting",
-    "nameKo": "격투"
+    "nameKo": "격투",
+    "nameEn": "Fighting",
+    "nameJa": "かくとう"
   },
   {
     "id": 3,
     "name": "flying",
-    "nameKo": "비행"
+    "nameKo": "비행",
+    "nameEn": "Flying",
+    "nameJa": "ひこう"
   },
   {
     "id": 4,
     "name": "poison",
-    "nameKo": "독"
+    "nameKo": "독",
+    "nameEn": "Poison",
+    "nameJa": "どく"
   },
   {
     "id": 5,
     "name": "ground",
-    "nameKo": "땅"
+    "nameKo": "땅",
+    "nameEn": "Ground",
+    "nameJa": "じめん"
   },
   {
     "id": 6,
     "name": "rock",
-    "nameKo": "바위"
+    "nameKo": "바위",
+    "nameEn": "Rock",
+    "nameJa": "いわ"
   },
   {
     "id": 7,
     "name": "bug",
-    "nameKo": "벌레"
+    "nameKo": "벌레",
+    "nameEn": "Bug",
+    "nameJa": "むし"
   },
   {
     "id": 8,
     "name": "ghost",
-    "nameKo": "고스트"
+    "nameKo": "고스트",
+    "nameEn": "Ghost",
+    "nameJa": "ゴースト"
   },
   {
     "id": 9,
     "name": "steel",
-    "nameKo": "강철"
+    "nameKo": "강철",
+    "nameEn": "Steel",
+    "nameJa": "はがね"
   },
   {
     "id": 10,
     "name": "fire",
-    "nameKo": "불꽃"
+    "nameKo": "불꽃",
+    "nameEn": "Fire",
+    "nameJa": "ほのお"
   },
   {
     "id": 11,
     "name": "water",
-    "nameKo": "물"
+    "nameKo": "물",
+    "nameEn": "Water",
+    "nameJa": "みず"
   },
   {
     "id": 12,
     "name": "grass",
-    "nameKo": "풀"
+    "nameKo": "풀",
+    "nameEn": "Grass",
+    "nameJa": "くさ"
   },
   {
     "id": 13,
     "name": "electric",
-    "nameKo": "전기"
+    "nameKo": "전기",
+    "nameEn": "Electric",
+    "nameJa": "でんき"
   },
   {
     "id": 14,
     "name": "psychic",
-    "nameKo": "에스퍼"
+    "nameKo": "에스퍼",
+    "nameEn": "Psychic",
+    "nameJa": "エスパー"
   },
   {
     "id": 15,
     "name": "ice",
-    "nameKo": "얼음"
+    "nameKo": "얼음",
+    "nameEn": "Ice",
+    "nameJa": "こおり"
   },
   {
     "id": 16,
     "name": "dragon",
-    "nameKo": "드래곤"
+    "nameKo": "드래곤",
+    "nameEn": "Dragon",
+    "nameJa": "ドラゴン"
   },
   {
     "id": 17,
     "name": "dark",
-    "nameKo": "악"
+    "nameKo": "악",
+    "nameEn": "Dark",
+    "nameJa": "あく"
   },
   {
     "id": 18,
     "name": "fairy",
-    "nameKo": "페어리"
+    "nameKo": "페어리",
+    "nameEn": "Fairy",
+    "nameJa": "フェアリー"
   }
 ]

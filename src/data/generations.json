@@ -3,6 +3,8 @@
     "id": 1,
     "name": "generation-i",
     "nameKo": "1세대",
+    "nameEn": "Generation I",
+    "nameJa": "第一世代",
     "pokemonSpecies": [
       "bulbasaur",
       "charmander",
@@ -161,6 +163,8 @@
     "id": 2,
     "name": "generation-ii",
     "nameKo": "2세대",
+    "nameEn": "Generation II",
+    "nameJa": "第二世代",
     "pokemonSpecies": [
       "chikorita",
       "cyndaquil",
@@ -268,6 +272,8 @@
     "id": 3,
     "name": "generation-iii",
     "nameKo": "3세대",
+    "nameEn": "Generation III",
+    "nameJa": "第三世代",
     "pokemonSpecies": [
       "treecko",
       "torchic",
@@ -410,6 +416,8 @@
     "id": 4,
     "name": "generation-iv",
     "nameKo": "4세대",
+    "nameEn": "Generation IV",
+    "nameJa": "第四世代",
     "pokemonSpecies": [
       "turtwig",
       "chimchar",
@@ -524,6 +532,8 @@
     "id": 5,
     "name": "generation-v",
     "nameKo": "5세대",
+    "nameEn": "Generation V",
+    "nameJa": "第五世代",
     "pokemonSpecies": [
       "victini",
       "snivy",
@@ -687,6 +697,8 @@
     "id": 6,
     "name": "generation-vi",
     "nameKo": "6세대",
+    "nameEn": "Generation VI",
+    "nameJa": "第六世代",
     "pokemonSpecies": [
       "chespin",
       "fennekin",
@@ -766,6 +778,8 @@
     "id": 7,
     "name": "generation-vii",
     "nameKo": "7세대",
+    "nameEn": "Generation VII",
+    "nameJa": "第七世代",
     "pokemonSpecies": [
       "steenee",
       "tsareena",
@@ -861,6 +875,8 @@
     "id": 8,
     "name": "generation-viii",
     "nameKo": "8세대",
+    "nameEn": "Generation VIII",
+    "nameJa": "第八世代",
     "pokemonSpecies": [
       "grookey",
       "scorbunny",
@@ -964,6 +980,8 @@
     "id": 9,
     "name": "generation-ix",
     "nameKo": "9세대",
+    "nameEn": "Generation IX",
+    "nameJa": "第九世代",
     "pokemonSpecies": [
       "nymble",
       "sprigatito",
