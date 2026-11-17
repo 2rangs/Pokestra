@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import Game from '../components/3match-puzzle.tsx'
 import { ALL_POKEMON, isAlternateForm, MOVES } from '../lib/dex'
 

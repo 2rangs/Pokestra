@@ -1,4 +1,4 @@
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink } from 'react-router'
 
 const NAV_ITEMS = [
     { to: '/', label: 'Home', end: true },

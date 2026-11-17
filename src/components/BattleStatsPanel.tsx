@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { calcBaseStat, calcHP, getSpecies } from '@kyasi/pokebattle-engine'
 import { BATTLE_STAT_LABEL_KO, useEngineReady, abilityNameKo } from '../lib/battle'
 import { getDexPokemon } from '../lib/dex'
