@@ -2,8 +2,8 @@ import { lazy } from 'react'
 import { Routes, Route, Navigate, Link } from 'react-router'
 import { useDocumentTitle, useT } from './i18n'
 import { commonMessages } from './i18n/messages/common'
+import { PenNote, Spinner } from './components/ui/notebook'
 import MainLayout from './layouts/MainLayout'
-import './App.css'
 
 // 큰 페이지(도감 데이터/배틀 엔진)는 지연 로드
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -17,23 +17,18 @@ const SpritesPage = lazy(() => import('./pages/SpritesPage.tsx'))
 
 function PageFallback() {
     const t = useT(commonMessages)
-    return (
-        <div className="flex items-center justify-center gap-2 p-10 text-sm text-slate-400" role="status">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-red-500" />
-            {t('loading')}
-        </div>
-    )
+    return <Spinner label={t('loading')} />
 }
 
 function NotFound() {
     const t = useT(commonMessages)
     useDocumentTitle(t('notFoundTitle'))
     return (
-        <div className="py-20 text-center">
-            <p className="text-6xl font-black text-slate-200">404</p>
-            <h1 className="mt-2 text-xl font-bold text-slate-900">{t('notFoundTitle')}</h1>
-            <p className="mt-1 text-sm text-slate-500">{t('notFoundBody')}</p>
-            <Link to="/" className="mt-6 inline-block rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-red-500">
+        <div className="py-16">
+            <PenNote className="-rotate-2 text-5xl">404</PenNote>
+            <h1 className="mt-3 font-serif text-3xl font-bold text-ink">{t('notFoundTitle')}</h1>
+            <p className="mt-2 text-ink-soft">{t('notFoundBody')}</p>
+            <Link to="/" className="btn btn-ink mt-6">
                 {t('goHome')}
             </Link>
         </div>
