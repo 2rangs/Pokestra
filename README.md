@@ -24,7 +24,7 @@ npm run build
 `package.json` installs the engine from GitHub:
 
 ```json
-"@kyasi/pokebattle-engine": "github:2rangs/pokebattle-engine#claude/pokemon-battle-engine-pokedex-pocs4h"
+"@kyasi/pokebattle-engine": "github:2rangs/pokebattle-engine#main"
 ```
 
 npm runs the engine's `prepare` script at install time, which builds `dist/`. To work on both repos side by side:
