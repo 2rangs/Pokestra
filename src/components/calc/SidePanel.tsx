@@ -1,5 +1,5 @@
 import { getSpecies, type BattlePokemon, type Nature, type PrimaryStatus } from '@kyasi/pokebattle-engine'
-import { BATTLE_STAT_LABEL_KO, ITEMS, NATURES, itemNameKo, prettify, typeNameKo } from '../../lib/battle'
+import { BATTLE_STAT_LABEL_KO, ITEMS, NATURES, itemNameKo, typeNameKo, abilityNameKo } from '../../lib/battle'
 import { displayNameKo, findDexPokemonByName, officialArtworkUrl, type DexPokemon } from '../../lib/dex'
 import {
     EV_TOTAL_MAX, STATUS_OPTIONS, STAT_ORDER, TERA_TYPES, clampEv, evTotal, stagedStats,
@@ -89,7 +89,7 @@ export function SidePanel({ role, state, bp, onChange, onPick }: Props) {
                 <FieldLabel label="특성">
                     <select className={inputCls} value={state.ability} onChange={e => set('ability', e.target.value)}>
                         {abilityOptions.map(a => (
-                            <option key={a.name} value={a.name}>{prettify(a.name)}{a.hidden ? ' (숨겨진 특성)' : ''}</option>
+                            <option key={a.name} value={a.name}>{abilityNameKo(a.name)}{a.hidden ? ' (숨겨진 특성)' : ''}</option>
                         ))}
                     </select>
                 </FieldLabel>

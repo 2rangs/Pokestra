@@ -103,6 +103,8 @@ export function useBattleSession() {
         framesRef.current = []
         const capture = (ev: BattleEvent) => {
             const st = e.getState()
+            // 팀 등록 전(battle_start) 이벤트는 화면에 그릴 포켓몬이 없다
+            if (!st.sides.p1.active[0] || !st.sides.p2.active[0]) return
             const frame: Frame = {
                 index:   framesRef.current.length,
                 event:   ev,

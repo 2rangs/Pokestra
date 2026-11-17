@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { calcBaseStat, calcHP, getSpecies } from '@kyasi/pokebattle-engine'
-import { BATTLE_STAT_LABEL_KO, prettify, useEngineReady } from '../lib/battle'
+import { BATTLE_STAT_LABEL_KO, useEngineReady, abilityNameKo } from '../lib/battle'
 import { getDexPokemon } from '../lib/dex'
 
 const KEYS = ['hp', 'attack', 'defense', 'special_attack', 'special_defense', 'speed'] as const
@@ -91,7 +91,7 @@ export default function BattleStatsPanel({ dexId }: { dexId: number }) {
                                     key={a.name}
                                     className={`rounded-xl border px-3 py-1.5 text-sm font-semibold ${a.hidden ? 'border-violet-200 bg-violet-50 text-violet-700' : 'border-slate-200 bg-slate-50 text-slate-700'}`}
                                 >
-                                    {prettify(a.name)}
+                                    {abilityNameKo(a.name)}
                                     {a.hidden && <span className="ml-1.5 text-[10px] font-bold text-violet-500">숨겨진 특성</span>}
                                 </span>
                             ))}

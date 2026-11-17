@@ -1,7 +1,7 @@
 // ─── 데미지 계산기 상태/계산 헬퍼 ──────────────────────────────
 import {
-    PRNG, applyStage, calcDamage, calcDamageSummary, createBattlePokemon, getMove, getSpecies, getTypeChart,
-    type BattlePokemon, type DamageCalcResult, type DamageSummary, type MoveData, type Nature, type PokemonSet,
+    PRNG, applyStage, calculateDamage, toCalcPokemon, getMove, getSpecies,
+    type BattlePokemon, type CalcPokemonInput, type DamageResult, type MoveData, type Nature, type PokemonSet,
     type PrimaryStatus, type Stats, type Terrain, type Weather,
 } from '@kyasi/pokebattle-engine'
 import { buildSet } from '../../lib/battle'
@@ -149,18 +149,47 @@ export function toSet(s: SideState): PokemonSet {
     }
 }
 
-/** 상태 → 엔진 BattlePokemon (랭크/상태이상/테라/현재 HP 반영) */
-export function toBattlePokemon(s: SideState, id: string): BattlePokemon {
-    const bp = createBattlePokemon(toSet(s), id)
-    bp.stages = { ...bp.stages, ...s.stages }
-    bp.status = s.status
-    if (s.tera && s.teraType) {
-        bp.tera_type = s.teraType
-        bp.terastallized = true
-        if (s.teraType !== 'stellar') bp.types = [s.teraType]
+/** 계산기 입력 (@smogon/calc) */
+export function toCalcInput(s: SideState): CalcPokemonInput {
+    return {
+        species: s.slug,
+        level: s.level,
+        nature: s.nature,
+        ability: s.ability,
+        item: s.item || null,
+        evs: s.evs,
+        ivs: s.ivs,
+        boosts: s.stages,
+        status: s.status,
+        hpPercent: s.hpPct,
+        teraType: s.teraType,
+        terastallized: s.tera,
     }
-    bp.hp = Math.max(1, Math.round(bp.max_hp * s.hpPct / 100))
-    return bp
+}
+
+/** 화면 표시용 포켓몬 정보 (실능치는 Showdown 계산기와 동일) */
+export function toBattlePokemon(s: SideState, id: string): BattlePokemon {
+    const cp = toCalcPokemon({ ...toCalcInput(s), boosts: {} })
+    const maxHp = cp.maxHP()
+    const types = s.tera && s.teraType && s.teraType !== 'stellar'
+        ? [s.teraType]
+        : cp.types.map(t => t.toLowerCase())
+    return {
+        id,
+        species: s.slug,
+        level: s.level,
+        types: types as BattlePokemon['types'],
+        stats: {
+            hp: maxHp, attack: cp.rawStats.atk, defense: cp.rawStats.def,
+            special_attack: cp.rawStats.spa, special_defense: cp.rawStats.spd, speed: cp.rawStats.spe,
+        },
+        max_hp: maxHp,
+        hp: Math.max(1, Math.floor(maxHp * s.hpPct / 100)),
+        stages: { ...s.stages, accuracy: 0, evasion: 0 },
+        status: s.status,
+        ability: s.ability,
+        item: s.item || null,
+    } as unknown as BattlePokemon
 }
 
 /** 랭크 적용 실능 */
@@ -175,26 +204,47 @@ export function stagedStats(bp: BattlePokemon): Stats {
     }
 }
 
+export interface MoveSummary {
+    min: number
+    max: number
+    range: number[]
+    /** 현재 HP 대비 비율 */
+    minRatio: number
+    maxRatio: number
+    koChance: 'guaranteed' | 'rng' | 'impossible'
+    koText: string
+}
+
 export interface MoveCalc {
     slug: string
     move: MoveData
-    summary: DamageSummary
-    detail: DamageCalcResult
+    summary: MoveSummary
+    detail: DamageResult
 }
 
-export function calcMove(attacker: BattlePokemon, defender: BattlePokemon, slug: string, field: FieldState): MoveCalc | null {
+export function calcMove(attacker: SideState, defender: SideState, slug: string, field: FieldState): MoveCalc | null {
     const move = getMove(slug)
     if (!move) return null
-    const input = {
-        attacker, defender, move,
-        weather: field.weather,
-        terrain: field.terrain,
-        typeChart: getTypeChart(),
-        isCrit: field.crit,
-        reflect: field.reflect,
-        lightScreen: field.lightScreen,
-        auroraVeil: field.auroraVeil,
-        gravity: field.gravity,
+    let r: DamageResult
+    try {
+        r = calculateDamage(toCalcInput(attacker), toCalcInput(defender), slug, {
+            weather: field.weather,
+            terrain: field.terrain,
+            isCrit: field.crit,
+            reflect: field.reflect,
+            lightScreen: field.lightScreen,
+            auroraVeil: field.auroraVeil,
+            gravity: field.gravity,
+        })
+    } catch {
+        return null
     }
-    return { slug, move, summary: calcDamageSummary(input), detail: calcDamage(input) }
+    const hp = Math.max(1, r.defenderHP)
+    const koChance: MoveSummary['koChance'] = r.koHits === 1 && r.koChance >= 1 ? 'guaranteed' : r.koHits === 1 && r.koChance > 0 ? 'rng' : 'impossible'
+    return {
+        slug,
+        move,
+        summary: { min: r.min, max: r.max, range: r.range, minRatio: r.min / hp, maxRatio: r.max / hp, koChance, koText: r.koText },
+        detail: r,
+    }
 }

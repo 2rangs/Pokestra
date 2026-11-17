@@ -141,15 +141,11 @@ export function MoveResults({ moves, pool, results, defenderHp, onChangeMove }: 
                     <div className="mb-2 font-bold text-slate-800">{moveNameKo(sel.slug)} 상세</div>
                     <div className="mb-2 flex flex-wrap gap-1.5">
                         <Tag>상성 ×{sel.detail.effectiveness}</Tag>
-                        <Tag>자속 {sel.detail.isSTAB ? `×${sel.detail.modifiers.stab}` : '없음'}</Tag>
-                        {sel.detail.modifiers.weather !== 1 && <Tag>날씨 ×{sel.detail.modifiers.weather}</Tag>}
-                        {sel.detail.modifiers.terrain !== 1 && <Tag>필드 ×{sel.detail.modifiers.terrain}</Tag>}
-                        {sel.detail.modifiers.crit !== 1 && <Tag>급소 ×{sel.detail.modifiers.crit}</Tag>}
-                        {sel.detail.modifiers.screen !== 1 && <Tag>벽 ×{sel.detail.modifiers.screen}</Tag>}
-                        {sel.detail.modifiers.burn !== 1 && <Tag>화상 ×{sel.detail.modifiers.burn}</Tag>}
-                        {sel.detail.modifiers.ability !== 1 && <Tag>특성 ×{round(sel.detail.modifiers.ability)}</Tag>}
-                        {sel.detail.modifiers.item !== 1 && <Tag>도구 ×{round(sel.detail.modifiers.item)}</Tag>}
-                        {sel.detail.immuneReason && <Tag>무효: {sel.detail.immuneReason}</Tag>}
+                        <Tag>자속 {sel.detail.isSTAB ? '있음' : '없음'}</Tag>
+                        <Tag>위력 {sel.detail.basePower}</Tag>
+                    </div>
+                    <div className="mb-2 break-words rounded-lg bg-white px-2 py-1.5 font-mono text-[11px] leading-relaxed text-slate-600" title="Showdown 데미지 계산기 형식">
+                        {sel.detail.desc}
                     </div>
                     <div className="mb-1 text-[11px] font-semibold text-slate-500">난수 16단계</div>
                     <div className="break-words font-mono text-[11px] leading-relaxed text-slate-700">{sel.summary.range.join(', ')}</div>
@@ -158,8 +154,6 @@ export function MoveResults({ moves, pool, results, defenderHp, onChangeMove }: 
         </section>
     )
 }
-
-const round = (n: number) => Math.round(n * 100) / 100
 
 function Tag({ children }: { children: ReactNode }) {
     return <span className="rounded-md bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">{children}</span>

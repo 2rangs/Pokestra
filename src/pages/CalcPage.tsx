@@ -66,11 +66,11 @@ function Calculator() {
         const slug = atk.moves[i]
         if (!slug) return null
         try {
-            return calcMove(atkBp, defBp, slug, field)
+            return calcMove(atk, def, slug, field)
         } catch {
             return null
         }
-    }), [atk.moves, atkBp, defBp, field])
+    }), [atk, def, field])
 
     const pickAtk = (p: DexPokemon) => {
         const next = initSide(p, atk.level)

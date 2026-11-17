@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-    calcDamageSummary, calcDamage, getTypeChart, STATUS_NAME_KO, WEATHER_NAME_KO, TERRAIN_NAME_KO,
+    STATUS_NAME_KO, WEATHER_NAME_KO, TERRAIN_NAME_KO,
     SIDE_CONDITION_KO, FIELD_CONDITION_KO, VOLATILE_NAME_KO,
     type BattleRequest, type PlayerID, type MoveOption,
 } from '@kyasi/pokebattle-engine'
 import {
-    BATTLE_STAT_LABEL_KO, TYPE_COLOR, dexIdOf, itemNameKo, moveNameKo, pokemonNameKo, prettify,
-    spriteUrl, backSpriteUrl, artworkUrl,
-} from '../../lib/battle'
+    BATTLE_STAT_LABEL_KO, TYPE_COLOR, dexIdOf, itemNameKo, moveNameKo, pokemonNameKo, 
+    spriteUrl, backSpriteUrl, artworkUrl, abilityNameKo } from '../../lib/battle'
 import { TypeBadge } from '../../components/battle/TypeBadge'
 import type { BattleSession, PokeView, SideView } from './useBattleSession'
 
@@ -164,25 +163,14 @@ function ActionPanel({ session, player }: { session: BattleSession; player: Play
 
     const previews = useMemo(() => {
         if (!engine || !req || req.type !== 'move') return {}
-        const me = req.active
-        const foe = engine.getActive(engine.foeOf(player))
-        if (!foe || foe.fainted) return {}
-        const foeSide = engine.getSide(engine.foeOf(player))
-        const state = engine.getState()
         const out: Record<number, { text: string; eff: number }> = {}
         for (const opt of req.moves) {
-            if (opt.move.category === 'status') continue
-            const input = {
-                attacker: me, defender: foe, move: opt.move,
-                weather: engine.effectiveWeather(), terrain: state.field.terrain, typeChart: getTypeChart(),
-                reflect: !!foeSide.conditions.reflect, lightScreen: !!foeSide.conditions.light_screen,
-                auroraVeil: !!foeSide.conditions.aurora_veil, isTerastallized: tera,
-            }
-            const r = calcDamage({ ...input, randomRoll: 100 })
-            if (r.damage === 0) { out[opt.index] = { text: '0%', eff: r.effectiveness }; continue }
-            const s = calcDamageSummary(input)
-            const pct = (n: number) => Math.min(100, Math.round(n / foe.max_hp * 100))
-            out[opt.index] = { text: `${pct(s.min)}~${pct(s.max)}%`, eff: r.effectiveness }
+            if (opt.move.category === 'status' || opt.index < 0) continue
+            const r = engine.previewDamage(player, opt.index, { terastallize: tera })
+            if (!r) continue
+            if (r.max === 0) { out[opt.index] = { text: '0%', eff: r.effectiveness }; continue }
+            const pct = (n: number) => Math.min(100, Math.round(n))
+            out[opt.index] = { text: `${pct(r.minPercent)}~${pct(r.maxPercent)}%`, eff: r.effectiveness }
         }
         return out
     }, [engine, req, player, tera])
@@ -370,7 +358,7 @@ function SpectatorDetails({ f }: { f: NonNullable<BattleSession['current']> }) {
             <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-200">
                 <span className={`block h-full ${hpColor(p.hp / p.max_hp)}`} style={{ width: `${p.hp / p.max_hp * 100}%` }} />
             </span>
-            <span className="w-20 truncate text-right text-slate-400">{p.item ? itemNameKo(p.item) : prettify(p.ability)}</span>
+            <span className="w-20 truncate text-right text-slate-400">{p.item ? itemNameKo(p.item) : abilityNameKo(p.ability)}</span>
         </div>
     )
     return (

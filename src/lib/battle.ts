@@ -2,7 +2,7 @@
 // 도감 데이터(src/lib/dex.ts) 와 @kyasi/pokebattle-engine 을 잇는다.
 import { useQuery } from '@tanstack/react-query'
 import {
-    preloadData, generateRandomSet, generateRandomTeam, getSpecies, PRNG,
+    preloadData, generateRandomSet, generateRandomTeam, getSpecies, koName, PRNG,
     type NameResolver, type Nature, type PokemonSet,
 } from '@kyasi/pokebattle-engine'
 import {
@@ -31,11 +31,17 @@ export const prettify = (slug: string) =>
 
 export function pokemonNameKo(species: string): string {
     const p = findDexPokemonByName(species)
-    return p ? displayNameKo(p) : prettify(species)
+    return p ? displayNameKo(p) : koName.species(species) ?? prettify(species)
 }
 
 export function moveNameKo(name: string): string {
-    return MOVE_BY_NAME.get(name)?.nameKo ?? prettify(name)
+    const m = MOVE_BY_NAME.get(name)
+    return (m?.hasKoreanName ? m.nameKo : null) ?? koName.move(name) ?? m?.nameKo ?? prettify(name)
+}
+
+/** 특성 한국어 이름 (PokeAPI) */
+export function abilityNameKo(slug: string): string {
+    return koName.ability(slug) ?? prettify(slug)
 }
 
 export function typeNameKo(type: string): string {
@@ -88,7 +94,7 @@ export const ITEMS: { id: string; ko: string }[] = [
 ]
 export const ITEM_NAME_KO: Record<string, string> = Object.fromEntries(ITEMS.map(i => [i.id, i.ko]))
 
-export const itemNameKo = (id: string) => ITEM_NAME_KO[id] ?? prettify(id)
+export const itemNameKo = (id: string) => ITEM_NAME_KO[id] ?? koName.item(id) ?? prettify(id)
 
 /** formatEvent 에 넘기는 한국어 이름 변환기 */
 export const KO_NAMES: NameResolver = {
@@ -96,8 +102,8 @@ export const KO_NAMES: NameResolver = {
     move:    moveNameKo,
     type:    typeNameKo,
     // 도구가 아니면 기술 이름일 수 있다 (예: 데미지 출처가 '잠자기')
-    item:    id => ITEM_NAME_KO[id] ?? MOVE_BY_NAME.get(id)?.nameKo ?? prettify(id),
-    ability: prettify,
+    item:    id => ITEM_NAME_KO[id] ?? koName.item(id) ?? koName.move(id) ?? prettify(id),
+    ability: abilityNameKo,
 }
 
 // ─── 세트 생성 ────────────────────────────────────────────────
@@ -112,12 +118,9 @@ export function buildSet(p: DexPokemon, rng: PRNG = new PRNG(), level = 50): Pok
     return { ...set, nickname: displayNameKo(p) }
 }
 
-/** 랜덤 팀 (도감 기술표 반영) */
+/** 랜덤 팀 (Showdown 랜덤배틀 세트, 공정하게 레벨 통일) */
 export function buildRandomTeam(seed: number, size = 6, level = 50): PokemonSet[] {
-    const rng = new PRNG(seed)
-    const learnsets: Record<string, string[]> = {}
-    for (const p of ALL_POKEMON) learnsets[p.name] = p.moves
-    return generateRandomTeam({ rng, size, level, learnsets }).map(s => ({
+    return generateRandomTeam({ seed, size, level }).map(s => ({
         ...s,
         nickname: pokemonNameKo(s.species),
     }))

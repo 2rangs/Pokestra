@@ -5,9 +5,8 @@ import {
 } from '@kyasi/pokebattle-engine'
 import { findDexPokemonByName, TYPES, type DexPokemon } from '../../lib/dex'
 import {
-    ITEMS, NATURES, buildSet, itemNameKo, moveNameKo, pokemonNameKo, prettify, spriteUrl, dexIdOf,
-    BATTLE_STAT_LABEL_KO, TYPE_COLOR,
-} from '../../lib/battle'
+    ITEMS, NATURES, buildSet, itemNameKo, moveNameKo, pokemonNameKo, spriteUrl, dexIdOf,
+    BATTLE_STAT_LABEL_KO, TYPE_COLOR, abilityNameKo } from '../../lib/battle'
 import { PokemonSearch } from '../../components/battle/PokemonSearch'
 import { TypeBadge } from '../../components/battle/TypeBadge'
 
@@ -73,7 +72,7 @@ function SlotEditor({ set, onChange, onRemove, onReroll }: SlotEditorProps) {
                         {types.map(t => <TypeBadge key={t} type={t} size="xs" />)}
                     </div>
                     <div className="mt-0.5 truncate text-xs text-slate-500">
-                        {prettify(set.ability)} · {set.item ? itemNameKo(set.item) : '도구 없음'} · {NATURES.find(n => n.id === set.nature)?.ko ?? set.nature}
+                        {abilityNameKo(set.ability)} · {set.item ? itemNameKo(set.item) : '도구 없음'} · {NATURES.find(n => n.id === set.nature)?.ko ?? set.nature}
                         {set.teraType && <> · 테라 <TypeBadge type={set.teraType} size="xs" /></>}
                     </div>
                     <div className="mt-1.5 grid grid-cols-2 gap-1">
@@ -99,7 +98,7 @@ function SlotEditor({ set, onChange, onRemove, onReroll }: SlotEditorProps) {
                 <div className="mt-3 grid grid-cols-1 gap-2 border-t border-slate-100 pt-3 sm:grid-cols-2">
                     <label className="text-xs text-slate-500">특성
                         <select className={select} value={set.ability} onChange={e => onChange({ ...set, ability: e.target.value })}>
-                            {(species?.abilities ?? []).map(a => <option key={a.name} value={a.name}>{prettify(a.name)}{a.hidden ? ' (숨겨진 특성)' : ''}</option>)}
+                            {(species?.abilities ?? []).map(a => <option key={a.name} value={a.name}>{abilityNameKo(a.name)}{a.hidden ? ' (숨겨진 특성)' : ''}</option>)}
                         </select>
                     </label>
                     <label className="text-xs text-slate-500">도구
