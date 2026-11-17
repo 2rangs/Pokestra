@@ -1,73 +1,45 @@
-# React + TypeScript + Vite
+# Pokestra
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A Korean Pokémon dex and battle site. It covers every Pokémon from Gen 1 to 9, and its battles and damage calculations run on [`@kyasi/pokebattle-engine`](https://github.com/2rangs/pokebattle-engine).
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+| Route | Description |
+|---|---|
+| `/pokedex` | Instant search over local data: Korean or English name or number; filters for type (up to 2), generation, learnable moves and alternate forms; sorting by base stats |
+| `/pokemon/:id` | Detail page: base stats, type matchups, evolutions, plus a **battle stats panel** (min/max actual stats at Lv50/Lv100) |
+| `/battle` | **Battle simulator**: build a team from learnsets (or random / Showdown import) and fight the CPU in singles, or watch CPU vs CPU. 3 difficulty levels, Terastallization, damage-range preview on move buttons, Korean battle log |
+| `/calc` | **Damage calculator**: EVs/IVs, nature, ability, item, stat stages, Tera, weather/terrain/screens/crit. Shows all 16 damage rolls and the KO text. `?atk=garchomp&def=gholdengo` links preselect the matchup |
 
-## React Compiler
+## Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev      # http://localhost:5173/Pokestra/
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Engine dependency
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+`package.json` installs the engine from GitHub:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```json
+"@kyasi/pokebattle-engine": "github:2rangs/pokebattle-engine#claude/pokemon-battle-engine-pokedex-pocs4h"
 ```
+
+npm runs the engine's `prepare` script at install time, which builds `dist/`. To work on both repos side by side:
+
+```bash
+# from the engine repo
+npm pack
+# from the Pokestra repo
+npm install --no-save ../pokebattle-engine/kyasi-pokebattle-engine-*.tgz
+```
+
+## Structure
+
+- `src/lib/dex.ts` — typed accessors over the local dex JSON (`src/data/*.json`)
+- `src/lib/battle.ts` — engine glue: data loading hook, Korean name resolver, items/natures, recommended sets built from learnsets
+- `src/pages/battle/` — battle simulator (`useBattleSession` records a frame for every engine event and replays them in order)
+- `src/pages/CalcPage.tsx`, `src/components/calc/` — damage calculator
+- Large pages are lazy-loaded (`React.lazy`), so data and the engine download only when needed

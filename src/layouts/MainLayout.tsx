@@ -3,6 +3,8 @@ import { Outlet, NavLink } from 'react-router-dom'
 const NAV_ITEMS = [
     { to: '/', label: 'Home', end: true },
     { to: '/pokedex', label: 'Pokédex' },
+    { to: '/battle', label: '배틀' },
+    { to: '/calc', label: '계산기' },
     { to: '/moves', label: 'Moves' },
     { to: '/abilities', label: 'Abilities' },
     { to: '/sprites', label: 'Sprites' },
@@ -38,7 +40,7 @@ const MainLayout = () => {
 
                 {/* Nav row */}
                 <nav className="max-w-6xl mx-auto px-4">
-                    <div className="flex items-center justify-center gap-1">
+                    <div className="flex items-center justify-start gap-1 overflow-x-auto sm:justify-center [scrollbar-width:none]">
                         {NAV_ITEMS.map(({ to, label, end }) => (
                             <NavLink
                                 key={to}
@@ -46,7 +48,7 @@ const MainLayout = () => {
                                 end={end}
                                 className={({ isActive }) =>
                                     [
-                                        'relative px-4 py-2 text-sm font-semibold transition-colors',
+                                        'relative shrink-0 px-3 py-2 text-sm font-semibold whitespace-nowrap transition-colors sm:px-4',
                                         isActive
                                             ? 'text-slate-900'
                                             : 'text-slate-400 hover:text-slate-600',

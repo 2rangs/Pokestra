@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import React, { useEffect, useRef, useState } from "react";
 
 const COLS = 6;
@@ -176,7 +177,7 @@ const PDATA: PlayerData[] = [
 
 const EPOOL: EnemyBase[] = [
     { id: 493, name: "아르세우스", type: "normal", baseHp: 1200, atk: 120, lv: 999, ae: 1 },
-    { id: 149, name: "망나뇽", type: "dragon", baseHp: 260, atk: 44, lv: 18, ae: 3 },
+    { id: 149, name: "망나뇽", type: "normal", baseHp: 260, atk: 44, lv: 18, ae: 3 },
     { id: 130, name: "갸라도스", type: "water", baseHp: 320, atk: 52, lv: 24, ae: 2 },
     { id: 94, name: "팬텀", type: "dark", baseHp: 360, atk: 58, lv: 28, ae: 2 },
     { id: 150, name: "뮤츠", type: "dark", baseHp: 500, atk: 70, lv: 45, ae: 1 },
