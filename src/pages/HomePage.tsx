@@ -1,16 +1,15 @@
-import { useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { Link, useNavigate } from 'react-router'
 import { Button } from '@astryxdesign/core/Button'
-import { Card } from '@astryxdesign/core/Card'
 import { ClickableCard } from '@astryxdesign/core/ClickableCard'
-import { Grid } from '@astryxdesign/core/Grid'
 import { Heading } from '@astryxdesign/core/Heading'
 import { HStack } from '@astryxdesign/core/HStack'
 import { Icon } from '@astryxdesign/core/Icon'
 import { Text } from '@astryxdesign/core/Text'
 import { Typeahead, TypeaheadItem, type SearchableItem, type SearchSource } from '@astryxdesign/core/Typeahead'
 import { VStack } from '@astryxdesign/core/VStack'
-import { TypeBadge } from '../components/dex/DexUi'
+import { TypeTag, StatBar } from '../components/ui/shared'
+import { typeColor } from '../components/ui/utils'
 import { artworkUrl, buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
 import { formatNumber, useDocumentTitle, useLang, useT } from '../i18n'
 import { homeMessages } from '../i18n/messages/home'
@@ -20,9 +19,13 @@ import {
     baseStatTotal,
     type DexPokemon,
     displayName,
+    GENERATIONS,
+    getDexPokemon,
     getSpeciesId,
     isAlternateForm,
     MOVES,
+    STAT_KEYS,
+    statLabel,
 } from '../lib/dex'
 import { usePokedexStore } from '../stores/pokedexStore'
 
@@ -54,15 +57,27 @@ const COUNTS = {
     abilities: ABILITIES.length,
 }
 
-/** 홈의 메뉴: 제목, 한 줄 설명, (있으면) 개수 */
-const SECTIONS: { to: string; title: HomeKey; desc: HomeKey; count?: { key: HomeKey; n: number } }[] = [
-    { to: '/pokedex', title: 'featPokedexTitle', desc: 'featPokedexDesc', count: { key: 'countSpecies', n: COUNTS.species } },
-    { to: '/moves', title: 'featMovesTitle', desc: 'featMovesDesc', count: { key: 'countMoves', n: COUNTS.moves } },
-    { to: '/abilities', title: 'featAbilitiesTitle', desc: 'featAbilitiesDesc', count: { key: 'countAbilities', n: COUNTS.abilities } },
-    { to: '/sprites', title: 'featSpritesTitle', desc: 'featSpritesDesc', count: { key: 'countSprites', n: COUNTS.all } },
-    { to: '/battle', title: 'featBattleTitle', desc: 'featBattleDesc' },
-    { to: '/calc', title: 'featCalcTitle', desc: 'featCalcDesc' },
-]
+const byId = (ids: number[]) => ids.map((id) => getDexPokemon(id)).filter((p): p is DexPokemon => !!p)
+
+/** 검색창 아래 바로가기 */
+const POPULAR = byId([25, 6, 445, 149, 94, 448, 700, 1000])
+
+/** 세대별 스타팅 포켓몬 (풀, 불꽃, 물) */
+const STARTERS: Record<number, number[]> = {
+    1: [1, 4, 7],
+    2: [152, 155, 158],
+    3: [252, 255, 258],
+    4: [387, 390, 393],
+    5: [495, 498, 501],
+    6: [650, 653, 656],
+    7: [722, 725, 728],
+    8: [810, 813, 816],
+    9: [906, 909, 912],
+}
+
+/** 도구 카드 그림에 쓰는 포켓몬 */
+const DEX_PREVIEW = byId([1, 4, 7, 25, 133, 143, 150, 249, 384, 445])
+const BATTLE_PREVIEW = byId([445, 1000])
 
 const MAX_SUGGESTIONS = 6
 
@@ -109,56 +124,307 @@ function pokemonOfDay(key: string): DexPokemon {
     return POTD_POOL[(h >>> 0) % POTD_POOL.length]
 }
 
+
 // ── 페이지 ──
 
 export default function HomePage() {
-    const lang = useLang()
     const t = useT(homeMessages)
     useDocumentTitle(null)
 
     return (
-        <VStack gap={10}>
-            <Grid columns={{ minWidth: 300 }} gap={6} align="center">
-                <VStack gap={4}>
+        <div className="flex flex-col gap-12 sm:gap-16">
+            {/* 검색 + 오늘의 포켓몬 */}
+            <section className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-10">
+                <VStack gap={5}>
                     <VStack gap={2}>
-                        <Heading level={1}>{t('heroTitle')}</Heading>
-                        <span className="max-w-[60ch]">
+                        <Heading level={1} type="display-3" textWrap="balance">
+                            {t('heroTitle')}
+                        </Heading>
+                        <span className="max-w-[56ch]">
                             <Text as="p" type="large" color="secondary">
                                 {t('heroLead')}
                             </Text>
                         </span>
                     </VStack>
                     <HeroSearch />
+                    <PopularPokemon />
                 </VStack>
                 <PokemonOfTheDay />
-            </Grid>
-
-            <section aria-labelledby="sections-heading">
-                <VStack gap={3}>
-                    <Heading level={2} id="sections-heading">
-                        {t('sectionsHeading')}
-                    </Heading>
-                    <Grid columns={{ minWidth: 260 }} gap={3}>
-                        {SECTIONS.map((s) => (
-                            <ClickableCard key={s.to} href={s.to} label={t(s.title)} height="100%">
-                                <VStack gap={1.5}>
-                                    <HStack gap={2} align="center" justify="between" wrap="wrap">
-                                        <Heading level={3}>{t(s.title)}</Heading>
-                                        {s.count && (
-                                            <Text type="supporting" hasTabularNumbers>
-                                                {t(s.count.key, { n: formatNumber(s.count.n, lang) })}
-                                            </Text>
-                                        )}
-                                    </HStack>
-                                    <Text color="secondary">{t(s.desc)}</Text>
-                                </VStack>
-                            </ClickableCard>
-                        ))}
-                    </Grid>
-                </VStack>
             </section>
+
+            <ToolsSection />
+            <ReferenceSection />
+            <GenerationsSection />
+        </div>
+    )
+}
+
+function SectionHeading({ id, children }: { id: string; children: string }) {
+    return (
+        <span className="mb-4 block">
+            <Heading level={2} id={id}>
+                {children}
+            </Heading>
+        </span>
+    )
+}
+
+/** 도트 스프라이트. fluid 면 부모 너비에 맞춰 줄어든다 */
+function Sprite({ p, size = 48, className = '', fluid = false }: { p: DexPokemon; size?: number; className?: string; fluid?: boolean }) {
+    const box = fluid ? { width: '100%', maxWidth: size, aspectRatio: '1' } : { width: size, height: size }
+    if (!p.sprite) return <span style={box} className="inline-block" />
+    return (
+        <img
+            src={p.sprite}
+            alt=""
+            width={size}
+            height={size}
+            loading="lazy"
+            decoding="async"
+            className={`object-contain [image-rendering:pixelated] ${className}`}
+            style={box}
+        />
+    )
+}
+
+// ── 자주 찾는 포켓몬 ──
+
+function PopularPokemon() {
+    const lang = useLang()
+    const t = useT(homeMessages)
+    return (
+        <VStack gap={2}>
+            <Text type="supporting" color="secondary">
+                {t('popularLabel')}
+            </Text>
+            <ul className="flex flex-wrap gap-2">
+                {POPULAR.map((p) => (
+                    <li key={p.id}>
+                        <Link
+                            to={`/pokemon/${p.id}`}
+                            className="flex items-center gap-1 rounded-full border border-border bg-surface py-0.5 pr-3 pl-1 text-sm text-primary transition-colors hover:border-border-emphasized hover:bg-muted"
+                        >
+                            <Sprite p={p} size={32} />
+                            {displayName(p, lang)}
+                        </Link>
+                    </li>
+                ))}
+            </ul>
         </VStack>
     )
+}
+
+// ── 오늘의 포켓몬 ──
+
+function PokemonOfTheDay() {
+    const lang = useLang()
+    const t = useT(homeMessages)
+    const [key] = useState(todayKey)
+    const p = useMemo(() => pokemonOfDay(key), [key])
+    const [failed, setFailed] = useState(false)
+    const name = displayName(p, lang)
+    const color = typeColor(p.types[0])
+    const maxStat = Math.max(...STAT_KEYS.map((k) => p.stats[k]))
+
+    return (
+        <section
+            aria-labelledby="potd-heading"
+            className="overflow-hidden rounded-xl border border-border"
+            style={{ background: `color-mix(in srgb, ${color} 14%, var(--color-background-surface))` }}
+        >
+            <div className="flex items-center justify-between gap-2 px-5 pt-4">
+                <Text type="supporting" weight="semibold" id="potd-heading">
+                    {t('potdTitle')}
+                </Text>
+                <Text type="supporting" color="secondary" hasTabularNumbers>
+                    {padDexNo(getSpeciesId(p))}
+                </Text>
+            </div>
+            <div className="flex flex-col gap-4 px-5 pb-5">
+                <div className="flex items-center gap-4">
+                    <Link to={`/pokemon/${p.id}`} className="block shrink-0" aria-label={name}>
+                        <img
+                            src={failed ? (p.sprite ?? '') : artworkUrl(p.id)}
+                            alt=""
+                            width={176}
+                            height={176}
+                            onError={() => setFailed(true)}
+                            className="h-28 w-28 object-contain min-[420px]:h-36 min-[420px]:w-36 sm:h-44 sm:w-44"
+                        />
+                    </Link>
+                    <VStack gap={2}>
+                        <Heading level={2} maxLines={2}>
+                            {name}
+                        </Heading>
+                        <HStack gap={1.5} wrap="wrap">
+                            {p.types.map((ty) => (
+                                <TypeTag key={ty} type={ty} size="md" />
+                            ))}
+                        </HStack>
+                        <Text color="secondary" hasTabularNumbers>
+                            {t('potdTotal')} <Text weight="semibold" color="primary">{baseStatTotal(p)}</Text>
+                        </Text>
+                    </VStack>
+                </div>
+                <dl className="grid grid-cols-[4.5rem_2.25rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 text-sm sm:grid-cols-[5rem_2.5rem_minmax(0,1fr)]">
+                    {STAT_KEYS.map((k) => (
+                        <div key={k} className="contents">
+                            <dt className="truncate text-secondary">{statLabel(k, lang, true)}</dt>
+                            <dd className="text-right font-semibold tabular-nums">{p.stats[k]}</dd>
+                            <dd>
+                                <StatBar value={p.stats[k]} highlight={p.stats[k] === maxStat} label={statLabel(k, lang)} />
+                            </dd>
+                        </div>
+                    ))}
+                </dl>
+                <span>
+                    <Button variant="primary" href={`/pokemon/${p.id}`} label={t('potdCta')} />
+                </span>
+            </div>
+        </section>
+    )
+}
+
+// ── 도구 ──
+
+function ToolCard({ href, title, desc, children }: { href: string; title: string; desc: string; children: ReactNode }) {
+    return (
+        <ClickableCard href={href} label={title} padding={0} height="100%">
+            <span className="flex h-36 items-center justify-center overflow-hidden border-b border-border bg-muted sm:h-40">
+                {children}
+            </span>
+            <span className="block p-4">
+                <VStack gap={1}>
+                    <Heading level={3}>{title}</Heading>
+                    <Text color="secondary">{desc}</Text>
+                </VStack>
+            </span>
+        </ClickableCard>
+    )
+}
+
+function ToolsSection() {
+    const t = useT(homeMessages)
+    const [atk, def] = BATTLE_PREVIEW
+    return (
+        <section aria-labelledby="tools-heading">
+            <SectionHeading id="tools-heading">{t('toolsHeading')}</SectionHeading>
+            <div className="grid gap-4 md:grid-cols-3">
+                <ToolCard href="/pokedex" title={t('featPokedexTitle')} desc={t('featPokedexDesc')}>
+                    <span className="grid w-full max-w-80 grid-cols-5 justify-items-center px-3" aria-hidden>
+                        {DEX_PREVIEW.map((p) => (
+                            <Sprite key={p.id} p={p} size={60} fluid />
+                        ))}
+                    </span>
+                </ToolCard>
+
+                <ToolCard href="/battle" title={t('featBattleTitle')} desc={t('featBattleDesc')}>
+                    <span className="flex w-full items-end justify-center gap-1 px-3" aria-hidden>
+                        {atk && <img src={artworkUrl(atk.id)} alt="" width={120} height={120} loading="lazy" className="aspect-square w-[40%] max-w-32 object-contain" />}
+                        <span className="mb-[12%] shrink-0 text-base font-bold text-secondary">VS</span>
+                        {def && <img src={artworkUrl(def.id)} alt="" width={120} height={120} loading="lazy" className="aspect-square w-[40%] max-w-32 -scale-x-100 object-contain" />}
+                    </span>
+                </ToolCard>
+
+                <ToolCard href="/calc" title={t('featCalcTitle')} desc={t('featCalcDesc')}>
+                    <span className="flex w-full max-w-64 flex-col gap-2 px-6" aria-hidden>
+                        <span className="flex items-center justify-between text-xs text-secondary">
+                            <span>{t('calcExample')}</span>
+                            <span className="font-semibold text-primary">{t('calcExampleKo')}</span>
+                        </span>
+                        <span className="relative block h-3 overflow-hidden rounded-full bg-surface">
+                            <span className="absolute inset-y-0 left-0 w-[63%] rounded-l-full bg-success" />
+                            <span className="absolute inset-y-0 left-[63%] w-[6%] bg-error" />
+                            <span className="absolute inset-y-0 left-[69%] w-[31%] bg-error/30" />
+                        </span>
+                        <span className="text-right text-sm font-semibold tabular-nums text-primary">31.1% – 37.1%</span>
+                    </span>
+                </ToolCard>
+            </div>
+        </section>
+    )
+}
+
+// ── 자료 ──
+
+function ReferenceSection() {
+    const lang = useLang()
+    const t = useT(homeMessages)
+    const items: { to: string; title: HomeKey; count: HomeKey; n: number }[] = [
+        { to: '/moves', title: 'featMovesTitle', count: 'countMoves', n: COUNTS.moves },
+        { to: '/abilities', title: 'featAbilitiesTitle', count: 'countAbilities', n: COUNTS.abilities },
+        { to: '/sprites', title: 'featSpritesTitle', count: 'countSprites', n: COUNTS.all },
+    ]
+    return (
+        <section aria-labelledby="reference-heading">
+            <SectionHeading id="reference-heading">{t('referenceHeading')}</SectionHeading>
+            <div className="grid gap-3 sm:grid-cols-3">
+                {items.map((it) => (
+                    <ClickableCard key={it.to} href={it.to} label={t(it.title)}>
+                        <HStack gap={3} align="center" justify="between">
+                            <VStack gap={0.5}>
+                                <Heading level={3}>{t(it.title)}</Heading>
+                                <Text type="supporting" color="secondary" hasTabularNumbers>
+                                    {t(it.count, { n: formatNumber(it.n, lang) })}
+                                </Text>
+                            </VStack>
+                            <Icon icon="chevronRight" />
+                        </HStack>
+                    </ClickableCard>
+                ))}
+            </div>
+        </section>
+    )
+}
+
+// ── 세대별 ──
+
+function GenerationsSection() {
+    const lang = useLang()
+    const t = useT(homeMessages)
+    const navigate = useNavigate()
+    const resetFilters = usePokedexStore((s) => s.resetFilters)
+    const toggleGeneration = usePokedexStore((s) => s.toggleGeneration)
+
+    const open = (id: number) => {
+        resetFilters()
+        toggleGeneration(id)
+        navigate('/pokedex')
+    }
+
+    return (
+        <section aria-labelledby="gens-heading">
+            <SectionHeading id="gens-heading">{t('gensHeading')}</SectionHeading>
+            <div className="grid gap-3 min-[480px]:grid-cols-2 lg:grid-cols-3">
+                {GENERATIONS.filter((g) => STARTERS[g.id]).map((g) => {
+                    const title = `${generationTitle(g.id, lang)} ${t(`region${g.id}` as HomeKey)}`
+                    return (
+                        <ClickableCard key={g.id} label={title} onClick={() => open(g.id)}>
+                            <HStack gap={3} align="center" justify="between">
+                                <VStack gap={0.5}>
+                                    <Heading level={3}>{title}</Heading>
+                                    <Text type="supporting" color="secondary" hasTabularNumbers>
+                                        {t('genSpecies', { n: formatNumber(g.pokemonSpecies.length, lang) })}
+                                    </Text>
+                                </VStack>
+                                <span className="flex shrink-0" aria-hidden>
+                                    {byId(STARTERS[g.id]).map((p) => (
+                                        <Sprite key={p.id} p={p} size={56} className="-mx-1.5" />
+                                    ))}
+                                </span>
+                            </HStack>
+                        </ClickableCard>
+                    )
+                })}
+            </div>
+        </section>
+    )
+}
+
+function generationTitle(id: number, lang: string): string {
+    if (lang === 'ko') return `${id}세대`
+    if (lang === 'ja') return `第${id}世代`
+    return `Gen ${id}`
 }
 
 // ── 검색 (Astryx Typeahead) ──
@@ -266,60 +532,3 @@ function HeroSearch() {
     )
 }
 
-// ── 오늘의 포켓몬 ──
-
-function PokemonOfTheDay() {
-    const lang = useLang()
-    const t = useT(homeMessages)
-    const [key] = useState(todayKey)
-    const p = useMemo(() => pokemonOfDay(key), [key])
-    const [failed, setFailed] = useState(false)
-    const name = displayName(p, lang)
-
-    return (
-        <section aria-labelledby="potd-heading">
-            <Card>
-                <HStack gap={4} align="center" wrap="wrap">
-                    <span className="flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <img
-                            src={failed ? (p.sprite ?? '') : artworkUrl(p.id)}
-                            alt={name}
-                            width={128}
-                            height={128}
-                            loading="lazy"
-                            onError={() => setFailed(true)}
-                            className="h-28 w-28 object-contain"
-                        />
-                    </span>
-                    <VStack gap={1.5} className="min-w-0 flex-1">
-                        <Text type="supporting" id="potd-heading">
-                            {t('potdTitle')}
-                        </Text>
-                        <VStack gap={0.5}>
-                            <Text type="supporting" hasTabularNumbers>
-                                {padDexNo(getSpeciesId(p))}
-                            </Text>
-                            <Heading level={2} maxLines={1}>
-                                {name}
-                            </Heading>
-                        </VStack>
-                        <HStack gap={1} wrap="wrap">
-                            {p.types.map((ty) => (
-                                <TypeBadge key={ty} type={ty} />
-                            ))}
-                        </HStack>
-                        <Text size="sm" color="secondary">
-                            {t('potdTotal')}{' '}
-                            <Text size="sm" weight="semibold" hasTabularNumbers>
-                                {baseStatTotal(p)}
-                            </Text>
-                        </Text>
-                        <span className="pt-1">
-                            <Button size="sm" variant="secondary" href={`/pokemon/${p.id}`} label={t('potdCta')} />
-                        </span>
-                    </VStack>
-                </HStack>
-            </Card>
-        </section>
-    )
-}
