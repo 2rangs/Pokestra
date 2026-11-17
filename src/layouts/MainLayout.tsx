@@ -18,11 +18,13 @@ const NAV_ITEMS = [
 /** 몬스터볼 마크 */
 function Mark({ className }: { className?: string }) {
     return (
-        <svg viewBox="0 0 40 40" className={className} aria-hidden fill="none" strokeLinecap="round">
-            <circle cx="20" cy="20" r="17" stroke="var(--color-text-primary)" strokeWidth="2.4" />
-            <path d="M3 20a17 17 0 0 1 34 0" fill="var(--color-error)" fillOpacity="0.9" />
-            <path d="M3.5 20h11.2M25.3 20h11.2" stroke="var(--color-text-primary)" strokeWidth="2.4" />
-            <circle cx="20" cy="20" r="5.3" fill="var(--color-background-surface)" stroke="var(--color-text-primary)" strokeWidth="2.4" />
+        // public/favicon.svg 와 같은 모양
+        <svg viewBox="0 0 32 32" className={className} aria-hidden>
+            <path d="M2.5 16a13.5 13.5 0 0 1 27 0z" fill="#e53935" />
+            <path d="M2.5 16a13.5 13.5 0 0 0 27 0z" fill="#ffffff" />
+            <path d="M2.5 16h27" stroke="#1f2328" strokeWidth="2.6" />
+            <circle cx="16" cy="16" r="13.5" fill="none" stroke="#1f2328" strokeWidth="2.6" />
+            <circle cx="16" cy="16" r="4.6" fill="#ffffff" stroke="#1f2328" strokeWidth="2.6" />
         </svg>
     )
 }
