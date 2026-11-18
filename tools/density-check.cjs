@@ -11,6 +11,7 @@ if (process.argv[2] === '--compare') {
     let bad = 0
     for (const k of Object.keys(b)) {
         const vw = Number(k.split('@')[1])
+        if (!a[k]) { console.log(`${k}: no baseline, skipped comparison`) }
         const before = a[k] || {}
         const after = b[k]
         for (const [m, v] of Object.entries(after)) if (m !== 'controls') console.log(`${k} ${m}: ${before[m]} -> ${v}`)
@@ -27,7 +28,7 @@ if (process.argv[2] === '--compare') {
 const [label = 'run', only = 'home,pokedex,detail,moves,abilities,sprites', lang = 'ko'] = process.argv.slice(2)
 const LOCALE = { ko: 'ko-KR', en: 'en-US', ja: 'ja-JP' }[lang]
 const PAGES = { home: '/', pokedex: '/pokedex', detail: '/pokemon/35', moves: '/moves', abilities: '/abilities', sprites: '/sprites' }
-const VIEWPORTS = [[1280, 900, false], [390, 844, true]]
+const VIEWPORTS = [[1280, 900, false], [768, 900, false], [390, 844, true]]
 
 function measure(name) {
     const vh = innerHeight

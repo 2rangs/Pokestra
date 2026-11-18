@@ -91,6 +91,8 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                 {t('skipToContent')}
             </a>
 
+            {/* 헤더 높이 (모바일 두 줄 / lg 한 줄) 에 맞춘 sticky 오프셋이
+                PokedexFilterBar 와 ItemListPage 에 top-23.25 / lg:top-12.25 로 있다. 높이를 바꾸면 함께 고친다. */}
             <header className="sticky top-0 z-50 border-b border-border bg-surface">
                 <div className="mx-auto max-w-7xl sm:px-2">
                     <TopNav

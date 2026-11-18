@@ -3,7 +3,7 @@
  * - 순서 고정: HP · 공격 · 방어 · 특공 · 특방 · 스피드(1세대는 특수) → 합계.
  * - 라벨 칸 고정 폭 · 값은 오른쪽 정렬 tabular · 막대는 0–200 고정 눈금(넘으면 꽉 채우고 "200+").
  * - 막대: 진한 타입 색 한 가지(무지개·상태 색 없음), 옅은 트랙, 데이터 끝만 4px 둥글게. 최고 값은 굵기로 강조.
- * - 비교(현재) 값은 점선 눈금. 행마다 툴팁(호버·초점·탭). 목록 전체가 탭 한 번, 방향키로 행 이동(로빙 포커스).
+ * - 비교(현재) 값은 점선 눈금. 행마다 툴팁(호버·초점·탭). 목록 전체가 탭 한 번, ↑/↓ 로 행 이동(로빙 포커스).
  */
 import { type KeyboardEvent, createRef, useMemo, useState } from "react"
 import { Tooltip } from "@astryxdesign/core/Tooltip"
@@ -59,7 +59,7 @@ export function StatBars({ data, label, tip, showCurrent, colors, total, listLab
     const onKeyDown = (i: number) => (e: KeyboardEvent<HTMLElement>) => {
         const next = nextRowIndex(e.key, i, count)
         if (next === null) return
-        // 페이지의 ←/→ 이전·다음 이동보다 먼저 처리한다 (페이지는 defaultPrevented 를 건너뛴다)
+        // ←/→ 는 처리하지 않는다: 페이지의 이전·다음 이동이 그대로 동작한다
         e.preventDefault()
         setFocusIndex(next)
         refs[next]?.current?.focus()

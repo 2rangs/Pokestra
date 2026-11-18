@@ -31,7 +31,7 @@
 
 ## 디자인
 
-UI는 [Astryx](https://astryx.atmeta.com) 디자인 시스템의 기본 `neutral` 테마로 만들었습니다.
+UI는 [Astryx](https://astryx.atmeta.com) 디자인 시스템의 `neutral` 을 확장한 커스텀 `pokestra` 테마(포켓몬 타입 색 토큰 포함)로 만들었습니다.
 
 - `src/styles.css`는 캐스케이드 레이어 순서를 정하고 Astryx 브리지와 함께 Tailwind v4를 불러옵니다. 그래서 `text-primary`, `bg-surface`, `border-border` 같은 유틸리티가 테마 토큰으로 이어집니다. `src/main.tsx`에서 가장 먼저 import해야 합니다.
 - `src/main.tsx`는 앱을 Astryx `<Theme>`과, Astryx 링크를 React Router로 보내는 `<LinkProvider>`로 감쌉니다.

@@ -17,7 +17,7 @@ const CSV_DIR = path.resolve(process.argv[2] ?? './node_modules/.cache/pokeapi-c
 const FILES = [
     'pokemon', 'pokemon_species_names', 'moves', 'move_names', 'move_flavor_text',
     'type_names', 'abilities', 'ability_names', 'ability_flavor_text', 'pokemon_abilities',
-    'egg_groups', 'egg_group_prose', 'generation_names', 'natures', 'nature_names', 'items', 'item_names',
+    'egg_groups', 'egg_group_prose', 'generation_names', 'items', 'item_names',
 ]
 
 const readJson = (f) => JSON.parse(fs.readFileSync(path.join(DATA_DIR, f), 'utf8'))
@@ -131,12 +131,7 @@ const pokemon = readJson('pokemon.json').map((p) => {
 })
 writeJson('pokemon.json', pokemon)
 
-// 성격 / 도구 이름
-const natureNames = nameTable(csv.nature_names, 'nature_id')
-writeJson('natureNames.json', Object.fromEntries(csv.natures.map((n) => {
-    const t = natureNames.get(n.id) ?? {}
-    return [n.identifier, { ko: t.ko ?? null, en: t.en ?? null, ja: t.ja ?? null }]
-})))
+// 도구 이름
 const itemNames = nameTable(csv.item_names, 'item_id')
 writeJson('itemNames.json', Object.fromEntries(csv.items.flatMap((it) => {
     const t = itemNames.get(it.id)

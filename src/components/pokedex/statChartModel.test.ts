@@ -88,9 +88,15 @@ describe("compareTotals", () => {
 describe("nextRowIndex (roving focus)", () => {
     test("arrows move and stop at the ends", () => {
         expect(nextRowIndex("ArrowDown", 0, 6)).toBe(1)
-        expect(nextRowIndex("ArrowRight", 5, 6)).toBe(5)
+        expect(nextRowIndex("ArrowDown", 5, 6)).toBe(5)
         expect(nextRowIndex("ArrowUp", 0, 6)).toBe(0)
-        expect(nextRowIndex("ArrowLeft", 3, 6)).toBe(2)
+        expect(nextRowIndex("ArrowUp", 3, 6)).toBe(2)
+    })
+    test("Left / Right are left to the page (prev/next)", () => {
+        expect(nextRowIndex("ArrowLeft", 3, 6)).toBeNull()
+        expect(nextRowIndex("ArrowRight", 3, 6)).toBeNull()
+        expect(nextRowIndex("ArrowRight", 5, 6)).toBeNull()
+        expect(nextRowIndex("ArrowLeft", 0, 6)).toBeNull()
     })
     test("Home / End", () => {
         expect(nextRowIndex("Home", 4, 6)).toBe(0)

@@ -191,6 +191,12 @@ export default function PokedexPage() {
     const highlightStat: StatKey | null =
         sortKey === "id" || sortKey === "name" || sortKey === "total" ? null : sortKey
 
+    const highlightLabelText = highlightStat
+        ? statLabel(highlightStat, lang, true)
+        : sortKey === "total"
+          ? t("cardTotal")
+          : undefined
+
     const activeFilterCount =
         selectedTypes.length + selectedGenerations.length + (moveSlug ? 1 : 0) + (includeForms ? 1 : 0)
     const isDirty =
@@ -264,12 +270,9 @@ export default function PokedexPage() {
                             <PokemonCard
                                 key={e.p.id}
                                 pokemon={e.p}
-                                highlight={
-                                    highlightStat
-                                        ? { label: statLabel(highlightStat, lang, true), value: e.p.stats[highlightStat] }
-                                        : sortKey === "total"
-                                          ? { label: t("cardTotal"), value: e.total }
-                                          : undefined
+                                highlightLabel={highlightLabelText}
+                                highlightValue={
+                                    highlightStat ? e.p.stats[highlightStat] : sortKey === "total" ? e.total : undefined
                                 }
                             />
                         ))}

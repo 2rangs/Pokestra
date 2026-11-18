@@ -103,7 +103,7 @@ export function PokedexFilterBar({
                     gap={2}
                     align="end"
                     isScrollable
-                    className={`${open ? "flex" : "hidden"} order-3 w-full *:shrink-0 md:order-2 md:flex md:w-auto md:overflow-visible`}
+                    className={`${open ? "flex" : "hidden"} order-3 w-full *:shrink-0 md:order-2 md:flex lg:w-auto lg:overflow-visible`}
                 >
                     <MultiSelector
                         label={t("generation")}

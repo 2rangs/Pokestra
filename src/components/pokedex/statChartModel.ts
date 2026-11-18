@@ -68,11 +68,11 @@ export function compareTotals(
     return { selected, current: cur, differs: cur !== selected }
 }
 
-/** 로빙 포커스: 방향키로 다음 행 (끝에서 멈춤). 처리하지 않는 키는 null */
+/** 로빙 포커스: ↑/↓ 로 다음 행 (←/→ 는 페이지 이전·다음에 양보) (끝에서 멈춤). 처리하지 않는 키는 null */
 export function nextRowIndex(key: string, index: number, count: number): number | null {
     if (count <= 0) return null
-    if (key === "ArrowDown" || key === "ArrowRight") return Math.min(count - 1, index + 1)
-    if (key === "ArrowUp" || key === "ArrowLeft") return Math.max(0, index - 1)
+    if (key === "ArrowDown") return Math.min(count - 1, index + 1)
+    if (key === "ArrowUp") return Math.max(0, index - 1)
     if (key === "Home") return 0
     if (key === "End") return count - 1
     return null

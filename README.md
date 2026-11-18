@@ -31,7 +31,7 @@ The language switcher in the header picks 한국어 / English / 日本語. The c
 
 ## Design
 
-The UI is built on the [Astryx](https://astryx.atmeta.com) design system with its default `neutral` theme.
+The UI is built on the [Astryx](https://astryx.atmeta.com) design system with its custom `pokestra` theme (extends `neutral`, adds Pokémon type color tokens).
 
 - `src/styles.css` declares the cascade-layer order and loads Tailwind v4 with the Astryx bridge, so utilities like `text-primary`, `bg-surface` and `border-border` map to theme tokens. It must be the first import in `src/main.tsx`.
 - `src/main.tsx` wraps the app in Astryx `<Theme>` and a `<LinkProvider>` that routes Astryx links through React Router.

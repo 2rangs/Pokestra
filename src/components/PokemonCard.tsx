@@ -20,7 +20,8 @@ import { dexNumber } from "./pokedex/format"
 type Props = {
     pokemon: DexPokemon
     /** 정렬 기준 값(능력치·종족값 합계)을 카드 하단에 강조 (없으면 표시하지 않음 — 설명 없는 숫자는 상세/표에서) */
-    highlight?: { label: string; value: number }
+    highlightLabel?: string
+    highlightValue?: number
 }
 
 /** 보조 이름: 한국어/일본어 화면에서는 영어 이름, 영어 화면에서는 일본어 이름 */
@@ -33,7 +34,7 @@ export function PokemonImage({ p, className, size }: { p: DexPokemon; className:
     return <PokeImage sources={pokemonImageCandidates(p.id, size, { sprite: p.sprite })} alt="" size={size} className={`${className} rounded-md`} />
 }
 
-function PokemonCardImpl({ pokemon: p, highlight }: Props) {
+function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) {
     const lang = useLang()
     const t = useT(pokedexMessages)
     const formLabel = getFormLabel(p, lang)
@@ -65,11 +66,11 @@ function PokemonCardImpl({ pokemon: p, highlight }: Props) {
                     {p.types.map((type) => (
                         <TypeTag key={type} type={type} size="xs" />
                     ))}
-                    {highlight && (
+                    {highlightLabel !== undefined && highlightValue !== undefined && (
                         <Text type="supporting" textWrap="nowrap" className="ms-auto">
-                            {highlight.label}{" "}
+                            {highlightLabel}{" "}
                             <Text type="supporting" color="primary" weight="semibold" hasTabularNumbers>
-                                {highlight.value}
+                                {highlightValue}
                             </Text>
                         </Text>
                     )}

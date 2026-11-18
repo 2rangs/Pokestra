@@ -252,17 +252,25 @@ function PokemonOfTheDay() {
                         </span>
                     </VStack>
                 </div>
-                <dl className="grid grid-cols-[4.5rem_2.25rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 text-sm sm:grid-cols-[5rem_2.5rem_minmax(0,1fr)]">
+                <VStack as="ul" gap={1} aria-label={t('potdTitle')}>
                     {STAT_KEYS.map((k) => (
-                        <div key={k} className="contents">
-                            <dt className="truncate text-secondary">{statLabel(k, lang, true)}</dt>
-                            <dd className="text-right font-semibold tabular-nums">{p.stats[k]}</dd>
-                            <dd>
+                        <HStack as="li" key={k} gap={3} vAlign="center">
+                            <HStack className="w-18 shrink-0 sm:w-20">
+                                <Text color="secondary" maxLines={1}>
+                                    {statLabel(k, lang, true)}
+                                </Text>
+                            </HStack>
+                            <HStack justify="end" className="w-9 shrink-0 sm:w-10">
+                                <Text weight="semibold" hasTabularNumbers>
+                                    {p.stats[k]}
+                                </Text>
+                            </HStack>
+                            <HStack className="min-w-0 flex-1">
                                 <StatBar value={p.stats[k]} highlight={p.stats[k] === maxStat} label={statLabel(k, lang)} />
-                            </dd>
-                        </div>
+                            </HStack>
+                        </HStack>
                     ))}
-                </dl>
+                </VStack>
             </div>
         </section>
     )
