@@ -60,9 +60,9 @@ export interface Frame {
     field:   { id: string; turns: number | null }[]
 }
 
-/** 엔진의 남은 턴 → 화면 값. 0 이하·없음은 null (무기한/끝나는 중) */
+/** 엔진의 남은 턴 → 화면 값. 0 이하·없음·무한(장판)은 null (무기한/끝나는 중) */
 export const turnsOf = (d: { turns_remaining?: number | null } | null | undefined): number | null =>
-    d && typeof d.turns_remaining === 'number' && d.turns_remaining > 0 ? d.turns_remaining : null
+    d && typeof d.turns_remaining === 'number' && Number.isFinite(d.turns_remaining) && d.turns_remaining > 0 ? d.turns_remaining : null
 
 function viewPokemon(p: BattlePokemon): PokeView {
     const stages: Record<string, number> = {}

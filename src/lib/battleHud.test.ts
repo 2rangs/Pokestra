@@ -74,6 +74,7 @@ test('fieldItems: 날씨 → 필드 → 전체 효과 → 상대 → 우리, 소
 test('turnsOf: 남은 턴 0 이하·없음은 null', () => {
     expect(turnsOf({ turns_remaining: 3 })).toBe(3)
     expect(turnsOf({ turns_remaining: 0 })).toBeNull()
+    expect(turnsOf({ turns_remaining: Infinity })).toBeNull()
     expect(turnsOf({ turns_remaining: null })).toBeNull()
     expect(turnsOf(null)).toBeNull()
 })
