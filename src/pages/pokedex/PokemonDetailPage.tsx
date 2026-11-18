@@ -14,7 +14,7 @@ import { Text } from "@astryxdesign/core/Text"
 import { Token } from "@astryxdesign/core/Token"
 import { VStack } from "@astryxdesign/core/VStack"
 import { VisuallyHidden } from "@astryxdesign/core/VisuallyHidden"
-import BattleStatsPanel from "../../components/BattleStatsPanel"
+import RealStatsPanel from "../../components/RealStatsPanel"
 import { BaseStatsChart } from "../../components/pokedex/BaseStatsChart"
 import { DefenseMatchups } from "../../components/pokedex/DefenseMatchups"
 import { DetailHeader, NeighborNav, type StripItem } from "../../components/pokedex/DetailHeader"
@@ -36,7 +36,7 @@ import {
 import { LANGS, type Lang, formatNumber, useDocumentTitle, useLang, useT } from "../../i18n"
 import { commonMessages } from "../../i18n/messages/common"
 import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
-import { itemName } from "../../lib/battle"
+import { itemLabel as itemName } from "../../lib/itemLabel"
 import { parseSex } from "../../lib/gender"
 import { LATEST_GEN, type GenStatKey, abilitiesAt, clampGen, cryAt, femaleArtAt, spriteAt, statsAt, typesAt } from "../../lib/generation"
 import { pokemonImageCandidates, preloadImages } from "../../lib/images"
@@ -752,7 +752,7 @@ export default function PokemonDetailPage() {
                                 {currentNote}
                             </HStack>,
                         )}
-                        <BattleStatsPanel dexId={id} note={currentNote} />
+                        <RealStatsPanel dexId={id} note={currentNote} />
                     </VStack>
                 )}
 
