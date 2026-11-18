@@ -42,7 +42,7 @@ test('parseItemQuery defaults', () =>
   expect(q('')).toEqual({ q: '', view: 'all', cats: [], sort: 'name', dir: 'asc' }))
 test('parseItemQuery drops invalid values', () => {
   expect(q('view=berry&cat=choice,medicine,foo&sort=bogus&dir=up')).toEqual({ q: '', view: 'berry', cats: ['medicine'], sort: 'name', dir: 'asc' })
-  expect(q('view=nope&sort=value')).toMatchObject({ view: 'all', sort: 'value', dir: 'desc' })
+  expect(q('view=nope&sort=value')).toMatchObject({ view: 'all', sort: 'name', dir: 'asc' })
 })
 test('view and category filter', () => {
   expect(queryItems(q('view=berry'), 'ko').every((i) => i.kind === 'berry')).toBe(true)
@@ -61,12 +61,7 @@ test('sort by name uses the language collator', () => {
   const names = queryItems(q('cat=choice'), 'ko').map((i) => itemName(i, 'ko'))
   expect(names).toEqual([...names].sort(new Intl.Collator('ko-KR', { numeric: true }).compare))
 })
-test('sort by value puts nulls last in both directions', () => {
-  for (const dir of ['asc', 'desc']) {
-    const vals = queryItems(q(`sort=value&dir=${dir}`), 'en').map(itemValue)
-    const firstNull = vals.indexOf(null)
-    expect(firstNull === -1 || vals.slice(firstNull).every((v) => v == null)).toBe(true)
-  }
+test('itemValue reads Natural Gift power for berries and Fling power otherwise', () => {
   expect(itemValue(ITEM_BY_SLUG.get('sitrus-berry')!)).toBe(60)
   expect(itemValue(ITEM_BY_SLUG.get('flame-orb')!)).toBe(30)
 })

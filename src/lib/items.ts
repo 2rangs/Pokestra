@@ -49,9 +49,9 @@ const SEARCH_INDEX = new Map(DEX_ITEMS.map((i) => [i.name, buildSearchKey(i.name
 
 export const ITEM_VIEWS = ['all', 'battle', 'berry'] as const
 export type ItemView = (typeof ITEM_VIEWS)[number]
-export type ItemSortKey = 'name' | 'category' | 'value'
-const SORT_KEYS: readonly ItemSortKey[] = ['name', 'category', 'value']
-export const ITEM_SORT_DEFAULT_DIR: Record<ItemSortKey, 'asc' | 'desc'> = { name: 'asc', category: 'asc', value: 'desc' }
+export type ItemSortKey = 'name' | 'category'
+const SORT_KEYS: readonly ItemSortKey[] = ['name', 'category']
+export const ITEM_SORT_DEFAULT_DIR: Record<ItemSortKey, 'asc' | 'desc'> = { name: 'asc', category: 'asc' }
 
 export interface ItemQuery {
     q: string
@@ -115,18 +115,8 @@ export function queryItems(query: ItemQuery, lang: Lang): DexItem[] {
     const byName = (a: DexItem, b: DexItem) => c.compare(names.get(a.name)!, names.get(b.name)!) || a.id - b.id
     if (query.sort === 'name') {
         list.sort((a, b) => sign * byName(a, b))
-    } else if (query.sort === 'category') {
-        list.sort((a, b) => sign * (ALL_CATEGORIES.indexOf(a.category) - ALL_CATEGORIES.indexOf(b.category)) || byName(a, b))
     } else {
-        list.sort((a, b) => {
-            const va = itemValue(a)
-            const vb = itemValue(b)
-            // 값 없음은 방향과 상관없이 맨 뒤
-            if (va == null && vb == null) return byName(a, b)
-            if (va == null) return 1
-            if (vb == null) return -1
-            return sign * (va - vb) || byName(a, b)
-        })
+        list.sort((a, b) => sign * (ALL_CATEGORIES.indexOf(a.category) - ALL_CATEGORIES.indexOf(b.category)) || byName(a, b))
     }
     return list
 }

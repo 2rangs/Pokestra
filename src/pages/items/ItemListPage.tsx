@@ -31,9 +31,9 @@ import {
     type DexItem,
     type ItemSortKey,
 } from '../../lib/items'
-import { categoryLabel, FlavorSummary, ItemIcon, ItemValueCell } from './ItemUi'
+import { categoryLabel, FlavorSummary, ItemIcon } from './ItemUi'
 
-const SORT_KEYS: readonly ItemSortKey[] = ['name', 'category', 'value']
+const SORT_KEYS: readonly ItemSortKey[] = ['name', 'category']
 const DASH = '-'
 
 interface ItemRow extends Record<string, unknown> {
@@ -126,7 +126,7 @@ export default function ItemListPage() {
                             )}
                         </HStack>
                         {!isWide && (
-                            <HStack gap={1.5} vAlign="center">
+                            <HStack gap={1.5} vAlign="center" wrap="wrap">
                                 <Text size="sm" color="secondary">
                                     {categoryLabel(item.category, t)}
                                 </Text>
@@ -157,32 +157,32 @@ export default function ItemListPage() {
                       renderCell: ({ item }) => {
                           const d = itemDesc(item, lang)
                           const clean = d ? cleanDesc(d.text, d.lang) : null
-                          const text = clean && d && d.lang !== lang ? `${clean} ${t('descFallback', { lang: LANG_LABEL[d.lang] })}` : clean
                           return (
-                              <span lang={d?.lang} className="block truncate">
-                                  <Text size="sm" color="secondary">
-                                      {text ?? DASH}
-                                  </Text>
-                              </span>
+                              <HStack gap={1} wrap="nowrap" vAlign="center">
+                                  <span lang={d?.lang} className="min-w-0 truncate">
+                                      <Text size="sm" color="secondary">
+                                          {clean ?? DASH}
+                                      </Text>
+                                  </span>
+                                  {clean && d && d.lang !== lang && (
+                                      <span className="shrink-0 whitespace-nowrap">
+                                          <Text size="sm" color="secondary">
+                                              {t('descFallback', { lang: LANG_LABEL[d.lang] })}
+                                          </Text>
+                                      </span>
+                                  )}
+                              </HStack>
                           )
                       },
                   },
               ] satisfies TableColumn<ItemRow>[])
             : []),
-        {
-            key: 'value',
-            header: t('colValue'),
-            width: pixel(isWide ? 112 : 72),
-            align: 'end',
-            sortable: true,
-            renderCell: ({ item }) => <ItemValueCell item={item} />,
-        },
         ...(view === 'berry' && isWide
             ? ([
                   {
                       key: 'flavor',
                       header: t('colFlavor'),
-                      width: pixel(176),
+                      width: pixel(240),
                       renderCell: ({ item }) => <FlavorSummary flavors={item.berry?.flavors ?? null} t={t} />,
                   },
               ] satisfies TableColumn<ItemRow>[])
@@ -203,7 +203,7 @@ export default function ItemListPage() {
             vAlign="center"
             role="group"
             aria-label={t('filterCategory')}
-            className="overflow-x-auto [scrollbar-width:none]"
+            className="overflow-x-auto [scrollbar-width:thin]"
         >
             <FilterChip active={cats.length === 0} onClick={() => setCats([])} label={tc('all')} className="shrink-0" />
             {categoriesFor(view).map((c) => (
@@ -250,7 +250,6 @@ export default function ItemListPage() {
                             options={[
                                 { value: 'name', label: t('sortName') },
                                 { value: 'category', label: t('sortCategory') },
-                                { value: 'value', label: t('sortValue') },
                             ]}
                         />
                         <IconButton
