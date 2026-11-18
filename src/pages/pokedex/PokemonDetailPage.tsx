@@ -22,6 +22,7 @@ import { EvolutionTree } from "../../components/pokedex/EvolutionChain"
 import { dexNumber, ROMAN } from "../../components/pokedex/format"
 import { MovesPanel } from "../../components/pokedex/MovesPanel"
 import { SpritesGallery } from "../../components/pokedex/SpritesGallery"
+import { GenerationBar } from "../../components/pokedex/GenerationBar"
 import { StatBar, TypeTag } from "../../components/ui/shared"
 import { getIdFromUrl } from "../../common/utils"
 import {
@@ -34,6 +35,7 @@ import { LANGS, type Lang, formatNumber, useDocumentTitle, useLang, useT } from 
 import { commonMessages } from "../../i18n/messages/common"
 import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
 import { itemName } from "../../lib/battle"
+import { LATEST_GEN, type GenStatKey, abilitiesAt, clampGen, cryAt, spriteAt, statsAt, typesAt } from "../../lib/generation"
 import { pokemonImageCandidates, preloadImages } from "../../lib/images"
 import { PokeImage } from "../../components/ui/PokeImage"
 import {
@@ -152,13 +154,30 @@ function parseTab(v: string | null): DetailTab {
 
 // ─── Small UI pieces ──────────────────────────────────────────────────────────
 
-function Panel({ title, children, className = "" }: { title?: string; children: ReactNode; className?: string }) {
+function Panel({
+    title,
+    titleNote,
+    children,
+    className = "",
+}: {
+    title?: string
+    titleNote?: ReactNode
+    children: ReactNode
+    className?: string
+}) {
     return (
         <span className={`block min-w-0 ${className}`}>
             <Card height="100%">
                 <section>
                     <VStack gap={4}>
-                        {title && <Heading level={2}>{title}</Heading>}
+                        {title && titleNote ? (
+                            <HStack gap={3} vAlign="center" wrap="wrap">
+                                <Heading level={2}>{title}</Heading>
+                                {titleNote}
+                            </HStack>
+                        ) : (
+                            title && <Heading level={2}>{title}</Heading>
+                        )}
                         {children}
                     </VStack>
                 </section>
@@ -189,12 +208,24 @@ function LoadError({ message, onRetry, retryLabel }: { message: string; onRetry?
 
 // ─── Prev / Next ──────────────────────────────────────────────────────────────
 
-function NeighborLink({ p, dir, lang, label }: { p: DexPokemon | undefined; dir: "prev" | "next"; lang: Lang; label: string }) {
+function NeighborLink({
+    p,
+    dir,
+    lang,
+    label,
+    search,
+}: {
+    p: DexPokemon | undefined
+    dir: "prev" | "next"
+    lang: Lang
+    label: string
+    search: string
+}) {
     if (!p) return <span aria-hidden className="block" />
     const name = pokemonName(p, lang)
     const no = dexNumber(p.id)
     return (
-        <Link href={`/pokemon/${p.id}`} label={`${label}: ${no} ${name}`} hasUnderline={false} color="secondary">
+        <Link href={`/pokemon/${p.id}${search}`} label={`${label}: ${no} ${name}`} hasUnderline={false} color="secondary">
             <span className={`inline-flex min-w-0 items-center gap-1.5 ${dir === "next" ? "flex-row-reverse" : ""}`}>
                 <Icon icon={dir === "prev" ? "chevronLeft" : "chevronRight"} size="sm" />
                 <span className="hidden tabular-nums sm:inline">{no}</span>
@@ -240,7 +271,16 @@ export default function PokemonDetailPage() {
     const tc = useT(commonMessages)
     const [searchParams, setSearchParams] = useSearchParams()
     const tab = parseTab(searchParams.get("tab"))
-    const setTab = (next: DetailTab) => setSearchParams(next === "overview" ? {} : { tab: next }, { replace: true })
+    const setTab = (next: DetailTab) =>
+        setSearchParams(
+            (prevParams) => {
+                const q = new URLSearchParams(prevParams)
+                if (next === "overview") q.delete("tab")
+                else q.set("tab", next)
+                return q
+            },
+            { replace: true },
+        )
 
     const local = useMemo(() => resolveLocal(param), [param])
     const apiKey = local ? String(local.id) : param.trim().toLowerCase()
@@ -252,9 +292,34 @@ export default function PokemonDetailPage() {
     const species: PokemonSpecies | undefined = speciesQ.data
     const evoQ = useEvolutionChain(species?.evolution_chain?.url)
 
+    // 세대 타임라인: 등장 세대 미만·최신 세대는 null(현재 값)
+    const generation = local ? getGeneration(local) : ROMAN[species?.generation.name.replace("generation-", "") ?? ""]
+    const debut = generation ?? 1
+    const gen = clampGen(Number(searchParams.get("gen")) || null, debut)
+    // 세대 값은 PokeAPI 응답이 필요하다. 아직 없거나 실패하면 현재 값을 그대로 보여 준다.
+    const genDetail = gen !== null && detail ? detail : null
+    const setGen = (next: number | null) =>
+        setSearchParams(
+            (prevParams) => {
+                const q = new URLSearchParams(prevParams)
+                if (next === null) q.delete("gen")
+                else q.set("gen", String(next))
+                return q
+            },
+            { replace: true },
+        )
+
+    const typesView = useMemo(
+        () => (genDetail && gen !== null ? typesAt(genDetail, gen) : null),
+        [genDetail, gen],
+    )
     const types = useMemo(
-        () => local?.types ?? detail?.types.slice().sort((a, b) => a.slot - b.slot).map((x) => x.type.name) ?? [],
-        [local, detail],
+        () =>
+            typesView?.value ??
+            local?.types ??
+            detail?.types.slice().sort((a, b) => a.slot - b.slot).map((x) => x.type.name) ??
+            [],
+        [typesView, local, detail],
     )
 
     const name = local
@@ -285,12 +350,19 @@ export default function PokemonDetailPage() {
         [local, detail],
     )
 
-    const stats = useMemo(() => {
+    const abilitiesView = useMemo(
+        () => (genDetail && gen !== null ? { at: abilitiesAt(genDetail, gen) } : null),
+        [genDetail, gen],
+    )
+
+    const stats = useMemo((): { key: GenStatKey; value: number; changedIn?: number | null }[] => {
+        if (genDetail && gen !== null) return statsAt(genDetail, gen)
         if (local) return STAT_KEYS.map((k) => ({ key: k, value: local.stats[k] }))
         return (detail?.stats ?? [])
             .map((s) => ({ key: API_STAT_KEY[s.stat.name], value: s.base_stat }))
             .filter((s): s is { key: StatKey; value: number } => !!s.key)
-    }, [local, detail])
+    }, [local, detail, genDetail, gen])
+    const rowLabel = (key: GenStatKey) => (key === "special" ? t("specialStat") : statLabel(key, lang))
     const statTotal = stats.reduce((sum, s) => sum + s.value, 0)
     const statMax = stats.reduce((m, s) => Math.max(m, s.value), 0)
 
@@ -301,6 +373,15 @@ export default function PokemonDetailPage() {
     // 이전/다음: 전국도감 번호 기준 (기본 폼)
     const prev = speciesId ? getDexPokemon(speciesId - 1) : undefined
     const next = speciesId ? getDexPokemon(speciesId + 1) : undefined
+
+    // 이전/다음 이동 시 탭과 세대 선택을 유지 (이웃에 없던 세대면 그쪽에서 현재 값으로 보정)
+    const neighborSearch = useMemo(() => {
+        const q = new URLSearchParams()
+        if (tab !== "overview") q.set("tab", tab)
+        if (gen !== null) q.set("gen", String(gen))
+        const str = q.toString()
+        return str ? `?${str}` : ""
+    }, [tab, gen])
 
     // 다른 포켓몬으로 이동하면 맨 위로
     useEffect(() => {
@@ -314,11 +395,11 @@ export default function PokemonDetailPage() {
             const el = e.target as HTMLElement | null
             if (el?.closest("input, textarea, select, [contenteditable], [role=tablist], [role=radiogroup], [role=listbox]")) return
             const target = e.key === "ArrowLeft" ? prev : e.key === "ArrowRight" ? next : undefined
-            if (target) navigate(`/pokemon/${target.id}${tab === "overview" ? "" : `?tab=${tab}`}`)
+            if (target) navigate(`/pokemon/${target.id}${neighborSearch}`)
         }
         window.addEventListener("keydown", onKey)
         return () => window.removeEventListener("keydown", onKey)
-    }, [prev, next, navigate, tab])
+    }, [prev, next, navigate, neighborSearch])
 
     // 이전/다음 아트워크를 한가할 때 미리 받아 둔다
     const prevId = prev?.id
@@ -358,7 +439,6 @@ export default function PokemonDetailPage() {
 
     const id = local?.id ?? detail?.id ?? 0
     const shownNo = speciesId ?? id
-    const generation = local ? getGeneration(local) : ROMAN[species?.generation.name.replace("generation-", "") ?? ""]
     const artwork = local ? officialArtworkUrl(local.id) : (detail?.sprites.other?.["official-artwork"]?.front_default ?? "")
     const spriteFallback = local?.sprite ?? detail?.sprites.front_default ?? null
     const decimal = { minimumFractionDigits: 1, maximumFractionDigits: 1 }
@@ -396,11 +476,21 @@ export default function PokemonDetailPage() {
                 </Link>
                 <nav aria-label={t("neighbors")} title={t("keyboardHint")}>
                     <HStack gap={4} vAlign="center">
-                        <NeighborLink p={prev} dir="prev" lang={lang} label={t("prev")} />
-                        <NeighborLink p={next} dir="next" lang={lang} label={t("next")} />
+                        <NeighborLink p={prev} dir="prev" lang={lang} label={t("prev")} search={neighborSearch} />
+                        <NeighborLink p={next} dir="next" lang={lang} label={t("next")} search={neighborSearch} />
                     </HStack>
                 </nav>
             </HStack>
+
+            {/* ── 세대 선택 ── */}
+            <GenerationBar
+                debut={debut}
+                gen={gen}
+                onChange={setGen}
+                cry={cryAt(detail?.cries, gen ?? LATEST_GEN)}
+                lang={lang}
+                t={t}
+            />
 
             {/* ── 표본 ── */}
             <Card>
@@ -409,7 +499,7 @@ export default function PokemonDetailPage() {
                         <span className="flex w-full items-center justify-center rounded-lg border border-border bg-muted p-4">
                             <PokeImage
                                 key={id}
-                                sources={[artwork, spriteFallback]}
+                                sources={genDetail && gen !== null ? [spriteAt(genDetail.sprites, gen), artwork] : [artwork, spriteFallback]}
                                 alt={t("artworkAlt", { name })}
                                 size={256}
                                 className="h-56 w-56 sm:h-64 sm:w-64"
@@ -447,7 +537,12 @@ export default function PokemonDetailPage() {
                             ) : null}
                         </VStack>
 
-                        <TypeIcon types={types} size="lg" />
+                        <HStack gap={2} vAlign="center" wrap="wrap">
+                            <TypeIcon types={types} size="lg" />
+                            {typesView?.changedIn != null && (
+                                <Token size="sm" color="yellow" label={t("changedInGen", { gen: typesView.changedIn })} />
+                            )}
+                        </HStack>
 
                         {(generation || species?.is_legendary || species?.is_mythical || species?.is_baby) && (
                             <HStack gap={1.5} wrap="wrap">
@@ -507,10 +602,22 @@ export default function PokemonDetailPage() {
             <div role="tabpanel" id={`pokemon-panel-${tab}`} aria-labelledby={`pokemon-tab-${tab}`} tabIndex={-1} className="focus:outline-none">
                 {tab === "overview" && (
                     <Grid columns={{ minWidth: 300, repeat: "fit" }} gap={4}>
-                        {abilities.length > 0 && (
+                        {abilitiesView && abilitiesView.at === null ? (
                             <Panel title={t("abilities")} className="col-span-full">
+                                <Text color="secondary">{t("noAbilitiesBeforeGen3")}</Text>
+                            </Panel>
+                        ) : (abilitiesView?.at?.value ?? abilities).length > 0 && (
+                            <Panel
+                                title={t("abilities")}
+                                titleNote={
+                                    abilitiesView?.at?.changedIn != null ? (
+                                        <Token size="sm" color="yellow" label={t("changedInGen", { gen: abilitiesView.at.changedIn })} />
+                                    ) : undefined
+                                }
+                                className="col-span-full"
+                            >
                                 <ul className="flex flex-col divide-y divide-border">
-                                    {abilities.map((a) => {
+                                    {(abilitiesView?.at?.value ?? abilities).map((a) => {
                                         const desc = localText(ABILITY_BY_NAME.get(a.name)?.desc, lang)
                                         return (
                                             <li key={a.name} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
@@ -580,7 +687,11 @@ export default function PokemonDetailPage() {
                             )}
                         </Panel>
 
-                        <Panel title={t("typeMatchup")} className="col-span-full">
+                        <Panel
+                            title={t("typeMatchup")}
+                            titleNote={gen !== null ? <Text type="supporting" color="secondary">{t("matchupCurrentNote")}</Text> : undefined}
+                            className="col-span-full"
+                        >
                             {matchups.length === 0 ? (
                                 <Text color="secondary">{t("noMatchups")}</Text>
                             ) : (
@@ -688,7 +799,12 @@ export default function PokemonDetailPage() {
                                                 return (
                                                     <TableRow key={s.key}>
                                                         <TableCell scope="row">
-                                                            <Text weight="medium">{statLabel(s.key, lang)}</Text>
+                                                            <HStack gap={2} vAlign="center" wrap="wrap">
+                                                                <Text weight="medium">{rowLabel(s.key)}</Text>
+                                                                {s.changedIn != null && (
+                                                                    <Token size="sm" color="yellow" label={t("changedInGen", { gen: s.changedIn })} />
+                                                                )}
+                                                            </HStack>
                                                         </TableCell>
                                                         <TableCell className="text-right">
                                                             <Text weight={top ? "bold" : "normal"} hasTabularNumbers>
@@ -697,7 +813,7 @@ export default function PokemonDetailPage() {
                                                         </TableCell>
                                                         <TableCell className="w-1/2">
                                                             <span className="flex items-center gap-2">
-                                                                <StatBar value={s.value} highlight={top} label={statLabel(s.key, lang)} className="min-w-20 flex-1" />
+                                                                <StatBar value={s.value} highlight={top} label={rowLabel(s.key)} className="min-w-20 flex-1" />
                                                                 {top && <Text type="supporting">{t("highestStat")}</Text>}
                                                             </span>
                                                         </TableCell>

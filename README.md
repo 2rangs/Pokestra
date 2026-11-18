@@ -14,7 +14,7 @@ A Pokémon dex and battle site in **Korean, English and Japanese**. It covers ev
 |---|---|
 | `/` | Landing page: quick search, Pokémon of the day, section shortcuts |
 | `/pokedex` | Instant search over local data: name in any language or number; filters for type (up to 2), generation, learnable moves and alternate forms; sorting by base stats |
-| `/pokemon/:id` | Detail page: base stats, abilities, type matchups, evolutions, plus a **battle stats panel** (min/max actual stats at Lv50/Lv100) |
+| `/pokemon/:id` | Detail page: base stats, abilities, type matchups, evolutions, plus a **battle stats panel** (min/max actual stats at Lv50/Lv100), and a **generation timeline** (`?gen=N`: per-generation sprite, types, abilities and base stats with change markers, plus cries) |
 | `/battle` | **Battle simulator**: build a team from learnsets (or random / Showdown import) and fight the CPU in singles, or watch CPU vs CPU. 3 difficulty levels, Terastallization, damage-range preview on move buttons, battle log in all three languages |
 | `/calc` | **Damage calculator**: EVs/IVs, nature, ability, item, stat stages, Tera, weather/terrain/screens/crit. Shows all 16 damage rolls and the KO text. `?atk=garchomp&def=gholdengo` links preselect the matchup |
 | `/moves`, `/moves/:slug` | Move list with type/class/generation filters and power/accuracy/PP sorting; detail with description and learners |
