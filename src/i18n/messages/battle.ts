@@ -126,6 +126,8 @@ export const battleMessages = defineMessages({
         hpShowPercent: '%로 보기',
         hpShowNumber: '숫자로 보기',
         turnsLeft: '남은 턴 {n}',
+        typeOf: '{type} 타입',
+        powerN: '위력 {n}',
     },
     en: {
         title: 'Battle Simulator',
@@ -247,6 +249,8 @@ export const battleMessages = defineMessages({
         hpShowPercent: 'Show as %',
         hpShowNumber: 'Show as numbers',
         turnsLeft: '{n} turns left',
+        typeOf: '{type} type',
+        powerN: 'power {n}',
     },
     ja: {
         title: 'バトルシミュレーター',
@@ -368,5 +372,7 @@ export const battleMessages = defineMessages({
         hpShowPercent: '%で表示',
         hpShowNumber: '数値で表示',
         turnsLeft: '残り{n}ターン',
+        typeOf: '{type}タイプ',
+        powerN: '威力 {n}',
     },
 })
