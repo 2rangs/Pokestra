@@ -202,7 +202,7 @@ export function EmptyState({ title, description }: { title?: string; description
 
 export function BackLink({ to, children }: { to: string; children: ReactNode }) {
     return (
-        <span className="mb-4 inline-flex">
+        <span className="inline-flex min-h-11 items-center sm:min-h-0">
             <Link href={to}>
                 <HStack gap={1} align="center" as="span">
                     <Icon icon="chevronLeft" size="sm" />

@@ -1,15 +1,13 @@
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router'
 import { Badge } from '@astryxdesign/core/Badge'
 import { Button } from '@astryxdesign/core/Button'
-import { Card } from '@astryxdesign/core/Card'
 import { Grid } from '@astryxdesign/core/Grid'
 import { Heading } from '@astryxdesign/core/Heading'
 import { HStack } from '@astryxdesign/core/HStack'
 import { Icon } from '@astryxdesign/core/Icon'
 import { IconButton } from '@astryxdesign/core/IconButton'
 import { Link } from '@astryxdesign/core/Link'
-import { MetadataList, MetadataListItem } from '@astryxdesign/core/MetadataList'
 import { Switch } from '@astryxdesign/core/Switch'
 import { pixel, proportional, Table, type TableColumn, type TableSortState, useTableSortable } from '@astryxdesign/core/Table'
 import { Text } from '@astryxdesign/core/Text'
@@ -18,20 +16,20 @@ import {
     BackLink,
     ClassBadge,
     EmptyState,
-    FilterChip,
-    FieldLabel,
     LoadMore,
     PageHeader,
     PokemonChip,
     SearchField,
     Segmented,
     SelectField,
-    TypeBadge,
+    FilterRow,
 } from '../components/dex/DexUi'
+import { FactList, Panel, type Fact } from '../components/pokedex/DetailPanel'
+import { TypeChip } from '../components/ui/TypeChip'
+import { useSlashFocus } from '../hooks/useSlashFocus'
 import { buildSearchKey, cleanDesc, foldSearch } from '../components/dex/text'
 import { useProgressive } from '../components/dex/useProgressive'
 import { useUrlParams } from '../components/dex/useUrlParams'
-import { TypeIconDot } from '../components/ui/shared'
 import { collator, LANGS, useDocumentTitle, useLang, useT } from '../i18n'
 import { commonMessages } from '../i18n/messages/common'
 import { movesMessages } from '../i18n/messages/moves'
@@ -104,6 +102,8 @@ function MoveList() {
         update({ sort: key === 'name' ? null : key, dir: d === DEFAULT_DIR[key] ? null : d })
 
     const deferredQ = useDeferredValue(q)
+    const searchRef = useRef<HTMLDivElement>(null)
+    useSlashFocus(searchRef)
 
     const filtered = useMemo(() => {
         const needle = foldSearch(deferredQ)
@@ -167,7 +167,7 @@ function MoveList() {
                 </Link>
             ),
         },
-        { key: 'type', header: t('type'), width: pixel(108), renderCell: ({ m }) => <TypeBadge type={m.type} /> },
+        { key: 'type', header: t('type'), width: pixel(108), renderCell: ({ m }) => <TypeChip type={m.type} size="sm" /> },
         {
             key: 'cls',
             header: t('category'),
@@ -180,94 +180,94 @@ function MoveList() {
     ]
 
     return (
-        <VStack gap={5}>
+        <VStack gap={4}>
             <PageHeader title={t('title')} subtitle={t('subtitle', { n: LIST_MOVES.length })} />
 
-            <Card>
-                <VStack gap={4}>
-                    <SearchField
-                        value={q}
-                        onChange={(v) => update({ q: v })}
-                        label={t('searchLabel')}
-                        placeholder={t('searchPlaceholder')}
-                    />
-
-                    <VStack gap={1.5} hAlign="start">
-                        <FieldLabel>{t('filterType')}</FieldLabel>
-                        <div role="group" aria-label={t('filterType')} className="flex flex-wrap gap-1.5">
-                            <FilterChip active={!type} onClick={() => update({ type: null })} label={tc('all')} />
-                            {MOVE_TYPES.map((ty) => (
-                                <FilterChip
-                                    key={ty}
-                                    active={type === ty}
-                                    label={typeName(ty, lang)}
-                                    icon={<TypeIconDot type={ty} className="h-3.5 w-3.5" />}
-                                    onClick={() => update({ type: type === ty ? null : ty })}
-                                />
-                            ))}
-                        </div>
-                    </VStack>
-
-                    <HStack gap={4} wrap="wrap" vAlign="end">
-                        <Segmented
-                            label={t('filterClass')}
-                            value={cls || 'all'}
-                            onChange={(v) => update({ cls: v === 'all' ? null : v })}
-                            options={[
-                                { value: 'all', label: tc('all') },
-                                ...CLASSES.map((c) => ({ value: c, label: damageClassName(c, lang) })),
-                            ]}
+            <FilterRow
+                label={tc('filters')}
+                search={
+                    <HStack ref={searchRef} width="100%">
+                        <SearchField
+                            value={q}
+                            onChange={(v) => update({ q: v })}
+                            label={t('searchLabel')}
+                            placeholder={t('searchPlaceholder')}
                         />
-                        <SelectField
-                            label={t('filterGen')}
-                            value={gen}
-                            onChange={(v) => update({ gen: v || null })}
-                            width={140}
-                            options={[
-                                { value: '', label: tc('all') },
-                                ...MOVE_GENS.map((g) => ({ value: String(g), label: generationName(g, lang) })),
-                            ]}
-                        />
-                        <HStack gap={1} vAlign="end">
-                            <SelectField
-                                label={t('sortBy')}
-                                value={sort}
-                                onChange={(v) => setSort(v as SortKey, DEFAULT_DIR[v as SortKey])}
-                                width={140}
-                                options={[
-                                    { value: 'name', label: t('sortName') },
-                                    { value: 'power', label: t('sortPower') },
-                                    { value: 'accuracy', label: t('sortAccuracy') },
-                                    { value: 'pp', label: t('sortPp') },
-                                    { value: 'id', label: t('sortId') },
-                                ]}
-                            />
-                            <IconButton
-                                size="sm"
-                                variant="secondary"
-                                label={`${t('toggleDirection')} (${dir === 'asc' ? t('ascending') : t('descending')})`}
-                                tooltip={dir === 'asc' ? t('ascending') : t('descending')}
-                                icon={<Icon icon={dir === 'asc' ? 'arrowUp' : 'arrowDown'} />}
-                                onClick={() => setSort(sort, dir === 'asc' ? 'desc' : 'asc')}
-                            />
-                        </HStack>
-                        {hasFilters && (
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                label={t('resetFilters')}
-                                onClick={() => update({ q: null, type: null, cls: null, gen: null })}
-                            />
-                        )}
                     </HStack>
-                </VStack>
-            </Card>
+                }
+                end={
+                    <span aria-live="polite">
+                        <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
+                    </span>
+                }
+            >
+                <SelectField
+                    isLabelHidden
+                    label={t('filterType')}
+                    value={type}
+                    onChange={(v) => update({ type: v || null })}
+                    width={140}
+                    options={[
+                        { value: '', label: tc('all') },
+                        ...MOVE_TYPES.map((ty) => ({ value: ty, label: typeName(ty, lang) })),
+                    ]}
+                />
+                <Segmented
+                    isLabelHidden
+                    label={t('filterClass')}
+                    value={cls || 'all'}
+                    onChange={(v) => update({ cls: v === 'all' ? null : v })}
+                    options={[
+                        { value: 'all', label: tc('all') },
+                        ...CLASSES.map((c) => ({ value: c, label: damageClassName(c, lang) })),
+                    ]}
+                />
+                <SelectField
+                    isLabelHidden
+                    label={t('filterGen')}
+                    value={gen}
+                    onChange={(v) => update({ gen: v || null })}
+                    width={140}
+                    options={[
+                        { value: '', label: tc('all') },
+                        ...MOVE_GENS.map((g) => ({ value: String(g), label: generationName(g, lang) })),
+                    ]}
+                />
+                <HStack gap={1} vAlign="end">
+                    <SelectField
+                        isLabelHidden
+                        label={t('sortBy')}
+                        value={sort}
+                        onChange={(v) => setSort(v as SortKey, DEFAULT_DIR[v as SortKey])}
+                        width={140}
+                        options={[
+                            { value: 'name', label: t('sortName') },
+                            { value: 'power', label: t('sortPower') },
+                            { value: 'accuracy', label: t('sortAccuracy') },
+                            { value: 'pp', label: t('sortPp') },
+                            { value: 'id', label: t('sortId') },
+                        ]}
+                    />
+                    <IconButton
+                        size="sm"
+                        variant="secondary"
+                        label={`${t('toggleDirection')} (${dir === 'asc' ? t('ascending') : t('descending')})`}
+                        tooltip={dir === 'asc' ? t('ascending') : t('descending')}
+                        icon={<Icon icon={dir === 'asc' ? 'arrowUp' : 'arrowDown'} />}
+                        onClick={() => setSort(sort, dir === 'asc' ? 'desc' : 'asc')}
+                    />
+                </HStack>
+                {hasFilters && (
+                    <Button
+                        size="sm"
+                        variant="ghost"
+                        label={t('resetFilters')}
+                        onClick={() => update({ q: null, type: null, cls: null, gen: null })}
+                    />
+                )}
+            </FilterRow>
 
             <VStack gap={2}>
-                <span aria-live="polite">
-                    <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
-                </span>
-
                 {filtered.length === 0 ? (
                     <EmptyState />
                 ) : (
@@ -323,60 +323,53 @@ function MoveDetail({ slug }: { slug: string }) {
         .map((l) => ({ l, n: moveName(m.name, l) }))
         .filter((o, i, arr) => o.n !== name && arr.findIndex((x) => x.n === o.n) === i)
 
+    const hint = (label: string, content: string) => ({ label: t('infoAbout', { label }), content })
+    const facts: Fact[] = [
+        { label: t('power'), value: fmt(m.power), hint: hint(t('power'), t('powerHint')) },
+        { label: t('accuracy'), value: fmt(m.accuracy, '%'), hint: hint(t('accuracy'), t('accuracyHint')) },
+        { label: t('pp'), value: fmt(m.pp), hint: hint(t('pp'), t('ppHint')) },
+        { label: t('priority'), value: m.priority > 0 ? `+${m.priority}` : String(m.priority), hint: hint(t('priority'), t('priorityHint')) },
+        { label: t('category'), value: damageClassName(m.damageClass, lang), hint: hint(t('category'), t('categoryHint')) },
+        { label: t('introduced'), value: m.generation ? generationName(m.generation, lang) : DASH },
+    ]
+
     return (
-        <VStack gap={6}>
-            <VStack gap={3}>
-                <BackLink to={backTo}>{t('back')}</BackLink>
-                <VStack gap={1}>
-                    <Heading level={1}>{name}</Heading>
-                    {others.length > 0 && (
-                        <HStack gap={3} wrap="wrap" aria-label={t('otherNames')}>
-                            {others.map((o) => (
-                                <span key={o.l} lang={o.l}>
-                                    <Text color="secondary">{o.n}</Text>
-                                </span>
-                            ))}
+        <VStack gap={4}>
+            <BackLink to={backTo}>{t('back')}</BackLink>
+            <VStack gap={4} className="lg:flex-row lg:items-start">
+                <VStack gap={3} className="lg:sticky lg:top-16 lg:w-80 lg:shrink-0">
+                    <VStack gap={2}>
+                        <Heading level={1}>{name}</Heading>
+                        {others.length > 0 && (
+                            <HStack gap={3} wrap="wrap" aria-label={t('otherNames')}>
+                                {others.map((o) => (
+                                    <span key={o.l} lang={o.l}>
+                                        <Text color="secondary">{o.n}</Text>
+                                    </span>
+                                ))}
+                            </HStack>
+                        )}
+                        <HStack gap={2} align="center" wrap="wrap">
+                            <TypeChip type={m.type} size="md" />
+                            <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} />
                         </HStack>
-                    )}
-                </VStack>
-                <HStack gap={3} align="center" wrap="wrap">
-                    <TypeBadge type={m.type} size="md" />
-                    <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} />
-                </HStack>
-            </VStack>
-
-            <Card>
-                <VStack gap={5}>
-                    <MetadataList columns="multi">
-                        <MetadataListItem label={t('power')}>
-                            <Text hasTabularNumbers>{fmt(m.power)}</Text>
-                        </MetadataListItem>
-                        <MetadataListItem label={t('accuracy')}>
-                            <Text hasTabularNumbers>{fmt(m.accuracy, '%')}</Text>
-                        </MetadataListItem>
-                        <MetadataListItem label={t('pp')}>
-                            <Text hasTabularNumbers>{fmt(m.pp)}</Text>
-                        </MetadataListItem>
-                        <MetadataListItem label={t('priority')}>
-                            <Text hasTabularNumbers>{m.priority > 0 ? `+${m.priority}` : String(m.priority)}</Text>
-                        </MetadataListItem>
-                        <MetadataListItem label={t('introduced')}>
-                            <Text>{m.generation ? generationName(m.generation, lang) : DASH}</Text>
-                        </MetadataListItem>
-                    </MetadataList>
-
-                    <VStack gap={1.5}>
-                        <Heading level={2}>{t('description')}</Heading>
-                        <span className="max-w-[70ch]">
-                            <Text as="p" color={desc ? 'primary' : 'secondary'}>
-                                {desc ?? t('noDescription')}
-                            </Text>
-                        </span>
                     </VStack>
+                    <Panel>
+                        <FactList facts={facts} />
+                        <VStack gap={1.5}>
+                            <Heading level={2}>{t('description')}</Heading>
+                            <VStack className="max-w-prose">
+                                <Text as="p" color={desc ? 'primary' : 'secondary'}>
+                                    {desc ?? t('noDescription')}
+                                </Text>
+                            </VStack>
+                        </VStack>
+                    </Panel>
                 </VStack>
-            </Card>
-
-            <Learners key={m.name} slug={m.name} />
+                <VStack className="min-w-0 flex-1">
+                    <Learners key={m.name} slug={m.name} />
+                </VStack>
+            </VStack>
         </VStack>
     )
 }
@@ -411,7 +404,7 @@ function Learners({ slug }: { slug: string }) {
                 {list.length === 0 ? (
                     <EmptyState title={t('noLearners')} />
                 ) : (
-                    <Grid columns={{ minWidth: 176 }} gap={2}>
+                    <Grid columns={{ minWidth: 176, max: 4 }} gap={2}>
                         {list.slice(0, shown).map((p) => (
                             <PokemonChip key={p.id} pokemon={p} />
                         ))}

@@ -1,17 +1,17 @@
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router'
 import { Badge } from '@astryxdesign/core/Badge'
-import { Card } from '@astryxdesign/core/Card'
 import { Grid } from '@astryxdesign/core/Grid'
 import { Heading } from '@astryxdesign/core/Heading'
 import { HStack } from '@astryxdesign/core/HStack'
 import { List, ListItem } from '@astryxdesign/core/List'
-import { MetadataList, MetadataListItem } from '@astryxdesign/core/MetadataList'
 import { Switch } from '@astryxdesign/core/Switch'
 import { Text } from '@astryxdesign/core/Text'
 import { Token } from '@astryxdesign/core/Token'
 import { VStack } from '@astryxdesign/core/VStack'
-import { BackLink, EmptyState, LoadMore, PageHeader, PokemonChip, SearchField, SelectField } from '../components/dex/DexUi'
+import { BackLink, EmptyState, FilterRow, LoadMore, PageHeader, PokemonChip, SearchField, SelectField } from '../components/dex/DexUi'
+import { FactList, Panel } from '../components/pokedex/DetailPanel'
+import { useSlashFocus } from '../hooks/useSlashFocus'
 import { buildSearchKey, cleanDesc, foldSearch } from '../components/dex/text'
 import { useProgressive } from '../components/dex/useProgressive'
 import { useUrlParams } from '../components/dex/useUrlParams'
@@ -58,6 +58,8 @@ function AbilityList() {
     const gen = params.get('gen') ?? ''
 
     const deferredQ = useDeferredValue(q)
+    const searchRef = useRef<HTMLDivElement>(null)
+    useSlashFocus(searchRef)
     const filtered = useMemo(() => {
         const needle = foldSearch(deferredQ)
         const genNum = gen ? Number(gen) : null
@@ -85,41 +87,45 @@ function AbilityList() {
     const { shown, hasMore, more, sentinelRef } = useProgressive(filtered.length, `${deferredQ}|${gen}|${lang}`, 80)
 
     return (
-        <VStack gap={5}>
+        <VStack gap={4}>
             <PageHeader title={t('title')} subtitle={t('subtitle', { n: LIST_ABILITIES.length })} />
 
-            <Card>
-                <HStack gap={3} wrap="wrap" vAlign="end">
-                    <span className="min-w-[14rem] flex-1">
+            <FilterRow
+                label={tc('filters')}
+                search={
+                    <HStack ref={searchRef} width="100%">
                         <SearchField
                             value={q}
                             onChange={(v) => update({ q: v })}
                             label={t('searchLabel')}
                             placeholder={t('searchPlaceholder')}
                         />
+                    </HStack>
+                }
+                end={
+                    <span aria-live="polite">
+                        <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
                     </span>
-                    <SelectField
-                        label={t('filterGen')}
-                        value={gen}
-                        onChange={(v) => update({ gen: v || null })}
-                        width={150}
-                        options={[
-                            { value: '', label: tc('all') },
-                            ...ABILITY_GENS.map((g) => ({ value: String(g), label: generationName(g, lang) })),
-                        ]}
-                    />
-                </HStack>
-            </Card>
+                }
+            >
+                <SelectField
+                    isLabelHidden
+                    label={t('filterGen')}
+                    value={gen}
+                    onChange={(v) => update({ gen: v || null })}
+                    width={150}
+                    options={[
+                        { value: '', label: tc('all') },
+                        ...ABILITY_GENS.map((g) => ({ value: String(g), label: generationName(g, lang) })),
+                    ]}
+                />
+            </FilterRow>
 
             <VStack gap={2}>
-                <span aria-live="polite">
-                    <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
-                </span>
-
                 {filtered.length === 0 ? (
                     <EmptyState />
                 ) : (
-                    <List aria-label={t('list')} hasDividers edge="flush">
+                    <List aria-label={t('list')} density="compact" hasDividers edge="flush">
                         {filtered.slice(0, shown).map((a) => (
                             <AbilityRow key={a.name} ability={a} lang={lang} search={location.search} />
                         ))}
@@ -147,7 +153,9 @@ function AbilityRow({ ability: a, lang, search }: { ability: DexAbility; lang: L
                             <Text type="supporting">{generationName(a.generation, lang)}</Text>
                         </span>
                     )}
-                    <Badge variant="neutral" label={formatNumber(count, lang)} aria-label={t('pokemonCount', { n: count })} />
+                    <Text hasTabularNumbers weight="semibold" aria-label={t('pokemonCount', { n: count })}>
+                        {t('holdersCount', { n: formatNumber(count, lang) })}
+                    </Text>
                 </HStack>
             }
         />
@@ -186,44 +194,35 @@ function AbilityDetail({ slug }: { slug: string }) {
         .filter((o, i, arr) => o.n !== name && arr.findIndex((x) => x.n === o.n) === i)
 
     return (
-        <VStack gap={6}>
-            <VStack gap={3}>
-                <BackLink to={backTo}>{t('back')}</BackLink>
-                <VStack gap={1}>
-                    <Heading level={1}>{name}</Heading>
-                    {others.length > 0 && (
-                        <HStack gap={3} wrap="wrap" aria-label={t('otherNames')}>
-                            {others.map((o) => (
-                                <span key={o.l} lang={o.l}>
-                                    <Text color="secondary">{o.n}</Text>
-                                </span>
-                            ))}
-                        </HStack>
-                    )}
-                </VStack>
-            </VStack>
-
-            <Card>
-                <VStack gap={4}>
-                    <VStack gap={1.5}>
-                        <Heading level={2}>{t('description')}</Heading>
-                        <span className="max-w-[70ch]">
+        <VStack gap={4}>
+            <BackLink to={backTo}>{t('back')}</BackLink>
+            <VStack gap={4} className="lg:flex-row lg:items-start">
+                <VStack gap={3} className="lg:sticky lg:top-16 lg:w-80 lg:shrink-0">
+                    <VStack gap={2}>
+                        <Heading level={1}>{name}</Heading>
+                        {others.length > 0 && (
+                            <HStack gap={3} wrap="wrap" aria-label={t('otherNames')}>
+                                {others.map((o) => (
+                                    <span key={o.l} lang={o.l}>
+                                        <Text color="secondary">{o.n}</Text>
+                                    </span>
+                                ))}
+                            </HStack>
+                        )}
+                    </VStack>
+                    <Panel title={t('description')}>
+                        <VStack className="max-w-prose">
                             <Text as="p" color={desc ? 'primary' : 'secondary'}>
                                 {desc ?? t('noDescription')}
                             </Text>
-                        </span>
-                    </VStack>
-                    {a.generation != null && (
-                        <MetadataList>
-                            <MetadataListItem label={t('introduced')}>
-                                <Text>{generationName(a.generation, lang)}</Text>
-                            </MetadataListItem>
-                        </MetadataList>
-                    )}
+                        </VStack>
+                        {a.generation != null && <FactList facts={[{ label: t('introduced'), value: generationName(a.generation, lang) }]} />}
+                    </Panel>
                 </VStack>
-            </Card>
-
-            <Holders key={a.name} slug={a.name} />
+                <VStack className="min-w-0 flex-1">
+                    <Holders key={a.name} slug={a.name} />
+                </VStack>
+            </VStack>
         </VStack>
     )
 }
@@ -273,7 +272,7 @@ function Holders({ slug }: { slug: string }) {
                 {list.length === 0 ? (
                     <EmptyState title={t('noHolders')} />
                 ) : (
-                    <VStack gap={6}>
+                    <VStack gap={4}>
                         <HolderGroup title={t('standard')} items={standard} resetKey={`${slug}|${withForms}|s`} />
                         <HolderGroup title={t('hidden')} items={hidden} resetKey={`${slug}|${withForms}|h`} hidden />
                     </VStack>
@@ -293,7 +292,7 @@ function HolderGroup({ title, items, resetKey, hidden }: { title: string; items:
                 <Heading level={3}>{title}</Heading>
                 <Badge variant={hidden ? 'purple' : 'neutral'} label={items.length} />
             </HStack>
-            <Grid columns={{ minWidth: 176 }} gap={2}>
+            <Grid columns={{ minWidth: 176, max: 4 }} gap={2}>
                 {items.slice(0, shown).map((h) => (
                     <PokemonChip
                         key={h.p.id}

@@ -3,6 +3,12 @@ import { defineMessages } from '..'
 /** 기술 목록/상세 */
 export const movesMessages = defineMessages({
     ko: {
+        infoAbout: '{label} 설명',
+        powerHint: '상대에게 주는 피해의 기본 크기예요. 높을수록 강하고, -는 고정 피해 등 위력이 따로 없는 기술이에요.',
+        accuracyHint: '기술이 맞을 확률(%)이에요. -는 항상 명중해요.',
+        ppHint: '기술을 쓸 수 있는 횟수예요. 0이 되면 더 쓸 수 없어요.',
+        priorityHint: '속도와 상관없이 먼저 움직이는 정도예요. 큰 수일수록 먼저, 음수는 나중이에요.',
+        categoryHint: '물리는 공격·방어, 특수는 특공·특방으로 피해를 계산하고, 변화는 피해 없이 효과만 줘요.',
         title: '기술',
         subtitle: '기술 {n}개를 이름, 타입, 분류, 세대로 찾을 수 있습니다.',
         searchLabel: '기술 검색',
@@ -42,6 +48,12 @@ export const movesMessages = defineMessages({
         list: '기술 목록',
     },
     en: {
+        infoAbout: 'About {label}',
+        powerHint: 'The base size of the damage dealt. Higher hits harder; - means the move has no fixed power (e.g. set damage).',
+        accuracyHint: 'Chance (%) that the move hits. - means it never misses.',
+        ppHint: 'How many times the move can be used. At 0 it cannot be used.',
+        priorityHint: 'How early the move goes regardless of Speed. Higher goes first, negative goes last.',
+        categoryHint: 'Physical uses Attack/Defense, Special uses Sp. Atk/Sp. Def, Status deals no damage and only has an effect.',
         title: 'Moves',
         subtitle: 'Find any of {n} moves by name, type, category or generation.',
         searchLabel: 'Search moves',
@@ -81,6 +93,12 @@ export const movesMessages = defineMessages({
         list: 'Move list',
     },
     ja: {
+        infoAbout: '{label}の説明',
+        powerHint: '与えるダメージの基本の大きさ。大きいほど強く、-は威力が決まっていないわざです。',
+        accuracyHint: 'わざが当たる確率(%)。-は必ず当たります。',
+        ppHint: 'わざを使える回数。0になると使えません。',
+        priorityHint: '素早さに関係なく先に動く度合い。大きいほど先、マイナスは後です。',
+        categoryHint: '物理はこうげき・ぼうぎょ、特殊はとくこう・とくぼうで計算し、変化はダメージを与えず効果だけを起こします。',
         title: 'わざ',
         subtitle: '{n}種類のわざを、名前、タイプ、分類、世代で探せます。',
         searchLabel: 'わざを検索',
