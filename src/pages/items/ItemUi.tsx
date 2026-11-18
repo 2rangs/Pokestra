@@ -1,6 +1,9 @@
 /* eslint-disable react-refresh/only-export-components -- 목록·상세가 함께 쓰는 표시 조각과 그 도우미를 한 파일에 둔다 */
 import { HStack } from '@astryxdesign/core/HStack'
 import { Text } from '@astryxdesign/core/Text'
+import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
+import { useLang } from '../../i18n'
+import { typeName } from '../../lib/dex'
 import { PokeImage } from '../../components/ui/PokeImage'
 import { TypeIconDot } from '../../components/ui/shared'
 import type { TFunction } from '../../i18n'
@@ -22,6 +25,7 @@ const DASH = '-'
 
 /** 열매는 자연의은혜 타입 점 + 위력, 그 외는 던지기 위력, 없으면 `-` */
 export function ItemValueCell({ item }: { item: DexItem }) {
+    const lang = useLang()
     const berry = item.kind === 'berry' ? item.berry : null
     const value = berry ? berry.naturalGiftPower : item.flingPower
     if (value == null) {
@@ -33,7 +37,12 @@ export function ItemValueCell({ item }: { item: DexItem }) {
     }
     return (
         <HStack gap={1.5} vAlign="center" hAlign="end">
-            {berry?.naturalGiftType && <TypeIconDot type={berry.naturalGiftType} className="h-3.5 w-3.5" />}
+            {berry?.naturalGiftType && (
+                <>
+                    <TypeIconDot type={berry.naturalGiftType} className="h-3.5 w-3.5" />
+                    <VisuallyHidden>{typeName(berry.naturalGiftType, lang)}</VisuallyHidden>
+                </>
+            )}
             <Text size="sm" hasTabularNumbers>
                 {value}
             </Text>

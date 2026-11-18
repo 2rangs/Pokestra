@@ -16,7 +16,7 @@ import { useProgressive } from '../../components/dex/useProgressive'
 import { useRowLink } from '../../components/dex/useRowLink'
 import { useSlashFocus } from '../../components/dex/useSlashFocus'
 import { useUrlParams } from '../../components/dex/useUrlParams'
-import { useDocumentTitle, useLang, useT, type Lang } from '../../i18n'
+import { LANG_LABEL, useDocumentTitle, useLang, useT, type Lang } from '../../i18n'
 import { commonMessages } from '../../i18n/messages/common'
 import { itemsMessages } from '../../i18n/messages/items'
 import {
@@ -71,10 +71,9 @@ export default function ItemListPage() {
     const setCats = (next: string[]) => update({ cat: next.join(',') || null })
 
     const filtered = useMemo(
-        () => queryItems({ ...query, q: deferredQ }, lang),
-        // query 는 params 에서 파생되므로 q 만 지연된 값으로 바꿔 쓴다
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [params, deferredQ, lang],
+        // 검색어만 지연된 값으로 바꿔 쓴다
+        () => queryItems({ q: deferredQ, view, cats, sort, dir }, lang),
+        [deferredQ, view, cats, sort, dir, lang],
     )
 
     const resetKey = [deferredQ, view, cats.join(','), sort, dir, lang].join('|')
@@ -127,9 +126,12 @@ export default function ItemListPage() {
                             )}
                         </HStack>
                         {!isWide && (
-                            <Text size="sm" color="secondary">
-                                {categoryLabel(item.category, t)}
-                            </Text>
+                            <HStack gap={1.5} vAlign="center">
+                                <Text size="sm" color="secondary">
+                                    {categoryLabel(item.category, t)}
+                                </Text>
+                                {view === 'berry' && <FlavorSummary flavors={item.berry?.flavors ?? null} t={t} />}
+                            </HStack>
                         )}
                     </VStack>
                 )
@@ -154,7 +156,8 @@ export default function ItemListPage() {
                       width: proportional(3, { minWidth: 200 }),
                       renderCell: ({ item }) => {
                           const d = itemDesc(item, lang)
-                          const text = d ? cleanDesc(d.text, d.lang) : null
+                          const clean = d ? cleanDesc(d.text, d.lang) : null
+                          const text = clean && d && d.lang !== lang ? `${clean} ${t('descFallback', { lang: LANG_LABEL[d.lang] })}` : clean
                           return (
                               <span lang={d?.lang} className="block truncate">
                                   <Text size="sm" color="secondary">
@@ -169,12 +172,12 @@ export default function ItemListPage() {
         {
             key: 'value',
             header: t('colValue'),
-            width: pixel(112),
+            width: pixel(isWide ? 112 : 72),
             align: 'end',
             sortable: true,
             renderCell: ({ item }) => <ItemValueCell item={item} />,
         },
-        ...(view === 'berry'
+        ...(view === 'berry' && isWide
             ? ([
                   {
                       key: 'flavor',
@@ -191,6 +194,29 @@ export default function ItemListPage() {
         { value: 'battle', label: t('viewBattle') },
         { value: 'berry', label: t('viewBerry') },
     ] as const
+
+    // 넓은 화면에서는 필터 바에 고정하고, 좁은 화면에서는 고정 영역을 줄이려고 바 아래에 둔다
+    const chipRow = (
+        <HStack
+            gap={1.5}
+            wrap="nowrap"
+            vAlign="center"
+            role="group"
+            aria-label={t('filterCategory')}
+            className="overflow-x-auto [scrollbar-width:none]"
+        >
+            <FilterChip active={cats.length === 0} onClick={() => setCats([])} label={tc('all')} className="shrink-0" />
+            {categoriesFor(view).map((c) => (
+                <FilterChip
+                    key={c}
+                    active={cats.includes(c)}
+                    label={categoryLabel(c, t)}
+                    className="shrink-0"
+                    onClick={() => setCats(cats.includes(c) ? cats.filter((x) => x !== c) : [...cats, c])}
+                />
+            ))}
+        </HStack>
+    )
 
     return (
         <VStack gap={2}>
@@ -236,33 +262,20 @@ export default function ItemListPage() {
                             onClick={() => setSort(sort, dir === 'asc' ? 'desc' : 'asc')}
                         />
                     </HStack>
-                    {hasFilters && <Button size="sm" variant="ghost" label={t('resetFilters')} onClick={resetFilters} />}
+                    {hasFilters && isWide && <Button size="sm" variant="ghost" label={t('resetFilters')} onClick={resetFilters} />}
                 </HStack>
 
-                <HStack
-                    gap={1.5}
-                    wrap={isWide ? 'wrap' : 'nowrap'}
-                    vAlign="center"
-                    role="group"
-                    aria-label={t('filterCategory')}
-                    className="overflow-x-auto"
-                >
-                    <FilterChip active={cats.length === 0} onClick={() => setCats([])} label={tc('all')} className="shrink-0" />
-                    {categoriesFor(view).map((c) => (
-                        <FilterChip
-                            key={c}
-                            active={cats.includes(c)}
-                            label={categoryLabel(c, t)}
-                            className="shrink-0"
-                            onClick={() => setCats(cats.includes(c) ? cats.filter((x) => x !== c) : [...cats, c])}
-                        />
-                    ))}
-                </HStack>
+                {isWide && chipRow}
+            </VStack>
 
+            {!isWide && chipRow}
+
+            <HStack gap={2} vAlign="center">
                 <span aria-live="polite">
                     <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
                 </span>
-            </VStack>
+                {hasFilters && !isWide && <Button size="sm" variant="ghost" label={t('resetFilters')} onClick={resetFilters} />}
+            </HStack>
 
             {filtered.length === 0 ? (
                 <VStack gap={2} hAlign="center">
