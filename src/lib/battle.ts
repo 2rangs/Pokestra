@@ -2,7 +2,7 @@
 // 도감 데이터(src/lib/dex.ts) 와 @kyasi/pokebattle-engine 을 잇는다.
 import { useQuery } from '@tanstack/react-query'
 import {
-    preloadData, generateRandomSet, generateRandomTeam, getSpecies, koName, PRNG,
+    preloadData, loadNames, generateRandomSet, generateRandomTeam, getSpecies, koName, PRNG,
     type NameResolver, type Nature, type PokemonSet,
 } from '@kyasi/pokebattle-engine'
 import {
@@ -21,7 +21,8 @@ export function useEngineReady() {
     const q = useQuery({
         queryKey: ['battle-engine-data'],
         queryFn: async () => {
-            await preloadData()
+            // 일본어 이름 팩은 지연 로드 (ko/en 은 내장). 로그의 조건 이름 등 Pokestra 이름표에 없는 이름에 쓰인다
+            await Promise.all([preloadData(), loadNames('ja')])
             return true
         },
         staleTime: Infinity,

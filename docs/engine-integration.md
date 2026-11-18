@@ -3,7 +3,7 @@
 엔진(`github:2rangs/pokebattle-engine#main`)이 업데이트될 때 Pokestra 쪽에서 확인할 것들.
 
 ## 현재 고정된 버전
-- `package-lock.json` → `b298b5ffe1a62d2215701b8487f235d75b51f56b` (2026-11-18 업데이트)
+- `package-lock.json` → `59da4fc871d3a31d7b8055c432dc926e82d774e4` (2026-11-18, 엔진 PR #5 머지: `createFormatter`·`loadNames`·남은 HP 로그·번들 축소)
 - 엔진 의존성: `@pkmn/sim ^0.11.0`, `@pkmn/randoms ^0.11.0`, `@smogon/calc ^0.12.0`
 - 최신 엔진 받기: `npm install @kyasi/pokebattle-engine@github:2rangs/pokebattle-engine#main`
 
@@ -13,7 +13,8 @@
 |---|---|
 | `BattleEngine`, `createAI`, `Action`, `BattleAI`, `BattleConfig`, `BattleEvent`, `Side`, `PlayerID` | `pages/battle/useBattleSession.ts`, `BattlePage.tsx`, `BattleView.tsx` |
 | `BattleRequest`, `MoveOption`, `fixParticles` | `pages/battle/BattleView.tsx` |
-| `formatEvent`, `FormatContext`, `*_NAME_KO`, `SIDE_CONDITION_KO`, `FIELD_CONDITION_KO`, `VOLATILE_NAME_KO` | `lib/battleLog.ts` |
+| `createFormatter`, `Formatter`, `FormatContext`, `CONDITION_ENTITY`, `SHOWN_VOLATILES` | `lib/battleLog.ts` (로그 문장·상태/날씨/장판 이름, ko/en/ja) |
+| `loadNames('ja')` | `lib/battle.ts` (`useEngineReady`) |
 | `calculateDamage`, `toCalcPokemon`, `applyStage`, `CalcPokemonInput`, `DamageResult`, `MoveData`, `Stats`, `Weather`, `Terrain` | `components/calc/calcState.ts`, `FieldPanel.tsx`, `MoveResults.tsx` |
 | `getSpecies`, `getMove`, `koName`, `preloadData`, `NameResolver` | `lib/battle.ts`, calc, `TeamBuilder.tsx`, `BattleStatsPanel.tsx` |
 | `generateRandomTeam`, `generateRandomSet`, `PRNG` | `lib/battle.ts`, `calcState.ts`, `TeamBuilder.tsx` |
@@ -24,11 +25,11 @@
 1. `npm install` (엔진 `prepare`가 `dist/` 빌드) → `git diff package-lock.json`으로 커밋 해시 확인
 2. `npm run build && npm run lint && npm test`
 3. 브라우저: `/battle` 랜덤 팀 CPU 대전 한 판, Showdown 가져오기/내보내기, `/calc?atk=garchomp&def=gholdengo` 16가지 난수·확정 타수, 테라스탈
-4. 세 언어 배틀 로그 문구(`*_NAME_KO` 등 이름 변경 여부)
+4. 세 언어 배틀 로그 문구 (`npm test` → `lib/battleLog.test.ts`가 남은 HP·닉네임·진영 이름을 확인)
 
 ## 알려진 문제 (엔진 쪽에서 고치면 좋은 것)
-- **번들 크기**: 빌드 시 500 kB 넘는 청크 경고. 배틀/계산기 페이지를 동적 import로 나누거나, 엔진이 `@pkmn/sim` 없이 쓸 수 있는 가벼운 진입점(데이터·계산 전용)을 내주면 개선 가능.
-- **direct eval 경고**: `@pkmn/sim/build/esm/sim/battle-stream.mjs:162`의 `eval` — 엔진이 battle-stream을 쓰지 않으면 import 경로에서 빼는 것으로 회피 가능.
+- **번들 크기**: 엔진 PR #5로 배틀 청크 3.38 MB(gzip 753 kB). 여전히 500 kB 경고는 남음(배틀 페이지는 이미 지연 로드).
+- ~~direct eval 경고~~: PR #5에서 해결(빌드 경고 없음).
 - **`npm audit` high 13건**: 전부 picomatch(vite/tinyglobby/jscodeshift 경유, 개발 도구 전용). 엔진과 무관.
 
 ## 앞으로 필요할 수 있는 엔진 기능 (나무열매·도구 페이지)
