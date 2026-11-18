@@ -234,7 +234,7 @@ export const pokedexMessages = defineMessages({
         emptyBody: 'Try a different search or loosen the filters.',
         loadMore: 'Show more ({n} left)',
         total: 'Total',
-        cardTotal: 'Base',
+        cardTotal: 'Total',
         viewMode: 'View',
         viewGrid: 'Cards',
         viewTable: 'Table',

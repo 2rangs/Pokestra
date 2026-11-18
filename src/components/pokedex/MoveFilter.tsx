@@ -57,6 +57,16 @@ export function MoveFilter({ compact }: { compact?: boolean }) {
                 label={t("learnableMove")}
                 isLabelHidden={compact}
                 width={compact ? 224 : undefined}
+                status={
+                    compact
+                        ? resolvedMove
+                            ? { type: "success", message: t("moveActive", { move: moveName(resolvedMove.name, lang) }) }
+                            : moveSearch.trim()
+                              ? { type: "warning", message: hasSuggestions ? t("movePick") : t("moveNoMatch") }
+                              : undefined
+                        : undefined
+                }
+                statusVariant={compact ? "tooltip" : undefined}
                 placeholder={t("movePlaceholder")}
                 searchSource={source}
                 debounceMs={0}

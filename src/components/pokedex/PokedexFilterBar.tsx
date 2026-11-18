@@ -1,5 +1,6 @@
 import { useRef } from "react"
 import { Button } from "@astryxdesign/core/Button"
+import { HStack } from "@astryxdesign/core/HStack"
 import { Icon } from "@astryxdesign/core/Icon"
 import { MultiSelector } from "@astryxdesign/core/MultiSelector"
 import { SegmentedControl, SegmentedControlItem } from "@astryxdesign/core/SegmentedControl"
@@ -72,8 +73,8 @@ export function PokedexFilterBar({
             aria-label={t("filters")}
             className="sticky top-21.5 z-30 -mx-4 flex flex-col gap-2 border-b border-border bg-body px-4 py-2 sm:-mx-6 sm:px-6 lg:top-12"
         >
-            <span className="flex flex-wrap items-end gap-2">
-                <span ref={searchRef} className="order-1 min-w-0 flex-1">
+            <HStack wrap="wrap" align="end" gap={2}>
+                <HStack ref={searchRef} className="order-1 min-w-0 flex-1">
                     <TextInput
                         type="search"
                         label={t("searchLabel")}
@@ -86,8 +87,8 @@ export function PokedexFilterBar({
                         hasClear
                         width="100%"
                     />
-                </span>
-                <span className="order-2 md:hidden">
+                </HStack>
+                <HStack className="order-2 md:hidden">
                     <Button
                         icon={<Icon icon="funnel" />}
                         label={activeFilterCount > 0 ? `${t("filters")} ${activeFilterCount}` : t("filters")}
@@ -96,10 +97,13 @@ export function PokedexFilterBar({
                         aria-expanded={open}
                         aria-controls="pokedex-filter-more"
                     />
-                </span>
-                <span
+                </HStack>
+                <HStack
                     id="pokedex-filter-more"
-                    className={`${open ? "flex" : "hidden"} order-3 w-full items-end gap-2 overflow-x-auto *:shrink-0 md:order-2 md:flex md:w-auto md:overflow-visible`}
+                    gap={2}
+                    align="end"
+                    isScrollable
+                    className={`${open ? "flex" : "hidden"} order-3 w-full *:shrink-0 md:order-2 md:flex md:w-auto md:overflow-visible`}
                 >
                     <MultiSelector
                         label={t("generation")}
@@ -127,13 +131,16 @@ export function PokedexFilterBar({
                         <SegmentedControlItem value="asc" label={t("asc")} icon={<Icon icon="arrowUp" size="sm" />} />
                         <SegmentedControlItem value="desc" label={t("desc")} icon={<Icon icon="arrowDown" size="sm" />} />
                     </SegmentedControl>
-                </span>
-            </span>
+                </HStack>
+            </HStack>
 
-            <span
+            <HStack
                 role="group"
                 aria-labelledby="pokedex-type-label"
-                className={`${open ? "flex" : "hidden"} items-center gap-2 overflow-x-auto *:shrink-0 md:flex`}
+                gap={2}
+                align="center"
+                isScrollable
+                className={`${open ? "flex" : "hidden"} *:shrink-0 md:flex`}
             >
                 <Text type="label" id="pokedex-type-label">
                     {t("type")}
@@ -153,15 +160,15 @@ export function PokedexFilterBar({
                 {selectedTypes.length > 0 && (
                     <Button size="sm" variant="ghost" label={t("clearSelection")} onClick={clearTypes} />
                 )}
-                <span className="ms-auto">
+                <HStack className="ms-auto">
                     <Switch
                         label={t("includeForms")}
                         labelTooltip={t("includeFormsHint")}
                         value={includeForms}
                         onChange={(v) => setIncludeForms(v)}
                     />
-                </span>
-            </span>
+                </HStack>
+            </HStack>
         </section>
     )
 }

@@ -160,25 +160,33 @@ export default function PokedexPage() {
     const hasMore = visibleCount < results.length
     const isSearching = deferredName !== nameSearch
 
-    // 무한 스크롤: 아직 안 그린 결과 자리(data-slot)를 미리 잡아 두고, 그 자리가 화면 근처로 오면 거기까지 불러온다.
-    // 자리를 잡아 두면 문서 높이와 바닥 푸터가 더 불러올 때 밀리지 않는다(레이아웃 이동 없음).
+    // 무한 스크롤: 다음 페이지 분량의 빈 자리(data-slot)를 카드 뒤에 잡아 두고, 그 자리가 화면 근처로 오면 한 페이지만 더 불러온다.
+    // 자리 덕에 문서 높이와 바닥 푸터가 불러올 때 밀리지 않는다(레이아웃 이동 없음).
     const resultsRef = useRef<HTMLSpanElement | null>(null)
+    const focusIndex = useRef<number | null>(null)
     useEffect(() => {
         const root = resultsRef.current
         if (!root || !hasMore) return
         const io = new IntersectionObserver(
             (entries) => {
-                let need = 0
-                for (const entry of entries) {
-                    if (entry.isIntersecting) need = Math.max(need, Math.ceil((Number((entry.target as HTMLElement).dataset.slot) + 1) / PAGE_SIZE))
-                }
-                if (need > usePokedexStore.getState().page) setPage(need)
+                if (entries.some((e) => e.isIntersecting)) setPage(usePokedexStore.getState().page + 1)
             },
             { rootMargin: "600px 0px" },
         )
         for (const el of root.querySelectorAll("[data-slot]")) io.observe(el)
         return () => io.disconnect()
     }, [hasMore, visibleCount, results, view, setPage])
+    // "더 보기"를 눌렀다면 새로 생긴 첫 카드로 포커스를 옮긴다
+    useEffect(() => {
+        const i = focusIndex.current
+        if (i == null || visibleCount <= i) return
+        focusIndex.current = null
+        resultsRef.current?.querySelectorAll<HTMLElement>("a[href]")[i]?.focus({ preventScroll: false })
+    }, [visibleCount])
+    const loadMore = () => {
+        focusIndex.current = visibleCount
+        setPage(page + 1)
+    }
 
     const highlightStat: StatKey | null =
         sortKey === "id" || sortKey === "name" || sortKey === "total" ? null : sortKey
@@ -198,9 +206,9 @@ export default function PokedexPage() {
         <VStack gap={4}>
             <HStack gap={3} vAlign="end" wrap="wrap">
                 <Heading level={1}>{t("title")}</Heading>
-                <span className="hidden sm:inline">
+                <HStack className="hidden sm:flex">
                     <Text color="secondary">{t("subtitle")}</Text>
-                </span>
+                </HStack>
             </HStack>
 
             <PokedexFilterBar
@@ -240,12 +248,17 @@ export default function PokedexPage() {
                     actions={isDirty ? <Button variant="primary" label={t("reset")} onClick={reset} /> : undefined}
                 />
             ) : view === "table" ? (
-                <span ref={resultsRef} className={`block transition-opacity ${isSearching ? "opacity-60" : ""}`}>
+                <VStack ref={resultsRef} className={`transition-opacity ${isSearching ? "opacity-60" : ""}`}>
                     <PokedexTable pokemon={visible.map((e) => e.p)} sortStat={sortKey === "total" ? "total" : highlightStat} />
-                    {hasMore && <span data-slot={visibleCount} aria-hidden className="block h-px" />}
-                </span>
+                    {hasMore && (
+                        <HStack justify="center" paddingBlock={2}>
+                            <Button label={t("loadMore", { n: results.length - visibleCount })} onClick={loadMore} />
+                        </HStack>
+                    )}
+                    {hasMore && <HStack data-slot={visibleCount} aria-hidden className="h-px" />}
+                </VStack>
             ) : (
-                <span ref={resultsRef} className={`block transition-opacity ${isSearching ? "opacity-60" : ""}`}>
+                <VStack ref={resultsRef} className={`transition-opacity ${isSearching ? "opacity-60" : ""}`}>
                     <Grid columns={{ minWidth: 128, max: 10 }} gap={2}>
                         {visible.map((e) => (
                             <PokemonCard
@@ -260,18 +273,22 @@ export default function PokedexPage() {
                                 }
                             />
                         ))}
-                        {results.slice(visibleCount).map((e, i) => (
-                            <span key={e.p.id} data-slot={visibleCount + i} aria-hidden className="h-46 sm:h-50" />
-                        ))}
                     </Grid>
-                </span>
+                    {hasMore && (
+                        <HStack justify="center" paddingBlock={2}>
+                            <Button label={t("loadMore", { n: results.length - visibleCount })} onClick={loadMore} />
+                        </HStack>
+                    )}
+                    {hasMore && (
+                        <Grid columns={{ minWidth: 128, max: 10 }} gap={2} aria-hidden>
+                            {results.slice(visibleCount, visibleCount + PAGE_SIZE).map((e, i) => (
+                                <HStack key={e.p.id} data-slot={visibleCount + i} className="h-46 sm:h-50" />
+                            ))}
+                        </Grid>
+                    )}
+                </VStack>
             )}
 
-            {hasMore && (
-                <span className="sr-only focus-within:not-sr-only focus-within:flex focus-within:justify-center">
-                    <Button label={t("loadMore", { n: results.length - visibleCount })} onClick={() => setPage(page + 1)} />
-                </span>
-            )}
         </VStack>
     )
 }

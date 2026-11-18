@@ -44,12 +44,12 @@ function PokemonCardImpl({ pokemon: p, highlight }: Props) {
     return (
         <ClickableCard href={`/pokemon/${p.id}`} label={`${no} ${name}${formLabel ? ` (${formLabel})` : ""}`} padding={2} className="h-full">
             <VStack gap={1} hAlign="stretch">
-                <Text type="supporting" hasTabularNumbers className="whitespace-nowrap">
+                <Text type="supporting" hasTabularNumbers textWrap="nowrap">
                     {no}
                 </Text>
-                <span className="flex justify-center">
+                <HStack justify="center">
                     <PokemonImage p={p} size={72} className="h-18 w-18" />
-                </span>
+                </HStack>
                 <VStack gap={0}>
                     <HStack gap={1} vAlign="center">
                         <Text weight="semibold" maxLines={1}>
@@ -66,7 +66,7 @@ function PokemonCardImpl({ pokemon: p, highlight }: Props) {
                         <TypeTag key={type} type={type} size="xs" />
                     ))}
                     {highlight && (
-                        <Text type="supporting" className="ms-auto whitespace-nowrap">
+                        <Text type="supporting" textWrap="nowrap" className="ms-auto">
                             {highlight.label}{" "}
                             <Text type="supporting" color="primary" weight="semibold" hasTabularNumbers>
                                 {highlight.value}

@@ -34,7 +34,6 @@ interface PokedexState extends PokedexFilters {
     clearTypes: () => void
     toggleGeneration: (id: number) => void
     setGenerations: (ids: number[]) => void
-    clearGenerations: () => void
     setSelectedEggGroup: (v: string | null) => void
     setIncludeForms: (v: boolean) => void
     setSortKey: (v: PokedexSortKey) => void
@@ -82,7 +81,6 @@ export const usePokedexStore = create<PokedexState>()(
                     page: 1,
                 })),
             setGenerations: (ids) => set({ selectedGenerations: [...new Set(ids)].sort((a, b) => a - b), page: 1 }),
-            clearGenerations: () => set({ selectedGenerations: [], page: 1 }),
             setSelectedEggGroup: (v) => set({ selectedEggGroup: v, page: 1 }),
             setIncludeForms: (v) => set({ includeForms: v, page: 1 }),
             setSortKey: (v) => set({ sortKey: v, page: 1 }),
@@ -94,7 +92,8 @@ export const usePokedexStore = create<PokedexState>()(
             name: 'pokestra-pokedex-filters',
             version: 1,
             storage: createJSONStorage(() => sessionStorage),
-            partialize: (s): PokedexFilters => ({
+            // 페이지 수는 저장하지 않는다: 돌아왔을 때 수백 장을 한꺼번에 그리지 않도록 1페이지부터 시작
+            partialize: (s): Omit<PokedexFilters, 'page'> => ({
                 nameSearch: s.nameSearch,
                 moveSearch: s.moveSearch,
                 selectedMove: s.selectedMove,
@@ -104,7 +103,6 @@ export const usePokedexStore = create<PokedexState>()(
                 includeForms: s.includeForms,
                 sortKey: s.sortKey,
                 sortDir: s.sortDir,
-                page: s.page,
             }),
         },
     ),
