@@ -249,64 +249,62 @@ export function MovesPanel({
             {visible.length === 0 ? (
                 <EmptyState title={t("noMoves")} isCompact />
             ) : (
-                <div className="overflow-x-auto">
-                    <Table density="compact" hasHover aria-label={t("tabMoves")}>
-                        <TableHeader>
-                            <TableRow isHeaderRow>
-                                {showLevel && <TableHeaderCell scope="col">{t("colLevel")}</TableHeaderCell>}
-                                <TableHeaderCell scope="col">{t("colMove")}</TableHeaderCell>
-                                <TableHeaderCell scope="col">{t("colType")}</TableHeaderCell>
-                                <TableHeaderCell scope="col">{t("colClass")}</TableHeaderCell>
-                                <TableHeaderCell scope="col" className="text-right">{t("colPower")}</TableHeaderCell>
-                                <TableHeaderCell scope="col" className="text-right">{t("colAccuracy")}</TableHeaderCell>
-                                <TableHeaderCell scope="col" className="text-right">{t("colPP")}</TableHeaderCell>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {visible.map((r) => {
-                                const m = MOVE_BY_NAME.get(r.slug)
-                                return (
-                                    <TableRow key={`${r.method}:${r.slug}:${r.level ?? ""}`}>
-                                        {showLevel && (
-                                            <TableCell>
-                                                <Text color="secondary" hasTabularNumbers>
-                                                    {r.method === "level-up" ? (r.level === 0 ? t("evoMoveLevel") : r.level) : "-"}
-                                                </Text>
-                                            </TableCell>
-                                        )}
+                <Table density="compact" hasHover aria-label={t("tabMoves")}>
+                    <TableHeader>
+                        <TableRow isHeaderRow>
+                            {showLevel && <TableHeaderCell scope="col">{t("colLevel")}</TableHeaderCell>}
+                            <TableHeaderCell scope="col">{t("colMove")}</TableHeaderCell>
+                            <TableHeaderCell scope="col">{t("colType")}</TableHeaderCell>
+                            <TableHeaderCell scope="col">{t("colClass")}</TableHeaderCell>
+                            <TableHeaderCell scope="col" className="text-right">{t("colPower")}</TableHeaderCell>
+                            <TableHeaderCell scope="col" className="text-right">{t("colAccuracy")}</TableHeaderCell>
+                            <TableHeaderCell scope="col" className="text-right">{t("colPP")}</TableHeaderCell>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {visible.map((r) => {
+                            const m = MOVE_BY_NAME.get(r.slug)
+                            return (
+                                <TableRow key={`${r.method}:${r.slug}:${r.level ?? ""}`}>
+                                    {showLevel && (
                                         <TableCell>
-                                            <span className="flex min-w-28 flex-col">
-                                                {m ? (
-                                                    <Link href={`/moves/${r.slug}`} weight="medium">
-                                                        {moveName(r.slug, lang)}
-                                                    </Link>
-                                                ) : (
-                                                    <Text weight="medium">{moveName(r.slug, lang)}</Text>
-                                                )}
-                                                {method === "all" && r.method !== "level-up" && (
-                                                    <Text type="supporting">{t(METHOD_LABEL[r.method])}</Text>
-                                                )}
-                                            </span>
+                                            <Text color="secondary" hasTabularNumbers>
+                                                {r.method === "level-up" ? (r.level === 0 ? t("evoMoveLevel") : r.level) : "-"}
+                                            </Text>
                                         </TableCell>
-                                        <TableCell>{m && <TypeTag type={m.type} size="xs" />}</TableCell>
-                                        <TableCell>
-                                            <Text color="secondary">{m ? damageClassName(m.damageClass, lang) : "-"}</Text>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Text hasTabularNumbers>{m?.power ?? "-"}</Text>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Text color="secondary" hasTabularNumbers>{m?.accuracy ?? "-"}</Text>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Text color="secondary" hasTabularNumbers>{m?.pp ?? "-"}</Text>
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            })}
-                        </TableBody>
-                    </Table>
-                </div>
+                                    )}
+                                    <TableCell>
+                                        <span className="flex min-w-28 flex-col">
+                                            {m ? (
+                                                <Link href={`/moves/${r.slug}`} weight="medium">
+                                                    {moveName(r.slug, lang)}
+                                                </Link>
+                                            ) : (
+                                                <Text weight="medium">{moveName(r.slug, lang)}</Text>
+                                            )}
+                                            {method === "all" && r.method !== "level-up" && (
+                                                <Text type="supporting">{t(METHOD_LABEL[r.method])}</Text>
+                                            )}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>{m && <TypeTag type={m.type} size="xs" />}</TableCell>
+                                    <TableCell>
+                                        <Text color="secondary">{m ? damageClassName(m.damageClass, lang) : "-"}</Text>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Text hasTabularNumbers>{m?.power ?? "-"}</Text>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Text color="secondary" hasTabularNumbers>{m?.accuracy ?? "-"}</Text>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Text color="secondary" hasTabularNumbers>{m?.pp ?? "-"}</Text>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        })}
+                    </TableBody>
+                </Table>
             )}
         </PanelFrame>
     )

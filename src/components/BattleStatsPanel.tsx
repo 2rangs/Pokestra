@@ -79,7 +79,7 @@ export default function BattleStatsPanel({ dexId, note }: { dexId: number; note?
                         <>
                             <Grid columns={{ minWidth: 280, repeat: 'fit' }} gap={4}>
                                 {LEVELS.map((lv) => (
-                                    <span key={lv} className="block min-w-0 overflow-x-auto">
+                                    <span key={lv} className="block min-w-0">
                                         <Table density="compact" aria-label={`${t('battleTitle')} Lv.${lv}`}>
                                             <TableHeader>
                                                 <TableRow isHeaderRow>

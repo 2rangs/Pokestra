@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 import { Button } from "@astryxdesign/core/Button"
 import { HStack } from "@astryxdesign/core/HStack"
 import { Icon } from "@astryxdesign/core/Icon"
@@ -47,12 +47,23 @@ export function GenerationBar({ debut, gen, onChange, cry, loading = false, t }:
         audioRef.current = audio
         audio.play().catch(() => {})
     }
+    // 다른 화면이나 다른 포켓몬(울음소리가 바뀜)으로 가면 재생을 멈춘다
+    useEffect(() => () => audioRef.current?.pause(), [cry.legacy, cry.latest])
 
     const split = cry.legacy && cry.legacy !== cry.latest
     const cryButtons: CryButton[] = []
     if (loading) {
-        // 로딩 중에도 자리를 잡아 두어 레이아웃이 밀리지 않게 한다
-        cryButtons.push({ key: "one", label: t("cryPlay"), url: null, primary: true })
+        // 로딩 중에도 로드 후와 같은 개수·라벨로 자리를 잡아 두어 줄 너비가 바뀌지 않게 한다
+        // (5세대 이하 등장은 옛날/최신 울음소리 두 개, 그 뒤는 하나)
+        // 순서도 로드 후와 같게: 5세대 이하를 고르면 옛날 소리가 앞(주), 아니면 최신이 앞
+        if (debut <= 5) {
+            const legacyFirst = gen !== null && gen <= 5
+            const legacy: CryButton = { key: "legacy", label: `${t("cryPlay")} · ${t("cryLegacy")}`, url: null, primary: legacyFirst }
+            const latest: CryButton = { key: "latest", label: `${t("cryPlay")} · ${t("cryLatest")}`, url: null, primary: !legacyFirst }
+            cryButtons.push(...(legacyFirst ? [legacy, latest] : [latest, legacy]))
+        } else {
+            cryButtons.push({ key: "one", label: t("cryPlay"), url: null, primary: true })
+        }
     } else if (split) {
         const legacy: CryButton = { key: "legacy", label: `${t("cryPlay")} · ${t("cryLegacy")}`, url: cry.legacy, primary: cry.primary === cry.legacy }
         const latest: CryButton | null = cry.latest

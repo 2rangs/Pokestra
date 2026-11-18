@@ -22,6 +22,7 @@ import { EvolutionTree } from "../../components/pokedex/EvolutionChain"
 import { dexNumber, ROMAN } from "../../components/pokedex/format"
 import { MovesPanel } from "../../components/pokedex/MovesPanel"
 import { SpritesGallery } from "../../components/pokedex/SpritesGallery"
+import { GenderToggle } from "../../components/pokedex/GenderToggle"
 import { GenerationBar } from "../../components/pokedex/GenerationBar"
 import { StatBar, TypeTag } from "../../components/ui/shared"
 import { getIdFromUrl } from "../../common/utils"
@@ -35,7 +36,8 @@ import { LANGS, type Lang, formatNumber, useDocumentTitle, useLang, useT } from 
 import { commonMessages } from "../../i18n/messages/common"
 import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
 import { itemName } from "../../lib/battle"
-import { LATEST_GEN, type GenStatKey, abilitiesAt, clampGen, cryAt, spriteAt, statsAt, typesAt } from "../../lib/generation"
+import { parseSex } from "../../lib/gender"
+import { LATEST_GEN, type GenStatKey, abilitiesAt, clampGen, cryAt, femaleArtAt, spriteAt, statsAt, typesAt } from "../../lib/generation"
 import { pokemonImageCandidates, preloadImages } from "../../lib/images"
 import { PokeImage } from "../../components/ui/PokeImage"
 import {
@@ -169,7 +171,7 @@ function Panel({
         <span className={`block min-w-0 ${className}`}>
             <Card height="100%">
                 <section>
-                    <VStack gap={4}>
+                    <VStack gap={3}>
                         {title && titleNote ? (
                             <HStack gap={3} vAlign="center" wrap="wrap">
                                 <Heading level={2}>{title}</Heading>
@@ -192,6 +194,18 @@ function SkeletonRows({ n = 4 }: { n?: number }) {
             {Array.from({ length: n }, (_, i) => (
                 <Skeleton key={i} height={24} index={i} />
             ))}
+        </VStack>
+    )
+}
+
+/** 한눈에 뜻을 알기 어려운 값 + 한 줄 설명 */
+function Hinted({ hint, children }: { hint: string; children: ReactNode }) {
+    return (
+        <VStack gap={0.5}>
+            {children}
+            <Text type="supporting" color="secondary">
+                {hint}
+            </Text>
         </VStack>
     )
 }
@@ -226,10 +240,10 @@ function NeighborLink({
     const no = dexNumber(p.id)
     return (
         <Link href={`/pokemon/${p.id}${search}`} label={`${label}: ${no} ${name}`} hasUnderline={false} color="secondary">
-            <span className={`inline-flex min-w-0 items-center gap-1.5 ${dir === "next" ? "flex-row-reverse" : ""}`}>
+            <span className={`inline-flex min-h-11 min-w-0 items-center gap-1.5 sm:min-h-0 ${dir === "next" ? "flex-row-reverse" : ""}`}>
                 <Icon icon={dir === "prev" ? "chevronLeft" : "chevronRight"} size="sm" />
                 <span className="hidden tabular-nums sm:inline">{no}</span>
-                <span className="max-w-[8rem] truncate font-medium text-primary sm:max-w-[12rem]">{name}</span>
+                <span className="max-w-32 truncate font-medium text-primary sm:max-w-48">{name}</span>
             </span>
         </Link>
     )
@@ -237,26 +251,86 @@ function NeighborLink({
 
 // ─── Page states ──────────────────────────────────────────────────────────────
 
-function DetailSkeleton({ label }: { label: string }) {
+// ─── Header pieces (실제 머리말과 스켈레톤이 같은 틀을 쓴다) ───────────────────────────
+
+/** 휴대폰에서 44px 터치 높이를 갖는 줄 */
+function TapRow({ children, justify, as }: { children: ReactNode; justify?: "end"; as?: "span" }) {
     return (
-        <VStack gap={5} role="status" aria-live="polite">
+        <HStack as={as} gap={1} justify={justify} vAlign="center" className="min-h-11 sm:min-h-0">
+            {children}
+        </HStack>
+    )
+}
+
+/** 머리말 본문: 이미지 액자(md 이상 192px = 도트 원본 96px의 2배, 휴대폰 96px) | 신원 | 핵심 수치(lg 미만은 다음 줄) */
+function HeaderBody({
+    image,
+    caption,
+    identity,
+    numbers,
+}: {
+    image: { key?: number; sources: (string | null | undefined)[]; alt: string; priority?: boolean }
+    caption: ReactNode
+    identity: ReactNode
+    numbers: ReactNode
+}) {
+    return (
+        <section className="flex flex-wrap items-start gap-4">
+            <figure className="flex shrink-0 flex-col items-center gap-1">
+                <span className="block rounded-lg border border-border bg-muted p-2">
+                    <PokeImage key={image.key} sources={image.sources} alt={image.alt} size={192} className="h-24 w-24 md:h-48 md:w-48" priority={image.priority} />
+                </span>
+                {caption}
+            </figure>
+            <VStack as="span" gap={2} className="min-w-0 flex-1 basis-48">
+                {identity}
+            </VStack>
+            <VStack as="span" gap={3} className="min-w-0 basis-full lg:min-w-64 lg:flex-1 lg:basis-0">
+                {numbers}
+            </VStack>
+        </section>
+    )
+}
+
+function DetailSkeleton({ label }: { label: string }) {
+    // 실제 머리말과 같은 크기: 뒤로 링크 → 카드(이전/다음 → 이미지 액자 + 신원 + 핵심 수치) → 탭 줄.
+    // 로컬 도감에 없는 항목은 다른 폼(세대 막대 없음)뿐이라 위 줄은 이전/다음 자리만 잡는다.
+    return (
+        <VStack gap={4} role="status" aria-live="polite">
             <span className="sr-only">{label}</span>
-            <HStack justify="between">
-                <Skeleton width={112} height={28} />
-                <Skeleton width={180} height={28} />
-            </HStack>
+            <TapRow>
+                <Skeleton width={112} height={20} />
+            </TapRow>
             <Card>
-                <Grid columns={{ minWidth: 260, repeat: "fit" }} gap={6}>
-                    <Skeleton height={256} />
-                    <VStack gap={3}>
-                        <Skeleton width={96} height={16} />
-                        <Skeleton width="60%" height={40} />
-                        <Skeleton width={160} height={24} />
-                        <Skeleton height={64} />
-                    </VStack>
-                </Grid>
+                <VStack gap={3}>
+                    <TapRow justify="end">
+                        <Skeleton width={180} height={20} />
+                    </TapRow>
+                    <HeaderBody
+                        image={{ sources: [], alt: "" }}
+                        caption={<Skeleton width={64} height={20} />}
+                        identity={
+                            <>
+                                <Skeleton width="60%" height={36} />
+                                <Skeleton width={128} height={24} />
+                                <Skeleton width={160} height={32} />
+                                <Skeleton width={56} height={20} />
+                            </>
+                        }
+                        numbers={
+                            <>
+                                <Skeleton height={48} />
+                                <Skeleton width="70%" height={18} />
+                                <VStack gap={1}>
+                                    <Skeleton height={22} />
+                                    <Skeleton width="60%" height={22} />
+                                </VStack>
+                            </>
+                        }
+                    />
+                </VStack>
             </Card>
-            <Skeleton height={160} />
+            <Skeleton height={37} />
         </VStack>
     )
 }
@@ -306,6 +380,20 @@ export default function PokemonDetailPage() {
                 const q = new URLSearchParams(prevParams)
                 if (next === null) q.delete("gen")
                 else q.set("gen", String(next))
+                return q
+            },
+            { replace: true },
+        )
+
+    // 암수 모습: 기본(수컷)은 파라미터 없음, ?sex=f 만 기록. 로컬 도감에 있으면 처음부터 알 수 있어 토글이 늦게 끼어들지 않는다
+    const hasGenderDiff = !isAltForm && (local ? local.genderDiff : species?.has_gender_differences === true)
+    const sex = hasGenderDiff ? parseSex(searchParams.get("sex")) : "m"
+    const setSex = (next: "m" | "f") =>
+        setSearchParams(
+            (prevParams) => {
+                const q = new URLSearchParams(prevParams)
+                if (next === "m") q.delete("sex")
+                else q.set("sex", next)
                 return q
             },
             { replace: true },
@@ -374,14 +462,15 @@ export default function PokemonDetailPage() {
     const prev = speciesId ? getDexPokemon(speciesId - 1) : undefined
     const next = speciesId ? getDexPokemon(speciesId + 1) : undefined
 
-    // 이전/다음 이동 시 탭과 세대 선택을 유지 (이웃에 없던 세대면 그쪽에서 현재 값으로 보정)
+    // 이전/다음 이동 시 탭·세대·암수 선택을 유지 (이웃에 없던 세대면 그쪽에서 현재 값으로 보정, 암수 차이가 없으면 무시)
     const neighborSearch = useMemo(() => {
         const q = new URLSearchParams()
         if (tab !== "overview") q.set("tab", tab)
         if (gen !== null) q.set("gen", String(gen))
+        if (sex === "f") q.set("sex", "f")
         const str = q.toString()
         return str ? `?${str}` : ""
-    }, [tab, gen])
+    }, [tab, gen, sex])
 
     // 다른 포켓몬으로 이동하면 맨 위로
     useEffect(() => {
@@ -442,6 +531,17 @@ export default function PokemonDetailPage() {
     const currentNote = gen !== null ? <Text type="supporting" color="secondary">{t("currentValuesNote")}</Text> : undefined
     const artwork = local ? officialArtworkUrl(local.id) : (detail?.sprites.other?.["official-artwork"]?.front_default ?? "")
     const spriteFallback = local?.sprite ?? detail?.sprites.front_default ?? null
+    // 머리말 이미지 후보: 세대 도트(로딩 중엔 빈 칸, 실패하면 일러스트로) / 현재 일러스트. 암컷이면 암컷 그림부터
+    const headerSources =
+        gen !== null
+            ? genDetail
+                ? [spriteAt(genDetail.sprites, gen, { female: sex === "f" }), artwork]
+                : detailQ.isError
+                  ? [artwork, spriteFallback]
+                  : []
+            : sex === "f" && detail
+              ? [femaleArtAt(detail.sprites), artwork, spriteFallback]
+              : [artwork, spriteFallback]
     const decimal = { minimumFractionDigits: 1, maximumFractionDigits: 1 }
 
     const genderRate = species?.gender_rate
@@ -462,131 +562,137 @@ export default function PokemonDetailPage() {
     const growthKey = species ? `growth_${species.growth_rate.name}` : ""
     const colorKey = species ? `color_${species.color.name}` : ""
     const retry = t("retry")
-    const pendingValue = detailQ.isError ? "-" : <Skeleton width={48} height={18} />
+    const pendingValue = detailQ.isError ? "-" : <Skeleton width={48} height={24} />
     const moveCount = detail?.moves.length ?? local?.moves.length
 
     return (
-        <VStack gap={5}>
-            {/* ── 상단 내비게이션 ── */}
-            <HStack justify="between" vAlign="center" gap={3} wrap="wrap">
+        <VStack gap={4}>
+            <HStack>
                 <Link href="/pokedex" hasUnderline={false}>
-                    <span className="inline-flex items-center gap-1">
+                    <TapRow as="span">
                         <Icon icon="chevronLeft" size="sm" />
                         {t("backToDex")}
-                    </span>
+                    </TapRow>
                 </Link>
-                <nav aria-label={t("neighbors")} title={t("keyboardHint")}>
-                    <HStack gap={4} vAlign="center">
-                        <NeighborLink p={prev} dir="prev" lang={lang} label={t("prev")} search={neighborSearch} />
-                        <NeighborLink p={next} dir="next" lang={lang} label={t("next")} search={neighborSearch} />
-                    </HStack>
-                </nav>
             </HStack>
 
-            {/* ── 세대 선택 (다른 폼은 제외) ── */}
-            {!isAltForm && (
-                <GenerationBar
-                    debut={debut}
-                    gen={gen}
-                    onChange={setGen}
-                    cry={cryAt(detail?.cries, gen ?? LATEST_GEN)}
-                    loading={!detail}
-                    lang={lang}
-                    t={t}
-                />
-            )}
-
-            {/* ── 표본 ── */}
+            {/* ── 머리말: 세대 선택 · 이전/다음 → 표본 ── */}
             <Card>
-                <Grid columns={{ minWidth: 260, repeat: "fit" }} gap={6} align="start">
-                    <figure className="flex flex-col items-center gap-2">
-                        <span className="flex w-full items-center justify-center rounded-lg border border-border bg-muted p-4">
-                            <PokeImage
-                                key={id}
-                                sources={
-                                    gen !== null
-                                        ? genDetail
-                                            ? [spriteAt(genDetail.sprites, gen), artwork]
-                                            : []
-                                        : [artwork, spriteFallback]
-                                }
-                                alt={gen !== null ? t("spriteAltGen", { name, gen }) : t("artworkAlt", { name })}
-                                size={256}
-                                className="h-56 w-56 sm:h-64 sm:w-64"
-                                priority
+                <VStack gap={3}>
+                    <HStack justify="between" vAlign="center" gap={3} wrap="wrap">
+                        {/* 다른 폼은 세대 기록이 없어 막대를 빼고, 이전/다음은 오른쪽 위에 그대로 둔다 */}
+                        {!isAltForm && (
+                            <GenerationBar
+                                debut={debut}
+                                gen={gen}
+                                onChange={setGen}
+                                cry={cryAt(detail?.cries, gen ?? LATEST_GEN)}
+                                loading={!detail}
+                                lang={lang}
+                                t={t}
                             />
-                        </span>
-                        <figcaption>
-                            <Text type="supporting" hasTabularNumbers>
-                                {dexNumber(shownNo)}
-                            </Text>
-                        </figcaption>
-                    </figure>
-
-                    <VStack gap={4}>
-                        <VStack gap={1}>
-                            <Heading level={1}>{name}</Heading>
-                            {form && (
-                                <Text type="large" color="secondary">
-                                    {form}
-                                </Text>
-                            )}
-                            {otherNames.length > 0 && (
-                                <span className="flex flex-wrap gap-x-3" aria-label={t("otherNames")}>
-                                    {otherNames.map((o) => (
-                                        <span key={o.n} lang={o.lang}>
-                                            <Text color="secondary">{o.n}</Text>
-                                        </span>
-                                    ))}
-                                </span>
-                            )}
-                            {genusEntry ? (
-                                <Text color="secondary">{genusEntry.genus}</Text>
-                            ) : speciesQ.isPending && speciesId ? (
-                                <Skeleton width={128} height={16} />
-                            ) : null}
-                        </VStack>
-
-                        <HStack gap={2} vAlign="center" wrap="wrap">
-                            <TypeIcon types={types} size="lg" />
-                            {typesView?.changedIn != null && (
-                                <Token size="sm" color="yellow" label={t("changedInGen", { gen: typesView.changedIn })} />
-                            )}
-                        </HStack>
-
-                        {(generation || species?.is_legendary || species?.is_mythical || species?.is_baby) && (
-                            <HStack gap={1.5} wrap="wrap">
-                                {generation ? <Token size="sm" label={generationName(generation, lang)} /> : null}
-                                {species?.is_legendary && <Token size="sm" color="yellow" label={t("legendary")} />}
-                                {species?.is_mythical && <Token size="sm" color="pink" label={t("mythical")} />}
-                                {species?.is_baby && <Token size="sm" color="purple" label={t("baby")} />}
-                            </HStack>
                         )}
+                        <nav aria-label={t("neighbors")} title={t("keyboardHint")} className="ms-auto">
+                            <HStack gap={4} vAlign="center">
+                                <NeighborLink p={prev} dir="prev" lang={lang} label={t("prev")} search={neighborSearch} />
+                                <NeighborLink p={next} dir="next" lang={lang} label={t("next")} search={neighborSearch} />
+                            </HStack>
+                        </nav>
+                    </HStack>
 
-                        {flavor ? (
-                            <span lang={flavorEntry?.language.name.split("-")[0]} className="block max-w-prose">
-                                <Text as="p">{flavor}</Text>
-                            </span>
-                        ) : speciesQ.isPending && speciesId ? (
-                            <VStack gap={1.5}>
-                                <Skeleton height={14} />
-                                <Skeleton width="80%" height={14} />
-                            </VStack>
-                        ) : null}
+                    <HeaderBody
+                        image={{
+                            key: id,
+                            sources: headerSources,
+                            alt: gen !== null ? t("spriteAltGen", { name, gen }) : t("artworkAlt", { name }),
+                            priority: true,
+                        }}
+                        caption={
+                            <figcaption>
+                                <Text type="supporting" hasTabularNumbers>
+                                    {dexNumber(shownNo)}
+                                </Text>
+                            </figcaption>
+                        }
+                        /* 신원: 이름 → 분류 → 타입(·암수) → 세대/전설 */
+                        identity={
+                            <>
+                                <VStack gap={1}>
+                                    <Heading level={1}>{name}</Heading>
+                                    {form && (
+                                        <Text type="large" color="secondary">
+                                            {form}
+                                        </Text>
+                                    )}
+                                    {otherNames.length > 0 && (
+                                        <span className="flex flex-wrap gap-x-3" aria-label={t("otherNames")}>
+                                            {otherNames.map((o) => (
+                                                <span key={o.n} lang={o.lang}>
+                                                    <Text color="secondary">{o.n}</Text>
+                                                </span>
+                                            ))}
+                                        </span>
+                                    )}
+                                    {genusEntry ? (
+                                        <Text color="secondary">{genusEntry.genus}</Text>
+                                    ) : speciesQ.isPending && speciesId ? (
+                                        <Skeleton width={128} height={24} />
+                                    ) : null}
+                                </VStack>
 
-                        <MetadataList columns={3}>
-                            <MetadataListItem label={t("height")}>
-                                {detail ? <Text hasTabularNumbers>{`${formatNumber(detail.height / 10, lang, decimal)} m`}</Text> : pendingValue}
-                            </MetadataListItem>
-                            <MetadataListItem label={t("weight")}>
-                                {detail ? <Text hasTabularNumbers>{`${formatNumber(detail.weight / 10, lang, decimal)} kg`}</Text> : pendingValue}
-                            </MetadataListItem>
-                            <MetadataListItem label={t("baseExp")}>
-                                {detail ? <Text hasTabularNumbers>{detail.base_experience ?? "-"}</Text> : pendingValue}
-                            </MetadataListItem>
-                        </MetadataList>
-                    </VStack>
-                </Grid>
+                                <HStack gap={2} vAlign="center" wrap="wrap">
+                                    <TypeIcon types={types} size="lg" />
+                                    {typesView?.changedIn != null && (
+                                        <Token size="sm" color="yellow" label={t("changedInGen", { gen: typesView.changedIn })} />
+                                    )}
+                                    {hasGenderDiff && <GenderToggle value={sex} onChange={setSex} t={t} />}
+                                </HStack>
+
+                                {(generation || species?.is_legendary || species?.is_mythical || species?.is_baby) && (
+                                    <HStack gap={1.5} wrap="wrap">
+                                        {generation ? <Token size="sm" label={generationName(generation, lang)} /> : null}
+                                        {species?.is_legendary && <Token size="sm" color="yellow" label={t("legendary")} />}
+                                        {species?.is_mythical && <Token size="sm" color="pink" label={t("mythical")} />}
+                                        {species?.is_baby && <Token size="sm" color="purple" label={t("baby")} />}
+                                    </HStack>
+                                )}
+                            </>
+                        }
+                        /* 핵심 수치 → 설명: lg 이상은 같은 줄 오른쪽, 그 아래는 다음 줄 */
+                        numbers={
+                            <>
+                                {/* 짧은 값 넷은 한 줄로(휴대폰에서도), 뜻이 바로 안 보이는 기초 경험치만 아래에 한 줄 설명 */}
+                                <MetadataList orientation="horizontal">
+                                    <MetadataListItem label={t("height")}>
+                                        {detail ? <Text hasTabularNumbers>{`${formatNumber(detail.height / 10, lang, decimal)} m`}</Text> : pendingValue}
+                                    </MetadataListItem>
+                                    <MetadataListItem label={t("weight")}>
+                                        {detail ? <Text hasTabularNumbers>{`${formatNumber(detail.weight / 10, lang, decimal)} kg`}</Text> : pendingValue}
+                                    </MetadataListItem>
+                                    <MetadataListItem label={t("baseExp")}>
+                                        {detail ? <Text hasTabularNumbers>{detail.base_experience ?? "-"}</Text> : pendingValue}
+                                    </MetadataListItem>
+                                    <MetadataListItem label={t("total")}>
+                                        <Text hasTabularNumbers>{statTotal}</Text>
+                                    </MetadataListItem>
+                                </MetadataList>
+                                <Text type="supporting" color="secondary">{`${t("baseExp")}: ${t("baseExpHint")}`}</Text>
+
+                                {flavor ? (
+                                    <span lang={flavorEntry?.language.name.split("-")[0]} className="block max-w-prose">
+                                        <Text as="p">{flavor}</Text>
+                                    </span>
+                                ) : speciesQ.isPending && speciesId ? (
+                                    <VStack gap={1}>
+                                        <Skeleton height={20} />
+                                        <Skeleton height={20} />
+                                        <Skeleton width="60%" height={20} />
+                                    </VStack>
+                                ) : null}
+                            </>
+                        }
+                    />
+                </VStack>
             </Card>
 
             {/* ── 탭 ── */}
@@ -611,9 +717,9 @@ export default function PokemonDetailPage() {
 
             <div role="tabpanel" id={`pokemon-panel-${tab}`} aria-labelledby={`pokemon-tab-${tab}`} tabIndex={-1} className="focus:outline-none">
                 {tab === "overview" && (
-                    <Grid columns={{ minWidth: 300, repeat: "fit" }} gap={4}>
+                    <Grid columns={{ minWidth: 280, max: 3 }} gap={3}>
                         {abilitiesView && abilitiesView.at === null ? (
-                            <Panel title={t("abilities")} className="col-span-full">
+                            <Panel title={t("abilities")}>
                                 <Text color="secondary">{t("noAbilitiesBeforeGen3")}</Text>
                             </Panel>
                         ) : (abilitiesView?.at?.value ?? abilities).length > 0 && (
@@ -624,13 +730,12 @@ export default function PokemonDetailPage() {
                                         <Token size="sm" color="yellow" label={t("changedInGen", { gen: abilitiesView.at.changedIn })} />
                                     ) : undefined
                                 }
-                                className="col-span-full"
                             >
                                 <ul className="flex flex-col divide-y divide-border">
                                     {(abilitiesView?.at?.value ?? abilities).map((a) => {
                                         const desc = localText(ABILITY_BY_NAME.get(a.name)?.desc, lang)
                                         return (
-                                            <li key={a.name} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
+                                            <li key={a.name} className="flex flex-col gap-1 py-2 first:pt-0 last:pb-0">
                                                 <HStack gap={2} vAlign="center" wrap="wrap">
                                                     <Link href={`/abilities/${a.name}`} weight="semibold">
                                                         {abilityName(a.name, lang)}
@@ -658,12 +763,22 @@ export default function PokemonDetailPage() {
                                         {generation ? generationName(generation, lang) : "-"}
                                     </MetadataListItem>
                                     <MetadataListItem label={t("growthRate")}>
-                                        {isPokedexKey(growthKey) ? t(growthKey) : titleCaseSlug(species.growth_rate.name)}
+                                        <Hinted hint={t("growthRateHint")}>
+                                            <Text>{isPokedexKey(growthKey) ? t(growthKey) : titleCaseSlug(species.growth_rate.name)}</Text>
+                                        </Hinted>
                                     </MetadataListItem>
                                     <MetadataListItem label={t("captureRate")}>
-                                        {`${species.capture_rate} (${formatNumber((species.capture_rate / 255) * 100, lang, { maximumFractionDigits: 1 })}%)`}
+                                        <Hinted hint={t("captureRateHint")}>
+                                            <Text hasTabularNumbers>
+                                                {`${species.capture_rate} (${formatNumber((species.capture_rate / 255) * 100, lang, { maximumFractionDigits: 1 })}%)`}
+                                            </Text>
+                                        </Hinted>
                                     </MetadataListItem>
-                                    <MetadataListItem label={t("baseHappiness")}>{species.base_happiness ?? "-"}</MetadataListItem>
+                                    <MetadataListItem label={t("baseHappiness")}>
+                                        <Hinted hint={t("baseHappinessHint")}>
+                                            <Text hasTabularNumbers>{species.base_happiness ?? "-"}</Text>
+                                        </Hinted>
+                                    </MetadataListItem>
                                     <MetadataListItem label={t("color")}>
                                         {isPokedexKey(colorKey) ? t(colorKey) : titleCaseSlug(species.color.name)}
                                     </MetadataListItem>
@@ -681,7 +796,11 @@ export default function PokemonDetailPage() {
                                     <MetadataListItem label={t("gender")}>{genderText ?? "-"}</MetadataListItem>
                                     {species.hatch_counter != null ? (
                                         <MetadataListItem label={t("eggCycles")}>
-                                            {t("eggCyclesValue", { n: species.hatch_counter, steps: (species.hatch_counter + 1) * 255 })}
+                                            <Hinted hint={t("eggCyclesHint")}>
+                                                <Text hasTabularNumbers>
+                                                    {t("eggCyclesValue", { n: species.hatch_counter, steps: (species.hatch_counter + 1) * 255 })}
+                                                </Text>
+                                            </Hinted>
                                         </MetadataListItem>
                                     ) : null}
                                     {species.egg_groups && species.egg_groups.length > 0 ? (
@@ -710,8 +829,8 @@ export default function PokemonDetailPage() {
                                         const list = matchups.filter(([, m]) => m === mult)
                                         if (list.length === 0) return null
                                         return (
-                                            <div key={mult} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-baseline sm:gap-4">
-                                                <dt className="flex w-32 shrink-0 items-baseline gap-2">
+                                            <HStack key={mult} gap={3} className="items-baseline py-2 first:pt-0 last:pb-0">
+                                                <dt className="flex w-28 shrink-0 items-baseline gap-2">
                                                     <Text type="label">{t(label)}</Text>
                                                     <Text type="supporting" hasTabularNumbers>{`x${mult}`}</Text>
                                                 </dt>
@@ -720,7 +839,7 @@ export default function PokemonDetailPage() {
                                                         <TypeTag key={type} type={type} size="sm" />
                                                     ))}
                                                 </dd>
-                                            </div>
+                                            </HStack>
                                         )
                                     })}
                                 </dl>
@@ -728,7 +847,7 @@ export default function PokemonDetailPage() {
                         </Panel>
 
                         {detail && detail.held_items.length > 0 && (
-                            <Panel title={t("heldItems")} className="col-span-full">
+                            <Panel title={t("heldItems")}>
                                 <HStack gap={1.5} wrap="wrap">
                                     {detail.held_items.map((h) => (
                                         <Token key={h.item.name} label={itemName(h.item.name, lang)} />
@@ -757,9 +876,9 @@ export default function PokemonDetailPage() {
                             ) : evoQ.data.chain.evolves_to.length === 0 ? (
                                 <Text color="secondary">{t("noEvolution")}</Text>
                             ) : (
-                                <div className="overflow-x-auto pb-1">
+                                <span className="block overflow-x-auto pb-1">
                                     <EvolutionTree link={evoQ.data.chain} currentSpeciesId={speciesId} lang={lang} t={t} />
-                                </div>
+                                </span>
                             )}
                         </Panel>
 
@@ -792,64 +911,65 @@ export default function PokemonDetailPage() {
                     <VStack gap={4}>
                         <Grid columns={{ minWidth: 300, repeat: "fit" }} gap={4}>
                             <Panel title={t("baseStats")}>
-                                <div className="overflow-x-auto">
-                                    <Table density="compact" aria-label={t("baseStats")}>
-                                        <TableHeader>
-                                            <TableRow isHeaderRow>
-                                                <TableHeaderCell scope="col">{t("tabStats")}</TableHeaderCell>
-                                                <TableHeaderCell scope="col" className="text-right">{t("colBase")}</TableHeaderCell>
-                                                <TableHeaderCell scope="col">
-                                                    <span className="sr-only">{t("baseStats")}</span>
-                                                </TableHeaderCell>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {stats.map((s) => {
-                                                const top = s.value === statMax && statMax > 0
-                                                return (
-                                                    <TableRow key={s.key}>
-                                                        <TableCell scope="row">
-                                                            <HStack gap={2} vAlign="center" wrap="wrap">
-                                                                <Text weight="medium">{rowLabel(s.key)}</Text>
-                                                                {s.changedIn != null && (
-                                                                    <Token size="sm" color="yellow" label={t("changedInGen", { gen: s.changedIn })} />
-                                                                )}
-                                                            </HStack>
-                                                        </TableCell>
-                                                        <TableCell className="text-right">
-                                                            <Text weight={top ? "bold" : "normal"} hasTabularNumbers>
-                                                                {s.value}
-                                                            </Text>
-                                                        </TableCell>
-                                                        <TableCell className="w-1/2">
-                                                            <span className="flex items-center gap-2">
-                                                                <StatBar value={s.value} highlight={top} label={rowLabel(s.key)} className="min-w-20 flex-1" />
-                                                                {top && <Text type="supporting">{t("highestStat")}</Text>}
-                                                            </span>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                )
-                                            })}
-                                        </TableBody>
-                                        <TableFooter>
-                                            <TableRow>
-                                                <TableCell scope="row">
-                                                    <Text weight="semibold">{t("total")}</Text>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <Text weight="bold" hasTabularNumbers>
-                                                        {statTotal}
-                                                    </Text>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <span className="sr-only">{t("total")}</span>
-                                                </TableCell>
-                                            </TableRow>
-                                        </TableFooter>
-                                    </Table>
-                                </div>
+                                <Table density="compact" aria-label={t("baseStats")}>
+                                    <TableHeader>
+                                        <TableRow isHeaderRow>
+                                            <TableHeaderCell scope="col">{t("tabStats")}</TableHeaderCell>
+                                            <TableHeaderCell scope="col" className="text-right">{t("colBase")}</TableHeaderCell>
+                                            <TableHeaderCell scope="col">
+                                                <span className="sr-only">{t("baseStats")}</span>
+                                            </TableHeaderCell>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {stats.map((s) => {
+                                            const top = s.value === statMax && statMax > 0
+                                            return (
+                                                <TableRow key={s.key}>
+                                                    <TableCell scope="row">
+                                                        <HStack gap={2} vAlign="center" wrap="wrap">
+                                                            <Text weight="medium">{rowLabel(s.key)}</Text>
+                                                            {s.changedIn != null && (
+                                                                <Token size="sm" color="yellow" label={t("changedInGen", { gen: s.changedIn })} />
+                                                            )}
+                                                        </HStack>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Text weight={top ? "bold" : "normal"} hasTabularNumbers>
+                                                            {s.value}
+                                                        </Text>
+                                                    </TableCell>
+                                                    <TableCell className="w-1/2">
+                                                        <span className="flex items-center gap-2">
+                                                            <StatBar value={s.value} highlight={top} label={rowLabel(s.key)} className="min-w-20 flex-1" />
+                                                            {top && <Text type="supporting">{t("highestStat")}</Text>}
+                                                        </span>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )
+                                        })}
+                                    </TableBody>
+                                    <TableFooter>
+                                        <TableRow>
+                                            <TableCell scope="row">
+                                                <Text weight="semibold">{t("total")}</Text>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Text weight="bold" hasTabularNumbers>
+                                                    {statTotal}
+                                                </Text>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="sr-only">{t("total")}</span>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableFooter>
+                                </Table>
                             </Panel>
                             <Panel title={t("evYield")} titleNote={currentNote}>
+                                <Text type="supporting" color="secondary">
+                                    {t("evYieldHint")}
+                                </Text>
                                 {detail ? (
                                     detail.stats.some((s) => s.effort > 0) ? (
                                         <MetadataList>
