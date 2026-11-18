@@ -16,6 +16,8 @@ interface BattleStore {
     speed:      number
     /** HUD 의 HP 값을 % 로 볼지 (기본: 숫자) */
     hpAsPercent: boolean
+    /** 울음소리 재생 (기본: 끔) */
+    sound:      boolean
 
     setMyTeam:  (team: PokemonSet[]) => void
     updateSlot: (index: number, set: PokemonSet) => void
@@ -27,6 +29,7 @@ interface BattleStore {
     setTeamSize: (n: number) => void
     setSpeed:   (ms: number) => void
     setHpAsPercent: (v: boolean) => void
+    setSound:   (v: boolean) => void
 }
 
 /** 자동 닉네임(예전 버전의 한국어 이름 등)은 저장하지 않는다 → 표시 언어를 따라간다 */
@@ -57,6 +60,7 @@ export const useBattleStore = create<BattleStore>()(
             teamSize:   6,
             speed:      450,
             hpAsPercent: false,
+            sound:      false,
 
             setMyTeam:  (team) => set({ myTeam: clean(team.slice(0, 6)) }),
             updateSlot: (index, s) => set(st => ({ myTeam: st.myTeam.map((x, i) => (i === index ? stripAutoNickname(s) : x)) })),
@@ -68,6 +72,7 @@ export const useBattleStore = create<BattleStore>()(
             setTeamSize: (teamSize) => set({ teamSize }),
             setSpeed:   (speed) => set({ speed }),
             setHpAsPercent: (hpAsPercent) => set({ hpAsPercent }),
+            setSound:   (sound) => set({ sound }),
         }),
         {
             name: 'pokestra-battle',

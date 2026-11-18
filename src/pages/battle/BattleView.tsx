@@ -12,7 +12,9 @@ import { itemName, abilityNameL } from '../../lib/battle'
 import { useDocumentTitle, useLang } from '../../i18n'
 import { cx } from '../../components/ui/utils'
 import type { BattleSession, Frame, PokeView } from './useBattleSession'
-import { Combatant } from './hud/Combatant'
+import { BattleScene } from './hud/BattleScene'
+import { useBattleCries } from './hud/useBattleCries'
+import { useBattleStore } from '../../stores/battleStore'
 import { FieldBar } from './hud/FieldBar'
 import { ActionPanel } from './hud/MovePanel'
 import { BattleLog } from './hud/BattleLog'
@@ -36,7 +38,7 @@ function ResultOverlay({ result, onRematch, onExit }: { result: string; onRematc
             ref={ref}
             role="alertdialog"
             aria-label={result}
-            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-lg bg-surface/90 p-4 text-center"
+            className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-4 rounded-lg bg-surface/90 p-4 text-center"
         >
             <Heading level={2}>{result}</Heading>
             <HStack gap={2} hAlign="center" wrap="wrap">
@@ -66,6 +68,10 @@ export function BattleView({ session, onExit, onRematch }: { session: BattleSess
         ? `${nameOf(f.p1.active, lang)} vs ${nameOf(f.p2.active, lang)} - ${t('turn', { n: f.turn })}`
         : t('title')
     useDocumentTitle(docTitle)
+
+    const sound = useBattleStore(s => s.sound)
+    const setSound = useBattleStore(s => s.setSound)
+    useBattleCries(f, sound, session.speed)
 
     if (!f) return null
 
@@ -103,22 +109,23 @@ export function BattleView({ session, onExit, onRematch }: { session: BattleSess
                                 ? <Button size="sm" label={t('skip')} isIconOnly icon={<Icon icon="chevronsRight" />} tooltip={t('skip')} onClick={session.skip} />
                                 : <Button size="sm" label={t('skip')} endContent={<Icon icon="chevronsRight" />} onClick={session.skip} />
                         )}
+                        <Button
+                            size="sm"
+                            variant={sound ? 'secondary' : 'ghost'}
+                            icon={sound ? <Icon icon="check" /> : undefined}
+                            label={t('sound')}
+                            tooltip={t('soundTip')}
+                            aria-pressed={sound}
+                            onClick={() => setSound(!sound)}
+                        />
                         <Button size="sm" variant="ghost" label={t('exit')} onClick={onExit} />
                     </HStack>
                 </HStack>
 
                 {/* 배틀 필드: 상대는 위 오른쪽, 우리는 아래 왼쪽 */}
-                <Card padding={2} variant="muted" className="relative">
-                    <VStack gap={2}>
-                        <HStack hAlign="end">
-                            <Combatant side={f.p2} back={false} hpMode={spectating ? 'toggle' : 'percent'} showTeraType={spectating} />
-                        </HStack>
-                        <HStack hAlign="start">
-                            <Combatant side={f.p1} back hpMode="toggle" showTeraType />
-                        </HStack>
-                    </VStack>
+                <BattleScene frame={f} foeHpMode={spectating ? 'toggle' : 'percent'} showFoeTera={spectating}>
                     {ended && <ResultOverlay result={result} onRematch={onRematch} onExit={onExit} />}
-                </Card>
+                </BattleScene>
 
                 {!spectating && (
                     <Card padding={3}>

@@ -7,13 +7,12 @@ import { VStack } from '@astryxdesign/core/VStack'
 import { Text } from '@astryxdesign/core/Text'
 import { Token } from '@astryxdesign/core/Token'
 import { Tooltip } from '@astryxdesign/core/Tooltip'
-import { battleStatLabel, dexIdOf, typeNameL, spriteUrl, backSpriteUrl, artworkUrl } from '../../../lib/battle'
+import { battleStatLabel, typeNameL } from '../../../lib/battle'
 import { statusLongName, volatileName } from '../../../lib/battleLog'
 import { stageMultiplier } from '../../../lib/battleHud'
 import { useLang } from '../../../i18n'
 import { useBattleStore } from '../../../stores/battleStore'
 import { TypeBadge } from '../../../components/battle/TypeBadge'
-import { PokeImage } from '../../../components/ui/PokeImage'
 import { cx } from '../../../components/ui/utils'
 import type { PokeView, SideView } from '../useBattleSession'
 import { HpBar, StatusToken } from './common'
@@ -21,7 +20,7 @@ import { nameOf, pctOf, useBattleT } from './util'
 
 export interface CombatantProps {
     side: SideView
-    /** 뒷모습 (우리 편: 스프라이트가 왼쪽) */
+    /** 우리 편 (필드 아래쪽: 칩을 HUD 위에 둔다) */
     back: boolean
     /** HP 값: toggle = 숫자↔% 전환 가능, percent = % 만 (대전 중 상대) */
     hpMode: 'toggle' | 'percent'
@@ -38,54 +37,58 @@ export function Combatant({ side, back, hpMode, showTeraType }: CombatantProps) 
     const stages = Object.entries(p.stages)
     const teraHint = showTeraType && !p.terastallized && !side.usedTera && p.tera_type
 
+    // 랭크·휘발성 칩은 HUD 상자 바깥 (상대는 아래, 우리는 위 — 필드 가장자리 쪽으로 자라지 않게)
+    const chips = (stages.length > 0 || volatiles.length > 0) && (
+        <HStack gap={1} wrap="wrap" hAlign={back ? 'end' : 'start'}>
+            {stages.map(([k, v]) => {
+                const label = `${battleStatLabel(k, lang)} ${v > 0 ? `+${v}` : v}`
+                const tip = t('stageTip', { stat: battleStatLabel(k, lang), x: stageMultiplier(k, v) })
+                return (
+                    <Tooltip key={k} content={tip}>
+                        <Token size="sm" color={v > 0 ? 'blue' : 'red'} label={label} description={tip} />
+                    </Tooltip>
+                )
+            })}
+            {volatiles.map(([v, n]) => <Token key={v} size="sm" color="purple" label={n!} />)}
+        </HStack>
+    )
+
     return (
-        <section aria-label={name} className="w-full min-w-0 sm:max-w-md">
-            <Card padding={2}>
-                <HStack gap={2} vAlign="center">
-                    {back && <Sprite p={p} back />}
-                    <VStack gap={0.5} className="min-w-0 flex-1">
-                        <HStack gap={1.5} vAlign="center" wrap="wrap">
+        <VStack as="section" aria-label={name} gap={1} className="w-full min-w-0">
+            {back && chips}
+            <Card padding={2} className="shadow-md">
+                <VStack gap={0.5}>
+                    <HStack gap={1.5} vAlign="center" className="min-w-0">
+                        <span className="min-w-0 shrink">
                             <Text weight="semibold" maxLines={1}>{name}</Text>
-                            <Text type="supporting" color="secondary">{t('level', { n: p.level })}</Text>
-                            {p.status && <StatusToken status={p.status} lang={lang} />}
-                            <HStack gap={1} vAlign="center" wrap="wrap">
-                                {p.terastallized && p.tera_type
-                                    ? <>
-                                        <TypeBadge type={p.tera_type} size="xs" title={t('tera')} />
-                                        <Token size="sm" color="teal" label={t('tera')} description={t('teraActive', { type: typeNameL(p.tera_type, lang) })} />
-                                    </>
-                                    : p.types.map(ty => <TypeBadge key={ty} type={ty} size="xs" />)}
-                                {teraHint && (
-                                    <Text type="supporting" color="secondary">{t('teraHint', { type: typeNameL(p.tera_type!, lang) })}</Text>
-                                )}
-                            </HStack>
-                        </HStack>
-                        <HStack gap={2} vAlign="center" className="min-h-11">
-                            <span className="min-w-0 flex-1">
-                                <HpBar p={p} label={hpMode === 'percent' ? t('hpPercent', { pct: pctOf(p) }) : t('hpLabel', { hp: p.hp, max: p.max_hp })} />
-                            </span>
-                            <HpValue p={p} mode={hpMode} />
-                            <PartyDots side={side} />
-                        </HStack>
-                        {(stages.length > 0 || volatiles.length > 0) && (
-                            <HStack gap={1} wrap="wrap">
-                                {stages.map(([k, v]) => {
-                                    const label = `${battleStatLabel(k, lang)} ${v > 0 ? `+${v}` : v}`
-                                    const tip = t('stageTip', { stat: battleStatLabel(k, lang), x: stageMultiplier(k, v) })
-                                    return (
-                                        <Tooltip key={k} content={tip}>
-                                            <Token size="sm" color={v > 0 ? 'blue' : 'red'} label={label} description={tip} />
-                                        </Tooltip>
-                                    )
-                                })}
-                                {volatiles.map(([v, n]) => <Token key={v} size="sm" color="purple" label={n!} />)}
-                            </HStack>
+                        </span>
+                        <Text type="supporting" color="secondary" hasTabularNumbers>{t('level', { n: p.level })}</Text>
+                        {p.status && <StatusToken status={p.status} lang={lang} />}
+                    </HStack>
+                    <HStack gap={2} vAlign="center" className="min-h-6">
+                        <span className="min-w-0 flex-1">
+                            <HpBar p={p} label={hpMode === 'percent' ? t('hpPercent', { pct: pctOf(p) }) : t('hpLabel', { hp: p.hp, max: p.max_hp })} />
+                        </span>
+                        <HpValue p={p} mode={hpMode} />
+                    </HStack>
+                    <HStack gap={1} vAlign="center" wrap="wrap">
+                        {p.terastallized && p.tera_type
+                            ? <>
+                                <TypeBadge type={p.tera_type} size="xs" title={t('tera')} />
+                                <Token size="sm" color="teal" label={t('tera')} description={t('teraActive', { type: typeNameL(p.tera_type, lang) })} />
+                            </>
+                            : p.types.map(ty => <TypeBadge key={ty} type={ty} size="xs" />)}
+                        {teraHint && (
+                            <Text type="supporting" color="secondary">{t('teraHint', { type: typeNameL(p.tera_type!, lang) })}</Text>
                         )}
-                    </VStack>
-                    {!back && <Sprite p={p} back={false} />}
-                </HStack>
+                        <span className="ml-auto">
+                            <PartyDots side={side} />
+                        </span>
+                    </HStack>
+                </VStack>
             </Card>
-        </section>
+            {!back && chips}
+        </VStack>
     )
 }
 
@@ -107,7 +110,8 @@ function HpValue({ p, mode }: { p: PokeView; mode: 'toggle' | 'percent' }) {
             label={`${t('hpLabel', { hp: p.hp, max: p.max_hp })}, ${asPercent ? t('hpShowNumber') : t('hpShowPercent')}`}
             tooltip={asPercent ? t('hpShowNumber') : t('hpShowPercent')}
             onClick={() => setAsPercent(!asPercent)}
-            className="min-h-11 px-1.5 tabular-nums"
+            // 터치 영역은 44px 그대로, 위아래로 겹쳐 HUD 높이는 줄인다
+            className="-my-2.5 min-h-11 px-1.5 tabular-nums"
         >
             {shown}
         </Button>
@@ -131,24 +135,5 @@ function PartyDots({ side }: { side: SideView }) {
                 />
             ))}
         </span>
-    )
-}
-
-function Sprite({ p, back }: { p: PokeView; back: boolean }) {
-    const lang = useLang()
-    const id = dexIdOf(p.species)
-    // 휴대폰은 작게 (기술 버튼이 첫 화면에 들어오도록)
-    const box = 'h-12 w-12 shrink-0 sm:h-24 sm:w-24'
-    if (!id) return <span className={box} />
-    // 후보 순서: 뒷모습 도트 → 도트 → 공식 일러스트 (표시 크기가 커도 도트 우선이라 직접 구성)
-    const sources = back ? [backSpriteUrl(id), spriteUrl(id), artworkUrl(id)] : [spriteUrl(id), artworkUrl(id)]
-    return (
-        <PokeImage
-            key={p.id}
-            sources={sources}
-            alt={nameOf(p, lang)}
-            size={96}
-            className={cx(box, 'transition-all duration-300', p.fainted ? 'translate-y-4 opacity-0' : 'opacity-100')}
-        />
     )
 }
