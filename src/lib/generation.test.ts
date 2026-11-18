@@ -66,3 +66,25 @@ test("clampGen", () => {
     expect(clampGen(12, 1)).toBeNull()
     expect(clampGen(5, 1)).toBe(5)
 })
+
+test("statsAt gen1 special comes from past_stats, not current special-attack", () => {
+    const d = {
+        stats: [
+            { base_stat: 40, stat: { name: "hp" } },
+            { base_stat: 50, stat: { name: "attack" } },
+            { base_stat: 50, stat: { name: "defense" } },
+            { base_stat: 100, stat: { name: "special-attack" } },
+            { base_stat: 90, stat: { name: "special-defense" } },
+            { base_stat: 60, stat: { name: "speed" } },
+        ],
+        past_stats: [
+            {
+                generation: { name: "generation-i" },
+                stats: [
+                    { base_stat: 77, stat: { name: "special" } },
+                ],
+            },
+        ],
+    } as unknown as PokemonDetail
+    expect(stat(statsAt(d, 1), "special")!.value).toBe(77)
+})

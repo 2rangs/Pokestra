@@ -48,7 +48,11 @@ export function PokeImage({ sources, alt, size, className, pixelated = 'auto', p
     const usePixelated = pixelated === 'auto' ? isPixelSprite(url) : pixelated
 
     if (!url) {
-        return <VStack {...boxProps} className={`${box} bg-muted ${className ?? ''}`} role="img" aria-label={alt} />
+        return <VStack
+                {...boxProps}
+                className={`${box} bg-muted ${className ?? ''}`}
+                {...(alt ? { role: 'img', 'aria-label': alt } : { 'aria-hidden': true })}
+            />
     }
 
     return (

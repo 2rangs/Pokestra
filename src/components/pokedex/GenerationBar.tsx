@@ -1,3 +1,4 @@
+import { useRef } from "react"
 import { Button } from "@astryxdesign/core/Button"
 import { HStack } from "@astryxdesign/core/HStack"
 import { Icon } from "@astryxdesign/core/Icon"
@@ -20,27 +21,47 @@ interface Props {
     gen: number | null
     onChange: (gen: number | null) => void
     cry: Cry
+    /** 상세 데이터 로딩 중이면 울음소리 버튼을 비활성으로 자리만 잡는다 */
+    loading?: boolean
     lang: Lang
     t: TFunction<PokedexKey>
 }
 
-function play(url: string) {
-    new Audio(url).play().catch(() => {})
+interface CryButton {
+    key: string
+    label: string
+    url: string | null
+    primary: boolean
 }
 
 /** 세대 선택 막대 + 울음소리 재생 */
-export function GenerationBar({ debut, gen, onChange, cry, t }: Props) {
+export function GenerationBar({ debut, gen, onChange, cry, loading = false, t }: Props) {
     const gens: number[] = []
     for (let g = Math.max(debut, 1); g < LATEST_GEN; g++) gens.push(g)
 
+    // 한 번에 하나만 재생: 새로 누르면 이전 소리는 멈춘다
+    const audioRef = useRef<HTMLAudioElement | null>(null)
+    const play = (url: string) => {
+        audioRef.current?.pause()
+        const audio = new Audio(url)
+        audioRef.current = audio
+        audio.play().catch(() => {})
+    }
+
     const split = cry.legacy && cry.legacy !== cry.latest
-    const cryButtons: { key: string; label: string; url: string }[] = []
-    if (split) {
-        cryButtons.push({ key: "legacy", label: `${t("cryPlay")} · ${t("cryLegacy")}`, url: cry.legacy! })
-        if (cry.latest) cryButtons.push({ key: "latest", label: `${t("cryPlay")} · ${t("cryLatest")}`, url: cry.latest })
+    const cryButtons: CryButton[] = []
+    if (loading) {
+        // 로딩 중에도 자리를 잡아 두어 레이아웃이 밀리지 않게 한다
+        cryButtons.push({ key: "one", label: t("cryPlay"), url: null, primary: true })
+    } else if (split) {
+        const legacy: CryButton = { key: "legacy", label: `${t("cryPlay")} · ${t("cryLegacy")}`, url: cry.legacy, primary: cry.primary === cry.legacy }
+        const latest: CryButton | null = cry.latest
+            ? { key: "latest", label: `${t("cryPlay")} · ${t("cryLatest")}`, url: cry.latest, primary: cry.primary === cry.latest }
+            : null
+        cryButtons.push(...(latest && latest.primary ? [latest, legacy] : latest ? [legacy, latest] : [legacy]))
     } else {
         const url = cry.latest ?? cry.legacy
-        if (url) cryButtons.push({ key: "one", label: t("cryPlay"), url })
+        if (url) cryButtons.push({ key: "one", label: t("cryPlay"), url, primary: true })
     }
 
     return (
@@ -60,10 +81,11 @@ export function GenerationBar({ debut, gen, onChange, cry, t }: Props) {
                 <Button
                     key={b.key}
                     size="sm"
-                    variant="ghost"
+                    variant={b.primary && cryButtons.length > 1 ? "secondary" : "ghost"}
                     label={b.label}
                     icon={<Icon icon="microphone" />}
-                    onClick={() => play(b.url)}
+                    isDisabled={!b.url}
+                    onClick={() => b.url && play(b.url)}
                 />
             ))}
         </HStack>

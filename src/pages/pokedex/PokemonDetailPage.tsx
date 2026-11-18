@@ -439,6 +439,7 @@ export default function PokemonDetailPage() {
 
     const id = local?.id ?? detail?.id ?? 0
     const shownNo = speciesId ?? id
+    const currentNote = gen !== null ? <Text type="supporting" color="secondary">{t("currentValuesNote")}</Text> : undefined
     const artwork = local ? officialArtworkUrl(local.id) : (detail?.sprites.other?.["official-artwork"]?.front_default ?? "")
     const spriteFallback = local?.sprite ?? detail?.sprites.front_default ?? null
     const decimal = { minimumFractionDigits: 1, maximumFractionDigits: 1 }
@@ -489,6 +490,7 @@ export default function PokemonDetailPage() {
                     gen={gen}
                     onChange={setGen}
                     cry={cryAt(detail?.cries, gen ?? LATEST_GEN)}
+                    loading={!detail}
                     lang={lang}
                     t={t}
                 />
@@ -501,8 +503,14 @@ export default function PokemonDetailPage() {
                         <span className="flex w-full items-center justify-center rounded-lg border border-border bg-muted p-4">
                             <PokeImage
                                 key={id}
-                                sources={genDetail && gen !== null ? [spriteAt(genDetail.sprites, gen), artwork] : [artwork, spriteFallback]}
-                                alt={t("artworkAlt", { name })}
+                                sources={
+                                    gen !== null
+                                        ? genDetail
+                                            ? [spriteAt(genDetail.sprites, gen), artwork]
+                                            : []
+                                        : [artwork, spriteFallback]
+                                }
+                                alt={gen !== null ? t("spriteAltGen", { name, gen }) : t("artworkAlt", { name })}
                                 size={256}
                                 className="h-56 w-56 sm:h-64 sm:w-64"
                                 priority
@@ -841,7 +849,7 @@ export default function PokemonDetailPage() {
                                     </Table>
                                 </div>
                             </Panel>
-                            <Panel title={t("evYield")}>
+                            <Panel title={t("evYield")} titleNote={currentNote}>
                                 {detail ? (
                                     detail.stats.some((s) => s.effort > 0) ? (
                                         <MetadataList>
@@ -866,7 +874,7 @@ export default function PokemonDetailPage() {
                                 )}
                             </Panel>
                         </Grid>
-                        <BattleStatsPanel dexId={id} />
+                        <BattleStatsPanel dexId={id} note={currentNote} />
                     </VStack>
                 )}
 

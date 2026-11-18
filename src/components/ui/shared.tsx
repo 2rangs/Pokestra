@@ -13,6 +13,7 @@ import { Text } from '@astryxdesign/core/Text'
 import { Skeleton } from '@astryxdesign/core/Skeleton'
 import { Spinner as AxSpinner } from '@astryxdesign/core/Spinner'
 import { VStack } from '@astryxdesign/core/VStack'
+import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
 import { useLang } from '../../i18n'
 import { typeName } from '../../lib/dex'
 import { cx, typeColor } from './utils'
@@ -194,7 +195,7 @@ export function Spinner({ label, className }: { label?: string; className?: stri
 export function PageSkeleton({ label, heights = [160, 320, 320] }: { label: string; heights?: number[] }) {
     return (
         <VStack gap={6} role="status" aria-busy="true">
-            <span className="sr-only">{label}</span>
+            <VisuallyHidden>{label}</VisuallyHidden>
             {heights.map((h, i) => (
                 <Skeleton key={i} height={h} index={i} />
             ))}
