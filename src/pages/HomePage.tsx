@@ -9,8 +9,10 @@ import { Text } from '@astryxdesign/core/Text'
 import { Typeahead, TypeaheadItem, type SearchableItem, type SearchSource } from '@astryxdesign/core/Typeahead'
 import { VStack } from '@astryxdesign/core/VStack'
 import { TypeTag, StatBar } from '../components/ui/shared'
+import { PokeImage } from '../components/ui/PokeImage'
 import { typeColor } from '../components/ui/utils'
-import { artworkUrl, buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
+import { pokemonImageCandidates } from '../lib/images'
+import { buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
 import { formatNumber, useDocumentTitle, useLang, useT } from '../i18n'
 import { homeMessages } from '../i18n/messages/home'
 import {
@@ -169,22 +171,13 @@ function SectionHeading({ id, children }: { id: string; children: string }) {
     )
 }
 
+const SPRITE_BOX: Record<number, string> = { 32: 'h-8 w-8', 48: 'h-12 w-12', 56: 'h-14 w-14' }
+const SPRITE_FLUID_MAX: Record<number, string> = { 60: 'max-w-15' }
+
 /** 도트 스프라이트. fluid 면 부모 너비에 맞춰 줄어든다 */
 function Sprite({ p, size = 48, className = '', fluid = false }: { p: DexPokemon; size?: number; className?: string; fluid?: boolean }) {
-    const box = fluid ? { width: '100%', maxWidth: size, aspectRatio: '1' } : { width: size, height: size }
-    if (!p.sprite) return <span style={box} className="inline-block" />
-    return (
-        <img
-            src={p.sprite}
-            alt=""
-            width={size}
-            height={size}
-            loading="lazy"
-            decoding="async"
-            className={`object-contain [image-rendering:pixelated] ${className}`}
-            style={box}
-        />
-    )
+    const box = fluid ? `aspect-square w-full ${SPRITE_FLUID_MAX[size] ?? ''}` : (SPRITE_BOX[size] ?? '')
+    return <PokeImage sources={pokemonImageCandidates(p.id, size, { sprite: p.sprite })} alt="" size={size} className={`${box} ${className}`} />
 }
 
 // ── 자주 찾는 포켓몬 ──
@@ -221,7 +214,6 @@ function PokemonOfTheDay() {
     const t = useT(homeMessages)
     const [key] = useState(todayKey)
     const p = useMemo(() => pokemonOfDay(key), [key])
-    const [failed, setFailed] = useState(false)
     const name = displayName(p, lang)
     const color = typeColor(p.types[0])
     const maxStat = Math.max(...STAT_KEYS.map((k) => p.stats[k]))
@@ -243,13 +235,12 @@ function PokemonOfTheDay() {
             <div className="flex flex-col gap-4 px-5 pb-5">
                 <div className="flex items-center gap-4">
                     <Link to={`/pokemon/${p.id}`} className="block shrink-0" aria-label={name}>
-                        <img
-                            src={failed ? (p.sprite ?? '') : artworkUrl(p.id)}
+                        <PokeImage
+                            sources={pokemonImageCandidates(p.id, 176, { sprite: p.sprite })}
                             alt=""
-                            width={176}
-                            height={176}
-                            onError={() => setFailed(true)}
-                            className="h-28 w-28 object-contain min-[420px]:h-36 min-[420px]:w-36 sm:h-44 sm:w-44"
+                            size={176}
+                            priority
+                            className="h-28 w-28 min-[420px]:h-36 min-[420px]:w-36 sm:h-44 sm:w-44"
                         />
                     </Link>
                     <VStack gap={2}>
@@ -320,9 +311,9 @@ function ToolsSection() {
 
                 <ToolCard href="/battle" title={t('featBattleTitle')} desc={t('featBattleDesc')}>
                     <span className="flex w-full items-end justify-center gap-1 px-3" aria-hidden>
-                        {atk && <img src={artworkUrl(atk.id)} alt="" width={120} height={120} loading="lazy" className="aspect-square w-[40%] max-w-32 object-contain" />}
+                        {atk && <PokeImage sources={pokemonImageCandidates(atk.id, 120, { sprite: atk.sprite })} alt="" size={120} className="aspect-square w-2/5 max-w-32" />}
                         <span className="mb-[12%] shrink-0 text-base font-bold text-secondary">VS</span>
-                        {def && <img src={artworkUrl(def.id)} alt="" width={120} height={120} loading="lazy" className="aspect-square w-[40%] max-w-32 -scale-x-100 object-contain" />}
+                        {def && <PokeImage sources={pokemonImageCandidates(def.id, 120, { sprite: def.sprite })} alt="" size={120} className="aspect-square w-2/5 max-w-32 -scale-x-100" />}
                     </span>
                 </ToolCard>
 
@@ -512,13 +503,7 @@ function HeroSearch() {
                                     description={padDexNo(getSpeciesId(d.p))}
                                     icon={
                                         d.p.sprite ? (
-                                            <img
-                                                src={d.p.sprite}
-                                                alt=""
-                                                width={32}
-                                                height={32}
-                                                className="h-8 w-8 object-contain [image-rendering:pixelated]"
-                                            />
+                                            <PokeImage sources={pokemonImageCandidates(d.p.id, 32, { sprite: d.p.sprite })} alt="" size={32} className="h-8 w-8" />
                                         ) : undefined
                                     }
                                 />

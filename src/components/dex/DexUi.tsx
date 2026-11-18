@@ -2,7 +2,7 @@
  * 기술/특성/스프라이트/홈 페이지에서 함께 쓰는 작은 UI 조각들.
  * 모두 Astryx 컴포넌트(기본 neutral 테마)를 얇게 감싼 것이다.
  */
-import { memo, useState, type ReactNode, type RefObject } from 'react'
+import { memo, type ReactNode, type RefObject } from 'react'
 import { Button } from '@astryxdesign/core/Button'
 import { ClickableCard } from '@astryxdesign/core/ClickableCard'
 import { EmptyState as AxEmptyState } from '@astryxdesign/core/EmptyState'
@@ -18,6 +18,8 @@ import { VStack } from '@astryxdesign/core/VStack'
 import { useLang, useT } from '../../i18n'
 import { commonMessages } from '../../i18n/messages/common'
 import { type DexPokemon, displayName, getSpeciesId } from '../../lib/dex'
+import { pokemonImageCandidates } from '../../lib/images'
+import { PokeImage } from '../ui/PokeImage'
 import { PageTitle, TypeTag } from '../ui/shared'
 import { padDexNo } from './text'
 
@@ -205,26 +207,12 @@ export function LoadMore({
 
 function PokemonChipImpl({ pokemon: p, badge }: { pokemon: DexPokemon; badge?: ReactNode }) {
     const lang = useLang()
-    const [failed, setFailed] = useState(false)
     const name = displayName(p, lang)
     return (
         <ClickableCard href={`/pokemon/${p.id}`} label={name} padding={2} height="100%">
             <HStack gap={2} align="center">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center">
-                    {p.sprite && !failed ? (
-                        <img
-                            src={p.sprite}
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                            width={40}
-                            height={40}
-                            onError={() => setFailed(true)}
-                            className="h-10 w-10 object-contain [image-rendering:pixelated]"
-                        />
-                    ) : (
-                        <span aria-hidden className="h-8 w-8 rounded-full bg-muted" />
-                    )}
+                    <PokeImage sources={pokemonImageCandidates(p.id, 40, { sprite: p.sprite })} alt="" size={40} className="h-10 w-10" />
                 </span>
                 <VStack gap={0.5} className="min-w-0">
                     <Text size="sm" weight="semibold" maxLines={1}>

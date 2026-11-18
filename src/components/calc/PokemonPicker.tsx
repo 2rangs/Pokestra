@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
 import { Typeahead, TypeaheadItem, type SearchSource, type SearchableItem } from '@astryxdesign/core/Typeahead'
 import { battleReadyPokemon } from '../../lib/battle'
-import { displayName, officialArtworkUrl, searchKey, type DexPokemon } from '../../lib/dex'
+import { pokemonImageCandidates } from '../../lib/images'
+import { PokeImage } from '../ui/PokeImage'
+import { displayName, searchKey, type DexPokemon } from '../../lib/dex'
 import { useLang, useT } from '../../i18n'
 import { calcMessages } from '../../i18n/messages/calc'
 import { commonMessages } from '../../i18n/messages/common'
@@ -78,7 +80,7 @@ export function PokemonPicker({ current, sideLabel, onPick }: Props) {
                         item={item}
                         description={item.auxiliaryData ? dexNo(item.auxiliaryData.p) : undefined}
                         icon={item.auxiliaryData && (
-                            <img src={officialArtworkUrl(item.auxiliaryData.p.id)} alt="" loading="lazy" className="h-7 w-7 object-contain" />
+                            <PokeImage sources={pokemonImageCandidates(item.auxiliaryData.p.id, 28, { sprite: item.auxiliaryData.p.sprite })} alt="" size={28} className="h-7 w-7" />
                         )}
                     />
                 )}

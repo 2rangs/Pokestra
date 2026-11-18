@@ -24,7 +24,9 @@ import { damageClassName } from '../../lib/dex'
 import { useDocumentTitle, useLang, useT, type Lang } from '../../i18n'
 import { battleMessages } from '../../i18n/messages/battle'
 import { TypeBadge } from '../../components/battle/TypeBadge'
+import { PokeImage } from '../../components/ui/PokeImage'
 import { cx } from '../../components/ui/utils'
+import { pokemonImageCandidates } from '../../lib/images'
 import { frameText, type BattleSession, type Frame, type PokeView, type SideView } from './useBattleSession'
 
 type TokenColor = 'default' | 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'cyan' | 'blue' | 'purple' | 'pink' | 'gray'
@@ -145,21 +147,17 @@ function PartyDots({ side }: { side: SideView }) {
 function Sprite({ p, back }: { p: PokeView; back: boolean }) {
     const lang = useLang()
     const id = dexIdOf(p.species)
-    // 실패한 URL 단계 (0: 기본, 1: 정면 도트, 2: 공식 아트워크)
-    const [fallback, setFallback] = useState<{ key: string; step: number }>({ key: '', step: 0 })
-    const key = `${p.species}-${back}`
-    const step = fallback.key === key ? fallback.step : 0
     const box = 'h-20 w-20 shrink-0 sm:h-28 sm:w-28'
     if (!id) return <span className={box} />
-    const candidates = back ? [backSpriteUrl(id), spriteUrl(id), artworkUrl(id)] : [spriteUrl(id), artworkUrl(id)]
-    const src = candidates[Math.min(step, candidates.length - 1)]!
+    // 후보 순서: 뒷모습 도트 → 도트 → 공식 일러스트 (표시 크기가 커도 도트 우선이라 직접 구성)
+    const sources = back ? [backSpriteUrl(id), spriteUrl(id), artworkUrl(id)] : [spriteUrl(id), artworkUrl(id)]
     return (
-        <img
+        <PokeImage
             key={p.id}
-            src={src}
+            sources={sources}
             alt={nameOf(p, lang)}
-            onError={() => step < candidates.length - 1 && setFallback({ key, step: step + 1 })}
-            className={cx(box, 'object-contain transition-all duration-300 [image-rendering:pixelated]', p.fainted ? 'translate-y-4 opacity-0' : 'opacity-100')}
+            size={112}
+            className={cx(box, 'transition-all duration-300', p.fainted ? 'translate-y-4 opacity-0' : 'opacity-100')}
         />
     )
 }
@@ -320,7 +318,7 @@ function SwitchList({ req, onSwitch }: { req: BattleRequest; onSwitch: (id: stri
                             >
                                 <span className="flex w-full min-w-0 items-center gap-2">
                                     <span className="flex h-9 w-9 shrink-0 items-center justify-center">
-                                        {id && <img src={spriteUrl(id)} alt="" className="h-9 w-9 object-contain [image-rendering:pixelated]" />}
+                                        {id && <PokeImage sources={pokemonImageCandidates(id, 36)} alt="" size={36} className="h-9 w-9" />}
                                     </span>
                                     <span className="flex min-w-0 flex-1 flex-col gap-1">
                                         <span className="flex min-w-0 items-center gap-1.5">

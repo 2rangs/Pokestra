@@ -14,7 +14,7 @@ import { SidePanel } from '../components/calc/SidePanel'
 import { MoveResults } from '../components/calc/MoveResults'
 import { FieldPanel } from '../components/calc/FieldPanel'
 import { useDocumentTitle, useT } from '../i18n'
-import { PageTitle, Spinner } from '../components/ui/shared'
+import { PageSkeleton, PageTitle } from '../components/ui/shared'
 import { calcMessages } from '../i18n/messages/calc'
 
 export default function CalcPage() {
@@ -27,7 +27,7 @@ export default function CalcPage() {
             {error ? (
                 <Banner status="error" title={t('loadError', { msg: error.message })} />
             ) : !ready ? (
-                <Spinner label={t('loadingData')} className="py-24" />
+                <PageSkeleton label={t('loadingData')} heights={[320, 640]} />
             ) : (
                 <Calculator />
             )}

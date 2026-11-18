@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useState } from "react"
+import { type ReactNode, useEffect, useMemo } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router"
 import { Banner } from "@astryxdesign/core/Banner"
 import { Button } from "@astryxdesign/core/Button"
@@ -34,6 +34,8 @@ import { LANGS, type Lang, formatNumber, useDocumentTitle, useLang, useT } from 
 import { commonMessages } from "../../i18n/messages/common"
 import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
 import { itemName } from "../../lib/battle"
+import { pokemonImageCandidates, preloadImages } from "../../lib/images"
+import { PokeImage } from "../../components/ui/PokeImage"
 import {
     ABILITY_BY_NAME,
     ALL_POKEMON,
@@ -194,26 +196,6 @@ function LoadError({ message, onRetry, retryLabel }: { message: string; onRetry?
     )
 }
 
-// ─── Artwork ──────────────────────────────────────────────────────────────────
-
-function Artwork({ src, fallback, alt }: { src: string; fallback?: string | null; alt: string }) {
-    const [stage, setStage] = useState<0 | 1 | 2>(src ? 0 : fallback ? 1 : 2)
-    if (stage === 2) {
-        return <span className="block h-56 w-56 sm:h-64 sm:w-64" aria-hidden />
-    }
-    const url = stage === 0 ? src : fallback ?? ""
-    return (
-        <img
-            src={url}
-            alt={alt}
-            width={256}
-            height={256}
-            onError={() => setStage(stage === 0 && fallback ? 1 : 2)}
-            className={`h-56 w-56 object-contain sm:h-64 sm:w-64 ${stage === 1 ? "[image-rendering:pixelated]" : ""}`}
-        />
-    )
-}
-
 // ─── Prev / Next ──────────────────────────────────────────────────────────────
 
 function NeighborLink({ p, dir, lang, label }: { p: DexPokemon | undefined; dir: "prev" | "next"; lang: Lang; label: string }) {
@@ -347,6 +329,14 @@ export default function PokemonDetailPage() {
         return () => window.removeEventListener("keydown", onKey)
     }, [prev, next, navigate, tab])
 
+    // 이전/다음 아트워크를 한가할 때 미리 받아 둔다
+    const prevId = prev?.id
+    const nextId = next?.id
+    useEffect(() => {
+        const urls = [prevId, nextId].filter((n): n is number => n != null).map(officialArtworkUrl)
+        preloadImages(urls)
+    }, [prevId, nextId])
+
     // ── Guards ──
     if (!local) {
         if (apiKey && detailQ.isPending) return <DetailSkeleton label={tc("loading")} />
@@ -426,7 +416,14 @@ export default function PokemonDetailPage() {
                 <Grid columns={{ minWidth: 260, repeat: "fit" }} gap={6} align="start">
                     <figure className="flex flex-col items-center gap-2">
                         <span className="flex w-full items-center justify-center rounded-lg border border-border bg-muted p-4">
-                            <Artwork key={id} src={artwork} fallback={spriteFallback} alt={t("artworkAlt", { name })} />
+                            <PokeImage
+                                key={id}
+                                sources={[artwork, spriteFallback]}
+                                alt={t("artworkAlt", { name })}
+                                size={256}
+                                className="h-56 w-56 sm:h-64 sm:w-64"
+                                priority
+                            />
                         </span>
                         <figcaption>
                             <Text type="supporting" hasTabularNumbers>
@@ -661,7 +658,7 @@ export default function PokemonDetailPage() {
                                         const current = f.id === id
                                         const label = formLabel(f, lang) ?? pokemonName(f, lang)
                                         const icon = f.sprite ? (
-                                            <img src={f.sprite} alt="" loading="lazy" className="h-6 w-6 object-contain [image-rendering:pixelated]" />
+                                            <PokeImage sources={pokemonImageCandidates(f.id, 24, { sprite: f.sprite })} alt="" size={24} className="h-6 w-6" />
                                         ) : undefined
                                         return (
                                             <li key={f.id} aria-current={current ? "page" : undefined}>

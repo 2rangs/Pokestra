@@ -39,8 +39,4 @@ export function padDexNo(n: number): string {
     return `#${String(n).padStart(4, '0')}`
 }
 
-const SPRITE_BASE = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon'
-
-export function artworkUrl(id: number, shiny = false): string {
-    return `${SPRITE_BASE}/other/official-artwork/${shiny ? 'shiny/' : ''}${id}.png`
-}
+export { artworkUrl } from '../../lib/spriteUrls'

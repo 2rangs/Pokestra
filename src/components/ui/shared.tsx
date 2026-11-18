@@ -10,7 +10,9 @@
 import type { ElementType, ReactNode } from 'react'
 import { Heading } from '@astryxdesign/core/Heading'
 import { Text } from '@astryxdesign/core/Text'
+import { Skeleton } from '@astryxdesign/core/Skeleton'
 import { Spinner as AxSpinner } from '@astryxdesign/core/Spinner'
+import { VStack } from '@astryxdesign/core/VStack'
 import { useLang } from '../../i18n'
 import { typeName } from '../../lib/dex'
 import { cx, typeColor } from './utils'
@@ -187,3 +189,15 @@ export function Spinner({ label, className }: { label?: string; className?: stri
     )
 }
 
+
+/** 로딩 중 첫 화면 골격. 높이를 미리 잡아 푸터가 밀리지 않게 하고, 로딩 문구는 스크린리더용으로 둔다. */
+export function PageSkeleton({ label, heights = [160, 320, 320] }: { label: string; heights?: number[] }) {
+    return (
+        <VStack gap={6} role="status" aria-busy="true">
+            <span className="sr-only">{label}</span>
+            {heights.map((h, i) => (
+                <Skeleton key={i} height={h} index={i} />
+            ))}
+        </VStack>
+    )
+}

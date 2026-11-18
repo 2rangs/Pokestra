@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import { Typeahead, TypeaheadItem, type SearchableItem, type SearchSource } from '@astryxdesign/core/Typeahead'
 import { displayName, searchKey, type DexPokemon } from '../../lib/dex'
-import { battleReadyPokemon, spriteUrl, typeNameL } from '../../lib/battle'
+import { battleReadyPokemon, typeNameL } from '../../lib/battle'
+import { pokemonImageCandidates } from '../../lib/images'
+import { PokeImage } from '../ui/PokeImage'
 import { useLang, useT } from '../../i18n'
 import { battleMessages } from '../../i18n/messages/battle'
 import { commonMessages } from '../../i18n/messages/common'
@@ -69,7 +71,7 @@ export function PokemonSearch({ onPick, placeholder, includeForms = true, autoFo
                 return (
                     <TypeaheadItem
                         item={item}
-                        icon={<img src={p.sprite ?? spriteUrl(p.id)} alt="" className="h-8 w-8 object-contain" loading="lazy" />}
+                        icon={<PokeImage sources={pokemonImageCandidates(p.id, 32, { sprite: p.sprite })} alt="" size={32} className="h-8 w-8" />}
                         description={`#${p.id}, ${p.types.map(ty => typeNameL(ty, lang)).join(' / ')}`}
                     />
                 )

@@ -7,7 +7,9 @@ import type { EvolutionChainLink, EvolutionDetail } from "../../hooks/usePokemon
 import type { Lang, TFunction } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { itemName } from "../../lib/battle"
-import { findDexPokemonByName, getDexPokemon, moveName, officialArtworkUrl, pokemonName, titleCaseSlug, typeName } from "../../lib/dex"
+import { pokemonImageCandidates } from "../../lib/images"
+import { PokeImage } from "../ui/PokeImage"
+import { findDexPokemonByName, getDexPokemon, moveName, pokemonName, titleCaseSlug, typeName } from "../../lib/dex"
 import { dexNumber } from "./format"
 
 type T = TFunction<PokedexKey>
@@ -46,7 +48,7 @@ function EvoNode({ link, currentSpeciesId, lang }: { link: EvolutionChainLink; c
     const current = id === currentSpeciesId
     const body = (
         <VStack gap={1} hAlign="center">
-            <img src={officialArtworkUrl(id)} alt="" loading="lazy" width={64} height={64} className="h-16 w-16 object-contain" />
+            <PokeImage sources={pokemonImageCandidates(id, 64, { sprite: p?.sprite })} alt="" size={64} className="h-16 w-16" />
             <Text type="supporting" hasTabularNumbers>
                 {dexNumber(id)}
             </Text>

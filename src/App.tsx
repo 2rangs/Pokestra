@@ -4,7 +4,7 @@ import { Button } from '@astryxdesign/core/Button'
 import { EmptyState } from '@astryxdesign/core/EmptyState'
 import { useDocumentTitle, useT } from './i18n'
 import { commonMessages } from './i18n/messages/common'
-import { Spinner } from './components/ui/shared'
+import { PageSkeleton } from './components/ui/shared'
 import MainLayout from './layouts/MainLayout'
 
 // 큰 페이지(도감 데이터/배틀 엔진)는 지연 로드
@@ -19,7 +19,7 @@ const SpritesPage = lazy(() => import('./pages/SpritesPage.tsx'))
 
 function PageFallback() {
     const t = useT(commonMessages)
-    return <Spinner label={t('loading')} />
+    return <PageSkeleton label={t('loading')} heights={[40, 160, 320, 320]} />
 }
 
 function NotFound() {

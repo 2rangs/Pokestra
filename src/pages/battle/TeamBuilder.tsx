@@ -16,10 +16,12 @@ import { TextArea } from '@astryxdesign/core/TextArea'
 import { Token } from '@astryxdesign/core/Token'
 import { findDexPokemonByName, TYPES, damageClassName, type DexPokemon } from '../../lib/dex'
 import {
-    ITEMS, NATURES, buildSet, itemName, moveNameL, abilityNameL, natureName, typeNameL, spriteUrl, dexIdOf,
+    ITEMS, NATURES, buildSet, itemName, moveNameL, abilityNameL, natureName, typeNameL, dexIdOf,
     battleStatLabel,
 } from '../../lib/battle'
 import { pokemonLabel, stripAutoNickname } from '../../lib/battleLog'
+import { pokemonImageCandidates } from '../../lib/images'
+import { PokeImage } from '../../components/ui/PokeImage'
 import { collator, useLang, useT, type Lang } from '../../i18n'
 import { battleMessages } from '../../i18n/messages/battle'
 import { PokemonSearch } from '../../components/battle/PokemonSearch'
@@ -59,9 +61,10 @@ function moveMeta(m: { category: string; power: number | null }, lang: Lang) {
 /** 포켓몬 그림 자리 (테두리 있는 작은 상자) */
 function SpriteBox({ id, size = 'md' }: { id?: number; size?: 'sm' | 'md' }) {
     const box = size === 'md' ? 'h-16 w-16' : 'h-10 w-10'
+    const px = size === 'md' ? 64 : 40
     return (
         <span className={`flex shrink-0 items-center justify-center rounded-md border border-border bg-muted ${box}`}>
-            {id && <img src={spriteUrl(id)} alt="" className="h-full w-full object-contain [image-rendering:pixelated]" loading="lazy" />}
+            {id && <PokeImage sources={pokemonImageCandidates(id, px)} alt="" size={px} className="h-full w-full" />}
         </span>
     )
 }

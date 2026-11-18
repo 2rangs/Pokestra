@@ -131,12 +131,7 @@ export function buildRandomTeam(seed: number, size = 6, level = 50): PokemonSet[
 // ─── 타입 색 ─────────────────────────────────────────────────
 export { TYPE_COLOR } from './dex'
 
-export const artworkUrl = (id: number) =>
-    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
-export const spriteUrl = (id: number) =>
-    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
-export const backSpriteUrl = (id: number) =>
-    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${id}.png`
+export { artworkUrl, spriteUrl, backSpriteUrl } from './spriteUrls'
 
 /** 종 slug → 도감 id (스프라이트용) */
 export function dexIdOf(species: string): number | undefined {

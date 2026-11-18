@@ -1,4 +1,4 @@
-import { memo, useDeferredValue, useMemo, useState } from 'react'
+import { memo, useDeferredValue, useMemo } from 'react'
 import { Card } from '@astryxdesign/core/Card'
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
 import { ClickableCard } from '@astryxdesign/core/ClickableCard'
@@ -7,6 +7,7 @@ import { HStack } from '@astryxdesign/core/HStack'
 import { Text } from '@astryxdesign/core/Text'
 import { VStack } from '@astryxdesign/core/VStack'
 import { EmptyState, LoadMore, PageHeader, SearchField, Segmented, SelectField } from '../components/dex/DexUi'
+import { PokeImage } from '../components/ui/PokeImage'
 import { artworkUrl, buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
 import { useProgressive } from '../components/dex/useProgressive'
 import { useUrlParams } from '../components/dex/useUrlParams'
@@ -154,30 +155,14 @@ export default function SpritesPage() {
 const SpriteCard = memo(function SpriteCard({ entry: e, style, shiny }: { entry: Entry; style: Style; shiny: boolean }) {
     const lang = useLang()
     const t = useT(spritesMessages)
-    const [failedSrc, setFailedSrc] = useState<string | null>(null)
     const name = displayName(e.p, lang)
     const src = style === 'artwork' ? artworkUrl(e.p.id, shiny) : shiny ? e.p.spriteShiny : e.p.sprite
-    const failed = !src || failedSrc === src
 
     return (
         <ClickableCard href={`/pokemon/${e.p.id}`} label={shiny ? `${name} (${t('shiny')})` : name} padding={2} height="100%">
             <VStack gap={1} hAlign="center">
                 <span className="flex aspect-square w-full max-w-24 items-center justify-center">
-                    {failed ? (
-                        <Text type="supporting">{t('noImage')}</Text>
-                    ) : (
-                        <img
-                            key={src}
-                            src={src}
-                            alt=""
-                            loading="lazy"
-                            decoding="async"
-                            width={96}
-                            height={96}
-                            onError={() => setFailedSrc(src)}
-                            className={`h-full w-full object-contain ${style === 'sprite' ? '[image-rendering:pixelated]' : ''}`}
-                        />
-                    )}
+                    <PokeImage sources={[src]} alt="" size={96} pixelated={style === 'sprite'} className="h-full w-full" />
                 </span>
                 <Text type="supporting" hasTabularNumbers>
                     {padDexNo(e.speciesId)}
