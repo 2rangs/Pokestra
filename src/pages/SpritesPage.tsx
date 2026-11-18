@@ -170,7 +170,7 @@ const SpriteCard = memo(function SpriteCard({ entry: e, style, shiny }: { entry:
                 <Text type="supporting" hasTabularNumbers>
                     {padDexNo(e.speciesId)}
                 </Text>
-                <Text size="sm" weight="semibold" justify="center" maxLines={1}>
+                <Text size="sm" weight="semibold" justify="center" maxLines={2} className="w-full min-w-0 break-words">
                     {name}
                 </Text>
             </VStack>
