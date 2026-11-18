@@ -37,11 +37,13 @@ function LanguageSwitch() {
     const setLang = useLangStore((s) => s.setLang)
     const t = useT(commonMessages)
     return (
-        <SegmentedControl size="sm" label={t('language')} value={lang} onChange={(v) => setLang(v as Lang)}>
-            {LANGS.map((l) => (
-                <SegmentedControlItem key={l} value={l} label={LANG_SHORT[l]} />
-            ))}
-        </SegmentedControl>
+        <span className="max-sm:-my-3 max-sm:*:*:min-h-11 max-sm:*:*:min-w-11">
+            <SegmentedControl size="sm" label={t('language')} value={lang} onChange={(v) => setLang(v as Lang)}>
+                {LANGS.map((l) => (
+                    <SegmentedControlItem key={l} value={l} label={LANG_SHORT[l]} />
+                ))}
+            </SegmentedControl>
+        </span>
     )
 }
 
@@ -54,7 +56,7 @@ function BackToTop({ label }: { label: string }) {
         return () => window.removeEventListener('scroll', onScroll)
     }, [])
     return (
-        <span className={`fixed right-4 bottom-4 z-40 transition-opacity ${show ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+        <span className={`fixed right-4 bottom-4 z-40 max-sm:*:min-h-11 max-sm:*:min-w-11 transition-opacity ${show ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
             <IconButton
                 label={label}
                 variant="secondary"
@@ -101,8 +103,8 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                     />
                 </div>
                 {/* 좁은 화면: 가로 스크롤 탭 줄 */}
-                <nav aria-label="Sections" className="overflow-x-auto px-4 pb-1.5 sm:px-6 [scrollbar-width:none] lg:hidden">
-                    <span className="flex w-max gap-1">{items}</span>
+                <nav aria-label="Sections" className="overflow-x-auto px-4 sm:px-6 [scrollbar-width:none] lg:hidden">
+                    <span className="flex w-max gap-1 max-lg:*:min-h-11 max-lg:*:items-center">{items}</span>
                 </nav>
             </header>
 

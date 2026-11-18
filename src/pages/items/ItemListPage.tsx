@@ -223,7 +223,7 @@ export default function ItemListPage() {
         <VStack gap={2}>
             <PageHeader title={t('title')} subtitle={t('subtitle', { n: DEX_ITEMS.length })} />
 
-            <VStack gap={2} className="sticky top-22 z-40 bg-surface py-2 lg:top-12">
+            <VStack gap={2} className="sticky top-23.25 z-40 bg-surface py-2 lg:top-12.25">
                 <HStack gap={3} wrap="wrap" vAlign="center">
                     <VStack ref={searchRef} className="min-w-56 flex-1">
                         <SearchField
