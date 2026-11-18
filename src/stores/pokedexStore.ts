@@ -33,6 +33,7 @@ interface PokedexState extends PokedexFilters {
     toggleType: (type: string) => void
     clearTypes: () => void
     toggleGeneration: (id: number) => void
+    setGenerations: (ids: number[]) => void
     clearGenerations: () => void
     setSelectedEggGroup: (v: string | null) => void
     setIncludeForms: (v: boolean) => void
@@ -80,6 +81,7 @@ export const usePokedexStore = create<PokedexState>()(
                         : [...s.selectedGenerations, id].sort((a, b) => a - b),
                     page: 1,
                 })),
+            setGenerations: (ids) => set({ selectedGenerations: [...new Set(ids)].sort((a, b) => a - b), page: 1 }),
             clearGenerations: () => set({ selectedGenerations: [], page: 1 }),
             setSelectedEggGroup: (v) => set({ selectedEggGroup: v, page: 1 }),
             setIncludeForms: (v) => set({ includeForms: v, page: 1 }),

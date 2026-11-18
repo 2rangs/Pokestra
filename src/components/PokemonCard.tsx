@@ -7,7 +7,6 @@ import { type Lang, useLang, useT } from "../i18n"
 import { pokedexMessages } from "../i18n/messages/pokedex"
 import {
     type DexPokemon,
-    baseStatTotal,
     formLabel as getFormLabel,
     getSpeciesId,
     pokemonName,
@@ -20,7 +19,7 @@ import { dexNumber } from "./pokedex/format"
 
 type Props = {
     pokemon: DexPokemon
-    /** 정렬 기준 능력치 등 카드 하단에 강조할 값 (없으면 종족값 합계) */
+    /** 정렬 기준 값(능력치·종족값 합계)을 카드 하단에 강조 (없으면 표시하지 않음 — 설명 없는 숫자는 상세/표에서) */
     highlight?: { label: string; value: number }
 }
 
@@ -40,24 +39,18 @@ function PokemonCardImpl({ pokemon: p, highlight }: Props) {
     const formLabel = getFormLabel(p, lang)
     const name = pokemonName(p, lang)
     const no = dexNumber(getSpeciesId(p))
-    const stat = highlight ?? { label: t("total"), value: baseStatTotal(p) }
     const sub = secondaryName(p, lang)
 
     return (
-        <ClickableCard href={`/pokemon/${p.id}`} label={`${no} ${name}${formLabel ? ` (${formLabel})` : ""}`} padding={3} className="h-full">
-            <VStack gap={2} hAlign="stretch">
-                <HStack justify="between" vAlign="center" gap={2}>
-                    <Text type="supporting" hasTabularNumbers>
-                        {no}
-                    </Text>
-                    <Text type="supporting" hasTabularNumbers>
-                        {stat.label} <Text type="supporting" color="primary" weight="semibold" hasTabularNumbers>{stat.value}</Text>
-                    </Text>
-                </HStack>
+        <ClickableCard href={`/pokemon/${p.id}`} label={`${no} ${name}${formLabel ? ` (${formLabel})` : ""}`} padding={2} className="h-full">
+            <VStack gap={1} hAlign="stretch">
+                <Text type="supporting" hasTabularNumbers className="whitespace-nowrap">
+                    {no}
+                </Text>
                 <span className="flex justify-center">
-                    <PokemonImage p={p} size={96} className="h-20 w-20 sm:h-24 sm:w-24" />
+                    <PokemonImage p={p} size={72} className="h-18 w-18" />
                 </span>
-                <VStack gap={0.5}>
+                <VStack gap={0}>
                     <HStack gap={1} vAlign="center">
                         <Text weight="semibold" maxLines={1}>
                             {name}
@@ -68,10 +61,18 @@ function PokemonCardImpl({ pokemon: p, highlight }: Props) {
                         {formLabel ?? <span lang={lang === "en" ? "ja" : "en"}>{sub || " "}</span>}
                     </Text>
                 </VStack>
-                <HStack gap={1} wrap="wrap">
+                <HStack gap={1} wrap="wrap" vAlign="center">
                     {p.types.map((type) => (
                         <TypeTag key={type} type={type} size="xs" />
                     ))}
+                    {highlight && (
+                        <Text type="supporting" className="ms-auto whitespace-nowrap">
+                            {highlight.label}{" "}
+                            <Text type="supporting" color="primary" weight="semibold" hasTabularNumbers>
+                                {highlight.value}
+                            </Text>
+                        </Text>
+                    )}
                 </HStack>
             </VStack>
         </ClickableCard>

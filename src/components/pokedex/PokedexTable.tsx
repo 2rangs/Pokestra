@@ -18,7 +18,7 @@ const Row = memo(function Row({ p, sortStat }: { p: DexPokemon; sortStat: StatKe
     return (
         <TableRow>
             <TableCell>
-                <PokemonImage p={p} size={40} className="h-10 w-10" />
+                <PokemonImage p={p} size={32} className="h-8 w-8" />
             </TableCell>
             <TableCell>
                 <Text type="supporting" hasTabularNumbers>
@@ -64,34 +64,32 @@ export function PokedexTable({ pokemon, sortStat }: { pokemon: readonly DexPokem
     const lang = useLang()
     const t = useT(pokedexMessages)
     return (
-        <div className="overflow-x-auto">
-            <Table density="compact" hasHover aria-label={t("title")}>
-                <TableHeader>
-                    <TableRow isHeaderRow>
-                        <TableHeaderCell scope="col">
-                            <span className="sr-only">{t("colImage")}</span>
+        <Table density="compact" hasHover aria-label={t("title")}>
+            <TableHeader>
+                <TableRow isHeaderRow>
+                    <TableHeaderCell scope="col">
+                        <span className="sr-only">{t("colImage")}</span>
+                    </TableHeaderCell>
+                    <TableHeaderCell scope="col">{t("colNo")}</TableHeaderCell>
+                    <TableHeaderCell scope="col">{t("colName")}</TableHeaderCell>
+                    <TableHeaderCell scope="col">{t("colType")}</TableHeaderCell>
+                    <TableHeaderCell scope="col" className="text-right">
+                        {t("total")}
+                    </TableHeaderCell>
+                    {STAT_KEYS.map((k) => (
+                        <TableHeaderCell key={k} scope="col" className="text-right">
+                            <abbr title={statLabel(k, lang)} className="no-underline">
+                                {statLabel(k, lang, true)}
+                            </abbr>
                         </TableHeaderCell>
-                        <TableHeaderCell scope="col">{t("colNo")}</TableHeaderCell>
-                        <TableHeaderCell scope="col">{t("colName")}</TableHeaderCell>
-                        <TableHeaderCell scope="col">{t("colType")}</TableHeaderCell>
-                        <TableHeaderCell scope="col" className="text-right">
-                            {t("total")}
-                        </TableHeaderCell>
-                        {STAT_KEYS.map((k) => (
-                            <TableHeaderCell key={k} scope="col" className="text-right">
-                                <abbr title={statLabel(k, lang)} className="no-underline">
-                                    {statLabel(k, lang, true)}
-                                </abbr>
-                            </TableHeaderCell>
-                        ))}
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {pokemon.map((p) => (
-                        <Row key={p.id} p={p} sortStat={sortStat} />
                     ))}
-                </TableBody>
-            </Table>
-        </div>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {pokemon.map((p) => (
+                    <Row key={p.id} p={p} sortStat={sortStat} />
+                ))}
+            </TableBody>
+        </Table>
     )
 }

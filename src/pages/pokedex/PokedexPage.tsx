@@ -1,58 +1,34 @@
-import { type ReactNode, useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react"
 import { useSearchParams } from "react-router"
 import { Button } from "@astryxdesign/core/Button"
-import { Card } from "@astryxdesign/core/Card"
 import { EmptyState } from "@astryxdesign/core/EmptyState"
 import { Grid } from "@astryxdesign/core/Grid"
 import { Heading } from "@astryxdesign/core/Heading"
 import { HStack } from "@astryxdesign/core/HStack"
-import { Icon } from "@astryxdesign/core/Icon"
 import { SegmentedControl, SegmentedControlItem } from "@astryxdesign/core/SegmentedControl"
-import { Selector } from "@astryxdesign/core/Selector"
-import { Switch } from "@astryxdesign/core/Switch"
 import { Text } from "@astryxdesign/core/Text"
-import { TextInput } from "@astryxdesign/core/TextInput"
-import { ToggleButton } from "@astryxdesign/core/ToggleButton"
 import { VStack } from "@astryxdesign/core/VStack"
 import { PokemonCard } from "../../components/PokemonCard.tsx"
-import { MoveFilter } from "../../components/pokedex/MoveFilter"
+import { PokedexFilterBar } from "../../components/pokedex/PokedexFilterBar"
 import { PokedexTable } from "../../components/pokedex/PokedexTable"
 import { exactMove, norm } from "../../components/pokedex/search"
-import { TypeIconDot } from "../../components/ui/shared"
-import { type Lang, collator, useDocumentTitle, useLang, useT } from "../../i18n"
-import { type PokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
+import { collator, useDocumentTitle, useLang, useT } from "../../i18n"
+import { pokedexMessages } from "../../i18n/messages/pokedex"
 import {
     ALL_POKEMON,
-    GENERATIONS,
-    TYPES,
     type DexPokemon,
     type StatKey,
     baseStatTotal,
     displayName,
-    generationName,
     getGeneration,
     getSpeciesId,
     isAlternateForm,
     searchKey,
     statLabel,
-    typeName,
 } from "../../lib/dex"
-import { MAX_SELECTED_TYPES, type PokedexSortKey, type SortDir, usePokedexStore } from "../../stores/pokedexStore"
+import { type PokedexSortKey, usePokedexStore } from "../../stores/pokedexStore"
 
 const PAGE_SIZE = 60
-
-/** 정렬 옵션 (라벨: 메시지 키 또는 스탯) */
-const SORT_OPTIONS: { value: PokedexSortKey; label: PokedexKey | StatKey }[] = [
-    { value: "id", label: "sortId" },
-    { value: "name", label: "sortName" },
-    { value: "total", label: "sortTotal" },
-    { value: "hp", label: "hp" },
-    { value: "attack", label: "attack" },
-    { value: "defense", label: "defense" },
-    { value: "spAtk", label: "spAtk" },
-    { value: "spDef", label: "spDef" },
-    { value: "speed", label: "speed" },
-]
 
 type View = "grid" | "table"
 
@@ -96,44 +72,6 @@ function sortValue(e: IndexedPokemon, key: PokedexSortKey): number {
     return e.p.stats[key]
 }
 
-const STAT_KEY_SET: ReadonlySet<string> = new Set<StatKey>(["hp", "attack", "defense", "spAtk", "spDef", "speed"])
-
-function sortLabel(label: PokedexKey | StatKey, lang: Lang, t: (k: PokedexKey) => string): string {
-    return STAT_KEY_SET.has(label) ? statLabel(label as StatKey, lang) : t(label as PokedexKey)
-}
-
-/** 필터 묶음: 소제목 + (선택) 해제 버튼 */
-function FilterGroup({
-    id,
-    label,
-    hint,
-    onClear,
-    clearLabel,
-    children,
-}: {
-    id: string
-    label: string
-    hint?: string
-    onClear?: () => void
-    clearLabel: string
-    children: ReactNode
-}) {
-    return (
-        <VStack gap={2} role="group" aria-labelledby={id}>
-            <HStack justify="between" vAlign="center" gap={2}>
-                <span>
-                    <Text type="label" id={id}>
-                        {label}
-                    </Text>{" "}
-                    {hint && <Text type="supporting">{hint}</Text>}
-                </span>
-                {onClear && <Button size="sm" variant="ghost" label={clearLabel} onClick={onClear} />}
-            </HStack>
-            {children}
-        </VStack>
-    )
-}
-
 // ── Page ──
 
 export default function PokedexPage() {
@@ -164,14 +102,6 @@ export default function PokedexPage() {
     const sortDir = usePokedexStore((s) => s.sortDir)
     const page = usePokedexStore((s) => s.page)
 
-    const setNameSearch = usePokedexStore((s) => s.setNameSearch)
-    const toggleType = usePokedexStore((s) => s.toggleType)
-    const clearTypes = usePokedexStore((s) => s.clearTypes)
-    const toggleGeneration = usePokedexStore((s) => s.toggleGeneration)
-    const clearGenerations = usePokedexStore((s) => s.clearGenerations)
-    const setIncludeForms = usePokedexStore((s) => s.setIncludeForms)
-    const setSortKey = usePokedexStore((s) => s.setSortKey)
-    const setSortDir = usePokedexStore((s) => s.setSortDir)
     const setPage = usePokedexStore((s) => s.setPage)
     const resetFilters = usePokedexStore((s) => s.resetFilters)
 
@@ -181,6 +111,22 @@ export default function PokedexPage() {
 
     const deferredName = useDeferredValue(nameSearch)
     const moveSlug = selectedMove ?? exactMove(moveSearch)
+
+    // 붙어 있는 필터 바 아래에서 필터를 바꾸면 결과가 줄어 빈 화면이 남는다 → 첫 결과를 바 바로 아래로 되돌린다
+    const filterSignature = [selectedGenerations.join(), includeForms, selectedTypes.join(), moveSlug, deferredName, sortKey, sortDir].join("|")
+    const lastSignature = useRef(filterSignature)
+    useEffect(() => {
+        if (lastSignature.current === filterSignature) return
+        lastSignature.current = filterSignature
+        const bar = document.getElementById("pokedex-filter-bar")
+        const head = document.getElementById("pokedex-results-head")
+        const header = document.querySelector("header")
+        if (!bar || !head || !header) return
+        const headerBottom = header.getBoundingClientRect().bottom
+        if (bar.getBoundingClientRect().top > headerBottom + 1) return
+        const top = head.getBoundingClientRect().top + window.scrollY - headerBottom - bar.getBoundingClientRect().height
+        window.scrollTo({ top: Math.max(0, top) })
+    }, [filterSignature])
 
     // 이름순 정렬용: 현재 언어의 표시 이름
     const names = useMemo(() => new Map(INDEX.map((e) => [e.p.id, displayName(e.p, lang)])), [lang])
@@ -214,20 +160,25 @@ export default function PokedexPage() {
     const hasMore = visibleCount < results.length
     const isSearching = deferredName !== nameSearch
 
-    // 무한 스크롤: 하단 센티넬이 보이면 다음 페이지
-    const sentinelRef = useRef<HTMLDivElement | null>(null)
+    // 무한 스크롤: 아직 안 그린 결과 자리(data-slot)를 미리 잡아 두고, 그 자리가 화면 근처로 오면 거기까지 불러온다.
+    // 자리를 잡아 두면 문서 높이와 바닥 푸터가 더 불러올 때 밀리지 않는다(레이아웃 이동 없음).
+    const resultsRef = useRef<HTMLSpanElement | null>(null)
     useEffect(() => {
-        const el = sentinelRef.current
-        if (!el || !hasMore) return
+        const root = resultsRef.current
+        if (!root || !hasMore) return
         const io = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) setPage(page + 1)
+            (entries) => {
+                let need = 0
+                for (const entry of entries) {
+                    if (entry.isIntersecting) need = Math.max(need, Math.ceil((Number((entry.target as HTMLElement).dataset.slot) + 1) / PAGE_SIZE))
+                }
+                if (need > usePokedexStore.getState().page) setPage(need)
             },
             { rootMargin: "600px 0px" },
         )
-        io.observe(el)
+        for (const el of root.querySelectorAll("[data-slot]")) io.observe(el)
         return () => io.disconnect()
-    }, [hasMore, page, setPage])
+    }, [hasMore, visibleCount, results, view, setPage])
 
     const highlightStat: StatKey | null =
         sortKey === "id" || sortKey === "name" || sortKey === "total" ? null : sortKey
@@ -244,122 +195,23 @@ export default function PokedexPage() {
     }
 
     return (
-        <VStack gap={5}>
-            <VStack gap={1}>
+        <VStack gap={4}>
+            <HStack gap={3} vAlign="end" wrap="wrap">
                 <Heading level={1}>{t("title")}</Heading>
-                <Text color="secondary" as="p">
-                    {t("subtitle")}
-                </Text>
-            </VStack>
+                <span className="hidden sm:inline">
+                    <Text color="secondary">{t("subtitle")}</Text>
+                </span>
+            </HStack>
 
-            {/* ── 검색/필터 패널 ── */}
-            <Card>
-                <section aria-label={t("filters")}>
-                    <VStack gap={4}>
-                        <HStack gap={2} vAlign="end">
-                            <span className="min-w-0 flex-1">
-                                <TextInput
-                                    type="search"
-                                    label={t("searchLabel")}
-                                    isLabelHidden
-                                    value={nameSearch}
-                                    onChange={(v) => setNameSearch(v)}
-                                    placeholder={t("searchPlaceholder")}
-                                    enterKeyHint="search"
-                                    startIcon={<Icon icon="search" />}
-                                    hasClear
-                                    width="100%"
-                                />
-                            </span>
-                            <span className="md:hidden">
-                                <Button
-                                    icon={<Icon icon="funnel" />}
-                                    label={activeFilterCount > 0 ? `${t("filters")} ${activeFilterCount}` : t("filters")}
-                                    tooltip={activeFilterCount > 0 ? t("activeFilters", { n: activeFilterCount }) : undefined}
-                                    onClick={() => setFiltersOpen((v) => !v)}
-                                    aria-expanded={filtersOpen}
-                                    aria-controls="pokedex-filters"
-                                />
-                            </span>
-                        </HStack>
-
-                        <div id="pokedex-filters" className={`${filtersOpen ? "flex" : "hidden"} flex-col gap-5 md:flex`}>
-                            <FilterGroup
-                                id="pokedex-type-label"
-                                label={t("type")}
-                                hint={t("typeHint", { n: MAX_SELECTED_TYPES })}
-                                onClear={selectedTypes.length > 0 ? clearTypes : undefined}
-                                clearLabel={t("clearSelection")}
-                            >
-                                <Grid columns={{ minWidth: 104, repeat: "fill" }} gap={1.5}>
-                                    {TYPES.map((type) => (
-                                        <ToggleButton
-                                            key={type.name}
-                                            size="sm"
-                                            label={typeName(type.name, lang)}
-                                            icon={<TypeIconDot type={type.name} />}
-                                            isPressed={selectedTypes.includes(type.name)}
-                                            onPressedChange={() => toggleType(type.name)}
-                                            className="w-full justify-start"
-                                        >
-                                            {typeName(type.name, lang)}
-                                        </ToggleButton>
-                                    ))}
-                                </Grid>
-                            </FilterGroup>
-
-                            <FilterGroup
-                                id="pokedex-gen-label"
-                                label={t("generation")}
-                                onClear={selectedGenerations.length > 0 ? clearGenerations : undefined}
-                                clearLabel={t("clearSelection")}
-                            >
-                                <HStack gap={1.5} wrap="wrap">
-                                    {GENERATIONS.map((g) => (
-                                        <ToggleButton
-                                            key={g.id}
-                                            size="sm"
-                                            label={generationName(g.id, lang)}
-                                            isPressed={selectedGenerations.includes(g.id)}
-                                            onPressedChange={() => toggleGeneration(g.id)}
-                                        />
-                                    ))}
-                                </HStack>
-                            </FilterGroup>
-
-                            <Grid columns={{ minWidth: 280, repeat: "fit" }} gap={5}>
-                                <MoveFilter key={moveFilterKey} />
-                                <VStack gap={3}>
-                                    <HStack gap={2} vAlign="end" wrap="wrap">
-                                        <span className="min-w-40 flex-1">
-                                            <Selector
-                                                label={t("sortBy")}
-                                                value={sortKey}
-                                                onChange={(v) => setSortKey(v as PokedexSortKey)}
-                                                options={SORT_OPTIONS.map((o) => ({ value: o.value, label: sortLabel(o.label, lang, t) }))}
-                                                width="100%"
-                                            />
-                                        </span>
-                                        <SegmentedControl label={t("toggleSortDir")} value={sortDir} onChange={(v) => setSortDir(v as SortDir)}>
-                                            <SegmentedControlItem value="asc" label={t("asc")} icon={<Icon icon="arrowUp" size="sm" />} />
-                                            <SegmentedControlItem value="desc" label={t("desc")} icon={<Icon icon="arrowDown" size="sm" />} />
-                                        </SegmentedControl>
-                                    </HStack>
-                                    <Switch
-                                        label={t("includeForms")}
-                                        description={t("includeFormsHint")}
-                                        value={includeForms}
-                                        onChange={(v) => setIncludeForms(v)}
-                                    />
-                                </VStack>
-                            </Grid>
-                        </div>
-                    </VStack>
-                </section>
-            </Card>
+            <PokedexFilterBar
+                moveFilterKey={moveFilterKey}
+                activeFilterCount={activeFilterCount}
+                open={filtersOpen}
+                onToggleOpen={() => setFiltersOpen((v) => !v)}
+            />
 
             {/* ── 결과 헤더 ── */}
-            <HStack justify="between" vAlign="center" gap={2} wrap="wrap">
+            <HStack id="pokedex-results-head" justify="between" vAlign="center" gap={2} wrap="wrap">
                 <span aria-live="polite" aria-atomic className={`flex flex-wrap items-baseline gap-x-3 ${isSearching ? "opacity-60" : ""}`}>
                     <Text weight="semibold" hasTabularNumbers>
                         {t("resultCount", { n: results.length })}
@@ -388,29 +240,37 @@ export default function PokedexPage() {
                     actions={isDirty ? <Button variant="primary" label={t("reset")} onClick={reset} /> : undefined}
                 />
             ) : view === "table" ? (
-                <div className={`transition-opacity ${isSearching ? "opacity-60" : ""}`}>
+                <span ref={resultsRef} className={`block transition-opacity ${isSearching ? "opacity-60" : ""}`}>
                     <PokedexTable pokemon={visible.map((e) => e.p)} sortStat={sortKey === "total" ? "total" : highlightStat} />
-                </div>
+                    {hasMore && <span data-slot={visibleCount} aria-hidden className="block h-px" />}
+                </span>
             ) : (
-                <div className={`transition-opacity ${isSearching ? "opacity-60" : ""}`}>
-                    <Grid columns={{ minWidth: 150, repeat: "fill" }} gap={3}>
+                <span ref={resultsRef} className={`block transition-opacity ${isSearching ? "opacity-60" : ""}`}>
+                    <Grid columns={{ minWidth: 128, max: 10 }} gap={2}>
                         {visible.map((e) => (
                             <PokemonCard
                                 key={e.p.id}
                                 pokemon={e.p}
                                 highlight={
-                                    highlightStat ? { label: statLabel(highlightStat, lang, true), value: e.p.stats[highlightStat] } : undefined
+                                    highlightStat
+                                        ? { label: statLabel(highlightStat, lang, true), value: e.p.stats[highlightStat] }
+                                        : sortKey === "total"
+                                          ? { label: t("cardTotal"), value: e.total }
+                                          : undefined
                                 }
                             />
                         ))}
+                        {results.slice(visibleCount).map((e, i) => (
+                            <span key={e.p.id} data-slot={visibleCount + i} aria-hidden className="h-46 sm:h-50" />
+                        ))}
                     </Grid>
-                </div>
+                </span>
             )}
 
             {hasMore && (
-                <div ref={sentinelRef} className="flex justify-center pt-2">
+                <span className="sr-only focus-within:not-sr-only focus-within:flex focus-within:justify-center">
                     <Button label={t("loadMore", { n: results.length - visibleCount })} onClick={() => setPage(page + 1)} />
-                </div>
+                </span>
             )}
         </VStack>
     )

@@ -13,7 +13,7 @@ import { exactMove, findMoveSuggestions } from "./search"
 type MoveItem = SearchableItem<DexMove>
 
 /** 배울 수 있는 기술 필터 (모든 언어 이름으로 검색) */
-export function MoveFilter() {
+export function MoveFilter({ compact }: { compact?: boolean }) {
     const lang = useLang()
     const t = useT(pokedexMessages)
     const moveSearch = usePokedexStore((s) => s.moveSearch)
@@ -55,6 +55,8 @@ export function MoveFilter() {
         <span className="flex flex-col gap-1">
             <Typeahead<MoveItem>
                 label={t("learnableMove")}
+                isLabelHidden={compact}
+                width={compact ? 224 : undefined}
                 placeholder={t("movePlaceholder")}
                 searchSource={source}
                 debounceMs={0}
@@ -83,7 +85,7 @@ export function MoveFilter() {
                     />
                 )}
             />
-            <span aria-live="polite">
+            <span aria-live="polite" className={compact ? "sr-only" : undefined}>
                 {resolvedMove ? (
                     <Text type="supporting">{t("moveActive", { move: moveName(resolvedMove.name, lang) })}</Text>
                 ) : moveSearch.trim() ? (
