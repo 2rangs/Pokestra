@@ -8,6 +8,7 @@ import { Icon } from '@astryxdesign/core/Icon'
 import { Text } from '@astryxdesign/core/Text'
 import { Typeahead, TypeaheadItem, type SearchableItem, type SearchSource } from '@astryxdesign/core/Typeahead'
 import { VStack } from '@astryxdesign/core/VStack'
+import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
 import { TypeTag, StatBar } from '../components/ui/shared'
 import { PokeImage } from '../components/ui/PokeImage'
 import { typeColor } from '../components/ui/utils'
@@ -18,7 +19,6 @@ import { homeMessages } from '../i18n/messages/home'
 import {
     ABILITIES,
     ALL_POKEMON,
-    baseStatTotal,
     type DexPokemon,
     displayName,
     GENERATIONS,
@@ -29,6 +29,7 @@ import {
     STAT_KEYS,
     statLabel,
 } from '../lib/dex'
+import { useSlashFocus } from '../hooks/useSlashFocus'
 import { usePokedexStore } from '../stores/pokedexStore'
 
 type HomeKey = keyof typeof homeMessages.ko
@@ -78,7 +79,7 @@ const STARTERS: Record<number, number[]> = {
 }
 
 /** 도구 카드 그림에 쓰는 포켓몬 */
-const DEX_PREVIEW = byId([1, 4, 7, 25, 133, 143, 150, 249, 384, 445])
+const DEX_THUMB = getDexPokemon(25)
 const BATTLE_PREVIEW = byId([445, 1000])
 
 const MAX_SUGGESTIONS = 6
@@ -134,36 +135,34 @@ export default function HomePage() {
     useDocumentTitle(null)
 
     return (
-        <div className="flex flex-col gap-12 sm:gap-16">
+        <VStack gap={4}>
             {/* 검색 + 오늘의 포켓몬 */}
-            <section className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-10">
-                <VStack gap={5}>
-                    <VStack gap={2}>
+            <section className="grid items-start gap-4 lg:grid-cols-3">
+                <span className="min-w-0 lg:col-span-2">
+                    <VStack gap={3}>
                         <Heading level={1} type="display-3" textWrap="balance">
                             {t('heroTitle')}
                         </Heading>
-                        <span className="max-w-[56ch]">
-                            <Text as="p" type="large" color="secondary">
-                                {t('heroLead')}
-                            </Text>
-                        </span>
+                        <VisuallyHidden>
+                            <p>{t('heroLead')}</p>
+                        </VisuallyHidden>
+                        <HeroSearch />
+                        <PopularPokemon />
                     </VStack>
-                    <HeroSearch />
-                    <PopularPokemon />
-                </VStack>
+                </span>
                 <PokemonOfTheDay />
             </section>
 
             <ToolsSection />
             <ReferenceSection />
             <GenerationsSection />
-        </div>
+        </VStack>
     )
 }
 
 function SectionHeading({ id, children }: { id: string; children: string }) {
     return (
-        <span className="mb-4 block">
+        <span className="mb-2 block">
             <Heading level={2} id={id}>
                 {children}
             </Heading>
@@ -172,11 +171,10 @@ function SectionHeading({ id, children }: { id: string; children: string }) {
 }
 
 const SPRITE_BOX: Record<number, string> = { 32: 'h-8 w-8', 48: 'h-12 w-12', 56: 'h-14 w-14' }
-const SPRITE_FLUID_MAX: Record<number, string> = { 60: 'max-w-15' }
 
-/** 도트 스프라이트. fluid 면 부모 너비에 맞춰 줄어든다 */
-function Sprite({ p, size = 48, className = '', fluid = false }: { p: DexPokemon; size?: number; className?: string; fluid?: boolean }) {
-    const box = fluid ? `aspect-square w-full ${SPRITE_FLUID_MAX[size] ?? ''}` : (SPRITE_BOX[size] ?? '')
+/** 도트 스프라이트 */
+function Sprite({ p, size = 48, className = '' }: { p: DexPokemon; size?: number; className?: string }) {
+    const box = SPRITE_BOX[size] ?? ''
     return <PokeImage sources={pokemonImageCandidates(p.id, size, { sprite: p.sprite })} alt="" size={size} className={`${box} ${className}`} />
 }
 
@@ -186,16 +184,16 @@ function PopularPokemon() {
     const lang = useLang()
     const t = useT(homeMessages)
     return (
-        <VStack gap={2}>
+        <VStack gap={1}>
             <Text type="supporting" color="secondary">
                 {t('popularLabel')}
             </Text>
-            <ul className="flex flex-wrap gap-2">
+            <ul className="flex gap-2 overflow-x-auto pb-0.5">
                 {POPULAR.map((p) => (
-                    <li key={p.id}>
+                    <li key={p.id} className="shrink-0">
                         <Link
                             to={`/pokemon/${p.id}`}
-                            className="flex items-center gap-1 rounded-full border border-border bg-surface py-0.5 pr-3 pl-1 text-sm text-primary transition-colors hover:border-border-emphasized hover:bg-muted"
+                            className="flex min-h-11 items-center gap-1 rounded-full border border-border bg-surface py-0.5 pr-3 pl-1 text-sm text-primary transition-colors sm:min-h-0 hover:border-border-emphasized hover:bg-muted"
                         >
                             <Sprite p={p} size={32} />
                             {displayName(p, lang)}
@@ -224,7 +222,7 @@ function PokemonOfTheDay() {
             className="overflow-hidden rounded-xl border border-border"
             style={{ background: `color-mix(in srgb, ${color} 14%, var(--color-background-surface))` }}
         >
-            <div className="flex items-center justify-between gap-2 px-5 pt-4">
+            <div className="flex items-center justify-between gap-2 px-4 pt-3">
                 <Text type="supporting" weight="semibold" id="potd-heading">
                     {t('potdTitle')}
                 </Text>
@@ -232,18 +230,18 @@ function PokemonOfTheDay() {
                     {padDexNo(getSpeciesId(p))}
                 </Text>
             </div>
-            <div className="flex flex-col gap-4 px-5 pb-5">
-                <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-3 px-4 pb-4">
+                <div className="flex items-center gap-3">
                     <Link to={`/pokemon/${p.id}`} className="block shrink-0" aria-label={name}>
                         <PokeImage
-                            sources={pokemonImageCandidates(p.id, 176, { sprite: p.sprite })}
+                            sources={pokemonImageCandidates(p.id, 96, { sprite: p.sprite })}
                             alt=""
-                            size={176}
+                            size={96}
                             priority
-                            className="h-28 w-28 min-[420px]:h-36 min-[420px]:w-36 sm:h-44 sm:w-44"
+                            className="h-24 w-24"
                         />
                     </Link>
-                    <VStack gap={2}>
+                    <VStack gap={1.5}>
                         <Heading level={2} maxLines={2}>
                             {name}
                         </Heading>
@@ -252,12 +250,12 @@ function PokemonOfTheDay() {
                                 <TypeTag key={ty} type={ty} size="md" />
                             ))}
                         </HStack>
-                        <Text color="secondary" hasTabularNumbers>
-                            {t('potdTotal')} <Text weight="semibold" color="primary">{baseStatTotal(p)}</Text>
-                        </Text>
+                        <span>
+                            <Button variant="primary" href={`/pokemon/${p.id}`} label={t('potdCta')} />
+                        </span>
                     </VStack>
                 </div>
-                <dl className="grid grid-cols-[4.5rem_2.25rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 text-sm sm:grid-cols-[5rem_2.5rem_minmax(0,1fr)]">
+                <dl className="grid grid-cols-[4.5rem_2.25rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 text-sm sm:grid-cols-[5rem_2.5rem_minmax(0,1fr)]">
                     {STAT_KEYS.map((k) => (
                         <div key={k} className="contents">
                             <dt className="truncate text-secondary">{statLabel(k, lang, true)}</dt>
@@ -268,9 +266,6 @@ function PokemonOfTheDay() {
                         </div>
                     ))}
                 </dl>
-                <span>
-                    <Button variant="primary" href={`/pokemon/${p.id}`} label={t('potdCta')} />
-                </span>
             </div>
         </section>
     )
@@ -278,18 +273,20 @@ function PokemonOfTheDay() {
 
 // ── 도구 ──
 
-function ToolCard({ href, title, desc, children }: { href: string; title: string; desc: string; children: ReactNode }) {
+function ToolCard({ href, title, desc, thumb }: { href: string; title: string; desc: string; thumb: ReactNode }) {
     return (
-        <ClickableCard href={href} label={title} padding={0} height="100%">
-            <span className="flex h-36 items-center justify-center overflow-hidden border-b border-border bg-muted sm:h-40">
-                {children}
-            </span>
-            <span className="block p-4">
-                <VStack gap={1}>
+        <ClickableCard href={href} label={title} padding={3} height="100%">
+            <HStack gap={3} vAlign="center">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted" aria-hidden>
+                    {thumb}
+                </span>
+                <VStack gap={0.5}>
                     <Heading level={3}>{title}</Heading>
-                    <Text color="secondary">{desc}</Text>
+                    <Text color="secondary" maxLines={1}>
+                        {desc}
+                    </Text>
                 </VStack>
-            </span>
+            </HStack>
         </ClickableCard>
     )
 }
@@ -300,37 +297,36 @@ function ToolsSection() {
     return (
         <section aria-labelledby="tools-heading">
             <SectionHeading id="tools-heading">{t('toolsHeading')}</SectionHeading>
-            <div className="grid gap-4 md:grid-cols-3">
-                <ToolCard href="/pokedex" title={t('featPokedexTitle')} desc={t('featPokedexDesc')}>
-                    <span className="grid w-full max-w-80 grid-cols-5 justify-items-center px-3" aria-hidden>
-                        {DEX_PREVIEW.map((p) => (
-                            <Sprite key={p.id} p={p} size={60} fluid />
-                        ))}
-                    </span>
-                </ToolCard>
-
-                <ToolCard href="/battle" title={t('featBattleTitle')} desc={t('featBattleDesc')}>
-                    <span className="flex w-full items-end justify-center gap-1 px-3" aria-hidden>
-                        {atk && <PokeImage sources={pokemonImageCandidates(atk.id, 120, { sprite: atk.sprite })} alt="" size={120} className="aspect-square w-2/5 max-w-32" />}
-                        <span className="mb-[12%] shrink-0 text-base font-bold text-secondary">VS</span>
-                        {def && <PokeImage sources={pokemonImageCandidates(def.id, 120, { sprite: def.sprite })} alt="" size={120} className="aspect-square w-2/5 max-w-32 -scale-x-100" />}
-                    </span>
-                </ToolCard>
-
-                <ToolCard href="/calc" title={t('featCalcTitle')} desc={t('featCalcDesc')}>
-                    <span className="flex w-full max-w-64 flex-col gap-2 px-6" aria-hidden>
-                        <span className="flex items-center justify-between text-xs text-secondary">
-                            <span>{t('calcExample')}</span>
-                            <span className="font-semibold text-primary">{t('calcExampleKo')}</span>
+            <div className="grid gap-3 md:grid-cols-3">
+                <ToolCard
+                    href="/pokedex"
+                    title={t('featPokedexTitle')}
+                    desc={t('featPokedexDesc')}
+                    thumb={DEX_THUMB && <Sprite p={DEX_THUMB} size={48} />}
+                />
+                <ToolCard
+                    href="/battle"
+                    title={t('featBattleTitle')}
+                    desc={t('featBattleDesc')}
+                    thumb={
+                        <>
+                            {atk && <Sprite p={atk} size={32} className="-mx-1" />}
+                            {def && <Sprite p={def} size={32} className="-mx-1 -scale-x-100" />}
+                        </>
+                    }
+                />
+                <ToolCard
+                    href="/calc"
+                    title={t('featCalcTitle')}
+                    desc={t('featCalcDesc')}
+                    thumb={
+                        <span className="flex flex-col gap-1">
+                            <span className="block h-1.5 w-9 rounded-full bg-success" />
+                            <span className="block h-1.5 w-9 rounded-full bg-warning" />
+                            <span className="block h-1.5 w-9 rounded-full bg-error" />
                         </span>
-                        <span className="relative block h-3 overflow-hidden rounded-full bg-surface">
-                            <span className="absolute inset-y-0 left-0 w-[63%] rounded-l-full bg-success" />
-                            <span className="absolute inset-y-0 left-[63%] w-[6%] bg-error" />
-                            <span className="absolute inset-y-0 left-[69%] w-[31%] bg-error/30" />
-                        </span>
-                        <span className="text-right text-sm font-semibold tabular-nums text-primary">31.1% – 37.1%</span>
-                    </span>
-                </ToolCard>
+                    }
+                />
             </div>
         </section>
     )
@@ -400,7 +396,7 @@ function GenerationsSection() {
                                 </VStack>
                                 <span className="flex shrink-0" aria-hidden>
                                     {byId(STARTERS[g.id]).map((p) => (
-                                        <Sprite key={p.id} p={p} size={56} className="-mx-1.5" />
+                                        <Sprite key={p.id} p={p} size={48} className="-mx-1" />
                                     ))}
                                 </span>
                             </HStack>
@@ -428,6 +424,8 @@ function HeroSearch() {
     const navigate = useNavigate()
     const setNameSearch = usePokedexStore((s) => s.setNameSearch)
     const queryRef = useRef('')
+    const searchRef = useRef<HTMLSpanElement>(null)
+    useSlashFocus(searchRef)
 
     const goPokedex = (q: string) => {
         setNameSearch(q)
@@ -477,7 +475,7 @@ function HeroSearch() {
             }}
         >
             <HStack gap={2} vAlign="end">
-                <span className="min-w-0 flex-1">
+                <span ref={searchRef} className="min-w-0 flex-1">
                     <Typeahead<Suggestion>
                         label={t('searchLabel')}
                         isLabelHidden
