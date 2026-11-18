@@ -47,6 +47,7 @@ export function FilterChip({
     children,
     label,
     icon,
+    className,
 }: {
     active: boolean
     onClick: () => void
@@ -55,9 +56,10 @@ export function FilterChip({
     /** 접근성 이름 */
     label: string
     icon?: ReactNode
+    className?: string
 }) {
     return (
-        <ToggleButton size="sm" label={label} icon={icon} isPressed={active} onPressedChange={() => onClick()}>
+        <ToggleButton size="sm" label={label} icon={icon} className={className} isPressed={active} onPressedChange={() => onClick()}>
             {children ?? label}
         </ToggleButton>
     )
@@ -105,12 +107,14 @@ export function SelectField({
     onChange,
     options,
     width = 160,
+    isLabelHidden,
 }: {
     label: string
     value: string
     onChange: (v: string) => void
     options: { value: string; label: string }[]
     width?: number
+    isLabelHidden?: boolean
 }) {
     const ALL = '__all__'
     return (
@@ -118,6 +122,7 @@ export function SelectField({
             size="sm"
             width={width}
             label={label}
+            isLabelHidden={isLabelHidden}
             value={value || ALL}
             onChange={(v) => onChange(v === ALL ? '' : v)}
             options={options.map((o) => ({ value: o.value || ALL, label: o.label }))}
