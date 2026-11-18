@@ -30,3 +30,14 @@
   - `src/styles.css`(사이트 공용)에 키프레임·`pixelated` 유틸리티·`--radius-ellipse`를 **추가만** 함. 통합 시 확인 필요.
   - 사이트가 라이트 테마 고정이라 다크 스크린샷 없음(토큰만 써서 다크 값은 있음).
   - 아이콘 버튼도 44px 터치 영역 유지 → 툴바가 조금 투박함.
+
+## 3단계 — 리플레이와 공유 ✅
+계획: `plans/2026-11-18-battle-sim-replay.md`
+- `lib/replay.ts`: `{v, seed, format('singles'|'doubles'), p1/p2: {team(Showdown 텍스트), ctrl}, actions}` → 행동은 짧은 튜플(move/switch/raw/team, 왕복이 안 되면 원래 객체 그대로) → deflate-raw → base64url. 손상·버전 불일치는 `ReplayError`.
+- 세션이 사람·CPU의 **모든 행동을 기록**(재생 시 AI를 다시 돌리지 않음 → AI가 바뀌어도 링크 유지). 프레임 캡처를 `pages/battle/frames.ts`로 공용화, `simulateReplay`가 재현 실패를 `mismatch`로 보고.
+- 결과 오버레이에 "리플레이 링크 복사"·"리플레이 보기"(토스트 피드백). `#/battle/replay?d=…` 화면: 실제 배틀과 같은 장면·HUD·로그 + 턴 슬라이더, 처음/이전/재생/다음/끝, ←/→/Space.
+- 검증: 테스트 46개, build·lint·doctor(실패 0). E2E: 6:6 CPU 대전 → 링크 → 새 브라우저에서 끝으로 이동 → **승패·마지막 턴(19)·마지막 로그 4줄 동일**. 손상 링크는 오류 배너. 인코딩 1371자(URL 1430자). 390px에서 타임라인이 첫 화면(슬라이더 y≈531). 스크린샷 `phase3-replay-{desktop,mobile}.png`.
+- 판단과 비용
+  - 승자는 끝에서만 표시(스포일러 방지), 리플레이는 일시정지로 시작.
+  - CPU 대전 리플레이는 원래 시점 유지(상대 HP %, 테라 타입 비공개) — 비용: 받은 사람도 상대 정확한 HP를 못 봄.
+  - `src/App.tsx`에 지연 import + 라우트 한 줄 추가(통합 시 확인).
