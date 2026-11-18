@@ -132,7 +132,7 @@ export function buildRandomTeam(seed: number, size = 6, level = 50): PokemonSet[
 // ─── 타입 색 ─────────────────────────────────────────────────
 export { TYPE_COLOR } from './dex'
 
-export { artworkUrl, spriteUrl, backSpriteUrl } from './spriteUrls'
+export { artworkUrl, spriteUrl, backSpriteUrl, animatedSpriteUrl, animatedBackSpriteUrl, cryUrl } from './spriteUrls'
 
 /** 종 slug → 도감 id (스프라이트용) */
 export function dexIdOf(species: string): number | undefined {
