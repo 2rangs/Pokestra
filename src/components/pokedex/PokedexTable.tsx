@@ -7,10 +7,12 @@ import { pokedexMessages } from "../../i18n/messages/pokedex"
 import { type DexPokemon, type StatKey, STAT_KEYS, baseStatTotal, formLabel, getSpeciesId, pokemonName, statLabel } from "../../lib/dex"
 import { PokemonImage } from "../PokemonCard"
 import { TypeTag } from "../ui/shared"
+import { GenderDiffMark } from "./GenderDiffMark"
 import { dexNumber } from "./format"
 
 const Row = memo(function Row({ p, sortStat }: { p: DexPokemon; sortStat: StatKey | "total" | null }) {
     const lang = useLang()
+    const t = useT(pokedexMessages)
     const form = formLabel(p, lang)
     const total = baseStatTotal(p)
     return (
@@ -25,9 +27,12 @@ const Row = memo(function Row({ p, sortStat }: { p: DexPokemon; sortStat: StatKe
             </TableCell>
             <TableCell>
                 <span className="flex min-w-32 flex-col">
-                    <Link href={`/pokemon/${p.id}`} weight="semibold">
-                        {pokemonName(p, lang)}
-                    </Link>
+                    <span className="flex items-center gap-1">
+                        <Link href={`/pokemon/${p.id}`} weight="semibold">
+                            {pokemonName(p, lang)}
+                        </Link>
+                        {p.genderDiff && <GenderDiffMark t={t} />}
+                    </span>
                     {form && <Text type="supporting">{form}</Text>}
                 </span>
             </TableCell>

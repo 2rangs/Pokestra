@@ -46,7 +46,7 @@ export interface PokemonSprites {
         dream_world?: { front_default?: SpriteUrl; front_female?: SpriteUrl }
     }
     /** generation-i → { red-blue: { front_default, ... } } */
-    versions?: Record<string, Record<string, { front_default?: SpriteUrl } | null | undefined>>
+    versions?: Record<string, Record<string, { front_default?: SpriteUrl; front_female?: SpriteUrl } | null | undefined>>
 }
 
 /** PokeAPI `pokemon/{id}` 응답 (사용하는 필드 위주) */
