@@ -24,6 +24,10 @@ import { battleMessages } from '../../i18n/messages/battle'
 import { PageTitle, SectionTitle, Spinner } from '../../components/ui/shared'
 
 const FORMATS = ['singles', 'rotation'] as const satisfies readonly BattleFormat[]
+/** random = 랜덤배틀 밸런스 레벨(70~100), 아니면 모든 포켓몬을 그 레벨로 */
+const LEVELS = ['random', '50', '100'] as const
+type LevelOption = (typeof LEVELS)[number]
+const levelOf = (l: LevelOption) => (l === 'random' ? undefined : Number(l))
 const ENGINE_URL = 'https://github.com/2rangs/pokebattle-engine'
 const newSeed = () => Math.floor(Math.random() * 1e9)
 
@@ -34,13 +38,13 @@ interface Run {
 }
 
 /** 같은 시드 → 같은 팀·같은 선택 → 같은 배틀 (CLI 의 watch 와 같은 방식) */
-function runBattle(seed: number, format: BattleFormat): Run {
+function runBattle(seed: number, format: BattleFormat, level?: number): Run {
     const start = performance.now()
     const rng = new PRNG(seed)
     const engine = new BattleEngine({
         format, seed,
-        p1: { name: 'CPU 1', team: generateRandomTeam({ seed: rng.int(0x7fffffff) }) },
-        p2: { name: 'CPU 2', team: generateRandomTeam({ seed: rng.int(0x7fffffff) }) },
+        p1: { name: 'CPU 1', team: generateRandomTeam({ seed: rng.int(0x7fffffff), level }) },
+        p2: { name: 'CPU 2', team: generateRandomTeam({ seed: rng.int(0x7fffffff), level }) },
     }, { turnSnapshots: false })
     const events: BattleEvent[] = []
     engine.on('*', ev => events.push(ev))
@@ -67,15 +71,16 @@ function useEngineNames(lang: Lang) {
     return q.data === true
 }
 
-function apiSnippet(lang: Lang, seed: number, format: BattleFormat): string {
+function apiSnippet(lang: Lang, seed: number, format: BattleFormat, level?: number): string {
+    const lv = level ? `, level: ${level}` : ''
     return `import { BattleEngine, HeuristicAI, PRNG, createFormatter, generateRandomTeam, preloadData${lang === 'ko' || lang === 'en' ? '' : ', loadNames'} } from '@kyasi/pokebattle-engine'
 
 await preloadData()${lang === 'ko' || lang === 'en' ? '' : `\nawait loadNames('${lang}')`}
 const rng = new PRNG(${seed})
 const engine = new BattleEngine({
   format: '${format}', seed: ${seed},
-  p1: { name: 'CPU 1', team: generateRandomTeam({ seed: rng.int(0x7fffffff) }) },
-  p2: { name: 'CPU 2', team: generateRandomTeam({ seed: rng.int(0x7fffffff) }) },
+  p1: { name: 'CPU 1', team: generateRandomTeam({ seed: rng.int(0x7fffffff)${lv} }) },
+  p2: { name: 'CPU 2', team: generateRandomTeam({ seed: rng.int(0x7fffffff)${lv} }) },
 })
 const log = createFormatter({ locale: '${lang}', getPokemon: id => engine.getPokemon(id) })
 engine.on('*', ev => { const line = log.format(ev); if (line) console.log(line) })
@@ -95,6 +100,8 @@ export default function BattlePage() {
     const namesReady = useEngineNames(lang)
     const [seedText, setSeedText] = useState(() => String(newSeed()))
     const [format, setFormat] = useState<BattleFormat>('singles')
+    const [levelOpt, setLevelOpt] = useState<LevelOption>('50')
+    const level = levelOf(levelOpt)
     const [run, setRun] = useState<Run | null>(null)
 
     useDocumentTitle(t('title'))
@@ -148,7 +155,13 @@ export default function BattlePage() {
                             {FORMATS.map(f => <SegmentedControlItem key={f} value={f} label={t(f)} />)}
                         </SegmentedControl>
                     </VStack>
-                    <Button label={t('run')} variant="primary" isDisabled={!validSeed} onClick={() => setRun(runBattle(seed, format))} />
+                    <VStack gap={1.5}>
+                        <Text type="label">{t('level')}</Text>
+                        <SegmentedControl label={t('level')} value={levelOpt} onChange={v => setLevelOpt(v as LevelOption)}>
+                            {LEVELS.map(l => <SegmentedControlItem key={l} value={l} label={l === 'random' ? t('levelRandom') : `Lv. ${l}`} />)}
+                        </SegmentedControl>
+                    </VStack>
+                    <Button label={t('run')} variant="primary" isDisabled={!validSeed} onClick={() => setRun(runBattle(seed, format, level))} />
                 </HStack>
             </Card>
 
@@ -182,7 +195,7 @@ export default function BattlePage() {
 
             <VStack gap={3}>
                 <SectionTitle>{t('apiTitle')}</SectionTitle>
-                <CodeBlock code={apiSnippet(lang, validSeed ? seed : 0, format)} language="ts" />
+                <CodeBlock code={apiSnippet(lang, validSeed ? seed : 0, format, level)} language="ts" />
             </VStack>
 
             <VStack gap={3}>
@@ -192,7 +205,7 @@ export default function BattlePage() {
                     language="bash"
                     code={[
                         `npx pokebattle play --lang ${lang}`,
-                        `npx pokebattle watch --lang ${lang} --seed ${validSeed ? seed : 42}${format === 'rotation' ? ' --format rotation' : ''}`,
+                        `npx pokebattle watch --lang ${lang} --seed ${validSeed ? seed : 42}${format === 'rotation' ? ' --format rotation' : ''}${level ? ` --level ${level}` : ''}`,
                         'npx pokebattle sim --battles 500 --json',
                     ].join('\n')}
                 />
