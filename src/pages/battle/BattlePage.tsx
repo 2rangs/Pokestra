@@ -89,7 +89,7 @@ export default function BattlePage() {
             </span>
         )
     }
-    if (!ready) return <Spinner label={t('loadingEngine')} />
+    if (!ready) return <Spinner label={t('loadingEngine')} className="min-h-screen" />
 
     const size = store.teamSize
     const myTeam = store.myTeam.slice(0, size)

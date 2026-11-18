@@ -27,7 +27,7 @@ export default function CalcPage() {
             {error ? (
                 <Banner status="error" title={t('loadError', { msg: error.message })} />
             ) : !ready ? (
-                <Spinner label={t('loadingData')} className="py-24" />
+                <Spinner label={t('loadingData')} className="min-h-screen py-24" />
             ) : (
                 <Calculator />
             )}
