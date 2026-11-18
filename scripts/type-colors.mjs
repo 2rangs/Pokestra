@@ -155,14 +155,12 @@ export type TypeColorClasses = {
     /** 옅은 타입 면 */ subtle: string
     /** 타입 색 테두리 */ border: string
     /** 면 위 타입 글자색 */ text: string
-    /** SVG 채움: 타입 색 (차트 막대 등) */ fill: string
-    /** SVG 채움: 옅은 타입 면 (차트 면) */ fillSubtle: string
-    /** SVG 선: 타입 테두리 색 (차트 윤곽선) */ stroke: string
+    /** SVG 채움: 진한 타입 색(테두리 단계). 차트 막대처럼 옅은 트랙 위에서 구분돼야 할 때 (노말·전기 등 밝은 타입 포함) */ fill: string
 }
 
 export const TYPE_COLOR_CLASSES: Record<string, TypeColorClasses> = {
 ${Object.keys(out)
-    .map((t) => `    ${t}: { bg: 'bg-type-${t}', on: 'text-type-${t}-on', subtle: 'bg-type-${t}-subtle', border: 'border-type-${t}-border', text: 'text-type-${t}-text', fill: 'fill-type-${t}', fillSubtle: 'fill-type-${t}-subtle', stroke: 'stroke-type-${t}-border' },`)
+    .map((t) => `    ${t}: { bg: 'bg-type-${t}', on: 'text-type-${t}-on', subtle: 'bg-type-${t}-subtle', border: 'border-type-${t}-border', text: 'text-type-${t}-text', fill: 'fill-type-${t}-border' },`)
     .join('\n')}
 }
 `

@@ -1,11 +1,12 @@
 /**
- * 방어 상성: 배수마다 한 줄. 왼쪽 고정 폭 칸에 배수 칩(의미 색) + 이름, 오른쪽에 공격 타입 칩.
+ * 방어 상성: 배수마다 한 줄. 왼쪽 고정 폭 칸에 배수 칩(의미 색) + 묶음 이름(묶음의 첫 줄에만), 오른쪽에 공격 타입 칩.
  * 상성은 세대와 상관없이 현재 타입·현재 상성표 기준.
  */
 import { useMemo } from "react"
 import { HStack } from "@astryxdesign/core/HStack"
 import { Text } from "@astryxdesign/core/Text"
 import { VStack } from "@astryxdesign/core/VStack"
+import { VisuallyHidden } from "@astryxdesign/core/VisuallyHidden"
 import { MultiplierChip, TypeChip } from "../ui/TypeChip"
 import type { TFunction } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
@@ -54,27 +55,30 @@ const MULTIPLIER_GROUPS: { mult: number; label: PokedexKey }[] = [
 export function DefenseMatchups({ types, t }: { types: readonly string[]; t: TFunction<PokedexKey> }) {
     const matchups = useMemo(() => computeDefense(types), [types])
     if (matchups.length === 0) return <Text color="secondary">{t("noMatchups")}</Text>
+    // 같은 묶음(약점 ×4·×2 / 반감 ×½·×¼)의 이름은 처음 한 번만 쓴다
+    const rows = MULTIPLIER_GROUPS.map((g) => ({ ...g, list: matchups.filter(([, m]) => m === g.mult) })).filter((r) => r.list.length > 0)
     return (
         <VStack as="dl" gap={0} className="divide-y divide-border">
-            {MULTIPLIER_GROUPS.map(({ mult, label }) => {
-                const list = matchups.filter(([, m]) => m === mult)
-                if (list.length === 0) return null
-                return (
-                    <HStack key={mult} gap={3} vAlign="center" className="py-2 first:pt-0 last:pb-0">
-                        <HStack as="dt" gap={2} vAlign="center" className="w-24 shrink-0">
-                            <MultiplierChip multiplier={mult} />
+            {rows.map(({ mult, label, list }, i) => (
+                <HStack key={mult} gap={3} vAlign="center" className="py-2 first:pt-0 last:pb-0">
+                    <HStack as="dt" gap={2} vAlign="center" width={96}>
+                        <MultiplierChip multiplier={mult} />
+                        {/* 이름이 생략된 줄도 스크린리더에는 읽히게 */}
+                        {i > 0 && rows[i - 1].label === label ? (
+                            <VisuallyHidden>{t(label)}</VisuallyHidden>
+                        ) : (
                             <Text type="label" color="secondary">
                                 {t(label)}
                             </Text>
-                        </HStack>
-                        <HStack as="dd" gap={1.5} wrap="wrap" className="min-w-0">
-                            {list.map(([type]) => (
-                                <TypeChip key={type} type={type} size="sm" />
-                            ))}
-                        </HStack>
+                        )}
                     </HStack>
-                )
-            })}
+                    <HStack as="dd" gap={1.5} wrap="wrap" className="min-w-0 flex-1">
+                        {list.map(([type]) => (
+                            <TypeChip key={type} type={type} size="sm" />
+                        ))}
+                    </HStack>
+                </HStack>
+            ))}
         </VStack>
     )
 }

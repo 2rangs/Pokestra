@@ -1,51 +1,21 @@
 /**
- * 종족값 차트(막대 + 방사형)의 순수 계산.
- * - 눈금은 0–255 고정 (종족값 최대치). 포켓몬끼리 모양을 비교할 수 있게 자동 눈금을 쓰지 않는다.
- * - 방사형 첫 축은 12시 방향, 시계 방향으로 축을 나눈다 (6축 = 육각형, 1세대 특수 = 5축 오각형).
+ * 종족값 막대 차트의 순수 계산.
+ * - 눈금은 0–200 고정. 포켓몬끼리 막대 길이를 그대로 비교할 수 있게 포켓몬마다 눈금을 바꾸지 않는다.
+ *   종족값은 대부분 200 이하라 255 눈금보다 짧은 막대가 덜 비어 보인다. 200을 넘는 값은 막대를 꽉 채우고 "200+" 표시를 단다.
  */
 import type { GenStatKey } from "../../lib/generation"
 
-export const STAT_SCALE_MAX = 255
-/** 방사형 격자 고리 (흐린 보조선) */
-export const RADAR_RINGS: readonly number[] = [50, 100, 150, 200, 255]
+export const STAT_SCALE_MAX = 200
 
-export interface Point {
-    x: number
-    y: number
-}
-export interface RadarGeometry {
-    cx: number
-    cy: number
-    /** 255 고리의 반지름 */
-    r: number
-}
-
-/** 0–255 눈금 위 비율 (0..1). 범위 밖·NaN 은 끝으로 자른다 */
+/** 0–200 눈금 위 비율 (0..1). 범위 밖·NaN 은 끝으로 자른다 */
 export function scaleFraction(value: number, max = STAT_SCALE_MAX): number {
     if (!Number.isFinite(value) || value <= 0) return 0
     return Math.min(1, value / max)
 }
 
-function axisPoint(i: number, n: number, fraction: number, { cx, cy, r }: RadarGeometry): Point {
-    const angle = (2 * Math.PI * i) / n
-    return { x: cx + r * fraction * Math.sin(angle), y: cy - r * fraction * Math.cos(angle) }
-}
-
-/** 값마다 한 축: 값 → 꼭짓점 좌표 */
-export function radarPoints(values: readonly number[], geom: RadarGeometry, max = STAT_SCALE_MAX): Point[] {
-    return values.map((v, i) => axisPoint(i, values.length, scaleFraction(v, max), geom))
-}
-
-/** n 각형 격자 고리 (value 높이) */
-export function ringPoints(n: number, value: number, geom: RadarGeometry, max = STAT_SCALE_MAX): Point[] {
-    return Array.from({ length: n }, (_, i) => axisPoint(i, n, scaleFraction(value, max), geom))
-}
-
-const round2 = (v: number) => Math.round(v * 100) / 100
-
-/** SVG polygon `points` 속성 문자열 */
-export function toPointsAttr(points: readonly Point[]): string {
-    return points.map((p) => `${round2(p.x)},${round2(p.y)}`).join(" ")
+/** 눈금(200)을 넘는 값인지: 막대 끝에 "200+" 표시 */
+export function exceedsScale(value: number, max = STAT_SCALE_MAX): boolean {
+    return Number.isFinite(value) && value > max
 }
 
 export interface StatDatum {
@@ -79,18 +49,31 @@ export function buildStatData(
     }))
 }
 
-/** 선택 세대 값이 현재와 하나라도 다르면 true (겹쳐 그릴지 결정) */
+/** 선택 세대 값이 현재와 하나라도 다르면 true (막대에 현재 값 눈금을 그릴지) */
 export function statsDiffer(data: readonly StatDatum[]): boolean {
     return data.some((d) => d.current !== null && d.current !== d.value)
 }
 
 /**
- * 방사형 축 순서: 게임 화면과 같이 12시 HP 에서 시계 방향으로 공격 → 방어 → 스피드 → 특방 → 특공.
- * 물리(오른쪽)와 특수(왼쪽)가 마주 보게 된다. 1세대는 특수 하나라 HP → 공격 → 방어 → 스피드 → 특수(오각형).
+ * 합계 비교: 선택 세대 합계와 현재 합계(현재 능력치 전부). 세대를 고르지 않았으면 null.
+ * 1세대처럼 축별 값이 모두 같아도 합계는 다를 수 있다(특수 하나 ↔ 특공·특방 둘).
  */
-const RADAR_ORDER: readonly GenStatKey[] = ["hp", "attack", "defense", "speed", "spDef", "spAtk", "special"]
+export function compareTotals(
+    data: readonly StatDatum[],
+    current: readonly { value: number }[] | null,
+): { selected: number; current: number | null; differs: boolean } {
+    const selected = data.reduce((s, d) => s + d.value, 0)
+    if (!current) return { selected, current: null, differs: false }
+    const cur = current.reduce((s, c) => s + c.value, 0)
+    return { selected, current: cur, differs: cur !== selected }
+}
 
-export function radarOrder<T extends { key: GenStatKey }>(data: readonly T[]): T[] {
-    const rank = (k: GenStatKey) => RADAR_ORDER.indexOf(k)
-    return [...data].sort((a, b) => rank(a.key) - rank(b.key))
+/** 로빙 포커스: 방향키로 다음 행 (끝에서 멈춤). 처리하지 않는 키는 null */
+export function nextRowIndex(key: string, index: number, count: number): number | null {
+    if (count <= 0) return null
+    if (key === "ArrowDown" || key === "ArrowRight") return Math.min(count - 1, index + 1)
+    if (key === "ArrowUp" || key === "ArrowLeft") return Math.max(0, index - 1)
+    if (key === "Home") return 0
+    if (key === "End") return count - 1
+    return null
 }

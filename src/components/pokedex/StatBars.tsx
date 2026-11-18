@@ -1,45 +1,38 @@
 /**
- * 종족값 가로 막대 (숫자가 함께 있는 표 대용).
- * - 라벨 칸 고정 폭 · 값은 오른쪽 정렬 tabular · 막대는 0–255 고정 눈금.
- * - 막대: 타입 색 한 가지(무지개·상태 색 없음), 데이터 끝만 4px 둥글게, 기준선 쪽은 각지게.
- * - 가장 높은 값은 색이 아니라 굵기로 강조. 비교(현재) 값은 점선 눈금.
+ * 종족값 가로 막대 (숫자가 함께 있어 표 대용이 된다).
+ * - 순서 고정: HP · 공격 · 방어 · 특공 · 특방 · 스피드(1세대는 특수) → 합계.
+ * - 라벨 칸 고정 폭 · 값은 오른쪽 정렬 tabular · 막대는 0–200 고정 눈금(넘으면 꽉 채우고 "200+").
+ * - 막대: 진한 타입 색 한 가지(무지개·상태 색 없음), 옅은 트랙, 데이터 끝만 4px 둥글게. 최고 값은 굵기로 강조.
+ * - 비교(현재) 값은 점선 눈금. 행마다 툴팁(호버·초점·탭). 목록 전체가 탭 한 번, 방향키로 행 이동(로빙 포커스).
  */
+import { type KeyboardEvent, createRef, useMemo, useState } from "react"
 import { Tooltip } from "@astryxdesign/core/Tooltip"
 import { Divider } from "@astryxdesign/core/Divider"
 import { HStack } from "@astryxdesign/core/HStack"
 import { Text } from "@astryxdesign/core/Text"
 import { VStack } from "@astryxdesign/core/VStack"
-import { cx } from "../ui/utils"
-import type { GenStatKey } from "../../lib/generation"
 import type { TypeColorClasses } from "../../lib/typeColorClasses"
-import { type StatDatum, scaleFraction } from "./statChartModel"
+import { STAT_SCALE_MAX, type StatDatum, exceedsScale, nextRowIndex, scaleFraction } from "./statChartModel"
 
-/** 라벨·값 칸 고정 폭 (px): 행마다 막대 시작점이 같다 */
+/** 라벨·값·200+ 칸 고정 폭 (px): 행마다 막대 시작점과 끝점이 같다 */
 const LABEL_W = 64
 const VALUE_W = 32
+const CAP_W = 36
 
 const pct = (v: number) => `${(scaleFraction(v) * 100).toFixed(2)}%`
 
 function Bar({ d, colors, showCurrent }: { d: StatDatum; colors: TypeColorClasses; showCurrent: boolean }) {
     const width = scaleFraction(d.value)
     return (
-        <svg className="block h-2 min-w-0 flex-1 overflow-visible" aria-hidden>
-            <rect width="100%" height="100%" rx={4} className="fill-track" />
+        <svg className="block h-3 min-w-0 flex-1 overflow-visible" aria-hidden>
+            <rect width="100%" height="100%" rx={4} className="fill-muted" />
             <g className={colors.fill}>
                 {width > 0 && <rect width={pct(d.value)} height="100%" rx={4} />}
                 {/* 기준선 쪽 모서리는 각지게: 둥근 왼쪽 끝을 4px 사각형으로 덮는다 (아주 짧은 막대는 생략) */}
                 {width > 0.02 && <rect width={4} height="100%" />}
             </g>
             {showCurrent && d.current !== null && d.current !== d.value && (
-                <line
-                    x1={pct(d.current)}
-                    x2={pct(d.current)}
-                    y1={-3}
-                    y2={11}
-                    className="stroke-secondary"
-                    strokeWidth={2}
-                    strokeDasharray="3 2"
-                />
+                <line x1={pct(d.current)} x2={pct(d.current)} y1={-3} y2={15} className="stroke-primary" strokeWidth={2} strokeDasharray="3 2" />
             )}
         </svg>
     )
@@ -48,67 +41,80 @@ function Bar({ d, colors, showCurrent }: { d: StatDatum; colors: TypeColorClasse
 interface Props {
     data: readonly StatDatum[]
     label: (d: StatDatum) => string
-    /** 행 툴팁 내용 */
+    /** 행 툴팁 내용 (스크린리더 이름으로도 쓴다) */
     tip: (d: StatDatum) => string
     showCurrent: boolean
     colors: TypeColorClasses
-    total: { label: string; value: number; current: number | null; tip: string }
+    total: { label: string; value: number; note: string | null }
     listLabel: string
-    active: GenStatKey | null
-    onActive: (key: GenStatKey | null) => void
 }
 
-export function StatBars({ data, label, tip, showCurrent, colors, total, listLabel, active, onActive }: Props) {
+export function StatBars({ data, label, tip, showCurrent, colors, total, listLabel }: Props) {
+    const [focusIndex, setFocusIndex] = useState(0)
+    const count = data.length
+    const refs = useMemo(() => Array.from({ length: count }, () => createRef<HTMLElement>()), [count])
+    // 200 을 넘는 값이 하나라도 있을 때만 "200+" 칸을 둔다 (없으면 막대가 그만큼 길다)
+    const hasCap = data.some((d) => exceedsScale(d.value))
+
+    const onKeyDown = (i: number) => (e: KeyboardEvent<HTMLElement>) => {
+        const next = nextRowIndex(e.key, i, count)
+        if (next === null) return
+        // 페이지의 ←/→ 이전·다음 이동보다 먼저 처리한다 (페이지는 defaultPrevented 를 건너뛴다)
+        e.preventDefault()
+        setFocusIndex(next)
+        refs[next]?.current?.focus()
+    }
+
+    const cells = (name: string, value: number, top: boolean) => (
+        <>
+            <HStack width={LABEL_W}>
+                <Text weight={top ? "semibold" : "normal"} color={top ? "primary" : "secondary"}>
+                    {name}
+                </Text>
+            </HStack>
+            <HStack width={VALUE_W} justify="end">
+                <Text weight={top ? "bold" : "normal"} hasTabularNumbers>
+                    {value}
+                </Text>
+            </HStack>
+        </>
+    )
+
     return (
-        <VStack gap={0.5} className="min-w-0 flex-1 basis-64">
+        <VStack gap={0.5} className="min-w-0">
             <VStack as="ul" gap={0.5} aria-label={listLabel}>
-                {data.map((d) => (
+                {data.map((d, i) => (
                     <VStack as="li" key={d.key}>
-                        <Tooltip content={tip(d)} placement="above" hasHoverIndication={false}>
+                        <Tooltip content={tip(d)} placement="above" hasHoverIndication={false} touchTrigger="tap">
                             <HStack
+                                ref={refs[i]}
                                 gap={3}
                                 vAlign="center"
-                                tabIndex={0}
+                                tabIndex={i === Math.min(focusIndex, count - 1) ? 0 : -1}
                                 role="group"
                                 aria-label={tip(d)}
-                                onPointerEnter={() => onActive(d.key)}
-                                onPointerLeave={() => onActive(null)}
-                                onFocus={() => onActive(d.key)}
-                                onBlur={() => onActive(null)}
-                                className={cx(
-                                    "-mx-1.5 min-h-11 rounded-sm px-1.5 sm:min-h-8 outline-none focus-visible:ring-2 focus-visible:ring-accent",
-                                    active === d.key && "bg-muted",
-                                )}
+                                onFocus={() => setFocusIndex(i)}
+                                onKeyDown={onKeyDown(i)}
+                                className="-mx-1.5 min-h-11 rounded-sm px-1.5 outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-accent sm:min-h-8"
                             >
-                                <HStack width={LABEL_W}>
-                                    <Text weight={d.isTop ? "semibold" : "normal"} color={d.isTop ? "primary" : "secondary"}>
-                                        {label(d)}
-                                    </Text>
-                                </HStack>
-                                <HStack width={VALUE_W} justify="end">
-                                    <Text weight={d.isTop ? "bold" : "normal"} hasTabularNumbers>
-                                        {d.value}
-                                    </Text>
-                                </HStack>
+                                {cells(label(d), d.value, d.isTop)}
                                 <Bar d={d} colors={colors} showCurrent={showCurrent} />
+                                {hasCap && (
+                                    <HStack width={CAP_W}>
+                                        {exceedsScale(d.value) && <Text type="supporting">{`${STAT_SCALE_MAX}+`}</Text>}
+                                    </HStack>
+                                )}
                             </HStack>
                         </Tooltip>
                     </VStack>
                 ))}
             </VStack>
             <Divider />
-            <HStack gap={3} vAlign="center" minHeight={32}>
-                <HStack width={LABEL_W}>
-                    <Text weight="semibold">{total.label}</Text>
-                </HStack>
-                <HStack width={VALUE_W} justify="end">
-                    <Text weight="bold" hasTabularNumbers>
-                        {total.value}
-                    </Text>
-                </HStack>
-                {showCurrent && total.current !== null && total.current !== total.value && (
+            <HStack gap={3} vAlign="center" minHeight={36} wrap="wrap">
+                {cells(total.label, total.value, true)}
+                {total.note && (
                     <Text type="supporting" hasTabularNumbers>
-                        {total.tip}
+                        {total.note}
                     </Text>
                 )}
             </HStack>

@@ -8,7 +8,6 @@ import { HStack } from "@astryxdesign/core/HStack"
 import { Icon } from "@astryxdesign/core/Icon"
 import { InfoTip } from "@astryxdesign/core/InfoTip"
 import { Link } from "@astryxdesign/core/Link"
-import { MetadataList, MetadataListItem } from "@astryxdesign/core/MetadataList"
 import { Skeleton } from "@astryxdesign/core/Skeleton"
 import { Tab, TabList } from "@astryxdesign/core/TabList"
 import { Text } from "@astryxdesign/core/Text"
@@ -210,9 +209,10 @@ export default function PokemonDetailPage() {
     // 세대 타임라인: 등장 세대 미만·최신 세대는 null(현재 값)
     const generation = local ? getGeneration(local) : ROMAN[species?.generation.name.replace("generation-", "") ?? ""]
     const debut = generation ?? 1
-    const debutLabel = generation ? generationName(generation, lang) : "-"
     // 메가 등 다른 폼(API id > 10000)은 세대별 기록이 없으므로 ?gen 을 무시한다
     const isAltForm = (local?.id ?? detail?.id ?? 0) > 10000
+    // 첫 등장: 다른 폼은 종의 첫 세대가 폼의 첫 등장이 아니므로 비워 둔다
+    const debutLabel = isAltForm || !generation ? "—" : generationName(generation, lang)
     const gen = isAltForm ? null : clampGen(Number(searchParams.get("gen")) || null, debut)
     // 세대 값은 PokeAPI 응답이 필요하다. 아직 없거나 실패하면 현재 값을 그대로 보여 준다.
     const genDetail = gen !== null && detail ? detail : null
@@ -482,19 +482,25 @@ export default function PokemonDetailPage() {
         : []
 
     // 개요(왼쪽 열 맨 위)와 능력치 탭(오른쪽에 노력치)이 같은 차트를 쓴다
-    const statsChart = (aside?: ReactNode) => (
+    const statsChart = (footer?: ReactNode) => (
         <BaseStatsChart
             stats={stats}
             current={gen !== null ? currentStats : null}
             gen={gen}
             type={types[0]}
             headingId="base-stats-title"
-            aside={aside}
+            footer={footer}
             lang={lang}
             t={t}
         />
     )
     const shownAbilities = abilitiesView?.at?.value ?? abilities
+    const evYield = (detail?.stats ?? [])
+        .filter((st) => st.effort > 0)
+        .map((st) => {
+            const key = API_STAT_KEY[st.stat.name]
+            return { key: st.stat.name, label: key ? statLabel(key, lang) : st.stat.name, effort: st.effort }
+        })
     const cry = cryAt(detail?.cries, gen ?? LATEST_GEN)
 
     return (
@@ -728,35 +734,23 @@ export default function PokemonDetailPage() {
                 {tab === "stats" && (
                     <VStack gap={3}>
                         {statsChart(
-                            <>
-                                <HStack gap={1.5} vAlign="center" wrap="wrap">
-                                    <Heading level={3}>{t("evYield")}</Heading>
-                                    <InfoTip content={t("evYieldHint")} label={t("infoAbout", { label: t("evYield") })} />
-                                    {currentNote}
-                                </HStack>
+                            /* 노력치: 같은 카드 맨 아래 한 줄 ("노력치 ⓘ  HP +2") */
+                            <HStack gap={2} vAlign="center" wrap="wrap">
+                                <Text weight="semibold">{t("evYield")}</Text>
+                                <InfoTip content={t("evYieldHint")} label={t("infoAbout", { label: t("evYield") })} size="xsm" />
                                 {detail ? (
-                                    detail.stats.some((s) => s.effort > 0) ? (
-                                        <MetadataList label={{ width: 96 }}>
-                                            {detail.stats
-                                                .filter((s) => s.effort > 0)
-                                                .map((s) => {
-                                                    const key = API_STAT_KEY[s.stat.name]
-                                                    return (
-                                                        <MetadataListItem key={s.stat.name} label={key ? statLabel(key, lang) : s.stat.name}>
-                                                            <Text weight="semibold" hasTabularNumbers>{`+${s.effort}`}</Text>
-                                                        </MetadataListItem>
-                                                    )
-                                                })}
-                                        </MetadataList>
+                                    evYield.length > 0 ? (
+                                        evYield.map((e) => <Token key={e.key} size="sm" label={`${e.label} +${e.effort}`} />)
                                     ) : (
                                         <Text color="secondary">{t("none")}</Text>
                                     )
                                 ) : detailQ.isError ? (
-                                    <LoadError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
+                                    <Text color="secondary">-</Text>
                                 ) : (
-                                    <SkeletonRows n={2} />
+                                    <Skeleton width={72} height={20} />
                                 )}
-                            </>,
+                                {currentNote}
+                            </HStack>,
                         )}
                         <BattleStatsPanel dexId={id} note={currentNote} />
                     </VStack>

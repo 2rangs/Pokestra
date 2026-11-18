@@ -1,8 +1,9 @@
 /**
- * 종족값 차트: 가로 막대(값 + 길이) | 방사형(분포 모양). 둘 다 0–255 고정 눈금.
- * 세대를 골랐고 현재 값과 다르면 현재 값을 점선으로 겹치고 범례를 단다(계열 2개 → 범례 필수, 색만으로 구분 안 함).
+ * 종족값 차트: 가로 막대(값 + 길이), 0–200 고정 눈금.
+ * 세대를 골랐고 현재 값과 다르면(축별이든 합계든) 현재 값을 점선 눈금·합계 옆 글자로 보이고 범례를 단다
+ * (계열 2개 → 범례 필수, 색만으로 구분 안 함). 노력치처럼 관련된 한 줄은 footer 로 같은 카드 맨 아래에.
  */
-import { type ReactNode, useState } from "react"
+import type { ReactNode } from "react"
 import { Card } from "@astryxdesign/core/Card"
 import { Heading } from "@astryxdesign/core/Heading"
 import { HStack } from "@astryxdesign/core/HStack"
@@ -15,8 +16,7 @@ import { statLabel } from "../../lib/dex"
 import type { GenStatKey } from "../../lib/generation"
 import { TYPE_COLOR_CLASSES, type TypeColorClasses } from "../../lib/typeColorClasses"
 import { StatBars } from "./StatBars"
-import { StatRadar } from "./StatRadar"
-import { type StatDatum, buildStatData, statsDiffer } from "./statChartModel"
+import { STAT_SCALE_MAX, type StatDatum, buildStatData, compareTotals, statsDiffer } from "./statChartModel"
 
 interface Props {
     /** 보여 줄 값 (세대 선택 시 그 세대 값, changedIn 포함) */
@@ -27,15 +27,15 @@ interface Props {
     /** 첫 번째 타입 (막대·면 색) */
     type: string | undefined
     headingId: string
-    /** 차트 오른쪽(좁은 화면은 아래)에 붙는 관련 정보 (능력치 탭의 노력치) */
-    aside?: ReactNode
+    /** 합계 아래 한 줄 (능력치 탭의 노력치) */
+    footer?: ReactNode
     lang: Lang
     t: TFunction<PokedexKey>
 }
 
 function Legend({ gen, colors, t }: { gen: number; colors: TypeColorClasses; t: TFunction<PokedexKey> }) {
     return (
-        <HStack as="ul" gap={3} vAlign="center" wrap="wrap" aria-label={t("statDistribution")}>
+        <HStack as="ul" gap={3} vAlign="center" wrap="wrap" aria-label={t("legendLabel")}>
             <HStack as="li" gap={1.5} vAlign="center">
                 <svg className="h-2 w-4 shrink-0" aria-hidden>
                     <rect width="100%" height="100%" rx={2} className={colors.fill} />
@@ -44,7 +44,7 @@ function Legend({ gen, colors, t }: { gen: number; colors: TypeColorClasses; t: 
             </HStack>
             <HStack as="li" gap={1.5} vAlign="center">
                 <svg className="h-2 w-4 shrink-0" aria-hidden>
-                    <line x1={0} x2="100%" y1="50%" y2="50%" className="stroke-secondary" strokeWidth={2} strokeDasharray="3 2" />
+                    <line x1={0} x2="100%" y1="50%" y2="50%" className="stroke-primary" strokeWidth={2} strokeDasharray="3 2" />
                 </svg>
                 <Text type="supporting">{t("legendCurrent")}</Text>
             </HStack>
@@ -52,27 +52,26 @@ function Legend({ gen, colors, t }: { gen: number; colors: TypeColorClasses; t: 
     )
 }
 
-export function BaseStatsChart({ stats, current, gen, type, headingId, aside, lang, t }: Props) {
-    const [active, setActive] = useState<GenStatKey | null>(null)
+export function BaseStatsChart({ stats, current, gen, type, headingId, footer, lang, t }: Props) {
     const colors = TYPE_COLOR_CLASSES[type ?? ""] ?? TYPE_COLOR_CLASSES.normal
-    const data = buildStatData(stats, gen !== null ? current : null)
+    const compare = gen !== null ? current : null
+    const data = buildStatData(stats, compare)
+    const totals = compareTotals(data, compare)
+    // 축별 눈금은 다른 값이 있을 때만, 범례는 축이나 합계 중 하나라도 다르면
     const showCurrent = gen !== null && statsDiffer(data)
+    const showLegend = gen !== null && (showCurrent || totals.differs)
     const fullLabel = (d: StatDatum) => (d.key === "special" ? t("specialStat") : statLabel(d.key, lang))
-    const shortLabel = (d: StatDatum) => (d.key === "special" ? t("specialStat") : statLabel(d.key, lang, true))
 
     const tip = (d: StatDatum) => {
-        if (showCurrent && gen !== null && d.current !== null) {
+        if (gen !== null && d.current !== null && d.current !== d.value) {
             const base = `${fullLabel(d)} — ${t("statTipCompare", { gen, v: d.value, c: d.current })}`
             return d.changedIn != null ? `${base} (${t("changedInGen", { gen: d.changedIn })})` : base
         }
         return d.isTop ? `${fullLabel(d)} ${d.value} · ${t("highestStat")}` : `${fullLabel(d)} ${d.value}`
     }
-
-    const total = data.reduce((s, d) => s + d.value, 0)
-    // 현재 합계는 현재 능력치 6개 전부 (1세대 특수를 특공으로 견준 5축 합이 아니다)
-    const currentTotal = showCurrent && current ? current.reduce((s, c) => s + c.value, 0) : null
-    // 1세대 특수를 오각형으로 그린다는 설명은 눈금 설명과 함께 ⓘ 에
-    const hint = data.some((d) => d.key === "special") ? `${t("statScaleHint")} ${t("specialRadarNote")}` : t("statScaleHint")
+    const hint = data.some((d) => d.key === "special")
+        ? `${t("statScaleHint", { max: STAT_SCALE_MAX })} ${t("specialStatNote")}`
+        : t("statScaleHint", { max: STAT_SCALE_MAX })
 
     return (
         <Card>
@@ -85,44 +84,22 @@ export function BaseStatsChart({ stats, current, gen, type, headingId, aside, la
                             </Heading>
                             <InfoTip content={hint} label={t("infoAbout", { label: t("baseStats") })} />
                         </HStack>
-                        {showCurrent && gen !== null && <Legend gen={gen} colors={colors} t={t} />}
+                        {showLegend && gen !== null && <Legend gen={gen} colors={colors} t={t} />}
                     </HStack>
-                    <HStack gap={6} vAlign="center" wrap="wrap" justify="center">
-                        <StatBars
-                            data={data}
-                            label={fullLabel}
-                            tip={tip}
-                            showCurrent={showCurrent}
-                            colors={colors}
-                            total={{
-                                label: t("total"),
-                                value: total,
-                                current: currentTotal,
-                                tip: gen !== null && currentTotal !== null ? t("statTipCompare", { gen, v: total, c: currentTotal }) : "",
-                            }}
-                            listLabel={t("baseStats")}
-                            active={active}
-                            onActive={setActive}
-                        />
-                        <StatRadar
-                            data={data}
-                            axisLabel={shortLabel}
-                            tip={tip}
-                            readout={(d) =>
-                                showCurrent && d.current !== null && d.current !== d.value ? `${d.value} · ${t("legendCurrent")} ${d.current}` : String(d.value)
-                            }
-                            showCurrent={showCurrent}
-                            colors={colors}
-                            label={t("statDistribution")}
-                            active={active}
-                            onActive={setActive}
-                        />
-                        {aside && (
-                            <VStack gap={2} className="w-full shrink-0 self-stretch lg:w-56 lg:border-s lg:border-border lg:ps-6">
-                                {aside}
-                            </VStack>
-                        )}
-                    </HStack>
+                    <StatBars
+                        data={data}
+                        label={fullLabel}
+                        tip={tip}
+                        showCurrent={showCurrent}
+                        colors={colors}
+                        total={{
+                            label: t("total"),
+                            value: totals.selected,
+                            note: gen !== null && totals.differs && totals.current !== null ? t("statTipCompare", { gen, v: totals.selected, c: totals.current }) : null,
+                        }}
+                        listLabel={t("baseStats")}
+                    />
+                    {footer}
                 </VStack>
             </section>
         </Card>

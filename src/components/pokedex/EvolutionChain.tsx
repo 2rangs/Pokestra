@@ -1,7 +1,11 @@
+import { Fragment } from "react"
 import { Text } from "@astryxdesign/core/Text"
 import { ClickableCard } from "@astryxdesign/core/ClickableCard"
 import { Card } from "@astryxdesign/core/Card"
 import { VStack } from "@astryxdesign/core/VStack"
+import { HStack } from "@astryxdesign/core/HStack"
+import { Divider } from "@astryxdesign/core/Divider"
+import { Grid } from "@astryxdesign/core/Grid"
 import { getIdFromUrl } from "../../common/utils"
 import type { EvolutionChainLink, EvolutionDetail } from "../../hooks/usePokemon"
 import type { Lang, TFunction } from "../../i18n"
@@ -13,6 +17,9 @@ import { findDexPokemonByName, getDexPokemon, moveName, pokemonName, titleCaseSl
 import { dexNumber } from "./format"
 
 type T = TFunction<PokedexKey>
+
+/** 진화 카드 폭 (px): 휴대폰에서도 3단계가 가로 한 줄(넘치면 가로 스크롤) */
+const CARD_W = 104
 
 function evoConditions(d: EvolutionDetail | undefined, lang: Lang, t: T): string[] {
     if (!d) return []
@@ -59,50 +66,92 @@ function EvoNode({ link, currentSpeciesId, lang }: { link: EvolutionChainLink; c
     )
     if (p && !current) {
         return (
-            <ClickableCard href={`/pokemon/${id}`} label={`${dexNumber(id)} ${name}`} padding={2} width={120}>
+            <ClickableCard href={`/pokemon/${id}`} label={`${dexNumber(id)} ${name}`} padding={2} width={CARD_W}>
                 {body}
             </ClickableCard>
         )
     }
     return (
         <span aria-current={current ? "page" : undefined} className="block">
-            <Card padding={2} width={120} variant={current ? "muted" : "default"}>
+            <Card padding={2} width={CARD_W} variant={current ? "muted" : "default"}>
                 {body}
             </Card>
         </span>
     )
 }
 
-/** 진화 단계: 도판 + 가는 선 위의 조건 */
+/** 진화 단계 사이: 가는 선 위에 조건. 남는 폭은 선이 나눠 가져 줄을 채운다 */
 function Connector({ conditions }: { conditions: string[] }) {
     return (
-        <span className="flex w-28 shrink-0 flex-col items-center gap-1 py-2 text-center sm:py-0">
-            <span aria-hidden className="h-6 w-px bg-border sm:h-px sm:w-full" />
-            <span className="flex flex-col">
-                {conditions.map((c) => (
-                    <Text key={c} type="supporting">
-                        {c}
-                    </Text>
-                ))}
-            </span>
-        </span>
+        <VStack gap={1} hAlign="stretch" className="min-w-20 flex-1 px-1 text-center">
+            <Divider />
+            {conditions.map((c) => (
+                <Text key={c} type="supporting">
+                    {c}
+                </Text>
+            ))}
+        </VStack>
     )
 }
 
-export function EvolutionTree({ link, currentSpeciesId, lang, t }: { link: EvolutionChainLink; currentSpeciesId: number | undefined; lang: Lang; t: T }) {
+/** 갈래가 없는 진화(대부분)면 단계 목록, 갈래가 있으면 null */
+function linearPath(link: EvolutionChainLink): EvolutionChainLink[] | null {
+    const out = [link]
+    let cur = link
+    while (cur.evolves_to.length === 1) {
+        cur = cur.evolves_to[0]
+        out.push(cur)
+    }
+    return cur.evolves_to.length === 0 ? out : null
+}
+
+/** 진화 트리: 항상 가로(왼쪽 → 오른쪽). 한 줄 진화는 연결선이 남는 폭을 똑같이 나누고, 갈래(이브이 등)는 세로로 쌓는다 */
+export function EvolutionTree({ link, currentSpeciesId, lang, t, isRoot = true }: { link: EvolutionChainLink; currentSpeciesId: number | undefined; lang: Lang; t: T; isRoot?: boolean }) {
+    const path = isRoot ? linearPath(link) : null
+    // 한 단계에서 여러 갈래로 끝나는 진화(이브이 등): 갈래를 줄바꿈 격자로 (조건은 카드 위)
+    const fan = link.evolves_to.length > 1 && link.evolves_to.every((c) => c.evolves_to.length === 0)
+    if (fan) {
+        return (
+            <HStack gap={3} vAlign="center" className={isRoot ? "w-full min-w-max lg:min-w-0" : "flex-1"}>
+                <EvoNode link={link} currentSpeciesId={currentSpeciesId} lang={lang} />
+                <Grid columns={{ minWidth: CARD_W, repeat: "fill" }} gap={3} className="min-w-80 flex-1 border-s border-border ps-3">
+                    {link.evolves_to.map((child) => (
+                        <VStack key={child.species.name} gap={1} hAlign="center" justify="end">
+                            <Text type="supporting" justify="center" maxLines={2}>
+                                {evoConditions(child.evolution_details[0], lang, t).join(" · ")}
+                            </Text>
+                            <EvoNode link={child} currentSpeciesId={currentSpeciesId} lang={lang} />
+                        </VStack>
+                    ))}
+                </Grid>
+            </HStack>
+        )
+    }
+    if (path) {
+        return (
+            <HStack vAlign="center" className="w-full min-w-max">
+                {path.map((step, i) => (
+                    <Fragment key={step.species.name}>
+                        {i > 0 && <Connector conditions={evoConditions(step.evolution_details[0], lang, t)} />}
+                        <EvoNode link={step} currentSpeciesId={currentSpeciesId} lang={lang} />
+                    </Fragment>
+                ))}
+            </HStack>
+        )
+    }
     return (
-        <span className="flex flex-col items-center sm:flex-row sm:items-center">
+        <HStack vAlign="center" className={isRoot ? "w-full min-w-max" : "flex-1"}>
             <EvoNode link={link} currentSpeciesId={currentSpeciesId} lang={lang} />
             {link.evolves_to.length > 0 && (
-                <span className="flex flex-col items-center gap-3 sm:items-start">
+                <VStack gap={3} className="flex-1">
                     {link.evolves_to.map((child) => (
-                        <span key={child.species.name} className="flex flex-col items-center sm:flex-row">
+                        <HStack key={child.species.name} vAlign="center">
                             <Connector conditions={evoConditions(child.evolution_details[0], lang, t)} />
-                            <EvolutionTree link={child} currentSpeciesId={currentSpeciesId} lang={lang} t={t} />
-                        </span>
+                            <EvolutionTree link={child} currentSpeciesId={currentSpeciesId} lang={lang} t={t} isRoot={false} />
+                        </HStack>
                     ))}
-                </span>
+                </VStack>
             )}
-        </span>
+        </HStack>
     )
 }
