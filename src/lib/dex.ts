@@ -127,6 +127,16 @@ export const MOVES: readonly DexMove[] = /*#__PURE__*/ buildMoves()
 export const EGG_GROUPS: readonly DexEggGroup[] = eggGroupsJson as DexEggGroup[]
 export const ABILITIES: readonly DexAbility[] = abilitiesJson as DexAbility[]
 
+/** PokeAPI 스탯 이름 → 로컬 StatKey */
+export const API_STAT_KEY: Record<string, StatKey> = {
+    hp: "hp",
+    attack: "attack",
+    defense: "defense",
+    "special-attack": "spAtk",
+    "special-defense": "spDef",
+    speed: "speed",
+}
+
 export const STAT_KEYS: readonly StatKey[] = ['hp', 'attack', 'defense', 'spAtk', 'spDef', 'speed']
 
 export const STAT_LABEL_KO: Readonly<Record<StatKey, string>> = {

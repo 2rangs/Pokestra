@@ -44,6 +44,7 @@ import {
     type StatKey,
     abilityName,
     eggGroupName,
+    API_STAT_KEY,
     findDexPokemonByName,
     formLabel,
     generationName,
@@ -135,16 +136,6 @@ function cleanFlavor(text: string, code: string): string {
     // 한자 일본어 텍스트는 줄바꿈이 단어 경계가 아니므로 그냥 붙인다
     const joined = code === "ja" ? text.replace(/[\n\f\r]+/g, "") : text.replace(/­?[\n\f\r]+/g, " ")
     return joined.replace(/[ \t]+/g, " ").trim()
-}
-
-/** PokeAPI 스탯 이름 → 로컬 StatKey */
-const API_STAT_KEY: Record<string, StatKey> = {
-    hp: "hp",
-    attack: "attack",
-    defense: "defense",
-    "special-attack": "spAtk",
-    "special-defense": "spDef",
-    speed: "speed",
 }
 
 type DetailTab = "overview" | "stats" | "moves" | "sprites"
