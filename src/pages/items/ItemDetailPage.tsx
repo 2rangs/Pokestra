@@ -17,15 +17,13 @@ import { PokeImage } from '../../components/ui/PokeImage'
 import { StatBar, TypeTag } from '../../components/ui/shared'
 import { LANGS, LANG_LABEL, useDocumentTitle, useLang, useT } from '../../i18n'
 import { itemsMessages } from '../../i18n/messages/items'
-import { isCalcItem } from '../../lib/calcItems'
+import { calcDemoFor } from '../../lib/calcItems'
 import { displayName } from '../../lib/dex'
 import { pokemonImageCandidates } from '../../lib/images'
 import { FLAVORS, heldByPokemon, ITEM_BY_SLUG, itemDesc, itemName, itemNeighbors, parseItemQuery } from '../../lib/items'
 import { categoryLabel, ItemIcon } from './ItemUi'
 
 const DASH = '-'
-/** 계산기 공격 측 기본 포켓몬. CalcPage 기본값과 같다 */
-const CALC_DEFAULT_ATTACKER = 'garchomp'
 
 export default function ItemDetailPage() {
     const { slug = '' } = useParams()
@@ -78,7 +76,7 @@ export default function ItemDetailPage() {
         .filter((o, i, arr) => o.n && o.n !== name && arr.findIndex((x) => x.n === o.n) === i)
     const berry = item.berry
     const flavors = berry?.flavors ?? null
-    const calcHref = `/calc?atk=${CALC_DEFAULT_ATTACKER}&atkItem=${item.name}`
+    const demo = calcDemoFor(item.name)
 
     return (
         <VStack gap={6}>
@@ -114,16 +112,18 @@ export default function ItemDetailPage() {
                         <IconButton
                             icon={<Icon icon="chevronLeft" />}
                             label={prev ? `${t('prev')}: ${itemName(prev, lang)}` : t('prev')}
+                            size="lg" className="max-sm:min-h-11 max-sm:min-w-11"
                             isDisabled={!prev}
                             href={prev ? `/items/${prev.name}${search}` : undefined}
                         />
                         <IconButton
                             icon={<Icon icon="chevronRight" />}
                             label={next ? `${t('next')}: ${itemName(next, lang)}` : t('next')}
+                            size="lg" className="max-sm:min-h-11 max-sm:min-w-11"
                             isDisabled={!next}
                             href={next ? `/items/${next.name}${search}` : undefined}
                         />
-                        {isCalcItem(item.name) && <Button variant="primary" href={calcHref} label={t('tryInCalc')} />}
+                        {demo && <Button variant="primary" size="lg" className="max-sm:min-h-11 max-sm:min-w-11" href={`/calc?atk=${demo.atk}&atkItem=${item.name}`} label={t('tryInCalc')} />}
                     </HStack>
                 </HStack>
             </VStack>
@@ -215,9 +215,14 @@ export default function ItemDetailPage() {
                         </Heading>
                         <Badge label={held.length} aria-label={t('heldByCount', { n: held.length })} />
                     </HStack>
-                    <Text type="supporting" color="secondary">
-                        {t('heldByNote')} {t('heldChanceHelp')}
-                    </Text>
+                    <VStack gap={0.5}>
+                        <Text type="supporting" color="secondary">
+                            {t('heldByNote')}
+                        </Text>
+                        <Text type="supporting" color="secondary">
+                            {t('heldChanceHelp')}
+                        </Text>
+                    </VStack>
                     {held.length === 0 ? (
                         <EmptyState title={t('noHeldBy')} />
                     ) : (

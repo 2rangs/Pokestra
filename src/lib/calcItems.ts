@@ -29,3 +29,24 @@ export function isCalcItem(slug: string): boolean {
 export function parseCalcItem(raw: string | null): string | null {
     return raw && isCalcItem(raw) ? raw : null
 }
+
+/**
+ * 공격 측에 얹었을 때 계산 결과가 달라지는 도구 → 보여 줄 공격 포켓몬.
+ * 기본 기술 4개에 그 도구가 강화하는 타입의 기술이 들어 있는 포켓몬을 골랐다(테스트가 확인한다).
+ * 목록에 없는 도구(방어·회복·속도·상태이상·날씨 연장 등)는 공격 측 데모에서 달라지는 게 없다.
+ */
+const CALC_DEMO_ATTACKER: Readonly<Record<string, string>> = {
+    'choice-band': 'garchomp', 'life-orb': 'garchomp', 'expert-belt': 'garchomp',
+    'choice-specs': 'gengar',
+    'dragon-fang': 'garchomp', 'charcoal': 'charizard', 'mystic-water': 'blastoise', 'miracle-seed': 'venusaur',
+    'magnet': 'zapdos', 'never-melt-ice': 'glaceon', 'black-belt': 'lucario', 'poison-barb': 'nidoking',
+    'soft-sand': 'excadrill', 'sharp-beak': 'talonflame', 'twisted-spoon': 'alakazam', 'silver-powder': 'heracross',
+    'hard-stone': 'tyranitar', 'spell-tag': 'gengar', 'black-glasses': 'hydreigon', 'metal-coat': 'gholdengo',
+    'silk-scarf': 'snorlax', 'fairy-feather': 'sylveon',
+}
+
+/** 계산기에서 이 도구를 공격 측에 얹어 보일 때 쓸 공격 포켓몬. 공격 측에서 효과가 없는 도구는 null */
+export function calcDemoFor(slug: string): { atk: string } | null {
+    const atk = CALC_DEMO_ATTACKER[slug]
+    return atk ? { atk } : null
+}
