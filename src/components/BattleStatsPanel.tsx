@@ -77,7 +77,8 @@ export default function BattleStatsPanel({ dexId, note }: { dexId: number; note?
                         </Text>
                     ) : (
                         <>
-                            <Grid columns={{ minWidth: 280, repeat: 'fit' }} gap={4}>
+                            {/* 표는 카드 여백만큼(12px) 사방으로 번져 나오므로, 두 표의 번짐(12+12)을 넘는 간격을 둬야 서로 붙지 않는다 (보이는 틈 16px) */}
+                            <Grid columns={{ minWidth: 280, repeat: 'fit' }} gap={10}>
                                 {LEVELS.map((lv) => (
                                     <span key={lv} className="block min-w-0">
                                         <Table density="compact" aria-label={`${t('battleTitle')} Lv.${lv}`}>
