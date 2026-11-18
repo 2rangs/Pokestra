@@ -4,7 +4,7 @@
 
 ![Pokestra 첫 화면: 빠른 검색, 자주 찾는 포켓몬, 오늘의 포켓몬](docs/screenshots/home-ko.png)
 
-**한국어·영어·일본어**를 지원하는 포켓몬 도감·배틀 사이트입니다. 1세대부터 9세대까지 모든 포켓몬을 다루고, 배틀과 데미지 계산은 [`@kyasi/pokebattle-engine`](https://github.com/2rangs/pokebattle-engine)으로 돌아갑니다.
+**한국어·영어·일본어**를 지원하는 포켓몬 도감입니다. 1세대부터 9세대까지 모든 포켓몬과 기술·특성·도구·스프라이트를 로컬 데이터로 보여 줍니다.
 
 **사이트:** https://2rangs.github.io/portfolio/pokestra/
 
@@ -14,9 +14,7 @@
 |---|---|
 | `/` | 첫 화면: 빠른 검색, 오늘의 포켓몬, 각 메뉴 바로가기 |
 | `/pokedex` | 로컬 데이터로 바로 검색: 어느 언어로든 이름이나 번호로 찾기, 타입(최대 2개)·세대·배우는 기술·다른 폼 필터, 종족값 정렬 |
-| `/pokemon/:id` | 상세 화면: 종족값, 특성, 타입 상성, 진화, 그리고 **실전 능력치 패널**(Lv50/Lv100 최소·최대 실능치), **세대 타임라인**(`?gen=N`: 세대별 스프라이트·타입·특성·종족값과 변경 표시, 울음소리) |
-| `/battle` | **배틀 시뮬레이터**: 기술표로 팀을 짜서(랜덤 팀, Showdown 가져오기도 가능) CPU와 싱글 배틀을 하거나 CPU끼리의 배틀을 관전. 난이도 3단계, 테라스탈, 기술 버튼의 데미지 범위 미리보기, 세 언어로 나오는 배틀 로그 |
-| `/calc` | **데미지 계산기**: 노력치/개체값, 성격, 특성, 도구, 랭크, 테라스탈, 날씨/필드/벽/급소. 16가지 데미지 난수와 확정 몇 타인지 보여 줌. `?atk=garchomp&def=gholdengo` 링크로 대결 조합을 미리 골라 둘 수 있음 |
+| `/pokemon/:id` | 상세 화면: 종족값, 특성, 타입 상성, 진화, 그리고 **실능치 패널**(Lv50/Lv100 최소·최대 실능치), **세대 타임라인**(`?gen=N`: 세대별 스프라이트·타입·특성·종족값과 변경 표시, 울음소리) |
 | `/moves`, `/moves/:slug` | 기술 목록(타입·분류·세대 필터, 위력·명중·PP 정렬)과 설명·배우는 포켓몬이 있는 상세 화면 |
 | `/abilities`, `/abilities/:slug` | 특성 목록과 설명·가진 포켓몬이 있는 상세 화면 |
 | `/sprites` | 스프라이트 갤러리(일반/색이 다른 포켓몬, 도트/공식 일러스트) |
@@ -64,28 +62,8 @@ node src/script/fetchData.mjs       # 기본 데이터 (REST API, 느림)
 node src/script/buildI18nData.mjs   # 영어/일본어 이름, 기술 상세, 특성, 성격, 도구 (PokeAPI CSV 덤프)
 ```
 
-### 엔진 의존성
-
-`package.json`은 엔진을 GitHub에서 설치합니다.
-
-```json
-"@kyasi/pokebattle-engine": "github:2rangs/pokebattle-engine#main"
-```
-
-설치할 때 npm이 엔진의 `prepare` 스크립트를 실행해 `dist/`를 빌드합니다. 두 저장소를 나란히 놓고 작업하려면:
-
-```bash
-# 엔진 저장소에서
-npm pack
-# Pokestra 저장소에서
-npm install --no-save ../pokebattle-engine/kyasi-pokebattle-engine-*.tgz
-```
-
 ## 구조
 
 - `src/lib/dex.ts` — 로컬 도감 JSON(`src/data/*.json`)을 타입 있게 읽는 함수와 언어별 이름 함수
-- `src/lib/battle.ts` — 엔진 연결: 데이터 불러오기 훅, 이름 변환, 도구/성격, 기술표로 만드는 추천 세트
-- `src/lib/battleLog.ts` — 배틀 로그 포매터 (한국어는 엔진, 영어/일본어는 앱에서 처리)
-- `src/pages/battle/` — 배틀 시뮬레이터 (`useBattleSession`이 엔진 이벤트마다 장면을 기록하고 순서대로 재생)
-- `src/pages/CalcPage.tsx`, `src/components/calc/` — 데미지 계산기
-- 큰 화면은 지연 로딩(`React.lazy`)해서 데이터와 엔진은 필요할 때만 내려받습니다
+- `src/lib/stats.ts` — 실능치 공식(HP/그 외, 레벨·개체값·노력치·성격). 상세 화면의 실능치 패널이 사용
+- 큰 화면은 지연 로딩(`React.lazy`)해서 데이터는 필요할 때만 내려받습니다

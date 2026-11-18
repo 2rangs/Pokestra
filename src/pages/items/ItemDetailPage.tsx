@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { Badge } from '@astryxdesign/core/Badge'
-import { Button } from '@astryxdesign/core/Button'
 import { Card } from '@astryxdesign/core/Card'
 import { Grid } from '@astryxdesign/core/Grid'
 import { Heading } from '@astryxdesign/core/Heading'
@@ -18,7 +17,6 @@ import { PokeImage } from '../../components/ui/PokeImage'
 import { StatBar, TypeTag } from '../../components/ui/shared'
 import { LANGS, LANG_LABEL, useDocumentTitle, useLang, useT } from '../../i18n'
 import { itemsMessages } from '../../i18n/messages/items'
-import { calcDemoFor } from '../../lib/calcItems'
 import { displayName } from '../../lib/dex'
 import { pokemonImageCandidates } from '../../lib/images'
 import { FLAVORS, heldByPokemon, ITEM_BY_SLUG, itemDesc, itemName, itemNeighbors, parseItemQuery } from '../../lib/items'
@@ -77,7 +75,6 @@ export default function ItemDetailPage() {
         .filter((o, i, arr) => o.n && o.n !== name && arr.findIndex((x) => x.n === o.n) === i)
     const berry = item.berry
     const flavors = berry?.flavors ?? null
-    const demo = calcDemoFor(item.name)
 
     return (
         <VStack gap={6}>
@@ -124,7 +121,6 @@ export default function ItemDetailPage() {
                             isDisabled={!next}
                             href={next ? `/items/${next.name}${search}` : undefined}
                         />
-                        {demo && <Button variant="primary" size="lg" className="max-sm:min-h-11 max-sm:min-w-11" href={`/calc?atk=${demo.atk}${demo.def ? `&def=${demo.def}` : ''}&atkItem=${item.name}`} label={t('tryInCalc')} />}
                     </HStack>
                 </HStack>
             </VStack>

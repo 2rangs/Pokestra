@@ -3,7 +3,7 @@
  *
  * - 배경·글자 색은 pokestra 테마의 Token `color:<type>` 변형(--pokestra-type-<type>-bg/on)에서 온다.
  *   라이트/다크 모두 글자 대비 4.5:1 이상 (src/lib/typeColors.test.ts).
- * - 기존 components/battle/TypeBadge, ui/shared 의 TypeTag 와는 별개의 새 컴포넌트다.
+ * - 기존 ui/shared 의 TypeTag 와는 별개의 새 컴포넌트다.
  *   (사용처 교체는 밀도 트랙 머지 후 진행)
  */
 import { Token } from '@astryxdesign/core/Token'

@@ -7,12 +7,10 @@ import { commonMessages } from './i18n/messages/common'
 import { PageSkeleton } from './components/ui/shared'
 import MainLayout from './layouts/MainLayout'
 
-// 큰 페이지(도감 데이터/배틀 엔진)는 지연 로드
+// 큰 페이지(도감 데이터)는 지연 로드
 const HomePage = lazy(() => import('./pages/HomePage'))
 const PokedexPage = lazy(() => import('./pages/pokedex/PokedexPage.tsx'))
 const PokemonDetailPage = lazy(() => import('./pages/pokedex/PokemonDetailPage.tsx'))
-const BattlePage = lazy(() => import('./pages/battle/BattlePage.tsx'))
-const CalcPage = lazy(() => import('./pages/CalcPage.tsx'))
 const MovesPage = lazy(() => import('./pages/MovesPage'))
 const AbilitiesPage = lazy(() => import('./pages/AbilitiesPage'))
 const ItemListPage = lazy(() => import('./pages/items/ItemListPage.tsx'))
@@ -46,8 +44,6 @@ export default function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/pokedex" element={<PokedexPage />} />
                 <Route path="/pokemon/:id" element={<PokemonDetailPage />} />
-                <Route path="/battle" element={<BattlePage />} />
-                <Route path="/calc" element={<CalcPage />} />
                 <Route path="/moves" element={<MovesPage />} />
                 <Route path="/moves/:slug" element={<MovesPage />} />
                 <Route path="/abilities" element={<AbilitiesPage />} />
@@ -55,6 +51,10 @@ export default function App() {
                 <Route path="/items" element={<ItemListPage />} />
                 <Route path="/items/:slug" element={<ItemDetailPage />} />
                 <Route path="/sprites" element={<SpritesPage />} />
+
+                {/* 이전 배틀/계산기 링크는 안내 없이 홈으로 */}
+                <Route path="/battle/*" element={<Navigate to="/" replace />} />
+                <Route path="/calc/*" element={<Navigate to="/" replace />} />
 
                 {/* 기존 /pokestra 접근 시 홈으로 */}
                 <Route path="/pokestra" element={<Navigate to="/" replace />} />

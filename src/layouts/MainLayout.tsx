@@ -8,8 +8,6 @@ import { commonMessages } from '../i18n/messages/common'
 
 const NAV_ITEMS = [
     { to: '/pokedex', key: 'navPokedex', match: ['/pokedex', '/pokemon'] },
-    { to: '/battle', key: 'navBattle', match: ['/battle'] },
-    { to: '/calc', key: 'navCalc', match: ['/calc'] },
     { to: '/moves', key: 'navMoves', match: ['/moves'] },
     { to: '/abilities', key: 'navAbilities', match: ['/abilities'] },
     { to: '/items', key: 'navItems', match: ['/items'] },

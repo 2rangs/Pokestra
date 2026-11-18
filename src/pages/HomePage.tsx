@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Button } from '@astryxdesign/core/Button'
 import { ClickableCard } from '@astryxdesign/core/ClickableCard'
@@ -79,8 +79,6 @@ const STARTERS: Record<number, number[]> = {
 }
 
 /** 도구 카드 그림에 쓰는 포켓몬 */
-const DEX_THUMB = getDexPokemon(25)
-const BATTLE_PREVIEW = byId([445, 1000])
 
 const MAX_SUGGESTIONS = 6
 
@@ -153,8 +151,7 @@ export default function HomePage() {
                 <PokemonOfTheDay />
             </section>
 
-            <ToolsSection />
-            <ReferenceSection />
+            <ShortcutsSection />
             <GenerationsSection />
         </VStack>
     )
@@ -271,81 +268,21 @@ function PokemonOfTheDay() {
     )
 }
 
-// ── 도구 ──
+// ── 바로 가기 ──
 
-function ToolCard({ href, title, desc, thumb }: { href: string; title: string; desc: string; thumb: ReactNode }) {
-    return (
-        <ClickableCard href={href} label={title} padding={3} height="100%">
-            <HStack gap={3} vAlign="center">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted" aria-hidden>
-                    {thumb}
-                </span>
-                <VStack gap={0.5}>
-                    <Heading level={3}>{title}</Heading>
-                    <Text color="secondary" maxLines={1}>
-                        {desc}
-                    </Text>
-                </VStack>
-            </HStack>
-        </ClickableCard>
-    )
-}
-
-function ToolsSection() {
-    const t = useT(homeMessages)
-    const [atk, def] = BATTLE_PREVIEW
-    return (
-        <section aria-labelledby="tools-heading">
-            <SectionHeading id="tools-heading">{t('toolsHeading')}</SectionHeading>
-            <div className="grid gap-3 md:grid-cols-3">
-                <ToolCard
-                    href="/pokedex"
-                    title={t('featPokedexTitle')}
-                    desc={t('featPokedexDesc')}
-                    thumb={DEX_THUMB && <Sprite p={DEX_THUMB} size={48} />}
-                />
-                <ToolCard
-                    href="/battle"
-                    title={t('featBattleTitle')}
-                    desc={t('featBattleDesc')}
-                    thumb={
-                        <>
-                            {atk && <Sprite p={atk} size={32} className="-mx-1" />}
-                            {def && <Sprite p={def} size={32} className="-mx-1 -scale-x-100" />}
-                        </>
-                    }
-                />
-                <ToolCard
-                    href="/calc"
-                    title={t('featCalcTitle')}
-                    desc={t('featCalcDesc')}
-                    thumb={
-                        <span className="flex flex-col gap-1">
-                            <span className="block h-1.5 w-9 rounded-full bg-success" />
-                            <span className="block h-1.5 w-9 rounded-full bg-warning" />
-                            <span className="block h-1.5 w-9 rounded-full bg-error" />
-                        </span>
-                    }
-                />
-            </div>
-        </section>
-    )
-}
-
-// ── 자료 ──
-
-function ReferenceSection() {
+function ShortcutsSection() {
     const lang = useLang()
     const t = useT(homeMessages)
     const items: { to: string; title: HomeKey; count: HomeKey; n: number }[] = [
+        { to: '/pokedex', title: 'featPokedexTitle', count: 'countSpecies', n: COUNTS.species },
         { to: '/moves', title: 'featMovesTitle', count: 'countMoves', n: COUNTS.moves },
         { to: '/abilities', title: 'featAbilitiesTitle', count: 'countAbilities', n: COUNTS.abilities },
         { to: '/sprites', title: 'featSpritesTitle', count: 'countSprites', n: COUNTS.all },
     ]
     return (
-        <section aria-labelledby="reference-heading">
-            <SectionHeading id="reference-heading">{t('referenceHeading')}</SectionHeading>
-            <div className="grid gap-3 sm:grid-cols-3">
+        <section aria-labelledby="shortcuts-heading">
+            <SectionHeading id="shortcuts-heading">{t('toolsHeading')}</SectionHeading>
+            <div className="grid gap-3 min-[480px]:grid-cols-2 lg:grid-cols-4">
                 {items.map((it) => (
                     <ClickableCard key={it.to} href={it.to} label={t(it.title)}>
                         <HStack gap={3} align="center" justify="between">
