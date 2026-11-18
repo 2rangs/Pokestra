@@ -295,7 +295,9 @@ export default function PokemonDetailPage() {
     // 세대 타임라인: 등장 세대 미만·최신 세대는 null(현재 값)
     const generation = local ? getGeneration(local) : ROMAN[species?.generation.name.replace("generation-", "") ?? ""]
     const debut = generation ?? 1
-    const gen = clampGen(Number(searchParams.get("gen")) || null, debut)
+    // 메가 등 다른 폼(API id > 10000)은 세대별 기록이 없으므로 ?gen 을 무시한다
+    const isAltForm = (local?.id ?? detail?.id ?? 0) > 10000
+    const gen = isAltForm ? null : clampGen(Number(searchParams.get("gen")) || null, debut)
     // 세대 값은 PokeAPI 응답이 필요하다. 아직 없거나 실패하면 현재 값을 그대로 보여 준다.
     const genDetail = gen !== null && detail ? detail : null
     const setGen = (next: number | null) =>
@@ -313,14 +315,12 @@ export default function PokemonDetailPage() {
         () => (genDetail && gen !== null ? typesAt(genDetail, gen) : null),
         [genDetail, gen],
     )
-    const types = useMemo(
-        () =>
-            typesView?.value ??
-            local?.types ??
-            detail?.types.slice().sort((a, b) => a.slot - b.slot).map((x) => x.type.name) ??
-            [],
-        [typesView, local, detail],
+    // 상성표는 세대와 상관없이 현재 타입 기준
+    const currentTypes = useMemo(
+        () => local?.types ?? detail?.types.slice().sort((a, b) => a.slot - b.slot).map((x) => x.type.name) ?? [],
+        [local, detail],
     )
+    const types = useMemo(() => typesView?.value ?? currentTypes, [typesView, currentTypes])
 
     const name = local
         ? pokemonName(local, lang)
@@ -366,7 +366,7 @@ export default function PokemonDetailPage() {
     const statTotal = stats.reduce((sum, s) => sum + s.value, 0)
     const statMax = stats.reduce((m, s) => Math.max(m, s.value), 0)
 
-    const matchups = useMemo(() => computeDefense(types), [types])
+    const matchups = useMemo(() => computeDefense(currentTypes), [currentTypes])
 
     const forms = useMemo(() => (speciesId ? ALL_POKEMON.filter((p) => getSpeciesId(p) === speciesId) : []), [speciesId])
 
@@ -482,15 +482,17 @@ export default function PokemonDetailPage() {
                 </nav>
             </HStack>
 
-            {/* ── 세대 선택 ── */}
-            <GenerationBar
-                debut={debut}
-                gen={gen}
-                onChange={setGen}
-                cry={cryAt(detail?.cries, gen ?? LATEST_GEN)}
-                lang={lang}
-                t={t}
-            />
+            {/* ── 세대 선택 (다른 폼은 제외) ── */}
+            {!isAltForm && (
+                <GenerationBar
+                    debut={debut}
+                    gen={gen}
+                    onChange={setGen}
+                    cry={cryAt(detail?.cries, gen ?? LATEST_GEN)}
+                    lang={lang}
+                    t={t}
+                />
+            )}
 
             {/* ── 표본 ── */}
             <Card>
