@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { calcBaseStat, calcHP, getSpecies } from '@kyasi/pokebattle-engine'
 import { Banner } from '@astryxdesign/core/Banner'
 import { Button } from '@astryxdesign/core/Button'
@@ -33,7 +34,7 @@ function realStats(base: number, key: Key, level: number) {
     }
 }
 
-export default function BattleStatsPanel({ dexId }: { dexId: number }) {
+export default function BattleStatsPanel({ dexId, note }: { dexId: number; note?: ReactNode }) {
     const lang = useLang()
     const t = useT(pokedexMessages)
     const { ready, error } = useEngineReady()
@@ -46,9 +47,12 @@ export default function BattleStatsPanel({ dexId }: { dexId: number }) {
                 <VStack gap={4}>
                     <HStack justify="between" vAlign="start" gap={3} wrap="wrap">
                         <VStack gap={1} className="min-w-0 flex-1">
-                            <Heading level={3} id="battle-stats-title">
-                                {t('battleTitle')}
-                            </Heading>
+                            <HStack gap={3} vAlign="center" wrap="wrap">
+                                <Heading level={3} id="battle-stats-title">
+                                    {t('battleTitle')}
+                                </Heading>
+                                {note}
+                            </HStack>
                             <Text type="supporting" as="p">
                                 {t('battleNote')}
                             </Text>

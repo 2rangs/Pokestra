@@ -15,7 +15,6 @@ export const spritesMessages = defineMessages({
         shiny: '이로치',
         filterGen: '세대',
         includeForms: '다른 폼 포함',
-        noImage: '이미지 없음',
         gallery: '스프라이트 목록',
     },
     en: {
@@ -31,7 +30,6 @@ export const spritesMessages = defineMessages({
         shiny: 'Shiny',
         filterGen: 'Generation',
         includeForms: 'Include forms',
-        noImage: 'No image',
         gallery: 'Sprite gallery',
     },
     ja: {
@@ -47,7 +45,6 @@ export const spritesMessages = defineMessages({
         shiny: '色違い',
         filterGen: '世代',
         includeForms: 'フォルム違いを含む',
-        noImage: '画像なし',
         gallery: 'スプライト一覧',
     },
 })

@@ -190,6 +190,8 @@ export const pokedexMessages = defineMessages({
         changedInGen: '{gen}세대에 변경',
         noAbilitiesBeforeGen3: '특성은 3세대부터',
         matchupCurrentNote: '현재 상성표 기준',
+        currentValuesNote: '현재 기준',
+        spriteAltGen: '{name} {gen}세대 도트',
         specialStat: '특수',
     },
     en: {
@@ -377,6 +379,8 @@ export const pokedexMessages = defineMessages({
         changedInGen: 'Changed in Gen {gen}',
         noAbilitiesBeforeGen3: 'Abilities were introduced in Gen III',
         matchupCurrentNote: 'Based on the current type chart',
+        currentValuesNote: 'Current values',
+        spriteAltGen: '{name} Gen {gen} sprite',
         specialStat: 'Special',
     },
     ja: {
@@ -564,6 +568,8 @@ export const pokedexMessages = defineMessages({
         changedInGen: '第{gen}世代で変更',
         noAbilitiesBeforeGen3: '特性は第3世代から',
         matchupCurrentNote: '現在のタイプ相性基準',
+        currentValuesNote: '現在の値',
+        spriteAltGen: '{name} 第{gen}世代ドット',
         specialStat: 'とくしゅ',
     },
 })
