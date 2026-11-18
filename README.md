@@ -4,7 +4,9 @@
 
 ![Pokestra home page: quick search, popular Pokémon and the Pokémon of the day](docs/screenshots/home-en.png)
 
-A Pokémon dex and battle site in **Korean, English and Japanese**. It covers every Pokémon from Gen 1 to 9, and its battles and damage calculations run on [`@kyasi/pokebattle-engine`](https://github.com/2rangs/pokebattle-engine).
+A Pokémon dex and damage calculator in **Korean, English and Japanese**. It covers every Pokémon from Gen 1 to 9, and its damage calculations and battle stats run on [`@kyasi/pokebattle-engine`](https://github.com/2rangs/pokebattle-engine).
+
+The battle simulator demo lives in the engine repo instead: [2rangs/pokebattle-engine](https://github.com/2rangs/pokebattle-engine) playground (`#/battle`).
 
 **Live site:** https://2rangs.github.io/portfolio/pokestra/
 
@@ -15,7 +17,6 @@ A Pokémon dex and battle site in **Korean, English and Japanese**. It covers ev
 | `/` | Landing page: quick search, Pokémon of the day, section shortcuts |
 | `/pokedex` | Instant search over local data: name in any language or number; filters for type (up to 2), generation, learnable moves and alternate forms; sorting by base stats |
 | `/pokemon/:id` | Detail page: base stats, abilities, type matchups, evolutions, plus a **battle stats panel** (min/max actual stats at Lv50/Lv100), and a **generation timeline** (`?gen=N`: per-generation sprite, types, abilities and base stats with change markers, plus cries) |
-| `/battle` | **Battle simulator**: build a team from learnsets (or random / Showdown import) and fight the CPU in singles, or watch CPU vs CPU. 3 difficulty levels, Terastallization, damage-range preview on move buttons, battle log in all three languages |
 | `/calc` | **Damage calculator**: EVs/IVs, nature, ability, item, stat stages, Tera, weather/terrain/screens/crit. Shows all 16 damage rolls and the KO text. `?atk=garchomp&def=gholdengo` links preselect the matchup |
 | `/moves`, `/moves/:slug` | Move list with type/class/generation filters and power/accuracy/PP sorting; detail with description and learners |
 | `/abilities`, `/abilities/:slug` | Ability list and detail with description and Pokémon that have it |
@@ -85,7 +86,5 @@ npm install --no-save ../pokebattle-engine/kyasi-pokebattle-engine-*.tgz
 
 - `src/lib/dex.ts` — typed accessors and per-language name helpers over the local dex JSON (`src/data/*.json`)
 - `src/lib/battle.ts` — engine glue: data loading hook, name resolvers, items/natures, recommended sets built from learnsets
-- `src/lib/battleLog.ts` — battle log formatter (Korean via the engine, English/Japanese in-app)
-- `src/pages/battle/` — battle simulator (`useBattleSession` records a frame for every engine event and replays them in order)
 - `src/pages/CalcPage.tsx`, `src/components/calc/` — damage calculator
 - Large pages are lazy-loaded (`React.lazy`), so data and the engine download only when needed

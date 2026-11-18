@@ -9,26 +9,23 @@
 
 ## Pokestra가 쓰는 엔진 API (이름이 바뀌면 깨지는 곳)
 
+배틀 시뮬레이터(`pages/battle/**`, `battleLog`·`replay` 등)는 Pokestra에서 제거했다. 배틀 데모는 엔진 저장소 playground(`playground/`, `#/battle`)에 있다. 남은 사용처는 데미지 계산기와 도감 실능치뿐이다.
+
 | API | 쓰는 파일 |
 |---|---|
-| `BattleEngine`, `createAI`, `Action`, `BattleAI`, `BattleConfig`, `BattleEvent`, `Side`, `PlayerID` | `pages/battle/useBattleSession.ts`, `BattlePage.tsx`, `BattleView.tsx` |
-| `BattleRequest`, `MoveOption`, `fixParticles` | `pages/battle/BattleView.tsx` |
-| `createFormatter`, `Formatter`, `FormatContext`, `CONDITION_ENTITY`, `SHOWN_VOLATILES` | `lib/battleLog.ts` (로그 문장·상태/날씨/장판 이름, ko/en/ja) |
-| `loadNames('ja')` | `lib/battle.ts` (`useEngineReady`) |
 | `calculateDamage`, `toCalcPokemon`, `applyStage`, `CalcPokemonInput`, `DamageResult`, `MoveData`, `Stats`, `Weather`, `Terrain` | `components/calc/calcState.ts`, `FieldPanel.tsx`, `MoveResults.tsx` |
-| `getSpecies`, `getMove`, `koName`, `preloadData`, `NameResolver` | `lib/battle.ts`, calc, `TeamBuilder.tsx`, `BattleStatsPanel.tsx` |
-| `generateRandomTeam`, `generateRandomSet`, `PRNG` | `lib/battle.ts`, `calcState.ts`, `TeamBuilder.tsx` |
-| `parseShowdownTeam`, `exportShowdownTeam`, `toId`, `PokemonSet` | `TeamBuilder.tsx`, `stores/battleStore.ts`, `lib/battle.ts` |
+| `getSpecies`, `getMove`, `koName`, `preloadData` | `lib/battle.ts`, `components/calc/*`, `components/BattleStatsPanel.tsx` |
+| `generateRandomSet`, `PRNG`, `PokemonSet` | `lib/battle.ts` (`buildSet`), `calcState.ts` |
 | `calcBaseStat`, `calcHP`, `Nature`, `PrimaryStatus`, `BattlePokemon` | `BattleStatsPanel.tsx`, `calc/SidePanel.tsx`, `calcState.ts` |
 
 ## 엔진 업데이트 후 확인 순서
 1. `npm install` (엔진 `prepare`가 `dist/` 빌드) → `git diff package-lock.json`으로 커밋 해시 확인
 2. `npm run build && npm run lint && npm test`
-3. 브라우저: `/battle` 랜덤 팀 CPU 대전 한 판, Showdown 가져오기/내보내기, `/calc?atk=garchomp&def=gholdengo` 16가지 난수·확정 타수, 테라스탈
-4. 세 언어 배틀 로그 문구 (`npm test` → `lib/battleLog.test.ts`가 남은 HP·닉네임·진영 이름을 확인)
+3. 브라우저: `/calc?atk=garchomp&def=gholdengo` 16가지 난수·확정/난수 타수, 테라스탈·날씨 반영
+4. 도감 상세(`/pokemon/445` 등)의 실능치 패널(Lv50/Lv100 최소·최대) 표시
 
 ## 알려진 문제 (엔진 쪽에서 고치면 좋은 것)
-- **번들 크기**: 엔진 PR #5로 배틀 청크 3.38 MB(gzip 753 kB). 여전히 500 kB 경고는 남음(배틀 페이지는 이미 지연 로드).
+- **번들 크기**: 엔진 청크 약 3.27 MB(gzip 718 kB). 500 kB 경고는 남음(계산기·도감 상세에서만 지연 로드).
 - ~~direct eval 경고~~: PR #5에서 해결(빌드 경고 없음).
 - **`npm audit` high 13건**: 전부 picomatch(vite/tinyglobby/jscodeshift 경유, 개발 도구 전용). 엔진과 무관.
 

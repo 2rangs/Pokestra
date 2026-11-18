@@ -41,3 +41,17 @@
   - 승자는 끝에서만 표시(스포일러 방지), 리플레이는 일시정지로 시작.
   - CPU 대전 리플레이는 원래 시점 유지(상대 HP %, 테라 타입 비공개) — 비용: 받은 사람도 상대 정확한 HP를 못 봄.
   - `src/App.tsx`에 지연 import + 라우트 한 줄 추가(통합 시 확인).
+
+## 방향 전환 — 배틀 시뮬레이터 제거
+- **사용자 결정**: 3단계(리플레이) 완료와 상태이상 표시 요청 이후, 배틀 기능을 Pokestra에서 빼고 데모는 엔진 저장소 playground로 옮기기로 함 — 2rangs/pokebattle-engine 의 `claude/battle-demo` 브랜치, `playground/` (`#/battle`). Pokestra는 도감·계산기 사이트로 남는다.
+- **제거한 것**
+  - `src/pages/battle/**`(BattlePage·BattleView·ReplayPage·TeamBuilder·useBattleSession·frames·replayLink·hud/*), `src/stores/battleStore.ts`
+  - 배틀 전용 lib와 테스트: `lib/battleLog`·`battleFrame`·`battleHud`·`battleSummary`·`battleStatus`·`replay`
+  - 배틀 화면에서만 쓰던 `components/battle/*`(TypeBadge·PokemonSearch)와 `i18n/messages/battle.ts` — grep 결과 계산기·도감은 쓰지 않음(계산기는 `calc/PokemonPicker`를 씀)
+  - `src/styles.css`의 배틀 키프레임·`--animate-battle-*`·`pixelated` 유틸리티·`--radius-ellipse`(다른 사용처 없음)
+  - 메뉴의 "배틀" 항목, 홈 도구 카드의 배틀 카드와 해당 i18n 키
+  - `lib/battle.ts`의 배틀 전용 export(`buildRandomTeam`·`KO_NAMES`·`namesFor`·`dexIdOf`·스프라이트 재수출), `useEngineReady`의 `loadNames('ja')`(계산기는 도감 이름표를 씀), `lib/spriteUrls.ts`의 애니메이션 스프라이트·울음소리 URL
+- **남긴 것**: 데미지 계산기(`/calc`), 도감 상세의 실능치 패널(`BattleStatsPanel`), `lib/battle.ts`(엔진 로드·이름·도구·성격·`buildSet`), 엔진 의존성(`@kyasi/pokebattle-engine`).
+- **4–5단계(분석, 더블 배틀)는 Pokestra에서 더 이상 계획하지 않음.** 필요하면 엔진 playground 쪽에서 진행.
+- 옛 링크: `#/battle`, `#/battle/replay?d=…`는 홈으로 리다이렉트(404 방지). 3단계 리플레이 링크는 Pokestra에서 더는 재생되지 않음.
+- 위 1–3단계 기록과 `docs/screenshots/battle/*` 스크린샷은 작업 이력으로 남겨 둠.
