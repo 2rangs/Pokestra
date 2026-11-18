@@ -4,11 +4,11 @@ import { Heading } from '@astryxdesign/core/Heading'
 import { HStack } from '@astryxdesign/core/HStack'
 import { Text } from '@astryxdesign/core/Text'
 import { Token } from '@astryxdesign/core/Token'
-import { Tooltip } from '@astryxdesign/core/Tooltip'
 import { fieldConditionName, sideConditionName, terrainName, weatherName } from '../../../lib/battleLog'
 import { fieldItems, type FieldItem, type FieldItemKind } from '../../../lib/battleHud'
 import { useLang, type Lang } from '../../../i18n'
 import type { Frame } from '../useBattleSession'
+import { TipChip } from './common'
 import { useBattleT, type TokenColor } from './util'
 
 const KIND_COLOR: Record<FieldItemKind, TokenColor> = {
@@ -43,9 +43,9 @@ export function FieldBar({ frame, sideName }: {
                     it.layers > 1 && `×${it.layers}`,
                 ].filter(Boolean).join(' ')
                 if (it.turns === null) return <Token key={it.key} size="sm" color={KIND_COLOR[it.kind]} label={label} />
-                const tip = t('turnsLeft', { n: it.turns })
+                const tip = t(it.turns === 1 ? 'turnsLeftOne' : 'turnsLeft', { n: it.turns })
                 return (
-                    <Tooltip key={it.key} content={tip}>
+                    <TipChip key={it.key} tip={tip}>
                         <Token
                             size="sm"
                             color={KIND_COLOR[it.kind]}
@@ -53,7 +53,7 @@ export function FieldBar({ frame, sideName }: {
                             description={tip}
                             endContent={<Text type="supporting" color="inherit" weight="semibold" hasTabularNumbers>{it.turns}</Text>}
                         />
-                    </Tooltip>
+                    </TipChip>
                 )
             })}
         </HStack>

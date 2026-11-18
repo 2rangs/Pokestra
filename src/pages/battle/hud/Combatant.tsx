@@ -6,7 +6,6 @@ import { HStack } from '@astryxdesign/core/HStack'
 import { VStack } from '@astryxdesign/core/VStack'
 import { Text } from '@astryxdesign/core/Text'
 import { Token } from '@astryxdesign/core/Token'
-import { Tooltip } from '@astryxdesign/core/Tooltip'
 import { battleStatLabel, typeNameL } from '../../../lib/battle'
 import { statusLongName, volatileName } from '../../../lib/battleLog'
 import { stageMultiplier } from '../../../lib/battleHud'
@@ -15,7 +14,7 @@ import { useBattleStore } from '../../../stores/battleStore'
 import { TypeBadge } from '../../../components/battle/TypeBadge'
 import { cx } from '../../../components/ui/utils'
 import type { PokeView, SideView } from '../useBattleSession'
-import { HpBar, StatusToken } from './common'
+import { HpBar, StatusToken, TipChip } from './common'
 import { nameOf, pctOf, useBattleT } from './util'
 
 export interface CombatantProps {
@@ -44,9 +43,9 @@ export function Combatant({ side, back, hpMode, showTeraType }: CombatantProps) 
                 const label = `${battleStatLabel(k, lang)} ${v > 0 ? `+${v}` : v}`
                 const tip = t('stageTip', { stat: battleStatLabel(k, lang), x: stageMultiplier(k, v) })
                 return (
-                    <Tooltip key={k} content={tip}>
+                    <TipChip key={k} tip={tip}>
                         <Token size="sm" color={v > 0 ? 'blue' : 'red'} label={label} description={tip} />
-                    </Tooltip>
+                    </TipChip>
                 )
             })}
             {volatiles.map(([v, n]) => <Token key={v} size="sm" color="purple" label={n!} />)}
@@ -59,16 +58,14 @@ export function Combatant({ side, back, hpMode, showTeraType }: CombatantProps) 
             <Card padding={2} className="shadow-md">
                 <VStack gap={0.5}>
                     <HStack gap={1.5} vAlign="center" className="min-w-0">
-                        <span className="min-w-0 shrink">
-                            <Text weight="semibold" maxLines={1}>{name}</Text>
-                        </span>
+                        <Text weight="semibold" maxLines={1} className="min-w-0 shrink">{name}</Text>
                         <Text type="supporting" color="secondary" hasTabularNumbers>{t('level', { n: p.level })}</Text>
                         {p.status && <StatusToken status={p.status} lang={lang} />}
                     </HStack>
                     <HStack gap={2} vAlign="center" className="min-h-6">
-                        <span className="min-w-0 flex-1">
+                        <VStack className="min-w-0 flex-1">
                             <HpBar p={p} label={hpMode === 'percent' ? t('hpPercent', { pct: pctOf(p) }) : t('hpLabel', { hp: p.hp, max: p.max_hp })} />
-                        </span>
+                        </VStack>
                         <HpValue p={p} mode={hpMode} />
                     </HStack>
                     <HStack gap={1} vAlign="center" wrap="wrap">
@@ -81,9 +78,7 @@ export function Combatant({ side, back, hpMode, showTeraType }: CombatantProps) 
                         {teraHint && (
                             <Text type="supporting" color="secondary">{t('teraHint', { type: typeNameL(p.tera_type!, lang) })}</Text>
                         )}
-                        <span className="ml-auto">
-                            <PartyDots side={side} />
-                        </span>
+                        <PartyDots side={side} />
                     </HStack>
                 </VStack>
             </Card>
@@ -123,7 +118,7 @@ function PartyDots({ side }: { side: SideView }) {
     const t = useBattleT()
     const summary = side.team.map(p => `${nameOf(p, lang)} ${p.fainted ? t('fainted') : `${pctOf(p)}%`}`).join(', ')
     return (
-        <span className="flex shrink-0 gap-1" role="img" aria-label={`${t('partyStatus')}: ${summary}`}>
+        <HStack as="span" gap={1} vAlign="center" role="img" className="ml-auto shrink-0" aria-label={`${t('partyStatus')}: ${summary}`}>
             {side.team.map(p => (
                 <span
                     key={p.id}
@@ -134,6 +129,6 @@ function PartyDots({ side }: { side: SideView }) {
                     )}
                 />
             ))}
-        </span>
+        </HStack>
     )
 }

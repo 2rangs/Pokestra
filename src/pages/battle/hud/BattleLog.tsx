@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PlayerID } from '@kyasi/pokebattle-engine'
 import { Collapsible } from '@astryxdesign/core/Collapsible'
 import { HStack } from '@astryxdesign/core/HStack'
+import { ScrollableArea } from '@astryxdesign/core/ScrollableArea'
+import { VStack } from '@astryxdesign/core/VStack'
 import { Text } from '@astryxdesign/core/Text'
 import { Token } from '@astryxdesign/core/Token'
 import { groupLogByTurn, logTone, type LogSummary, type LogTone } from '../../../lib/battleHud'
@@ -32,10 +34,21 @@ export function BattleLog({ frames, revealed, sideName }: {
     const lang = useLang()
     const t = useBattleT()
     const ref = useRef<HTMLDivElement>(null)
-    /** 사용자가 위로 스크롤해 읽는 중이면 false → 새 줄이 와도 끌어내리지 않는다 */
-    const stick = useRef(true)
+    /** 사용자가 위로 스크롤해 읽는 중이면 false → 새 줄이 와도 끌어내리지 않고, 지난 턴도 접지 않는다 */
+    const [stuck, setStuck] = useState(true)
+    /** 위로 스크롤하기 시작한 때의 "최근 묶음" 시작 위치 (그동안은 이 앞만 자동으로 접는다) */
+    const [pinnedFrom, setPinnedFrom] = useState(0)
     /** 사용자가 직접 펼치거나 접은 묶음 (나머지는 최근 두 턴만 펼침) */
     const [toggled, setToggled] = useState<Record<string, boolean>>({})
+    // 새 배틀(재대결)이면 상태 초기화: 묶음 key(t0, t1 …)가 이전 배틀 것과 겹치지 않게
+    const first = frames[0]
+    const [battleOf, setBattleOf] = useState(first)
+    if (battleOf !== first) {
+        setBattleOf(first)
+        setToggled({})
+        setStuck(true)
+        setPinnedFrom(0)
+    }
 
     // 문장은 현재 언어로 그릴 때마다 만든다 → 언어를 바꾸면 지난 로그도 바뀐다
     const groups = useMemo(
@@ -49,31 +62,37 @@ export function BattleLog({ frames, revealed, sideName }: {
     )
     const lineCount = groups.reduce((n, g) => n + g.lines.length, 0)
 
+    const recentFrom = stuck ? groups.length - 2 : pinnedFrom
+
     useEffect(() => {
         const el = ref.current
-        if (el && stick.current) el.scrollTop = el.scrollHeight
-    }, [lineCount, groups.length])
+        if (el && stuck) el.scrollTop = el.scrollHeight
+    }, [lineCount, groups.length, stuck])
 
     const onScroll = () => {
         const el = ref.current
         if (!el) return
         const rem = parseFloat(getComputedStyle(el).fontSize) || 16
-        stick.current = el.scrollHeight - el.scrollTop - el.clientHeight <= STICK_REM * rem
+        const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight <= STICK_REM * rem
+        if (atBottom === stuck) return
+        if (!atBottom) setPinnedFrom(groups.length - 2)
+        setStuck(atBottom)
     }
 
     return (
-        <div
+        <ScrollableArea
             ref={ref}
-            role="log"
-            aria-live="polite"
-            aria-label={t('battleLog')}
-            tabIndex={0}
+            label={t('battleLog')}
+            overscroll="contain"
             onScroll={onScroll}
-            className="h-72 overflow-y-auto overscroll-contain rounded-md border border-border bg-surface px-3 py-2 text-sm lg:h-160"
+            paddingInline={3}
+            paddingBlock={2}
+            className="h-72 rounded-md border border-border bg-surface text-sm lg:h-160"
         >
+            <VStack role="log" aria-live="polite" aria-label={t('battleLog')}>
             {lineCount === 0 && <Text color="secondary">{t('logEmpty')}</Text>}
             {groups.map((g, i) => {
-                const recent = i >= groups.length - 2
+                const recent = i >= recentFrom
                 const isOpen = toggled[g.key] ?? recent
                 const title = g.turn === 0 ? t('logStart') : t('turn', { n: g.turn })
                 if (g.lines.length === 0 && !recent) return null
@@ -98,7 +117,8 @@ export function BattleLog({ frames, revealed, sideName }: {
                     </Collapsible>
                 )
             })}
-        </div>
+            </VStack>
+        </ScrollableArea>
     )
 }
 
@@ -107,7 +127,7 @@ function SummaryTokens({ s }: { s: LogSummary }) {
     const t = useBattleT()
     const items = [
         { n: s.faints, label: t('sumFaint', { n: s.faints }) },
-        { n: s.crits, label: t('sumCrit', { n: s.crits }) },
+        { n: s.crits, label: t(s.crits === 1 ? 'sumCritOne' : 'sumCrit', { n: s.crits }) },
         { n: s.supers, label: t('sumSuper', { n: s.supers }) },
     ].filter(x => x.n > 0)
     return <>{items.map(x => <Token key={x.label} size="sm" color="red" label={x.label} />)}</>

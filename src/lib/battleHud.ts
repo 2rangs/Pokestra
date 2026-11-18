@@ -3,7 +3,7 @@
 import type { BattleEvent, PlayerID } from '@kyasi/pokebattle-engine'
 import { translate, type Lang, type Vars } from '../i18n'
 import { battleMessages } from '../i18n/messages/battle'
-import type { Frame } from '../pages/battle/useBattleSession'
+import type { Frame } from './battleFrame'
 
 type Key = keyof typeof battleMessages.ko
 const tr = (key: Key, lang: Lang, vars?: Vars) => translate(battleMessages, key, vars, lang)

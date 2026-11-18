@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import type { BattleEvent } from '@kyasi/pokebattle-engine'
 import { effectivenessLabel, effectivenessTone, fieldItems, groupLogByTurn, koLabel, logTone, stageFactor, stageMultiplier } from './battleHud'
-import { turnsOf, type Frame, type SideView } from '../pages/battle/useBattleSession'
+import { turnsOf, type Frame, type SideView } from './battleFrame'
 
 test('koLabel: 확정/난수 n타, 세 언어', () => {
     expect(koLabel({ koChance: 1, koHits: 2 }, 'ko')).toBe('확정 2타')

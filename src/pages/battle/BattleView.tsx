@@ -106,7 +106,7 @@ export function BattleView({ session, onExit, onRematch }: { session: BattleSess
                         {!session.allRevealed && (
                             spectating
                                 // 관전 모드는 버튼이 하나 더 있어 휴대폰에서 한 줄에 들어가도록 아이콘만
-                                ? <Button size="sm" label={t('skip')} isIconOnly icon={<Icon icon="chevronsRight" />} tooltip={t('skip')} onClick={session.skip} />
+                                ? <Button size="sm" label={t('skip')} isIconOnly icon={<Icon icon="chevronsRight" />} tooltip={t('skip')} onClick={session.skip} className="min-h-11 min-w-11" />
                                 : <Button size="sm" label={t('skip')} endContent={<Icon icon="chevronsRight" />} onClick={session.skip} />
                         )}
                         <Button

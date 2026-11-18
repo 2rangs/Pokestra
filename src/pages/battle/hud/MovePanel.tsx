@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { fixParticles, type BattleRequest, type PlayerID, type MoveOption } from '@kyasi/pokebattle-engine'
 import { Button } from '@astryxdesign/core/Button'
+import { Grid } from '@astryxdesign/core/Grid'
 import { HStack } from '@astryxdesign/core/HStack'
 import { VStack } from '@astryxdesign/core/VStack'
 import { Spinner } from '@astryxdesign/core/Spinner'
@@ -67,29 +68,30 @@ function MoveButton({ opt, preview, onClick }: {
             isDisabled={opt.disabled}
             tooltip={opt.disabled_reason}
             onClick={() => { if (!opt.disabled) onClick() }}
-            className="h-auto min-h-16 justify-start px-2.5 py-1.5 text-left sm:px-3 [&>span]:w-full [&>span>span]:w-full"
+            // 세로 방향 + stretch: 버튼 안 내용 상자가 버튼 폭을 다 쓴다
+            className="h-auto min-h-16 flex-col items-stretch justify-center px-2.5 py-1.5 text-left sm:px-3"
         >
-            <span className="flex w-full min-w-0 flex-col gap-0.5">
-                <span className="flex min-w-0 items-center justify-between gap-1.5">
-                    <span className="truncate font-semibold">{name}</span>
+            <VStack as="span" gap={0.5} className="w-full min-w-0">
+                <HStack as="span" gap={1.5} vAlign="center" hAlign="between" className="min-w-0">
+                    <Text weight="semibold" maxLines={1} hasTruncateTooltip={false}>{name}</Text>
                     <TypeBadge type={m.type} size="xs" className="shrink-0" />
-                </span>
-                <span className="flex flex-wrap items-center gap-x-1.5 text-xs font-normal text-secondary">
-                    <span>{meta}</span>
-                    <span aria-hidden>·</span>
-                    <span className={cx('tabular-nums', ppLow && 'font-semibold text-warning')}>{pp}</span>
-                </span>
+                </HStack>
+                <HStack as="span" gap={1.5} vAlign="center" wrap="wrap">
+                    <Text type="supporting" size="xsm">{meta}</Text>
+                    <Text type="supporting" size="xsm" aria-hidden>·</Text>
+                    <Text type="supporting" size="xsm" hasTabularNumbers weight={ppLow ? 'semibold' : undefined} className={cx(ppLow && 'text-warning')}>{pp}</Text>
+                </HStack>
                 {preview && (
-                    <span className="flex flex-wrap items-center gap-x-1.5 text-xs font-normal tabular-nums">
-                        {effLabel && <span className={EFF_TONE[effectivenessTone(preview.eff)]}>{effLabel}</span>}
-                        {effLabel && <span aria-hidden className="text-secondary">·</span>}
-                        <span className="text-primary">{preview.text}</span>
-                        {preview.ko && <span aria-hidden className="text-secondary">·</span>}
-                        {preview.ko && <span className="font-medium text-primary">{preview.ko}</span>}
-                    </span>
+                    <HStack as="span" gap={1.5} vAlign="center" wrap="wrap">
+                        {effLabel && <Text size="xsm" hasTabularNumbers className={EFF_TONE[effectivenessTone(preview.eff)]}>{effLabel}</Text>}
+                        {effLabel && <Text type="supporting" size="xsm" aria-hidden>·</Text>}
+                        <Text size="xsm" hasTabularNumbers>{preview.text}</Text>
+                        {preview.ko && <Text type="supporting" size="xsm" aria-hidden>·</Text>}
+                        {preview.ko && <Text size="xsm" weight="medium">{preview.ko}</Text>}
+                    </HStack>
                 )}
-                {opt.disabled_reason && <span className="truncate text-xs font-normal text-error">{opt.disabled_reason}</span>}
-            </span>
+                {opt.disabled_reason && <Text size="xsm" maxLines={1} hasTruncateTooltip={false} className="text-error">{opt.disabled_reason}</Text>}
+            </VStack>
         </Button>
     )
 }
@@ -97,7 +99,10 @@ function MoveButton({ opt, preview, onClick }: {
 export function ActionPanel({ session, player }: { session: BattleSession; player: PlayerID }) {
     const lang = useLang()
     const t = useBattleT()
-    const req = session.request(player)
+    // request() 는 부를 때마다 새 객체 → 엔진이 바뀔 때(version)·재생이 끝날 때만 다시 받는다
+    const { request, version, allRevealed } = session
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const req = useMemo(() => request(player), [player, version, allRevealed, session.engine])
     // 턴이 바뀌면 부모가 key 로 다시 마운트 → 테라스탈 토글 초기화
     const [tera, setTera] = useState(false)
     const engine = session.engine
@@ -119,10 +124,10 @@ export function ActionPanel({ session, player }: { session: BattleSession; playe
     if (!req) {
         const ended = session.phase === 'ended'
         return (
-            <span role="status" className="flex min-h-30 items-center justify-center gap-2">
+            <HStack role="status" gap={2} hAlign="center" vAlign="center" className="min-h-30">
                 {!ended && <Spinner size="sm" aria-label={t('inProgress')} />}
                 <Text color="secondary">{ended ? t('battleEnded') : session.allRevealed ? t('waitingFoe') : t('inProgress')}</Text>
-            </span>
+            </HStack>
         )
     }
 
@@ -143,7 +148,7 @@ export function ActionPanel({ session, player }: { session: BattleSession; playe
                             </HStack>
                         )}
                     </HStack>
-                    <div role="group" aria-label={t('moves')} className="grid grid-cols-2 gap-2">
+                    <Grid role="group" aria-label={t('moves')} columns={2} gap={2}>
                         {req.moves.map(opt => (
                             <MoveButton
                                 key={opt.index}
@@ -152,7 +157,7 @@ export function ActionPanel({ session, player }: { session: BattleSession; playe
                                 onClick={() => session.submit({ type: 'move', player, pokemon_id: req.active.id, move_index: opt.index, terastallize: tera || undefined })}
                             />
                         ))}
-                    </div>
+                    </Grid>
                     {req.forced && <Text type="supporting" color="secondary">{t('movesLocked')}</Text>}
                 </VStack>
             )}
@@ -182,21 +187,21 @@ function SwitchList({ req, onSwitch }: { req: BattleRequest; onSwitch: (id: stri
                                 width="100%"
                                 label={`${t('switchTo', { name })} (${pctOf(p)}%${p.status ? `, ${statusLongName(p.status, lang)}` : ''})`}
                                 onClick={() => onSwitch(p.id)}
-                                className="h-auto justify-start border border-border py-1 text-left [&>span]:w-full [&>span>span]:w-full"
+                                className="h-auto flex-col items-stretch justify-center border border-border py-1 text-left"
                             >
-                                <span className="flex w-full min-w-0 items-center gap-2">
-                                    <span className="flex h-9 w-9 shrink-0 items-center justify-center">
+                                <HStack as="span" gap={2} vAlign="center" className="w-full min-w-0">
+                                    <HStack as="span" hAlign="center" vAlign="center" className="h-9 w-9 shrink-0">
                                         {id && <PokeImage sources={pokemonImageCandidates(id, 36)} alt="" size={36} className="h-9 w-9" />}
-                                    </span>
-                                    <span className="flex min-w-0 flex-1 flex-col gap-1">
-                                        <span className="flex min-w-0 items-center gap-1.5">
-                                            <span className="truncate text-sm font-semibold">{name}</span>
+                                    </HStack>
+                                    <VStack as="span" gap={1} className="min-w-0 flex-1">
+                                        <HStack as="span" gap={1.5} vAlign="center" className="min-w-0">
+                                            <Text size="sm" weight="semibold" maxLines={1} hasTruncateTooltip={false}>{name}</Text>
                                             {p.status && <StatusToken status={p.status} lang={lang} />}
-                                        </span>
+                                        </HStack>
                                         <HpBar p={p} label={t('hpLabel', { hp: p.hp, max: p.max_hp })} />
-                                    </span>
-                                    <span className="w-9 shrink-0 text-right text-xs font-normal tabular-nums text-secondary">{pctOf(p)}%</span>
-                                </span>
+                                    </VStack>
+                                    <Text type="supporting" size="xsm" hasTabularNumbers justify="end" className="w-9 shrink-0">{pctOf(p)}%</Text>
+                                </HStack>
                             </Button>
                         </li>
                     )
