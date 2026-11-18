@@ -31,14 +31,13 @@
 **Files:**
 - Create: `src/lib/generation.ts`
 - Create: `src/lib/generation.test.ts`
-- Create: `src/lib/__fixtures__/clefairy.json` (PokeAPI `pokemon/clefairy`에서 `types, abilities, stats, past_types, past_abilities, past_stats, cries, sprites.versions`만 남긴 것)
+- Create: `src/lib/__fixtures__/clefairy.json`, `src/lib/__fixtures__/pikachu.json` (PokeAPI `pokemon/clefairy`에서 `types, abilities, stats, past_types, past_abilities, past_stats, cries, sprites.versions`만 남긴 것)
 - Modify: `package.json` (devDependency `vitest`, script `"test": "vitest run"`)
 - Modify: `src/hooks/usePokemon.ts` (`PokemonDetail`에 필드 추가)
 
 **Interfaces:**
 - Produces (`src/hooks/usePokemon.ts`):
   ```ts
-  export interface PastEntry<T> { generation: NamedAPIResource; } // + 아래 필드
   PokemonDetail += {
     past_types?: { generation: NamedAPIResource; types: { slot: number; type: { name: string } }[] }[]
     past_abilities?: { generation: NamedAPIResource; abilities: { slot: number; is_hidden: boolean; ability: { name: string } | null }[] }[]
@@ -46,7 +45,6 @@
     cries?: { latest: string | null; legacy: string | null }
   }
   ```
-  (`PastEntry` 줄은 넣지 말 것 — 위 세 필드만 인라인 타입으로.)
 - Produces (`src/lib/generation.ts`):
   ```ts
   export const LATEST_GEN = 9
@@ -63,7 +61,7 @@
 
 규칙 (스펙 그대로):
 - `past_*` 항목의 `generation: N` = "N세대까지 이 값". 선택 세대 G에는 `N >= G`인 항목 중 N이 가장 작은 것, 없으면 현재 값. `changedIn` = 적용한 항목의 N + 1 (값이 현재와 같으면 null).
-- `past_stats`/`past_abilities`는 바뀐 항목(능력치 이름·슬롯)만 담으므로 항목별로 적용.
+- `past_stats`/`past_abilities`는 바뀐 항목(능력치 이름·슬롯)만 담으므로 항목별로 적용: 각 능력치/슬롯마다 그것을 담은 항목 중 `N >= G`이고 N이 가장 작은 것.
 - `past_abilities`의 `ability: null` = 그 슬롯 없음(결과에서 제외). G 3–4는 `hidden` 특성 제외(데이터에 없어도).
 - G=1: `special-attack`/`special-defense` 대신 `special` 하나(값은 `past_stats`의 `special`, 없으면 `special-attack` 값). 순서 hp, attack, defense, special, speed.
 - `spriteAt`: `versions["generation-" + 로마숫자소문자]`에서 `icons` 키를 제외한 첫 게임의 `front_default`, 없으면 null.
@@ -78,8 +76,9 @@
   test("abilitiesAt gen2 is null", () => expect(abilitiesAt(f, 2)).toBeNull())
   test("abilitiesAt gen3 has no hidden and no slot 2", ...)   // value.every(a => !a.hidden), 길이 1, name "cute-charm"
   test("abilitiesAt gen9 matches current", ...)               // changedIn null, hidden "friend-guard" 포함
-  test("statsAt gen1 uses special", ...)                      // keys == ["hp","attack","defense","special","speed"], special 60
-  test("statsAt gen5 spAtk 60 changed in 6", ...)             // 픽시 5세대 특공 60 → 6세대 70 (fixture 값으로 확인 후 고정)
+  test("statsAt gen1 uses special", ...)                      // statsAt(f,1) keys == ["hp","attack","defense","special","speed"], special 60
+  test("statsAt gen5 pikachu", ...)                           // statsAt(p,5): defense {30, changedIn 6}, special-defense {40, changedIn 6}, speed {90, null}
+  test("statsAt gen1 pikachu takes later entry per stat", ...) // statsAt(p,1): defense 30 (gen-v 항목이 적용), special 50
   test("spriteAt skips icons", ...)                           // gen5 → black-white URL
   test("spriteAt empty versions → null", () => expect(spriteAt({ front_default: null, versions: {} }, 3)).toBeNull())
   test("cryAt legacy first up to gen5", ...)                  // gen5 primary == legacy, gen6 primary == latest
