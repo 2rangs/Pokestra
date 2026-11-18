@@ -16,7 +16,7 @@ const Row = memo(function Row({ p, sortStat }: { p: DexPokemon; sortStat: StatKe
     return (
         <TableRow>
             <TableCell>
-                <PokemonImage p={p} className="h-10 w-10" />
+                <PokemonImage p={p} size={40} className="h-10 w-10" />
             </TableCell>
             <TableCell>
                 <Text type="supporting" hasTabularNumbers>

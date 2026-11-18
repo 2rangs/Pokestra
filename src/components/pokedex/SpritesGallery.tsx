@@ -9,6 +9,7 @@ import type { PokemonSprites } from "../../hooks/usePokemon"
 import type { Lang, TFunction } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { generationName, titleCaseSlug } from "../../lib/dex"
+import { PokeImage } from "../ui/PokeImage"
 import { ROMAN } from "./format"
 
 type T = TFunction<PokedexKey>
@@ -20,7 +21,7 @@ function SpriteItem({ label, src, size, pixelated }: { label: string; src: strin
     return (
         <figure className="flex w-28 flex-col items-center gap-1.5">
             <span className={`${box} flex items-center justify-center rounded-lg border border-border bg-muted`}>
-                <img src={src} alt={label} loading="lazy" className={`h-[88%] w-[88%] object-contain ${pixelated ? "[image-rendering:pixelated]" : ""}`} />
+                <PokeImage sources={[src]} alt={label} size={size === "lg" ? 112 : size === "md" ? 96 : 72} pixelated={!!pixelated} className="h-11/12 w-11/12" />
             </span>
             <figcaption className="text-center">
                 <Text type="supporting">{label}</Text>

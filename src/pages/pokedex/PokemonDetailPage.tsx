@@ -34,6 +34,8 @@ import { LANGS, type Lang, formatNumber, useDocumentTitle, useLang, useT } from 
 import { commonMessages } from "../../i18n/messages/common"
 import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
 import { itemName } from "../../lib/battle"
+import { pokemonImageCandidates } from "../../lib/images"
+import { PokeImage } from "../../components/ui/PokeImage"
 import {
     ABILITY_BY_NAME,
     ALL_POKEMON,
@@ -661,7 +663,7 @@ export default function PokemonDetailPage() {
                                         const current = f.id === id
                                         const label = formLabel(f, lang) ?? pokemonName(f, lang)
                                         const icon = f.sprite ? (
-                                            <img src={f.sprite} alt="" loading="lazy" className="h-6 w-6 object-contain [image-rendering:pixelated]" />
+                                            <PokeImage sources={pokemonImageCandidates(f.id, 24, { sprite: f.sprite })} alt="" size={24} className="h-6 w-6" />
                                         ) : undefined
                                         return (
                                             <li key={f.id} aria-current={current ? "page" : undefined}>

@@ -1,4 +1,4 @@
-import { memo, useState } from "react"
+import { memo } from "react"
 import { ClickableCard } from "@astryxdesign/core/ClickableCard"
 import { Text } from "@astryxdesign/core/Text"
 import { VStack } from "@astryxdesign/core/VStack"
@@ -10,9 +10,10 @@ import {
     baseStatTotal,
     formLabel as getFormLabel,
     getSpeciesId,
-    officialArtworkUrl,
     pokemonName,
 } from "../lib/dex"
+import { pokemonImageCandidates } from "../lib/images"
+import { PokeImage } from "./ui/PokeImage"
 import { TypeTag } from "./ui/shared"
 import { dexNumber } from "./pokedex/format"
 
@@ -27,27 +28,9 @@ function secondaryName(p: DexPokemon, lang: Lang): string {
     return (lang === "en" ? p.nameJa : p.nameEn) ?? ""
 }
 
-/** 포켓몬 이미지: 공식 일러스트 → 도트 스프라이트 → 빈 칸 */
-export function PokemonImage({ p, className }: { p: DexPokemon; className: string }) {
-    const [stage, setStage] = useState<0 | 1 | 2>(0)
-    if (stage === 2 || (stage === 1 && !p.sprite)) {
-        return <span className={`${className} block rounded-full bg-muted`} aria-hidden />
-    }
-    if (stage === 1) {
-        return <img src={p.sprite ?? ""} alt="" loading="lazy" className={`${className} object-contain [image-rendering:pixelated]`} />
-    }
-    return (
-        <img
-            src={officialArtworkUrl(p.id)}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            width={96}
-            height={96}
-            onError={() => setStage(p.sprite ? 1 : 2)}
-            className={`${className} object-contain`}
-        />
-    )
+/** 포켓몬 이미지: 표시 크기에 맞춰 도트/공식 일러스트 순서로 시도 */
+export function PokemonImage({ p, className, size }: { p: DexPokemon; className: string; size: number }) {
+    return <PokeImage sources={pokemonImageCandidates(p.id, size, { sprite: p.sprite })} alt="" size={size} className={`${className} rounded-md`} />
 }
 
 function PokemonCardImpl({ pokemon: p, highlight }: Props) {
@@ -71,7 +54,7 @@ function PokemonCardImpl({ pokemon: p, highlight }: Props) {
                     </Text>
                 </HStack>
                 <span className="flex justify-center">
-                    <PokemonImage p={p} className="h-20 w-20 sm:h-24 sm:w-24" />
+                    <PokemonImage p={p} size={96} className="h-20 w-20 sm:h-24 sm:w-24" />
                 </span>
                 <VStack gap={0.5}>
                     <Text weight="semibold" maxLines={1}>

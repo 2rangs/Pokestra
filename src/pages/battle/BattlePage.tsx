@@ -8,7 +8,9 @@ import { HStack } from '@astryxdesign/core/HStack'
 import { VStack } from '@astryxdesign/core/VStack'
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl'
 import { Text } from '@astryxdesign/core/Text'
-import { useEngineReady, buildRandomTeam, spriteUrl, dexIdOf } from '../../lib/battle'
+import { useEngineReady, buildRandomTeam, dexIdOf } from '../../lib/battle'
+import { pokemonImageCandidates } from '../../lib/images'
+import { PokeImage } from '../../components/ui/PokeImage'
 import { pokemonLabel } from '../../lib/battleLog'
 import { useBattleStore, type BattleMode } from '../../stores/battleStore'
 import { useDocumentTitle, useLang, useT } from '../../i18n'
@@ -44,7 +46,7 @@ function TeamStrip({ team }: { team: PokemonSet[] }) {
                 return (
                     <li key={i} title={name} className="flex items-center gap-1.5 rounded-md border border-border bg-surface py-0.5 pr-2.5 pl-1">
                         <span className="flex h-8 w-8 items-center justify-center">
-                            {id && <img src={spriteUrl(id)} alt="" className="h-8 w-8 object-contain [image-rendering:pixelated]" loading="lazy" />}
+                            {id && <PokeImage sources={pokemonImageCandidates(id, 32)} alt="" size={32} className="h-8 w-8" />}
                         </span>
                         <span className="sr-only sm:not-sr-only"><Text type="supporting">{name}</Text></span>
                     </li>

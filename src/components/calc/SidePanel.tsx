@@ -11,7 +11,9 @@ import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } f
 import { Text } from '@astryxdesign/core/Text'
 import { VStack } from '@astryxdesign/core/VStack'
 import { ITEMS, NATURES, abilityNameL, itemName, natureName, typeNameL } from '../../lib/battle'
-import { displayName, findDexPokemonByName, officialArtworkUrl, type DexPokemon } from '../../lib/dex'
+import { displayName, findDexPokemonByName, type DexPokemon } from '../../lib/dex'
+import { pokemonImageCandidates } from '../../lib/images'
+import { PokeImage } from '../ui/PokeImage'
 import { collator, formatNumber, useLang, useT } from '../../i18n'
 import { calcMessages } from '../../i18n/messages/calc'
 import { TypeTag } from '../ui/shared'
@@ -96,7 +98,7 @@ export function SidePanel({ role, state, bp, onChange, onPick }: Props) {
                 {/* 포켓몬 정보 */}
                 <div className="flex items-center gap-4">
                     <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        {dex && <img src={officialArtworkUrl(dex.id)} alt={name} className="h-20 w-20 object-contain" />}
+                        {dex && <PokeImage sources={pokemonImageCandidates(dex.id, 80, { sprite: dex.sprite })} alt={name} size={80} className="h-20 w-20" />}
                     </div>
                     <VStack gap={1} className="min-w-0">
                         <Text type="supporting" color="secondary">{sideLabel}</Text>
