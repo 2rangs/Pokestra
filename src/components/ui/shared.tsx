@@ -36,7 +36,7 @@ export function PageTitle({
     className?: string
 }) {
     return (
-        <header className={cx('mb-6 flex flex-col gap-1', className)}>
+        <header className={cx('mb-4 flex flex-col gap-1', className)}>
             <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <Heading level={1}>{title}</Heading>
                 {note && (

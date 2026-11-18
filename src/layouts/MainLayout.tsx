@@ -91,7 +91,7 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
             </a>
 
             <header className="sticky top-0 z-50 border-b border-border bg-surface">
-                <div className="mx-auto max-w-6xl">
+                <div className="mx-auto max-w-7xl">
                     <TopNav
                         label="Main"
                         heading={<TopNavHeading logo={<Mark className="h-7 w-7" />} heading="Pokestra" headingHref="/" />}
@@ -106,7 +106,7 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
             </header>
 
             <main id="main" className="flex-1">
-                <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+                <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
                     <Suspense fallback={fallback}>
                         <Outlet />
                     </Suspense>

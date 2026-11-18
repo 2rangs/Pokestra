@@ -105,12 +105,15 @@ export function SelectField({
     onChange,
     options,
     width = 160,
+    isLabelHidden,
 }: {
     label: string
     value: string
     onChange: (v: string) => void
     options: { value: string; label: string }[]
     width?: number
+    /** 라벨을 숨기고, 값 '' 옵션의 이름을 `label`로 보여 준다("전체" 대신 "타입"). */
+    isLabelHidden?: boolean
 }) {
     const ALL = '__all__'
     return (
@@ -118,10 +121,33 @@ export function SelectField({
             size="sm"
             width={width}
             label={label}
+            isLabelHidden={isLabelHidden}
             value={value || ALL}
             onChange={(v) => onChange(v === ALL ? '' : v)}
-            options={options.map((o) => ({ value: o.value || ALL, label: o.label }))}
+            options={options.map((o) => ({ value: o.value || ALL, label: isLabelHidden && !o.value ? label : o.label }))}
         />
+    )
+}
+
+// ── 필터 줄 (검색 | 선택들 | 오른쪽 끝) ──
+
+export function FilterRow({
+    label,
+    search,
+    children,
+    end,
+}: {
+    label: string
+    search: ReactNode
+    children?: ReactNode
+    end?: ReactNode
+}) {
+    return (
+        <section aria-label={label} className="flex flex-wrap items-end gap-2">
+            <span className="w-full sm:w-auto sm:min-w-56 sm:flex-1">{search}</span>
+            {children && <span className="flex max-w-full items-end gap-2 overflow-x-auto pb-0.5 *:shrink-0">{children}</span>}
+            {end && <span className="ms-auto">{end}</span>}
+        </section>
     )
 }
 
@@ -197,7 +223,7 @@ export function LoadMore({
     const t = useT(commonMessages)
     if (!hasMore) return null
     return (
-        <div ref={sentinelRef} className="mt-6 flex justify-center">
+        <div ref={sentinelRef} className="mt-4 flex justify-center">
             <Button variant="secondary" label={t('showMore')} onClick={onMore} />
         </div>
     )
