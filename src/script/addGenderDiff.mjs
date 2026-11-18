@@ -4,7 +4,7 @@
  *
  * 실행: node src/script/addGenderDiff.mjs
  * PokeAPI 의 pokemon_species.csv 의 has_gender_differences 를 사용한다.
- * 폼(id > 10000)은 원종의 값을 따른다 (pokemon.csv 의 species_id).
+ * 폼(id > 10000)은 항상 false (메가/거다이맥스/이미 암컷 폼 등에 표시가 붙지 않게).
  */
 import fs from 'fs'
 import path from 'path'
@@ -30,7 +30,8 @@ const speciesOf = new Map(rows(await text('pokemon')).map((r) => [r.id, r.specie
 const pokemon = JSON.parse(fs.readFileSync(FILE, 'utf8'))
 let n = 0
 for (const p of pokemon) {
-    p.genderDiff = species.get(speciesOf.get(String(p.id))) ?? false
+    p.genderDiff = p.id <= 10000 && (species.get(speciesOf.get(String(p.id))) ?? false)
+    if (p.id > 10000 && p.genderDiff) throw new Error(`form ${p.id} must be false`)
     if (p.genderDiff) n++
 }
 fs.writeFileSync(FILE, JSON.stringify(pokemon, null, 2) + '\n')
