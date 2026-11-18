@@ -15,7 +15,7 @@ import { pokemonLabel } from '../../lib/battleLog'
 import { useBattleStore, type BattleMode } from '../../stores/battleStore'
 import { useDocumentTitle, useLang, useT } from '../../i18n'
 import { battleMessages } from '../../i18n/messages/battle'
-import { PageTitle, SectionTitle, Spinner } from '../../components/ui/shared'
+import { PageSkeleton, PageTitle, SectionTitle } from '../../components/ui/shared'
 import { TeamBuilder } from './TeamBuilder'
 import { BattleView } from './BattleView'
 import { useBattleSession, type Difficulty } from './useBattleSession'
@@ -89,7 +89,7 @@ export default function BattlePage() {
             </span>
         )
     }
-    if (!ready) return <Spinner label={t('loadingEngine')} className="min-h-screen" />
+    if (!ready) return <PageSkeleton label={t('loadingEngine')} heights={[112, 320, 320]} />
 
     const size = store.teamSize
     const myTeam = store.myTeam.slice(0, size)
