@@ -146,7 +146,7 @@ export function FilterRow({
         <HStack as="section" aria-label={label} wrap="wrap" gap={2} align="end">
             <HStack className="w-full sm:w-auto sm:min-w-56 sm:flex-1">{search}</HStack>
             {children && (
-                <HStack gap={2} align="end" className="max-w-full overflow-x-auto pb-0.5 *:shrink-0">
+                <HStack gap={2} align="end" maxWidth="100%" isScrollable paddingBlockEnd={0.5} className="*:shrink-0">
                     {children}
                 </HStack>
             )}

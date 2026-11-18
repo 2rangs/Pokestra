@@ -100,7 +100,7 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                     />
                 </div>
                 {/* 좁은 화면: 가로 스크롤 탭 줄 */}
-                <nav aria-label="Sections" className="overflow-x-auto px-2 pb-1.5 [scrollbar-width:none] lg:hidden">
+                <nav aria-label="Sections" className="overflow-x-auto px-4 pb-1.5 sm:px-6 [scrollbar-width:none] lg:hidden">
                     <span className="flex w-max gap-1">{items}</span>
                 </nav>
             </header>
