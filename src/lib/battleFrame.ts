@@ -12,6 +12,12 @@ export interface PokeView {
     hp:            number
     max_hp:        number
     status:        string | null
+    /**
+     * 상태이상 카운터 (없으면 null).
+     * toxic: 지금까지 맹독 데미지를 받은 횟수 (다음 데미지 = (n+1)/16, 교체하면 0으로).
+     * sleep: 잠든 뒤 움직이지 못한 턴 수 (남은 턴은 게임처럼 숨긴다).
+     */
+    statusTurns:   number | null
     types:         string[]
     tera_type:     string | null
     terastallized: boolean
@@ -20,6 +26,8 @@ export interface PokeView {
     ability:       string
     fainted:       boolean
     volatiles:     string[]
+    /** 휘발성 상태의 남은 턴 (엔진이 알려 주는 것만) */
+    volatileTurns: Record<string, number>
 }
 
 export interface SideView {

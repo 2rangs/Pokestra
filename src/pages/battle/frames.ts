@@ -10,24 +10,33 @@ import { turnsOf, type Frame, type PokeView, type SideView } from '../../lib/bat
 import type { ReplayController, ReplayData } from '../../lib/replay'
 import type { Lang } from '../../i18n'
 
-function viewPokemon(p: BattlePokemon): PokeView {
+function viewPokemon(p: BattlePokemon, slept: ReadonlyMap<string, number>): PokeView {
     const stages: Record<string, number> = {}
     for (const [k, v] of Object.entries(p.stages)) if (v !== 0) stages[k] = v
+    const volatiles = Object.keys(p.volatile_statuses).filter(v => v !== 'protect_streak')
+    const volatileTurns: Record<string, number> = {}
+    for (const v of volatiles) {
+        const n = turnsOf(p.volatile_statuses[v as keyof typeof p.volatile_statuses])
+        if (n !== null) volatileTurns[v] = n
+    }
+    const statusTurns = p.status === 'toxic' ? Math.max(0, p.status_turns ?? 0)
+        : p.status === 'sleep' ? slept.get(p.id) ?? 0
+            : null
     return {
         id: p.id, species: p.species, setSpecies: p.set?.species ?? p.species, nickname: p.nickname, level: p.level,
-        hp: p.hp, max_hp: p.max_hp, status: p.status, types: p.types.filter(Boolean) as string[],
+        hp: p.hp, max_hp: p.max_hp, status: p.status, statusTurns, types: p.types.filter(Boolean) as string[],
         tera_type: p.tera_type ?? null, terastallized: !!p.terastallized, stages,
         item: p.item, ability: p.ability, fainted: p.fainted,
-        volatiles: Object.keys(p.volatile_statuses).filter(v => v !== 'protect_streak'),
+        volatiles, volatileTurns,
     }
 }
 
-function viewSide(side: Side): SideView {
+function viewSide(side: Side, slept: ReadonlyMap<string, number>): SideView {
     return {
         id: side.id,
         name: side.name ?? side.id,
-        active: viewPokemon(side.active[0]!),
-        team: side.team.map(viewPokemon),
+        active: viewPokemon(side.active[0]!, slept),
+        team: side.team.map(p => viewPokemon(p, slept)),
         conditions: Object.entries(side.conditions).map(([id, c]) => ({ id, layers: c?.layers ?? 1, turns: turnsOf(c) })),
         usedTera: !!side.used_tera,
     }
@@ -55,12 +64,16 @@ export function frameText(f: Frame, lang: Lang, sideName?: (p: PlayerID) => stri
 
 /** 엔진의 모든 이벤트를 프레임으로 만들어 push 한다. 엔진 start() 전에 붙인다. 떼는 함수를 돌려준다 */
 export function attachFrameCapture(engine: BattleEngine, push: (frame: Omit<Frame, 'index'>) => void): () => void {
+    // 잠든 턴 수: 엔진은 남은 턴만 세므로 '잠들어 움직이지 못함'을 직접 센다
+    const slept = new Map<string, number>()
     return engine.on('*', (ev: BattleEvent) => {
+        if (ev.type === 'status_apply' && ev.status === 'sleep') slept.set(ev.pokemon_id, 0)
+        else if (ev.type === 'cant_move' && ev.reason === 'sleep') slept.set(ev.pokemon_id, (slept.get(ev.pokemon_id) ?? 0) + 1)
         const st = engine.getState()
         // 팀 등록 전(battle_start) 이벤트는 화면에 그릴 포켓몬이 없다
         if (!st.sides.p1.active[0] || !st.sides.p2.active[0]) return
-        const p1 = viewSide(st.sides.p1)
-        const p2 = viewSide(st.sides.p2)
+        const p1 = viewSide(st.sides.p1, slept)
+        const p2 = viewSide(st.sides.p2, slept)
         push({
             event:   ev,
             // 숨김 여부는 언어와 무관하다
