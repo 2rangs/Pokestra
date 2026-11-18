@@ -109,10 +109,11 @@ export function initSide(p: DexPokemon, level = 50, hpPct = 100): SideState {
     }
 }
 
-export function initSideBySlug(slug: string | null, fallback: string): SideState | null {
+export function initSideBySlug(slug: string | null, fallback: string, item?: string | null): SideState | null {
     const p = (slug && findDexPokemonByName(slug)) || findDexPokemonByName(fallback)
     if (!p || !getSpecies(p.name)) return null
-    return initSide(p)
+    const side = initSide(p)
+    return item ? { ...side, item } : side
 }
 
 export function evTotal(evs: Stats): number {
