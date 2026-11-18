@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { PlayerID } from '@kyasi/pokebattle-engine'
 import { Button } from '@astryxdesign/core/Button'
 import { Card } from '@astryxdesign/core/Card'
@@ -22,14 +22,9 @@ import { FieldBar } from './hud/FieldBar'
 import { ActionPanel } from './hud/MovePanel'
 import { BattleLog } from './hud/BattleLog'
 import { HpBar } from './hud/common'
-import { nameOf, pctOf, useBattleT } from './hud/util'
+import { BattleLayout, SceneOverlay } from './hud/BattleLayout'
+import { nameOf, pctOf, SPEEDS, useBattleT } from './hud/util'
 
-const SPEEDS = [
-    { value: 900, label: 'speedSlow' },
-    { value: 450, label: 'speedNormal' },
-    { value: 180, label: 'speedFast' },
-    { value: 40, label: 'speedVeryFast' },
-] as const
 
 // ─── 결과 ────────────────────────────────────────────────────
 function ResultOverlay({ result, replay, onRematch, onExit }: {
@@ -41,8 +36,6 @@ function ResultOverlay({ result, replay, onRematch, onExit }: {
 }) {
     const t = useBattleT()
     const toast = useToast()
-    const ref = useRef<HTMLDivElement>(null)
-    useEffect(() => { ref.current?.querySelector('button')?.focus() }, [])
     const [data] = useState(replay)
     const encoded = useEncodedReplay(data)
 
@@ -57,20 +50,12 @@ function ResultOverlay({ result, replay, onRematch, onExit }: {
     }
 
     return (
-        <div
-            ref={ref}
-            role="alertdialog"
-            aria-label={result}
-            className="absolute inset-0 z-40 flex flex-col items-center justify-center gap-4 rounded-lg bg-surface/90 p-4 text-center"
-        >
-            <Heading level={2}>{result}</Heading>
-            <HStack gap={2} hAlign="center" wrap="wrap">
-                <Button variant="primary" label={t('rematch')} onClick={onRematch} />
-                <Button label={t('copyReplay')} icon={<Icon icon="copy" />} isDisabled={!encoded} onClick={copy} />
-                <Button label={t('viewReplay')} isDisabled={!encoded} href={encoded ? replayRoute(encoded) : undefined} />
-                <Button variant="ghost" label={t('backToTeam')} onClick={onExit} />
-            </HStack>
-        </div>
+        <SceneOverlay title={result}>
+            <Button variant="primary" label={t('rematch')} onClick={onRematch} />
+            <Button label={t('copyReplay')} icon={<Icon icon="copy" />} isDisabled={!encoded} onClick={copy} />
+            <Button label={t('viewReplay')} isDisabled={!encoded} href={encoded ? replayRoute(encoded) : undefined} />
+            <Button variant="ghost" label={t('backToTeam')} onClick={onExit} />
+        </SceneOverlay>
     )
 }
 
@@ -105,8 +90,8 @@ export function BattleView({ session, onExit, onRematch }: { session: BattleSess
             : spectating ? t('winnerIs', { name: cpu2 }) : t('lose')
 
     return (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            <VStack gap={3} className="min-w-0">
+        <BattleLayout
+            main={<>
                 <HStack gap={3} vAlign="center" hAlign="between" wrap="wrap">
                     <FieldBar frame={f} sideName={sideName} />
                     <HStack gap={2} vAlign="center" wrap="wrap">
@@ -165,13 +150,12 @@ export function BattleView({ session, onExit, onRematch }: { session: BattleSess
                     </Card>
                 )}
                 {spectating && <SpectatorDetails f={f} sideName={sideName!} />}
-            </VStack>
-
-            <VStack gap={2} className="min-w-0">
+            </>}
+            log={<>
                 <Heading level={2}>{t('battleLog')}</Heading>
                 <BattleLog frames={session.frames} revealed={session.revealed} sideName={sideName} />
-            </VStack>
-        </div>
+            </>}
+        />
     )
 }
 

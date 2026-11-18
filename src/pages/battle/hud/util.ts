@@ -16,3 +16,11 @@ export const nameOf = (p: Named, lang: Lang) => pokemonLabel(p.species, p.nickna
 export function useBattleT() {
     return useT(battleMessages)
 }
+
+/** 재생 속도 (프레임 간격 ms) */
+export const SPEEDS = [
+    { value: 900, label: 'speedSlow' },
+    { value: 450, label: 'speedNormal' },
+    { value: 180, label: 'speedFast' },
+    { value: 40, label: 'speedVeryFast' },
+] as const

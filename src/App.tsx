@@ -12,6 +12,7 @@ const HomePage = lazy(() => import('./pages/HomePage'))
 const PokedexPage = lazy(() => import('./pages/pokedex/PokedexPage.tsx'))
 const PokemonDetailPage = lazy(() => import('./pages/pokedex/PokemonDetailPage.tsx'))
 const BattlePage = lazy(() => import('./pages/battle/BattlePage.tsx'))
+const ReplayPage = lazy(() => import('./pages/battle/ReplayPage.tsx'))
 const CalcPage = lazy(() => import('./pages/CalcPage.tsx'))
 const MovesPage = lazy(() => import('./pages/MovesPage'))
 const AbilitiesPage = lazy(() => import('./pages/AbilitiesPage'))
@@ -45,6 +46,7 @@ export default function App() {
                 <Route path="/pokedex" element={<PokedexPage />} />
                 <Route path="/pokemon/:id" element={<PokemonDetailPage />} />
                 <Route path="/battle" element={<BattlePage />} />
+                <Route path="/battle/replay" element={<ReplayPage />} />
                 <Route path="/calc" element={<CalcPage />} />
                 <Route path="/moves" element={<MovesPage />} />
                 <Route path="/moves/:slug" element={<MovesPage />} />
