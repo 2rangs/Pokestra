@@ -15,6 +15,7 @@ import {
 import { pokemonImageCandidates } from "../lib/images"
 import { PokeImage } from "./ui/PokeImage"
 import { TypeTag } from "./ui/shared"
+import { GenderDiffMark } from "./pokedex/GenderDiffMark"
 import { dexNumber } from "./pokedex/format"
 
 type Props = {
@@ -57,9 +58,12 @@ function PokemonCardImpl({ pokemon: p, highlight }: Props) {
                     <PokemonImage p={p} size={96} className="h-20 w-20 sm:h-24 sm:w-24" />
                 </span>
                 <VStack gap={0.5}>
-                    <Text weight="semibold" maxLines={1}>
-                        {name}
-                    </Text>
+                    <HStack gap={1} vAlign="center">
+                        <Text weight="semibold" maxLines={1}>
+                            {name}
+                        </Text>
+                        {p.genderDiff && <GenderDiffMark t={t} />}
+                    </HStack>
                     <Text type="supporting" maxLines={1}>
                         {formLabel ?? <span lang={lang === "en" ? "ja" : "en"}>{sub || " "}</span>}
                     </Text>

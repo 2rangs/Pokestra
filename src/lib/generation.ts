@@ -99,15 +99,26 @@ export function statsAt(d: PokemonDetail, gen: number): { key: GenStatKey; value
     return out
 }
 
-export function spriteAt(sprites: PokemonSprites, gen: number): string | null {
+export function spriteAt(sprites: PokemonSprites, gen: number, opts?: { female?: boolean }): string | null {
     const roman = ROMAN_BY_GEN[gen]
     const games = roman ? sprites.versions?.["generation-" + roman] : undefined
     if (!games) return null
+    if (opts?.female) {
+        for (const [game, sprite] of Object.entries(games)) {
+            if (game === "icons") continue
+            if (sprite?.front_female) return sprite.front_female
+        }
+    }
     for (const [game, sprite] of Object.entries(games)) {
         if (game === "icons") continue
         if (sprite?.front_default) return sprite.front_default
     }
     return null
+}
+
+/** 암컷 일러스트(HOME → 기본 스프라이트 순). 없으면 null */
+export function femaleArtAt(sprites: PokemonSprites): string | null {
+    return sprites.other?.home?.front_female ?? sprites.front_female ?? null
 }
 
 export function cryAt(

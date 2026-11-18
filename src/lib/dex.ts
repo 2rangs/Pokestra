@@ -40,6 +40,8 @@ export interface DexPokemon {
     /** 배울 수 있는 기술 slug 목록 */
     moves: string[]
     eggGroups: string[]
+    /** 암수에 따라 모습이 다른 종인가 (기본 폼만 true, 폼은 항상 false) */
+    genderDiff: boolean
 }
 
 /** 언어별 텍스트 (데이터에 없으면 null) */

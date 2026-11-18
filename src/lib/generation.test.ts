@@ -2,7 +2,7 @@ import { expect, test } from "vitest"
 import type { PokemonDetail } from "../hooks/usePokemon"
 import clefairyJson from "./__fixtures__/clefairy.json"
 import pikachuJson from "./__fixtures__/pikachu.json"
-import { abilitiesAt, clampGen, cryAt, genNumber, spriteAt, statsAt, typesAt } from "./generation"
+import { abilitiesAt, clampGen, cryAt, femaleArtAt, genNumber, spriteAt, statsAt, typesAt } from "./generation"
 
 const f = clefairyJson as unknown as PokemonDetail
 const p = pikachuJson as unknown as PokemonDetail
@@ -87,4 +87,19 @@ test("statsAt gen1 special comes from past_stats, not current special-attack", (
         ],
     } as unknown as PokemonDetail
     expect(stat(statsAt(d, 1), "special")!.value).toBe(77)
+})
+
+test("spriteAt female gen4 → diamond-pearl/platinum female url", () =>
+    expect(spriteAt(p.sprites, 4, { female: true })).toMatch(/generation-iv\/(diamond-pearl|platinum)\/(animated\/)?female\/25\.png$/))
+test("spriteAt female gen3 falls back to male gen3", () =>
+    expect(spriteAt(p.sprites, 3, { female: true })).toBe(spriteAt(p.sprites, 3)))
+test("spriteAt female:false equals male", () =>
+    expect(spriteAt(p.sprites, 4, { female: false })).toBe(spriteAt(p.sprites, 4)))
+test("femaleArtAt returns home female", () =>
+    expect(femaleArtAt(p.sprites)).toBe(
+        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/female/25.png",
+    ))
+test("femaleArtAt falls back to front_female then null", () => {
+    expect(femaleArtAt({ front_default: "m", front_female: "f" })).toBe("f")
+    expect(femaleArtAt({ front_default: "m" })).toBeNull()
 })

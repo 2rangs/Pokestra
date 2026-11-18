@@ -209,6 +209,8 @@ const pokemon = readJson('pokemon.json').map((p) => {
         abilities: abil,
         moves: p.moves,
         eggGroups: p.eggGroups,
+        // addGenderDiff.mjs 가 채운 값을 유지한다
+        genderDiff: p.genderDiff ?? false,
     }
 })
 writeJson('pokemon.json', pokemon)
