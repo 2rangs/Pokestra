@@ -169,7 +169,7 @@ function FieldTokens({ f }: { f: Frame }) {
     const tokens: { label: string; color: TokenColor }[] = []
     if (f.weather) tokens.push({ label: weatherName(f.weather, lang), color: 'blue' })
     if (f.terrain) tokens.push({ label: terrainName(f.terrain, lang), color: 'green' })
-    for (const c of f.field) tokens.push({ label: fieldConditionName(c, lang), color: 'pink' })
+    for (const c of f.field) tokens.push({ label: fieldConditionName(c.id, lang), color: 'pink' })
     const side = (s: SideView, label: string) => s.conditions.filter(c => c.id !== 'wish').map(c => ({
         label: `${label} ${sideConditionName(c.id, lang)}${c.layers > 1 ? `×${c.layers}` : ''}`,
         color: 'orange' as const,

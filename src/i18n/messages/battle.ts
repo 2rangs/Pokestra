@@ -116,6 +116,10 @@ export const battleMessages = defineMessages({
         itemOrAbility: '도구 / 특성',
         moves: '기술',
         damagePreview: '예상 데미지 {range}',
+        // HUD
+        koGuaranteed: '확정 {n}타',
+        koChance: '난수 {n}타 ({pct}%)',
+        effLabel: '{label} (×{x})',
     },
     en: {
         title: 'Battle Simulator',
@@ -228,6 +232,9 @@ export const battleMessages = defineMessages({
         itemOrAbility: 'Item / Ability',
         moves: 'Moves',
         damagePreview: 'Estimated damage {range}',
+        koGuaranteed: 'Guaranteed {hko}',
+        koChance: '{pct}% chance to {hko}',
+        effLabel: '{label} (×{x})',
     },
     ja: {
         title: 'バトルシミュレーター',
@@ -340,5 +347,8 @@ export const battleMessages = defineMessages({
         itemOrAbility: 'もちもの / とくせい',
         moves: 'わざ',
         damagePreview: '予想ダメージ {range}',
+        koGuaranteed: '確定{n}発',
+        koChance: '乱数{n}発 ({pct}%)',
+        effLabel: '{label} (×{x})',
     },
 })

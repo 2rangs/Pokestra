@@ -38,7 +38,8 @@ export interface SideView {
     name:       string
     active:     PokeView
     team:       PokeView[]
-    conditions: { id: string; layers: number }[]
+    /** turns: 남은 턴 (장판처럼 무기한이면 null) */
+    conditions: { id: string; layers: number; turns: number | null }[]
     usedTera:   boolean
 }
 
@@ -51,9 +52,17 @@ export interface Frame {
     p1:      SideView
     p2:      SideView
     weather: string | null
+    /** 남은 턴 (모르거나 무기한이면 null) */
+    weatherTurns: number | null
     terrain: string | null
-    field:   string[]
+    terrainTurns: number | null
+    /** 트릭룸·중력 등 필드 전체 효과 */
+    field:   { id: string; turns: number | null }[]
 }
+
+/** 엔진의 남은 턴 → 화면 값. 0 이하·없음은 null (무기한/끝나는 중) */
+export const turnsOf = (d: { turns_remaining?: number | null } | null | undefined): number | null =>
+    d && typeof d.turns_remaining === 'number' && d.turns_remaining > 0 ? d.turns_remaining : null
 
 function viewPokemon(p: BattlePokemon): PokeView {
     const stages: Record<string, number> = {}
@@ -73,7 +82,7 @@ function viewSide(side: Side): SideView {
         name: side.name ?? side.id,
         active: viewPokemon(side.active[0]!),
         team: side.team.map(viewPokemon),
-        conditions: Object.entries(side.conditions).map(([id, c]) => ({ id, layers: c?.layers ?? 1 })),
+        conditions: Object.entries(side.conditions).map(([id, c]) => ({ id, layers: c?.layers ?? 1, turns: turnsOf(c) })),
         usedTera: !!side.used_tera,
     }
 }
@@ -141,8 +150,10 @@ export function useBattleSession() {
                 p1,
                 p2,
                 weather: st.field.weather,
+                weatherTurns: st.field.weather ? turnsOf(st.field.weather_turns) : null,
                 terrain: st.field.terrain,
-                field:   Object.keys(st.field.conditions),
+                terrainTurns: st.field.terrain ? turnsOf(st.field.terrain_turns) : null,
+                field:   Object.entries(st.field.conditions).map(([id, c]) => ({ id, turns: turnsOf(c) })),
             }
             framesRef.current.push(frame)
         }
