@@ -16,20 +16,20 @@ import {
     BackLink,
     ClassBadge,
     EmptyState,
+    FilterRow,
     LoadMore,
     PageHeader,
     PokemonChip,
     SearchField,
     Segmented,
     SelectField,
-    FilterRow,
 } from '../components/dex/DexUi'
 import { FactList, Panel, type Fact } from '../components/pokedex/DetailPanel'
 import { TypeChip } from '../components/ui/TypeChip'
-import { useSlashFocus } from '../hooks/useSlashFocus'
 import { buildSearchKey, cleanDesc, foldSearch } from '../components/dex/text'
 import { useProgressive } from '../components/dex/useProgressive'
 import { useUrlParams } from '../components/dex/useUrlParams'
+import { useSlashFocus } from '../hooks/useSlashFocus'
 import { collator, LANGS, useDocumentTitle, useLang, useT } from '../i18n'
 import { commonMessages } from '../i18n/messages/common'
 import { movesMessages } from '../i18n/messages/moves'
@@ -351,7 +351,6 @@ function MoveDetail({ slug }: { slug: string }) {
                         )}
                         <HStack gap={2} align="center" wrap="wrap">
                             <TypeChip type={m.type} size="md" />
-                            <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} />
                         </HStack>
                     </VStack>
                     <Panel>

@@ -23,7 +23,6 @@ export const abilitiesMessages = defineMessages({
         notFound: '특성을 찾을 수 없어요',
         notFoundBody: '주소를 확인하거나 목록에서 다시 골라 주세요.',
         otherNames: '다른 언어',
-        pokemonCount: '포켓몬 {n}',
         list: '특성 목록',
     },
     en: {
@@ -47,7 +46,6 @@ export const abilitiesMessages = defineMessages({
         notFound: 'Ability not found',
         notFoundBody: 'Check the address or pick an ability from the list.',
         otherNames: 'Other languages',
-        pokemonCount: '{n} Pokémon',
         list: 'Ability list',
     },
     ja: {
@@ -71,7 +69,6 @@ export const abilitiesMessages = defineMessages({
         notFound: 'とくせいが見つかりません',
         notFoundBody: 'アドレスを確認するか、一覧から選び直してください。',
         otherNames: '他の言語',
-        pokemonCount: 'ポケモン {n}匹',
         list: 'とくせい一覧',
     },
 })

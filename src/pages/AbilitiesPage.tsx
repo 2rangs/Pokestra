@@ -153,7 +153,7 @@ function AbilityRow({ ability: a, lang, search }: { ability: DexAbility; lang: L
                             <Text type="supporting">{generationName(a.generation, lang)}</Text>
                         </span>
                     )}
-                    <Text hasTabularNumbers weight="semibold" aria-label={t('pokemonCount', { n: count })}>
+                    <Text hasTabularNumbers weight="semibold">
                         {t('holdersCount', { n: formatNumber(count, lang) })}
                     </Text>
                 </HStack>
