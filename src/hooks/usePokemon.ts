@@ -65,6 +65,16 @@ export interface PokemonDetail {
     height: number
     /** 헥토그램 */
     weight: number
+    /** "generation N 까지 이 값" 이전 세대 타입 */
+    past_types?: { generation: NamedAPIResource; types: { slot: number; type: { name: string } }[] }[]
+    /** 이전 세대 특성 (바뀐 슬롯만, ability null = 그 슬롯 없음) */
+    past_abilities?: {
+        generation: NamedAPIResource
+        abilities: { slot: number; is_hidden: boolean; ability: { name: string } | null }[]
+    }[]
+    /** 이전 세대 능력치 (바뀐 능력치만) */
+    past_stats?: { generation: NamedAPIResource; stats: { base_stat: number; stat: { name: string } }[] }[]
+    cries?: { latest: string | null; legacy: string | null }
 }
 
 /** PokeAPI의 `{ name, url }` 형태 참조 */
