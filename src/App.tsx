@@ -15,6 +15,8 @@ const BattlePage = lazy(() => import('./pages/battle/BattlePage.tsx'))
 const CalcPage = lazy(() => import('./pages/CalcPage.tsx'))
 const MovesPage = lazy(() => import('./pages/MovesPage'))
 const AbilitiesPage = lazy(() => import('./pages/AbilitiesPage'))
+const ItemListPage = lazy(() => import('./pages/items/ItemListPage.tsx'))
+const ItemDetailPage = lazy(() => import('./pages/items/ItemDetailPage.tsx'))
 const SpritesPage = lazy(() => import('./pages/SpritesPage.tsx'))
 
 function PageFallback() {
@@ -50,6 +52,8 @@ export default function App() {
                 <Route path="/moves/:slug" element={<MovesPage />} />
                 <Route path="/abilities" element={<AbilitiesPage />} />
                 <Route path="/abilities/:slug" element={<AbilitiesPage />} />
+                <Route path="/items" element={<ItemListPage />} />
+                <Route path="/items/:slug" element={<ItemDetailPage />} />
                 <Route path="/sprites" element={<SpritesPage />} />
 
                 {/* 기존 /pokestra 접근 시 홈으로 */}

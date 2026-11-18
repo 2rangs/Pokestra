@@ -14,3 +14,6 @@ export const boxIconUrls = (id: number): string[] => [
     `${SPRITE_BASE}/versions/generation-ix/scarlet-violet/icons/${id}.png`,
     `${SPRITE_BASE}/versions/generation-vii/icons/${id}.png`,
 ]
+
+export const itemIconUrl = (slug: string): string =>
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${slug}.png`

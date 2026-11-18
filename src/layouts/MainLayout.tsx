@@ -12,6 +12,7 @@ const NAV_ITEMS = [
     { to: '/calc', key: 'navCalc', match: ['/calc'] },
     { to: '/moves', key: 'navMoves', match: ['/moves'] },
     { to: '/abilities', key: 'navAbilities', match: ['/abilities'] },
+    { to: '/items', key: 'navItems', match: ['/items'] },
     { to: '/sprites', key: 'navSprites', match: ['/sprites'] },
 ] as const
 

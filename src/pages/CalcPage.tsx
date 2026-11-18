@@ -6,6 +6,7 @@ import { IconButton } from '@astryxdesign/core/IconButton'
 import { VStack } from '@astryxdesign/core/VStack'
 import { battleReadyPokemon, useEngineReady } from '../lib/battle'
 import { findDexPokemonByName, type DexPokemon } from '../lib/dex'
+import { parseCalcItem } from '../lib/calcItems'
 import {
     DEFAULT_FIELD, calcMove, damagingLearnset, initSide, initSideBySlug, toBattlePokemon,
     type FieldState, type MoveCalc, type SideState,
@@ -42,7 +43,7 @@ function fallbackSide(): SideState {
 function Calculator() {
     const t = useT(calcMessages)
     const [params, setParams] = useSearchParams()
-    const [atk, setAtk] = useState<SideState>(() => initSideBySlug(params.get('atk'), 'garchomp') ?? fallbackSide())
+    const [atk, setAtk] = useState<SideState>(() => initSideBySlug(params.get('atk'), 'garchomp', parseCalcItem(params.get('atkItem'))) ?? fallbackSide())
     const [def, setDef] = useState<SideState>(() => initSideBySlug(params.get('def'), 'gholdengo') ?? fallbackSide())
     const [field, setField] = useState<FieldState>(DEFAULT_FIELD)
 
@@ -51,6 +52,7 @@ function Calculator() {
             const next = new URLSearchParams(prev)
             next.set('atk', a.slug)
             next.set('def', d.slug)
+            next.delete('atkItem')
             return next
         }, { replace: true })
 

@@ -47,6 +47,7 @@ export function FilterChip({
     children,
     label,
     icon,
+    className,
 }: {
     active: boolean
     onClick: () => void
@@ -55,9 +56,10 @@ export function FilterChip({
     /** 접근성 이름 */
     label: string
     icon?: ReactNode
+    className?: string
 }) {
     return (
-        <ToggleButton size="sm" label={label} icon={icon} isPressed={active} onPressedChange={() => onClick()}>
+        <ToggleButton size="sm" label={label} icon={icon} className={className} isPressed={active} onPressedChange={() => onClick()}>
             {children ?? label}
         </ToggleButton>
     )
