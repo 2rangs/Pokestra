@@ -91,7 +91,7 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
             </a>
 
             <header className="sticky top-0 z-50 border-b border-border bg-surface">
-                <div className="mx-auto max-w-7xl">
+                <div className="mx-auto max-w-7xl sm:px-2">
                     <TopNav
                         label="Main"
                         heading={<TopNavHeading logo={<Mark className="h-7 w-7" />} heading="Pokestra" headingHref="/" />}

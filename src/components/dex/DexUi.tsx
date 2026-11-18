@@ -143,11 +143,15 @@ export function FilterRow({
     end?: ReactNode
 }) {
     return (
-        <section aria-label={label} className="flex flex-wrap items-end gap-2">
-            <span className="w-full sm:w-auto sm:min-w-56 sm:flex-1">{search}</span>
-            {children && <span className="flex max-w-full items-end gap-2 overflow-x-auto pb-0.5 *:shrink-0">{children}</span>}
-            {end && <span className="ms-auto">{end}</span>}
-        </section>
+        <HStack as="section" aria-label={label} wrap="wrap" gap={2} align="end">
+            <HStack className="w-full sm:w-auto sm:min-w-56 sm:flex-1">{search}</HStack>
+            {children && (
+                <HStack gap={2} align="end" className="max-w-full overflow-x-auto pb-0.5 *:shrink-0">
+                    {children}
+                </HStack>
+            )}
+            {end && <HStack className="ms-auto">{end}</HStack>}
+        </HStack>
     )
 }
 
