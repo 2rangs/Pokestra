@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
-import { effectivenessLabel, effectivenessTone, fieldItems, koLabel, stageFactor, stageMultiplier } from './battleHud'
+import type { BattleEvent } from '@kyasi/pokebattle-engine'
+import { effectivenessLabel, effectivenessTone, fieldItems, groupLogByTurn, koLabel, logTone, stageFactor, stageMultiplier } from './battleHud'
 import { turnsOf, type Frame, type SideView } from '../pages/battle/useBattleSession'
 
 test('koLabel: 확정/난수 n타, 세 언어', () => {
@@ -77,4 +78,33 @@ test('turnsOf: 남은 턴 0 이하·없음은 null', () => {
     expect(turnsOf({ turns_remaining: Infinity })).toBeNull()
     expect(turnsOf({ turns_remaining: null })).toBeNull()
     expect(turnsOf(null)).toBeNull()
+})
+
+test('groupLogByTurn: turn_start 로 묶고 기절·급소·효과 굉장을 센다', () => {
+    const fr = (es: BattleEvent[]) => es.map((event, index) => ({ index, turn: 0, event }))
+    const frames = fr([
+        { type: 'switch', pokemon_id: 'a', player: 'p1' } as unknown as BattleEvent,
+        { type: 'turn_start', turn: 1 },
+        { type: 'move_use', pokemon_id: 'a', move: 'tackle' } as unknown as BattleEvent,
+        { type: 'damage', pokemon_id: 'b', amount: 10, source: 'tackle', crit: true, effectiveness: 2 },
+        { type: 'faint', pokemon_id: 'b' } as unknown as BattleEvent,
+        { type: 'turn_start', turn: 2 },
+        { type: 'damage', pokemon_id: 'a', amount: 1, source: 'x', effectiveness: 0.5 },
+    ])
+    const g = groupLogByTurn(frames)
+    expect(g.map(x => [x.key, x.turn, x.items.length])).toEqual([['start', 0, 1], ['t1', 1, 3], ['t5', 2, 1]])
+    expect(g[1]!.summary).toEqual({ faints: 1, crits: 1, supers: 1 })
+    expect(g[2]!.summary).toEqual({ faints: 0, crits: 0, supers: 0 })
+    expect(groupLogByTurn([])).toEqual([])
+})
+
+test('logTone: 강조 단계', () => {
+    expect(logTone({ type: 'faint', pokemon_id: 'a' } as unknown as BattleEvent)).toBe('key')
+    expect(logTone({ type: 'damage', pokemon_id: 'a', amount: 1, source: 'x', crit: true })).toBe('key')
+    expect(logTone({ type: 'damage', pokemon_id: 'a', amount: 1, source: 'x', effectiveness: 4 })).toBe('key')
+    expect(logTone({ type: 'damage', pokemon_id: 'a', amount: 1, source: 'x', effectiveness: 0.5 })).toBe('dim')
+    expect(logTone({ type: 'damage', pokemon_id: 'a', amount: 1, source: 'x' })).toBe('normal')
+    expect(logTone({ type: 'battle_end' } as unknown as BattleEvent)).toBe('accent')
+    expect(logTone({ type: 'terastallize' } as unknown as BattleEvent)).toBe('accent')
+    expect(logTone({ type: 'move_use' } as unknown as BattleEvent)).toBe('move')
 })

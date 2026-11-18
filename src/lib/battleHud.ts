@@ -1,6 +1,6 @@
 // ─── 배틀 HUD 표시용 순수 헬퍼 ─────────────────────────────────
 // React 없이 언어만 받아 라벨을 만든다 (테스트·리플레이 화면에서도 같은 값을 쓴다).
-import type { PlayerID } from '@kyasi/pokebattle-engine'
+import type { BattleEvent, PlayerID } from '@kyasi/pokebattle-engine'
 import { translate, type Lang, type Vars } from '../i18n'
 import { battleMessages } from '../i18n/messages/battle'
 import type { Frame } from '../pages/battle/useBattleSession'
@@ -87,4 +87,58 @@ export function fieldItems(f: Pick<Frame, 'weather' | 'weatherTurns' | 'terrain'
         }
     }
     return out
+}
+
+// ─── 로그: 턴 묶음·강조 ─────────────────────────────────────────
+
+export type LogTone = 'key' | 'accent' | 'move' | 'dim' | 'normal'
+
+/** 로그 한 줄의 강조 단계: 기절·급소·효과 굉장 > 테라스탈·배틀 종료 > 기술 사용 > 보통 > 효과 별로/없음 */
+export function logTone(e: BattleEvent): LogTone {
+    if (e.type === 'faint') return 'key'
+    if (e.type === 'damage') {
+        if (e.crit || (e.effectiveness ?? 1) > 1) return 'key'
+        if ((e.effectiveness ?? 1) < 1) return 'dim'
+        return 'normal'
+    }
+    if (e.type === 'terastallize' || e.type === 'battle_end') return 'accent'
+    if (e.type === 'move_use') return 'move'
+    return 'normal'
+}
+
+export interface LogSummary { faints: number; crits: number; supers: number }
+
+export interface LogGroup<F> {
+    key:     string
+    /** 턴 번호 (첫 턴 전 등장 장면은 0) */
+    turn:    number
+    /** turn_start 를 뺀 그 턴의 프레임 */
+    items:   F[]
+    summary: LogSummary
+}
+
+/** 프레임을 턴 단위로 묶는다 (turn_start 가 새 묶음의 머리) */
+export function groupLogByTurn<F extends { index: number; turn: number; event: BattleEvent }>(frames: readonly F[]): LogGroup<F>[] {
+    const groups: LogGroup<F>[] = []
+    let cur: LogGroup<F> | null = null
+    const open = (key: string, turn: number) => {
+        const g: LogGroup<F> = { key, turn, items: [], summary: { faints: 0, crits: 0, supers: 0 } }
+        groups.push(g)
+        return g
+    }
+    for (const f of frames) {
+        const e = f.event
+        if (e.type === 'turn_start') {
+            cur = open(`t${f.index}`, e.turn)
+            continue
+        }
+        cur ??= open('start', 0)
+        cur.items.push(f)
+        if (e.type === 'faint') cur.summary.faints++
+        if (e.type === 'damage') {
+            if (e.crit) cur.summary.crits++
+            if ((e.effectiveness ?? 1) > 1) cur.summary.supers++
+        }
+    }
+    return groups
 }

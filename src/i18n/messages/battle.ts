@@ -128,6 +128,10 @@ export const battleMessages = defineMessages({
         turnsLeft: '남은 턴 {n}',
         typeOf: '{type} 타입',
         powerN: '위력 {n}',
+        logStart: '배틀 시작',
+        sumFaint: '기절 {n}',
+        sumCrit: '급소 {n}',
+        sumSuper: '효과 굉장 {n}',
     },
     en: {
         title: 'Battle Simulator',
@@ -251,6 +255,10 @@ export const battleMessages = defineMessages({
         turnsLeft: '{n} turns left',
         typeOf: '{type} type',
         powerN: 'power {n}',
+        logStart: 'Battle start',
+        sumFaint: '{n} fainted',
+        sumCrit: '{n} crit',
+        sumSuper: '{n} super effective',
     },
     ja: {
         title: 'バトルシミュレーター',
@@ -374,5 +382,9 @@ export const battleMessages = defineMessages({
         turnsLeft: '残り{n}ターン',
         typeOf: '{type}タイプ',
         powerN: '威力 {n}',
+        logStart: 'バトル開始',
+        sumFaint: 'ひんし {n}',
+        sumCrit: '急所 {n}',
+        sumSuper: 'バツグン {n}',
     },
 })
