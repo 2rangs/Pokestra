@@ -10,6 +10,7 @@
 @import "@astryxdesign/core/reset.css";
 @import "@astryxdesign/core/astryx.css";
 @import "@astryxdesign/core/tailwind-theme.css";
+@import "./type-colors.css";
 @import "tailwindcss/utilities.css" layer(utilities);
 
 @layer base {
