@@ -12,6 +12,7 @@ import { List, ListItem } from '@astryxdesign/core/List'
 import { MetadataList, MetadataListItem } from '@astryxdesign/core/MetadataList'
 import { Text } from '@astryxdesign/core/Text'
 import { VStack } from '@astryxdesign/core/VStack'
+import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
 import { BackLink, EmptyState } from '../../components/dex/DexUi'
 import { PokeImage } from '../../components/ui/PokeImage'
 import { StatBar, TypeTag } from '../../components/ui/shared'
@@ -88,7 +89,7 @@ export default function ItemDetailPage() {
                         <VStack gap={1}>
                             <Heading level={1}>{name}</Heading>
                             {others.length > 0 && (
-                                <HStack gap={3} wrap="wrap" aria-label={t('otherNames')}>
+                                <HStack gap={3} wrap="wrap">
                                     {others.map((o) => (
                                         <span key={o.l} lang={o.l}>
                                             <Text color="secondary">{o.n}</Text>
@@ -98,7 +99,7 @@ export default function ItemDetailPage() {
                             )}
                             <Text color="secondary">{categoryLabel(item.category, t)}</Text>
                             <Text as="p" color={desc ? 'primary' : 'secondary'} className="max-w-prose">
-                                {desc ? desc.text : t('noDescription')}
+                                {desc ? <span lang={desc.lang}>{desc.text}</span> : t('noDescription')}
                                 {desc && desc.lang !== lang && (
                                     <Text type="supporting" color="secondary">
                                         {' '}
@@ -123,7 +124,7 @@ export default function ItemDetailPage() {
                             isDisabled={!next}
                             href={next ? `/items/${next.name}${search}` : undefined}
                         />
-                        {demo && <Button variant="primary" size="lg" className="max-sm:min-h-11 max-sm:min-w-11" href={`/calc?atk=${demo.atk}&atkItem=${item.name}`} label={t('tryInCalc')} />}
+                        {demo && <Button variant="primary" size="lg" className="max-sm:min-h-11 max-sm:min-w-11" href={`/calc?atk=${demo.atk}${demo.def ? `&def=${demo.def}` : ''}&atkItem=${item.name}`} label={t('tryInCalc')} />}
                     </HStack>
                 </HStack>
             </VStack>
@@ -234,8 +235,9 @@ export default function ItemDetailPage() {
                                     startContent={<PokeImage sources={pokemonImageCandidates(p.id, 40, { sprite: p.sprite })} alt="" size={40} />}
                                     label={displayName(p, lang)}
                                     endContent={
-                                        <Text size="sm" hasTabularNumbers aria-label={t('heldChanceLabel', { n: rarity })}>
-                                            {rarity}%
+                                        <Text size="sm" hasTabularNumbers>
+                                            <span aria-hidden="true">{rarity}%</span>
+                                            <VisuallyHidden>{t('heldChanceLabel', { n: rarity })}</VisuallyHidden>
                                         </Text>
                                     }
                                 />

@@ -45,8 +45,16 @@ const CALC_DEMO_ATTACKER: Readonly<Record<string, string>> = {
     'silk-scarf': 'snorlax', 'fairy-feather': 'sylveon',
 }
 
-/** 계산기에서 이 도구를 공격 측에 얹어 보일 때 쓸 공격 포켓몬. 공격 측에서 효과가 없는 도구는 null */
-export function calcDemoFor(slug: string): { atk: string } | null {
+/** 기본 방어 포켓몬(Gholdengo, 강철/고스트)이 그 타입을 받지 못해 데모가 무의미한 도구의 방어 포켓몬 */
+export const CALC_DEFAULT_DEFENDER = 'gholdengo'
+const CALC_DEMO_DEFENDER: Readonly<Record<string, string>> = {
+    'black-belt': 'garchomp', 'poison-barb': 'venusaur', 'silk-scarf': 'garchomp',
+}
+
+/** 계산기에서 이 도구를 공격 측에 얹어 보일 때 쓸 포켓몬. 공격 측에서 효과가 없는 도구는 null. def가 없으면 계산기 기본 방어 포켓몬 */
+export function calcDemoFor(slug: string): { atk: string; def?: string } | null {
     const atk = CALC_DEMO_ATTACKER[slug]
-    return atk ? { atk } : null
+    if (!atk) return null
+    const def = CALC_DEMO_DEFENDER[slug]
+    return def ? { atk, def } : { atk }
 }

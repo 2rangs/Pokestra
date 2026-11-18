@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { CALC_ITEMS, calcDemoFor, isCalcItem, parseCalcItem } from './calcItems'
-import { MOVE_BY_NAME } from './dex'
+import { CALC_DEFAULT_DEFENDER, CALC_ITEMS, calcDemoFor, isCalcItem, parseCalcItem } from './calcItems'
+import { MOVE_BY_NAME, findDexPokemonByName } from './dex'
 import { ITEM_BY_SLUG } from './items'
 import { initSideBySlug } from '../components/calc/calcState'
 
@@ -57,4 +57,18 @@ test('calcDemoFor: choice-specs gets a special attacker', () => {
 })
 test('calcDemoFor: every mapped item is a calc item', () => {
     for (const s of [...Object.keys(BOOST_TYPE), 'choice-specs', 'choice-band']) expect(isCalcItem(s)).toBe(true)
+})
+
+/** 공격 타입 -> 효과가 없는(0배) 방어 타입 */
+const IMMUNE_TO: Record<string, string[]> = {
+    normal: ['ghost'], fighting: ['ghost'], poison: ['steel'], ground: ['flying'], ghost: ['normal'],
+    electric: ['ground'], psychic: ['dark'], dragon: ['fairy'],
+}
+test('calcDemoFor: the boosted type is never immune against the demo defender', () => {
+    for (const [item, type] of Object.entries(BOOST_TYPE)) {
+        const def = calcDemoFor(item)!.def ?? CALC_DEFAULT_DEFENDER
+        const types = findDexPokemonByName(def)!.types
+        const immune = types.some((d) => IMMUNE_TO[type]?.includes(d))
+        expect(immune, `${item} vs ${def}`).toBe(false)
+    }
 })

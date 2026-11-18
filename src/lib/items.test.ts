@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import itemNamesJson from '../data/itemNames.json'
 import {
-    DEX_ITEMS, ITEM_BY_SLUG, categoriesFor, heldByPokemon, itemDesc, itemName, itemNeighbors, itemValue,
+    DEX_ITEMS, ITEM_BY_SLUG, categoriesFor, heldByPokemon, itemDesc, itemName, itemNeighbors,
     parseItemQuery, queryItems, type DexItem,
 } from './items'
 
@@ -60,10 +60,6 @@ test('search folds kana, width and spaces', () => {
 test('sort by name uses the language collator', () => {
   const names = queryItems(q('cat=choice'), 'ko').map((i) => itemName(i, 'ko'))
   expect(names).toEqual([...names].sort(new Intl.Collator('ko-KR', { numeric: true }).compare))
-})
-test('itemValue reads Natural Gift power for berries and Fling power otherwise', () => {
-  expect(itemValue(ITEM_BY_SLUG.get('sitrus-berry')!)).toBe(60)
-  expect(itemValue(ITEM_BY_SLUG.get('flame-orb')!)).toBe(30)
 })
 test('sort by category follows category order', () => {
   const order = categoriesFor('all')

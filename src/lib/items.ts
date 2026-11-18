@@ -81,11 +81,6 @@ export function parseItemQuery(params: URLSearchParams): ItemQuery {
     return { q: params.get('q') ?? '', view, cats, sort, dir }
 }
 
-/** 열매는 자연의 선물 위력, 그 외는 던지기 위력. 없으면 null */
-export function itemValue(item: DexItem): number | null {
-    return item.kind === 'berry' ? (item.berry?.naturalGiftPower ?? null) : item.flingPower
-}
-
 export function itemName(item: DexItem, lang: Lang): string {
     return localName(item, lang)
 }

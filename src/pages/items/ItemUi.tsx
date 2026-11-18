@@ -2,7 +2,7 @@
 import { Text } from '@astryxdesign/core/Text'
 import { PokeImage } from '../../components/ui/PokeImage'
 import type { TFunction } from '../../i18n'
-import { FLAVORS, ITEM_SORT_DEFAULT_DIR, type Flavor, type ItemCategory, type ItemQuery } from '../../lib/items'
+import { FLAVORS, type Flavor, type ItemCategory } from '../../lib/items'
 import { itemIconUrl } from '../../lib/spriteUrls'
 import type { itemsMessages } from '../../i18n/messages/items'
 
@@ -26,16 +26,4 @@ export function FlavorSummary({ flavors, t }: { flavors: Record<Flavor, number> 
             {parts.length ? parts.join(' · ') : DASH}
         </Text>
     )
-}
-
-/** 목록의 필터를 주소 쿼리로. 기본값은 생략한다. 상세에서 목록으로 돌아올 때 쓴다 */
-export function itemQueryToSearch(q: ItemQuery): string {
-    const p = new URLSearchParams()
-    if (q.q) p.set('q', q.q)
-    if (q.view !== 'all') p.set('view', q.view)
-    if (q.cats.length) p.set('cat', q.cats.join(','))
-    if (q.sort !== 'name') p.set('sort', q.sort)
-    if (q.dir !== ITEM_SORT_DEFAULT_DIR[q.sort]) p.set('dir', q.dir)
-    const s = p.toString()
-    return s ? `?${s}` : ''
 }
