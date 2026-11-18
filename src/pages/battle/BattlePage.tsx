@@ -1,202 +1,205 @@
-import { useState, type ReactNode } from 'react'
-import type { BattleConfig, PokemonSet } from '@kyasi/pokebattle-engine'
+// ─── 배틀 엔진 데모 ───────────────────────────────────────────
+// 팀 빌더·배틀 화면 없이, 엔진 API 로 CPU 끼리 배틀을 돌려 로그만 보여준다.
+// 로그 문장은 엔진의 다국어 포매터(createFormatter)가 만든다. 직접 플레이는 엔진 CLI(npx pokebattle play).
+import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import {
+    BattleEngine, HeuristicAI, PRNG, createFormatter, generateRandomTeam, loadNames,
+    type BattleEvent, type BattleFormat, type PlayerID,
+} from '@kyasi/pokebattle-engine'
 import { Banner } from '@astryxdesign/core/Banner'
 import { Button } from '@astryxdesign/core/Button'
 import { Card } from '@astryxdesign/core/Card'
-import { Grid } from '@astryxdesign/core/Grid'
+import { CodeBlock } from '@astryxdesign/core/CodeBlock'
 import { HStack } from '@astryxdesign/core/HStack'
+import { List, ListItem } from '@astryxdesign/core/List'
+import { ScrollableArea } from '@astryxdesign/core/ScrollableArea'
 import { VStack } from '@astryxdesign/core/VStack'
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl'
 import { Text } from '@astryxdesign/core/Text'
-import { useEngineReady, buildRandomTeam, spriteUrl, dexIdOf } from '../../lib/battle'
-import { pokemonLabel } from '../../lib/battleLog'
-import { useBattleStore, type BattleMode } from '../../stores/battleStore'
-import { useDocumentTitle, useLang, useT } from '../../i18n'
+import { TextInput } from '@astryxdesign/core/TextInput'
+import { useEngineReady } from '../../lib/battle'
+import { useDocumentTitle, useLang, useT, type Lang } from '../../i18n'
 import { battleMessages } from '../../i18n/messages/battle'
 import { PageTitle, SectionTitle, Spinner } from '../../components/ui/shared'
-import { TeamBuilder } from './TeamBuilder'
-import { BattleView } from './BattleView'
-import { useBattleSession, type Difficulty } from './useBattleSession'
 
-const DIFFICULTIES = [
-    { id: 'easy', label: 'diffEasy', desc: 'diffEasyDesc' },
-    { id: 'normal', label: 'diffNormal', desc: 'diffNormalDesc' },
-    { id: 'hard', label: 'diffHard', desc: 'diffHardDesc' },
-] as const satisfies readonly { id: Difficulty; label: string; desc: string }[]
-
-const MODES = [
-    { id: 'vs-cpu', label: 'modeVsCpu' },
-    { id: 'cpu-vs-cpu', label: 'modeSpectate' },
-] as const satisfies readonly { id: BattleMode; label: string }[]
-
-const SIZES = [1, 3, 6] as const
-
+const FORMATS = ['singles', 'rotation'] as const satisfies readonly BattleFormat[]
+const ENGINE_URL = 'https://github.com/2rangs/pokebattle-engine'
 const newSeed = () => Math.floor(Math.random() * 1e9)
 
-/** 상대 팀 미리보기: 작은 그림 + 이름 */
-function TeamStrip({ team }: { team: PokemonSet[] }) {
-    const lang = useLang()
-    return (
-        <ul className="flex flex-wrap gap-2">
-            {team.map((s, i) => {
-                const id = dexIdOf(s.species)
-                const name = pokemonLabel(s.species, s.nickname, lang)
-                return (
-                    <li key={i} title={name} className="flex items-center gap-1.5 rounded-md border border-border bg-surface py-0.5 pr-2.5 pl-1">
-                        <span className="flex h-8 w-8 items-center justify-center">
-                            {id && <img src={spriteUrl(id)} alt="" className="h-8 w-8 object-contain [image-rendering:pixelated]" loading="lazy" />}
-                        </span>
-                        <span className="sr-only sm:not-sr-only"><Text type="supporting">{name}</Text></span>
-                    </li>
-                )
-            })}
-        </ul>
-    )
+interface Run {
+    engine: BattleEngine
+    events: BattleEvent[]
+    ms: number
 }
 
-/** 보이는 이름표 + 컨트롤 (SegmentedControl 의 label 은 화면에 그려지지 않는다) */
-function Setting({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
-    return (
-        <VStack gap={1.5} className="min-w-0">
-            <Text type="label">{label}</Text>
-            {children}
-            {hint && <Text type="supporting" color="secondary">{hint}</Text>}
-        </VStack>
-    )
+/** 같은 시드 → 같은 팀·같은 선택 → 같은 배틀 (CLI 의 watch 와 같은 방식) */
+function runBattle(seed: number, format: BattleFormat): Run {
+    const start = performance.now()
+    const rng = new PRNG(seed)
+    const engine = new BattleEngine({
+        format, seed,
+        p1: { name: 'CPU 1', team: generateRandomTeam({ seed: rng.int(0x7fffffff) }) },
+        p2: { name: 'CPU 2', team: generateRandomTeam({ seed: rng.int(0x7fffffff) }) },
+    }, { turnSnapshots: false })
+    const events: BattleEvent[] = []
+    engine.on('*', ev => events.push(ev))
+    const ai = { p1: new HeuristicAI({ seed: seed + 1 }), p2: new HeuristicAI({ seed: seed + 2 }) }
+    engine.start()
+    for (let guard = 0; !engine.battle.ended && guard < 5000; guard++) {
+        for (const p of ['p1', 'p2'] as const) {
+            if (!engine.battle.ended && (engine.getRequest(p) || engine.getTeamPreview(p))) engine.submitAction(ai[p].chooseAction(engine, p)!)
+        }
+    }
+    return { engine, events, ms: Math.round(performance.now() - start) }
+}
+
+/** ko·en 이름은 엔진에 들어 있고, 그 밖의 언어는 이름 팩을 불러온다 */
+function useEngineNames(lang: Lang) {
+    const q = useQuery({
+        queryKey: ['engine-names', lang],
+        queryFn: async () => {
+            if (lang !== 'ko' && lang !== 'en') await loadNames(lang)
+            return true
+        },
+        staleTime: Infinity,
+    })
+    return q.data === true
+}
+
+function apiSnippet(lang: Lang, seed: number, format: BattleFormat): string {
+    return `import { BattleEngine, HeuristicAI, PRNG, createFormatter, generateRandomTeam, preloadData${lang === 'ko' || lang === 'en' ? '' : ', loadNames'} } from '@kyasi/pokebattle-engine'
+
+await preloadData()${lang === 'ko' || lang === 'en' ? '' : `\nawait loadNames('${lang}')`}
+const rng = new PRNG(${seed})
+const engine = new BattleEngine({
+  format: '${format}', seed: ${seed},
+  p1: { name: 'CPU 1', team: generateRandomTeam({ seed: rng.int(0x7fffffff) }) },
+  p2: { name: 'CPU 2', team: generateRandomTeam({ seed: rng.int(0x7fffffff) }) },
+})
+const log = createFormatter({ locale: '${lang}', getPokemon: id => engine.getPokemon(id) })
+engine.on('*', ev => { const line = log.format(ev); if (line) console.log(line) })
+
+const ai = { p1: new HeuristicAI({ seed: ${seed + 1} }), p2: new HeuristicAI({ seed: ${seed + 2} }) }
+while (!engine.battle.ended) {
+  for (const p of ['p1', 'p2'] as const) {
+    if (!engine.battle.ended && engine.getRequest(p)) engine.submitAction(ai[p].chooseAction(engine, p)!)
+  }
+}`
 }
 
 export default function BattlePage() {
     const t = useT(battleMessages)
+    const lang = useLang()
     const { ready, error } = useEngineReady()
-    const store = useBattleStore()
-    const session = useBattleSession()
-    const [inBattle, setInBattle] = useState(false)
-    const [lastConfig, setLastConfig] = useState<BattleConfig | null>(null)
+    const namesReady = useEngineNames(lang)
+    const [seedText, setSeedText] = useState(() => String(newSeed()))
+    const [format, setFormat] = useState<BattleFormat>('singles')
+    const [run, setRun] = useState<Run | null>(null)
 
     useDocumentTitle(t('title'))
 
+    const seed = Number.parseInt(seedText, 10)
+    const validSeed = Number.isFinite(seed) && seed >= 0
+
+    // 언어를 바꾸면 같은 이벤트를 새 언어로 다시 쓴다 (배틀을 다시 돌리지 않는다)
+    const lines = useMemo(() => {
+        if (!run || !namesReady) return []
+        const fmt = createFormatter({ locale: lang, getPokemon: id => run.engine.getPokemon(id) })
+        return run.events.flatMap(ev => {
+            const text = fmt.format(ev)
+            return text ? [{ text, turn: ev.type === 'turn_start' }] : []
+        })
+    }, [run, lang, namesReady])
+
     if (error) {
         return (
-            <span role="alert" className="block">
-                <Banner
-                    status="error"
-                    title={t('loadError')}
-                    description={error.message}
-                    endContent={<Button label={t('retry')} size="sm" onClick={() => window.location.reload()} />}
-                />
-            </span>
+            <Banner
+                role="alert"
+                status="error"
+                title={t('loadError')}
+                description={error.message}
+                endContent={<Button label={t('retry')} size="sm" onClick={() => window.location.reload()} />}
+            />
         )
     }
     if (!ready) return <Spinner label={t('loadingEngine')} />
 
-    const size = store.teamSize
-    const myTeam = store.myTeam.slice(0, size)
-    const foeTeam = store.foeTeam.length ? store.foeTeam.slice(0, size) : []
-    const spectate = store.mode === 'cpu-vs-cpu'
-
-    const rerollFoe = () => {
-        const seed = newSeed()
-        store.setFoeTeam(buildRandomTeam(seed, 6), seed)
-    }
-    const randomMine = () => store.setMyTeam(buildRandomTeam(newSeed(), 6))
-
-    const begin = (config?: BattleConfig) => {
-        let foe = foeTeam
-        if (foe.length === 0) {
-            const seed = newSeed()
-            const team = buildRandomTeam(seed, 6)
-            store.setFoeTeam(team, seed)
-            foe = team.slice(0, size)
-        }
-        // 진영 이름은 화면에서 현재 언어로 다시 정하므로 여기서는 고정 식별자만 둔다
-        const cfg: BattleConfig = config ?? {
-            format: 'singles',
-            seed: newSeed(),
-            p1: { name: spectate ? 'CPU 1' : 'Player', team: myTeam },
-            p2: { name: spectate ? 'CPU 2' : 'CPU', team: foe },
-        }
-        setLastConfig(cfg)
-        session.start(cfg, {
-            p1: spectate ? store.difficulty : 'human',
-            p2: store.difficulty,
-            speed: store.speed,
-        })
-        setInBattle(true)
-        window.scrollTo({ top: 0 })
-    }
-
-    if (inBattle && session.current) {
-        return (
-            <BattleView
-                session={session}
-                onExit={() => setInBattle(false)}
-                onRematch={() => lastConfig && begin({ ...lastConfig, seed: newSeed() })}
-            />
-        )
-    }
-
-    const canStart = myTeam.length > 0
-    const diff = DIFFICULTIES.find(d => d.id === store.difficulty) ?? DIFFICULTIES[1]
+    const winner = run?.engine.getState().winner
+    const winnerName = winner && winner !== 'draw' ? run!.engine.getSide(winner as PlayerID).name ?? winner : null
 
     return (
-        <VStack gap={8}>
-            <PageTitle title={t('title')} lead={t('intro')} className="mb-0" />
+        <VStack gap={6}>
+            <PageTitle title={t('title')} lead={t('intro')} />
 
-            <Card padding={4}>
-                <Grid columns={{ minWidth: 220 }} gap={4}>
-                    <Setting label={t('mode')}>
-                        <SegmentedControl label={t('mode')} layout="fill" value={store.mode} onChange={v => store.setMode(v as BattleMode)}>
-                            {MODES.map(m => <SegmentedControlItem key={m.id} value={m.id} label={t(m.label)} />)}
+            <Card>
+                <HStack gap={3} wrap="wrap" align="end">
+                    <TextInput
+                        label={t('seed')}
+                        value={seedText}
+                        inputMode="numeric"
+                        width={180}
+                        onChange={v => setSeedText(v.replace(/[^0-9]/g, ''))}
+                    />
+                    <Button label={t('randomSeed')} variant="secondary" onClick={() => setSeedText(String(newSeed()))} />
+                    <VStack gap={1.5}>
+                        <Text type="label">{t('format')}</Text>
+                        <SegmentedControl label={t('format')} value={format} onChange={v => setFormat(v as BattleFormat)}>
+                            {FORMATS.map(f => <SegmentedControlItem key={f} value={f} label={t(f)} />)}
                         </SegmentedControl>
-                    </Setting>
-                    <Setting label={t('difficulty')} hint={t(diff.desc)}>
-                        <SegmentedControl label={t('difficulty')} layout="fill" value={store.difficulty} onChange={v => store.setDifficulty(v as Difficulty)}>
-                            {DIFFICULTIES.map(d => <SegmentedControlItem key={d.id} value={d.id} label={t(d.label)} />)}
-                        </SegmentedControl>
-                    </Setting>
-                    <Setting label={t('teamSize')}>
-                        <SegmentedControl label={t('teamSize')} layout="fill" value={String(size)} onChange={v => store.setTeamSize(Number(v))}>
-                            {SIZES.map(n => <SegmentedControlItem key={n} value={String(n)} label={t('sizeOption', { n })} />)}
-                        </SegmentedControl>
-                    </Setting>
-                </Grid>
+                    </VStack>
+                    <Button label={t('run')} variant="primary" isDisabled={!validSeed} onClick={() => setRun(runBattle(seed, format))} />
+                </HStack>
             </Card>
 
-            <section aria-labelledby="battle-my-team">
+            <VStack gap={3}>
                 <SectionTitle
-                    id="battle-my-team"
-                    aside={store.myTeam.length > size ? t('onlyFirstN', { n: size }) : undefined}
+                    aside={run && (
+                        <Text type="supporting" color="secondary">
+                            {t('summary', { turns: run.engine.battle.turn, events: run.events.length, ms: run.ms })}
+                        </Text>
+                    )}
                 >
-                    {spectate ? t('cpuTeam', { name: t('cpu1') }) : t('myTeam')}
+                    {t('logTitle')}
                 </SectionTitle>
-                <TeamBuilder team={store.myTeam} onChange={store.setMyTeam} onRandom={randomMine} activeCount={size} />
-            </section>
-
-            <section aria-labelledby="battle-foe-team">
-                <SectionTitle
-                    id="battle-foe-team"
-                    aside={<Button size="sm" label={t('rerollFoe')} onClick={rerollFoe} />}
-                >
-                    {spectate ? t('cpuTeam', { name: t('cpu2') }) : t('foeTeam')}
-                </SectionTitle>
-                {foeTeam.length > 0
-                    ? <TeamStrip team={foeTeam} />
-                    : <Text as="p" color="secondary">{t('foeRandomHint')}</Text>}
-            </section>
-
-            <div className="sticky bottom-3 z-20">
-                <Card padding={3} elevation="med">
-                    <HStack gap={3} vAlign="center" hAlign="end" wrap="wrap">
-                        <Button
-                            variant="primary"
-                            size="lg"
-                            label={canStart ? (spectate ? t('startSpectate') : t('startBattle')) : t('addPokemonFirst')}
-                            isDisabled={!canStart}
-                            onClick={() => canStart && begin()}
-                        />
-                    </HStack>
+                <Card>
+                    {!run ? (
+                        <Text color="secondary">{t('empty')}</Text>
+                    ) : (
+                        <VStack gap={3}>
+                            <Text type="label">{winnerName ? t('winner', { name: winnerName }) : t('draw')}</Text>
+                            <ScrollableArea label={t('logTitle')} height={512}>
+                                <List density="compact" edge="flush">
+                                    {lines.map((l, i) => (
+                                        <ListItem key={i} label={<Text type={l.turn ? 'label' : 'body'}>{l.text}</Text>} />
+                                    ))}
+                                </List>
+                            </ScrollableArea>
+                        </VStack>
+                    )}
                 </Card>
-            </div>
+            </VStack>
+
+            <VStack gap={3}>
+                <SectionTitle>{t('apiTitle')}</SectionTitle>
+                <CodeBlock code={apiSnippet(lang, validSeed ? seed : 0, format)} language="ts" />
+            </VStack>
+
+            <VStack gap={3}>
+                <SectionTitle>{t('cliTitle')}</SectionTitle>
+                <Text color="secondary">{t('cliLead')}</Text>
+                <CodeBlock
+                    language="bash"
+                    code={[
+                        `npx pokebattle play --lang ${lang}`,
+                        `npx pokebattle watch --lang ${lang} --seed ${validSeed ? seed : 42}${format === 'rotation' ? ' --format rotation' : ''}`,
+                        'npx pokebattle sim --battles 500 --json',
+                    ].join('\n')}
+                />
+                <HStack>
+                    <Button label={t('docs')} variant="secondary" href={ENGINE_URL} target="_blank" />
+                </HStack>
+            </VStack>
         </VStack>
     )
 }
