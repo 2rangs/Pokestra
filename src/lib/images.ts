@@ -1,4 +1,4 @@
-import { artworkUrl, backSpriteUrl, spriteUrl } from './battle'
+import { artworkUrl, backSpriteUrl, spriteUrl } from './spriteUrls'
 
 /** 이 크기(px) 이하로 표시할 때는 도트 스프라이트를 먼저 시도한다. */
 export const SPRITE_MAX_PX = 64

@@ -12,6 +12,7 @@ import movesJson from '../data/moves.json'
 import eggGroupsJson from '../data/eggGroups.json'
 import abilitiesJson from '../data/abilities.json'
 import type { Lang } from '../i18n'
+import { artworkUrl } from './spriteUrls'
 
 // ── Types ──
 
@@ -284,7 +285,7 @@ export function displayNameKo(p: DexPokemon): string {
 }
 
 export function officialArtworkUrl(id: number): string {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
+    return artworkUrl(id)
 }
 
 // ── 다국어 이름 ──

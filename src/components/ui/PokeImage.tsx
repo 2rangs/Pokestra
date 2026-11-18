@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Skeleton } from '@astryxdesign/core/Skeleton'
 import { VStack } from '@astryxdesign/core/VStack'
 
@@ -36,7 +36,7 @@ export function PokeImage({ sources, alt, size, className, pixelated = 'auto', p
     const imgRef = useRef<HTMLImageElement>(null)
 
     // 캐시된 이미지는 onLoad가 이미 지나갔을 수 있으므로 마운트/URL 변경 시 직접 확인
-    useEffect(() => {
+    useLayoutEffect(() => {
         const img = imgRef.current
         if (img && img.complete && img.naturalWidth > 0) {
             setState((s) => (s.key === key && s.index === cur.index ? { ...s, loaded: true } : s))
