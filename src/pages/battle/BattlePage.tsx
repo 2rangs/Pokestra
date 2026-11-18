@@ -19,6 +19,7 @@ import { PageSkeleton, PageTitle, SectionTitle } from '../../components/ui/share
 import { TeamBuilder } from './TeamBuilder'
 import { BattleView } from './BattleView'
 import { useBattleSession, type Difficulty } from './useBattleSession'
+import { engineSideNames } from './frames'
 
 const DIFFICULTIES = [
     { id: 'easy', label: 'diffEasy', desc: 'diffEasyDesc' },
@@ -110,19 +111,18 @@ export default function BattlePage() {
             store.setFoeTeam(team, seed)
             foe = team.slice(0, size)
         }
-        // 진영 이름은 화면에서 현재 언어로 다시 정하므로 여기서는 고정 식별자만 둔다
+        const p1 = spectate ? store.difficulty : 'human'
+        const p2 = store.difficulty
+        // 진영 이름은 화면에서 현재 언어로 다시 정하므로 여기서는 고정 식별자만 둔다 (리플레이와 같은 이름)
+        const names = engineSideNames(p1, p2)
         const cfg: BattleConfig = config ?? {
             format: 'singles',
             seed: newSeed(),
-            p1: { name: spectate ? 'CPU 1' : 'Player', team: myTeam },
-            p2: { name: spectate ? 'CPU 2' : 'CPU', team: foe },
+            p1: { name: names.p1, team: myTeam },
+            p2: { name: names.p2, team: foe },
         }
         setLastConfig(cfg)
-        session.start(cfg, {
-            p1: spectate ? store.difficulty : 'human',
-            p2: store.difficulty,
-            speed: store.speed,
-        })
+        session.start(cfg, { p1, p2, speed: store.speed })
         setInBattle(true)
         window.scrollTo({ top: 0 })
     }

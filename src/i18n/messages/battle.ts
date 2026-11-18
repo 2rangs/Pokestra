@@ -137,6 +137,11 @@ export const battleMessages = defineMessages({
         sumCrit: '급소 {n}',
         sumCritOne: '급소 {n}',
         sumSuper: '효과 굉장 {n}',
+        // 리플레이 공유
+        copyReplay: '리플레이 링크 복사',
+        viewReplay: '리플레이 보기',
+        replayCopied: '리플레이 링크를 복사했어요',
+        replayCopyFailed: '링크를 복사하지 못했습니다. 리플레이 보기를 연 뒤 주소창에서 복사하세요.',
     },
     en: {
         title: 'Battle Simulator',
@@ -269,6 +274,11 @@ export const battleMessages = defineMessages({
         sumCrit: '{n} crits',
         sumCritOne: '{n} crit',
         sumSuper: '{n} super effective',
+        // Replay sharing
+        copyReplay: 'Copy replay link',
+        viewReplay: 'View replay',
+        replayCopied: 'Replay link copied',
+        replayCopyFailed: 'Could not copy the link. Open the replay and copy it from the address bar.',
     },
     ja: {
         title: 'バトルシミュレーター',
@@ -401,5 +411,10 @@ export const battleMessages = defineMessages({
         sumCrit: '急所 {n}',
         sumCritOne: '急所 {n}',
         sumSuper: 'バツグン {n}',
+        // リプレイ共有
+        copyReplay: 'リプレイのリンクをコピー',
+        viewReplay: 'リプレイを見る',
+        replayCopied: 'リプレイのリンクをコピーしました',
+        replayCopyFailed: 'リンクをコピーできませんでした。リプレイを開いてアドレスバーからコピーしてください。',
     },
 })

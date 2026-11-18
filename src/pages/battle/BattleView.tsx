@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PlayerID } from '@kyasi/pokebattle-engine'
 import { Button } from '@astryxdesign/core/Button'
 import { Card } from '@astryxdesign/core/Card'
@@ -8,10 +8,13 @@ import { VStack } from '@astryxdesign/core/VStack'
 import { Icon } from '@astryxdesign/core/Icon'
 import { Selector } from '@astryxdesign/core/Selector'
 import { Text } from '@astryxdesign/core/Text'
+import { useToast } from '@astryxdesign/core/Toast'
 import { itemName, abilityNameL } from '../../lib/battle'
 import { useDocumentTitle, useLang } from '../../i18n'
 import { cx } from '../../components/ui/utils'
+import type { ReplayData } from '../../lib/replay'
 import type { BattleSession, Frame, PokeView } from './useBattleSession'
+import { replayRoute, replayUrl, useEncodedReplay } from './replayLink'
 import { BattleScene } from './hud/BattleScene'
 import { useBattleCries } from './hud/useBattleCries'
 import { useBattleStore } from '../../stores/battleStore'
@@ -29,10 +32,30 @@ const SPEEDS = [
 ] as const
 
 // ─── 결과 ────────────────────────────────────────────────────
-function ResultOverlay({ result, onRematch, onExit }: { result: string; onRematch: () => void; onExit: () => void }) {
+function ResultOverlay({ result, replay, onRematch, onExit }: {
+    result: string
+    /** 이 배틀의 리플레이 데이터 (결과가 뜰 때 한 번 읽는다) */
+    replay: () => ReplayData | null
+    onRematch: () => void
+    onExit: () => void
+}) {
     const t = useBattleT()
+    const toast = useToast()
     const ref = useRef<HTMLDivElement>(null)
     useEffect(() => { ref.current?.querySelector('button')?.focus() }, [])
+    const [data] = useState(replay)
+    const encoded = useEncodedReplay(data)
+
+    const copy = async () => {
+        if (!encoded) return
+        try {
+            await navigator.clipboard.writeText(replayUrl(encoded))
+            toast({ body: t('replayCopied'), uniqueID: 'replay-copy' })
+        } catch {
+            toast({ body: t('replayCopyFailed'), type: 'error', uniqueID: 'replay-copy' })
+        }
+    }
+
     return (
         <div
             ref={ref}
@@ -43,7 +66,9 @@ function ResultOverlay({ result, onRematch, onExit }: { result: string; onRematc
             <Heading level={2}>{result}</Heading>
             <HStack gap={2} hAlign="center" wrap="wrap">
                 <Button variant="primary" label={t('rematch')} onClick={onRematch} />
-                <Button label={t('backToTeam')} onClick={onExit} />
+                <Button label={t('copyReplay')} icon={<Icon icon="copy" />} isDisabled={!encoded} onClick={copy} />
+                <Button label={t('viewReplay')} isDisabled={!encoded} href={encoded ? replayRoute(encoded) : undefined} />
+                <Button variant="ghost" label={t('backToTeam')} onClick={onExit} />
             </HStack>
         </div>
     )
@@ -124,7 +149,7 @@ export function BattleView({ session, onExit, onRematch }: { session: BattleSess
 
                 {/* 배틀 필드: 상대는 위 오른쪽, 우리는 아래 왼쪽 */}
                 <BattleScene frame={f} foeHpMode={spectating ? 'toggle' : 'percent'} showFoeTera={spectating}>
-                    {ended && <ResultOverlay result={result} onRematch={onRematch} onExit={onExit} />}
+                    {ended && <ResultOverlay result={result} replay={session.replayData} onRematch={onRematch} onExit={onExit} />}
                 </BattleScene>
 
                 {!spectating && (
