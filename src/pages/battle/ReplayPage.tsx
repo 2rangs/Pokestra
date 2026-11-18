@@ -254,17 +254,18 @@ function ReplayViewer({ data, sim }: { data: ReplayData; sim: SimulatedReplay })
                                 onChange={(v: number) => go(turnEnd(sim, v))}
                             />
                             <HStack gap={2} vAlign="center" hAlign="center">
-                                <Button label={t('replayFirst')} isIconOnly icon={<Icon icon="chevronsLeft" />} tooltip={t('replayFirst')} isDisabled={cursor <= 1} onClick={() => go(1)} />
-                                <Button label={t('replayPrevTurn')} isIconOnly icon={<Icon icon="chevronLeft" />} tooltip={t('replayPrevTurn')} isDisabled={cursor <= 1} onClick={prevTurn} />
+                                <Button size="lg" label={t('replayFirst')} isIconOnly className="min-h-11 min-w-11" icon={<Icon icon="chevronsLeft" />} tooltip={t('replayFirst')} isDisabled={cursor <= 1} onClick={() => go(1)} />
+                                <Button size="lg" label={t('replayPrevTurn')} isIconOnly className="min-h-11 min-w-11" icon={<Icon icon="chevronLeft" />} tooltip={t('replayPrevTurn')} isDisabled={cursor <= 1} onClick={prevTurn} />
                                 <Button
+                                    size="lg"
                                     variant="primary"
                                     label={playing ? t('pause') : t('play')}
                                     aria-pressed={playing}
                                     onClick={togglePlay}
-                                    className="min-w-28"
+                                    className="min-h-11 min-w-28"
                                 />
-                                <Button label={t('replayNextTurn')} isIconOnly icon={<Icon icon="chevronRight" />} tooltip={t('replayNextTurn')} isDisabled={atEnd} onClick={nextTurn} />
-                                <Button label={t('replayLast')} isIconOnly icon={<Icon icon="chevronsRight" />} tooltip={t('replayLast')} isDisabled={atEnd} onClick={() => go(total)} />
+                                <Button size="lg" label={t('replayNextTurn')} isIconOnly className="min-h-11 min-w-11" icon={<Icon icon="chevronRight" />} tooltip={t('replayNextTurn')} isDisabled={atEnd} onClick={nextTurn} />
+                                <Button size="lg" label={t('replayLast')} isIconOnly className="min-h-11 min-w-11" icon={<Icon icon="chevronsRight" />} tooltip={t('replayLast')} isDisabled={atEnd} onClick={() => go(total)} />
                             </HStack>
                             <span className="hidden sm:block">
                                 <Text type="supporting" color="secondary" justify="center">{t('replayKeysHint')}</Text>
