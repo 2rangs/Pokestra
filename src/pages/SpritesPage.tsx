@@ -1,16 +1,15 @@
-import { memo, useDeferredValue, useMemo } from 'react'
-import { Card } from '@astryxdesign/core/Card'
+import { memo, useDeferredValue, useMemo, useRef } from 'react'
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
 import { ClickableCard } from '@astryxdesign/core/ClickableCard'
 import { Grid } from '@astryxdesign/core/Grid'
-import { HStack } from '@astryxdesign/core/HStack'
 import { Text } from '@astryxdesign/core/Text'
 import { VStack } from '@astryxdesign/core/VStack'
-import { EmptyState, LoadMore, PageHeader, SearchField, Segmented, SelectField } from '../components/dex/DexUi'
+import { EmptyState, FilterRow, LoadMore, PageHeader, SearchField, Segmented, SelectField } from '../components/dex/DexUi'
 import { PokeImage } from '../components/ui/PokeImage'
 import { artworkUrl, buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
 import { useProgressive } from '../components/dex/useProgressive'
 import { useUrlParams } from '../components/dex/useUrlParams'
+import { useSlashFocus } from '../hooks/useSlashFocus'
 import { useDocumentTitle, useLang, useT } from '../i18n'
 import { commonMessages } from '../i18n/messages/common'
 import { spritesMessages } from '../i18n/messages/sprites'
@@ -74,71 +73,75 @@ export default function SpritesPage() {
 
     const { shown, hasMore, more, sentinelRef } = useProgressive(filtered.length, `${deferredQ}|${gen}|${forms}`, 120)
     const shiny = color === 'shiny'
+    const searchRef = useRef<HTMLSpanElement>(null)
+    useSlashFocus(searchRef)
 
     return (
-        <VStack gap={5}>
+        <VStack gap={4}>
             <PageHeader title={t('title')} subtitle={t('subtitle')} />
 
-            <Card>
-                <VStack gap={4}>
-                    <HStack gap={3} wrap="wrap" vAlign="end">
-                        <span className="min-w-[14rem] flex-1">
-                            <SearchField
-                                value={q}
-                                onChange={(v) => update({ q: v })}
-                                label={t('searchLabel')}
-                                placeholder={t('searchPlaceholder')}
-                            />
-                        </span>
-                        <SelectField
-                            label={t('filterGen')}
-                            value={gen}
-                            onChange={(v) => update({ gen: v || null })}
-                            width={150}
-                            options={[
-                                { value: '', label: tc('all') },
-                                ...GENERATIONS.map((g) => ({ value: String(g.id), label: generationName(g.id, lang) })),
-                            ]}
+            <FilterRow
+                label={tc('filters')}
+                search={
+                    <span ref={searchRef} className="min-w-0 flex-1">
+                        <SearchField
+                            value={q}
+                            onChange={(v) => update({ q: v })}
+                            label={t('searchLabel')}
+                            placeholder={t('searchPlaceholder')}
                         />
-                    </HStack>
-                    <HStack gap={5} wrap="wrap" vAlign="end">
-                        <Segmented<Style>
-                            label={t('style')}
-                            value={style}
-                            onChange={(v) => update({ style: v === 'artwork' ? 'artwork' : null })}
-                            options={[
-                                { value: 'sprite', label: t('styleSprite') },
-                                { value: 'artwork', label: t('styleArtwork') },
-                            ]}
-                        />
-                        <Segmented<Color>
-                            label={t('color')}
-                            value={color}
-                            onChange={(v) => update({ shiny: v === 'shiny' ? '1' : null })}
-                            options={[
-                                { value: 'normal', label: t('normal') },
-                                { value: 'shiny', label: t('shiny') },
-                            ]}
-                        />
-                        <CheckboxInput
-                            size="sm"
-                            label={t('includeForms')}
-                            value={forms}
-                            onChange={(checked) => update({ forms: checked ? '1' : null })}
-                        />
-                    </HStack>
-                </VStack>
-            </Card>
+                    </span>
+                }
+                end={
+                    <span aria-live="polite">
+                        <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
+                    </span>
+                }
+            >
+                <SelectField
+                    isLabelHidden
+                    label={t('filterGen')}
+                    value={gen}
+                    onChange={(v) => update({ gen: v || null })}
+                    width={150}
+                    options={[
+                        { value: '', label: tc('all') },
+                        ...GENERATIONS.map((g) => ({ value: String(g.id), label: generationName(g.id, lang) })),
+                    ]}
+                />
+                <Segmented<Style>
+                    isLabelHidden
+                    label={t('style')}
+                    value={style}
+                    onChange={(v) => update({ style: v === 'artwork' ? 'artwork' : null })}
+                    options={[
+                        { value: 'sprite', label: t('styleSprite') },
+                        { value: 'artwork', label: t('styleArtwork') },
+                    ]}
+                />
+                <Segmented<Color>
+                    isLabelHidden
+                    label={t('color')}
+                    value={color}
+                    onChange={(v) => update({ shiny: v === 'shiny' ? '1' : null })}
+                    options={[
+                        { value: 'normal', label: t('normal') },
+                        { value: 'shiny', label: t('shiny') },
+                    ]}
+                />
+                <CheckboxInput
+                    size="sm"
+                    label={t('includeForms')}
+                    value={forms}
+                    onChange={(checked) => update({ forms: checked ? '1' : null })}
+                />
+            </FilterRow>
 
             <VStack gap={2}>
-                <span aria-live="polite">
-                    <Text type="supporting">{tc('results', { n: filtered.length })}</Text>
-                </span>
-
                 {filtered.length === 0 ? (
                     <EmptyState />
                 ) : (
-                    <Grid columns={{ minWidth: 104 }} gap={2} role="list" aria-label={t('gallery')}>
+                    <Grid columns={{ minWidth: 80, max: 14 }} gap={1.5} role="list" aria-label={t('gallery')}>
                         {filtered.slice(0, shown).map((e) => (
                             <span key={e.p.id} role="listitem" className="block min-w-0">
                                 <SpriteCard entry={e} style={style} shiny={shiny} />
@@ -159,15 +162,15 @@ const SpriteCard = memo(function SpriteCard({ entry: e, style, shiny }: { entry:
     const src = style === 'artwork' ? artworkUrl(e.p.id, shiny) : shiny ? e.p.spriteShiny : e.p.sprite
 
     return (
-        <ClickableCard href={`/pokemon/${e.p.id}`} label={shiny ? `${name} (${t('shiny')})` : name} padding={2} height="100%">
-            <VStack gap={1} hAlign="center">
-                <span className="flex aspect-square w-full max-w-24 items-center justify-center">
-                    <PokeImage sources={[src]} alt="" size={96} pixelated={style === 'sprite'} className="h-full w-full" />
+        <ClickableCard href={`/pokemon/${e.p.id}`} label={shiny ? `${name} (${t('shiny')})` : name} padding={1.5} height="100%">
+            <VStack gap={0.5} hAlign="center">
+                <span className="flex aspect-square w-full max-w-20 items-center justify-center">
+                    <PokeImage sources={[src]} alt="" size={80} pixelated={false} className="h-full w-full" />
                 </span>
                 <Text type="supporting" hasTabularNumbers>
                     {padDexNo(e.speciesId)}
                 </Text>
-                <Text size="sm" weight="semibold" justify="center" maxLines={2}>
+                <Text size="sm" weight="semibold" justify="center" maxLines={1}>
                     {name}
                 </Text>
             </VStack>
