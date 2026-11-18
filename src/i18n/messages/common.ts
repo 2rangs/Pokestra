@@ -5,7 +5,6 @@ export const commonMessages = defineMessages({
     ko: {
         navHome: '홈',
         navPokedex: '도감',
-        navBattle: '배틀',
         navCalc: '계산기',
         navMoves: '기술',
         navAbilities: '특성',
@@ -30,7 +29,6 @@ export const commonMessages = defineMessages({
     en: {
         navHome: 'Home',
         navPokedex: 'Pokédex',
-        navBattle: 'Battle',
         navCalc: 'Calculator',
         navMoves: 'Moves',
         navAbilities: 'Abilities',
@@ -55,7 +53,6 @@ export const commonMessages = defineMessages({
     ja: {
         navHome: 'ホーム',
         navPokedex: 'ずかん',
-        navBattle: 'バトル',
         navCalc: 'ダメージ計算',
         navMoves: 'わざ',
         navAbilities: 'とくせい',

@@ -79,7 +79,6 @@ const STARTERS: Record<number, number[]> = {
 
 /** 도구 카드 그림에 쓰는 포켓몬 */
 const DEX_PREVIEW = byId([1, 4, 7, 25, 133, 143, 150, 249, 384, 445])
-const BATTLE_PREVIEW = byId([445, 1000])
 
 const MAX_SUGGESTIONS = 6
 
@@ -296,7 +295,6 @@ function ToolCard({ href, title, desc, children }: { href: string; title: string
 
 function ToolsSection() {
     const t = useT(homeMessages)
-    const [atk, def] = BATTLE_PREVIEW
     return (
         <section aria-labelledby="tools-heading">
             <SectionHeading id="tools-heading">{t('toolsHeading')}</SectionHeading>
@@ -306,14 +304,6 @@ function ToolsSection() {
                         {DEX_PREVIEW.map((p) => (
                             <Sprite key={p.id} p={p} size={60} fluid />
                         ))}
-                    </span>
-                </ToolCard>
-
-                <ToolCard href="/battle" title={t('featBattleTitle')} desc={t('featBattleDesc')}>
-                    <span className="flex w-full items-end justify-center gap-1 px-3" aria-hidden>
-                        {atk && <PokeImage sources={pokemonImageCandidates(atk.id, 120, { sprite: atk.sprite })} alt="" size={120} className="aspect-square w-2/5 max-w-32" />}
-                        <span className="mb-[12%] shrink-0 text-base font-bold text-secondary">VS</span>
-                        {def && <PokeImage sources={pokemonImageCandidates(def.id, 120, { sprite: def.sprite })} alt="" size={120} className="aspect-square w-2/5 max-w-32 -scale-x-100" />}
                     </span>
                 </ToolCard>
 

@@ -1,9 +1,9 @@
 // ─── 배틀 엔진 연동 공용 모듈 ────────────────────────────────
-// 도감 데이터(src/lib/dex.ts) 와 @kyasi/pokebattle-engine 을 잇는다.
+// 도감 데이터(src/lib/dex.ts) 와 @kyasi/pokebattle-engine 을 잇는다 (데미지 계산기 / 도감 실능치).
 import { useQuery } from '@tanstack/react-query'
 import {
-    preloadData, loadNames, generateRandomSet, generateRandomTeam, getSpecies, koName, PRNG,
-    type NameResolver, type Nature, type PokemonSet,
+    preloadData, generateRandomSet, getSpecies, koName, PRNG,
+    type Nature, type PokemonSet,
 } from '@kyasi/pokebattle-engine'
 import {
     ALL_POKEMON, MOVE_BY_NAME, TYPE_NAME_KO, findDexPokemonByName, displayNameKo, isAlternateForm,
@@ -21,8 +21,7 @@ export function useEngineReady() {
     const q = useQuery({
         queryKey: ['battle-engine-data'],
         queryFn: async () => {
-            // 일본어 이름 팩은 지연 로드 (ko/en 은 내장). 로그의 조건 이름 등 Pokestra 이름표에 없는 이름에 쓰인다
-            await Promise.all([preloadData(), loadNames('ja')])
+            await preloadData()
             return true
         },
         staleTime: Infinity,
@@ -102,16 +101,6 @@ export const ITEM_NAME_KO: Record<string, string> = Object.fromEntries(ITEMS.map
 
 export const itemNameKo = (id: string) => ITEM_NAME_KO[id] ?? koName.item(id) ?? prettify(id)
 
-/** formatEvent 에 넘기는 한국어 이름 변환기 */
-export const KO_NAMES: NameResolver = {
-    pokemon: pokemonNameKo,
-    move:    moveNameKo,
-    type:    typeNameKo,
-    // 도구가 아니면 기술 이름일 수 있다 (예: 데미지 출처가 '잠자기')
-    item:    id => ITEM_NAME_KO[id] ?? koName.item(id) ?? koName.move(id) ?? prettify(id),
-    ability: abilityNameKo,
-}
-
 // ─── 세트 생성 ────────────────────────────────────────────────
 /** 엔진 데이터에 있는(=배틀 가능한) 도감 포켓몬 */
 export function battleReadyPokemon(includeForms = false): DexPokemon[] {
@@ -124,20 +113,6 @@ export function buildSet(p: DexPokemon, rng: PRNG = new PRNG(), level = 50): Pok
     return generateRandomSet(p.name, { rng, level, learnset: p.moves })
 }
 
-/** 랜덤 팀 (Showdown 랜덤배틀 세트, 공정하게 레벨 통일) */
-export function buildRandomTeam(seed: number, size = 6, level = 50): PokemonSet[] {
-    return generateRandomTeam({ seed, size, level })
-}
-
-// ─── 타입 색 ─────────────────────────────────────────────────
-export { TYPE_COLOR } from './dex'
-
-export { artworkUrl, spriteUrl, backSpriteUrl, animatedSpriteUrl, animatedBackSpriteUrl, cryUrl } from './spriteUrls'
-
-/** 종 slug → 도감 id (스프라이트용) */
-export function dexIdOf(species: string): number | undefined {
-    return findDexPokemonByName(species)?.id ?? getSpecies(species)?.id
-}
 
 // ─── 다국어 이름 (ko / en / ja) ──────────────────────────────
 
@@ -203,14 +178,3 @@ export function battleStatLabel(key: string, lang: Lang): string {
     return BATTLE_STAT_LABELS[lang][key] ?? key
 }
 
-/** 언어별 이름 변환기 (formatEvent 등) */
-export function namesFor(lang: Lang): NameResolver {
-    if (lang === 'ko') return KO_NAMES
-    return {
-        pokemon: s => pokemonNameL(s, lang),
-        move: m => moveNameL(m, lang),
-        type: t => typeNameL(t, lang),
-        item: id => (ITEM_NAMES[id] ? itemName(id, lang) : MOVE_BY_NAME.has(id) ? moveNameL(id, lang) : prettify(id)),
-        ability: a => abilityNameL(a, lang),
-    }
-}
