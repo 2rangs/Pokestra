@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useRef, useState } from 'react'
+import { useCallback, useDeferredValue, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router'
 import { Badge } from '@astryxdesign/core/Badge'
 import { Button } from '@astryxdesign/core/Button'
@@ -30,6 +30,7 @@ import { useMediaQuery } from '@astryxdesign/core/hooks'
 import { buildSearchKey, cleanDesc, foldSearch } from '../components/dex/text'
 import { useProgressive } from '../components/dex/useProgressive'
 import { useUrlParams } from '../components/dex/useUrlParams'
+import { useRowLink } from '../components/dex/useRowLink'
 import { useSlashFocus } from '../hooks/useSlashFocus'
 import { collator, LANGS, useDocumentTitle, useLang, useT } from '../i18n'
 import { commonMessages } from '../i18n/messages/common'
@@ -155,6 +156,9 @@ function MoveList() {
 
     const rows = useMemo<MoveRow[]>(() => filtered.slice(0, shown).map((m) => ({ key: m.name, m })), [filtered, shown])
     const search = location.search
+    // 행 전체를 눌러 상세로 (이름 링크·키보드는 그대로)
+    const getHref = useCallback((row: MoveRow) => `/moves/${row.m.name}${search}`, [search])
+    const rowLink = useRowLink<MoveRow>(getHref)
 
     // 좁은 화면: 타입·분류를 이름 아래 한 줄로 합쳐 표가 가로로 넘치지 않게 (이름 · 위력 · 명중 · PP)
     const compact = useMediaQuery('(max-width: 639px)')
@@ -309,7 +313,7 @@ function MoveList() {
                         density="compact"
                         hasHover
                         rowCount={filtered.length}
-                        plugins={{ sortable }}
+                        plugins={{ sortable, rowLink }}
                     />
                 )}
                 <LoadMore hasMore={hasMore} onMore={more} sentinelRef={sentinelRef} />

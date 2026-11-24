@@ -13,6 +13,7 @@ import { PokemonCard } from "../../components/PokemonCard.tsx"
 import { PokedexFilterBar } from "../../components/pokedex/PokedexFilterBar"
 import { PokedexTable } from "../../components/pokedex/PokedexTable"
 import { exactMove, norm } from "../../components/pokedex/search"
+import { withChosung } from "../../components/dex/text"
 import { collator, useDocumentTitle, useLang, useT } from "../../i18n"
 import { pokedexMessages } from "../../i18n/messages/pokedex"
 import {
@@ -24,7 +25,6 @@ import {
     getGeneration,
     getSpeciesId,
     isAlternateForm,
-    searchKey,
     statLabel,
 } from "../../lib/dex"
 import { type PokedexSortKey, usePokedexStore } from "../../stores/pokedexStore"
@@ -47,10 +47,8 @@ interface IndexedPokemon {
 
 const INDEX: IndexedPokemon[] = ALL_POKEMON.map((p) => ({
     p,
-    key: searchKey(p)
-        .split(" ")
-        .map(norm)
-        .join(" "),
+    // 모든 언어 이름 + slug + 한글 초성 ("ㄹㅈㅁ")
+    key: withChosung([p.name, p.nameKo, p.nameEn, p.nameJa]).map(norm).join(" "),
     speciesId: getSpeciesId(p),
     generation: getGeneration(p),
     total: baseStatTotal(p),

@@ -581,6 +581,7 @@ export default function PokemonDetailPage() {
                         {species?.is_legendary && <Token size="sm" label={t("legendary")} />}
                         {species?.is_mythical && <Token size="sm" label={t("mythical")} />}
                         {species?.is_baby && <Token size="sm" label={t("baby")} />}
+                        {hasGenderDiff && <Token size="sm" label={t("genderDiffers")} />}
                     </>
                 }
                 subline={otherNames.length > 0 || genusEntry ? subline : speciesQ.isPending && speciesId ? <Skeleton width={200} height={24} /> : null}

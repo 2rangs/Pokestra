@@ -1,4 +1,5 @@
 import { MOVES, type DexMove } from "../../lib/dex"
+import { withChosung } from "../dex/text"
 
 export const MAX_MOVE_SUGGESTIONS = 8
 
@@ -13,10 +14,16 @@ export function norm(s: string): string {
 }
 
 /** 기술 검색 키: slug / 영어 / 한국어 / 일본어 */
-const MOVE_INDEX: { m: DexMove; keys: string[] }[] = MOVES.map((m) => ({
-    m,
-    keys: [m.name, m.nameEn, m.hasKoreanName ? m.nameKo : null, m.nameJa].filter((x): x is string => !!x).map(norm),
-}))
+const MOVE_INDEX: { m: DexMove; names: string[]; keys: string[] }[] = MOVES.map((m) => {
+    const raw = [m.name, m.nameEn, m.hasKoreanName ? m.nameKo : null, m.nameJa]
+    return {
+        m,
+        /** 실제 이름들 (정확히 일치 판정용) */
+        names: raw.filter((x): x is string => !!x).map(norm),
+        /** 후보 찾기용: 이름 + 한글 초성 ("ㅈㅈ" → 지진) */
+        keys: withChosung(raw).map(norm),
+    }
+})
 
 export function findMoveSuggestions(query: string): DexMove[] {
     const q = norm(query)
@@ -35,5 +42,6 @@ export function findMoveSuggestions(query: string): DexMove[] {
 export function exactMove(query: string): string | null {
     const q = norm(query)
     if (!q) return null
-    return MOVE_INDEX.find(({ keys }) => keys.includes(q))?.m.name ?? null
+    // 초성은 여러 기술과 겹치므로 자동 선택에는 쓰지 않는다
+    return MOVE_INDEX.find(({ names }) => names.includes(q))?.m.name ?? null
 }

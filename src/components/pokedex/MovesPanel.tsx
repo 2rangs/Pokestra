@@ -19,6 +19,7 @@ import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { MOVE_BY_NAME, damageClassName, moveName, titleCaseSlug } from "../../lib/dex"
 import { TypeChip } from "../ui/TypeChip"
 import { ClassBadge } from "../dex/DexUi"
+import { useRowClick } from "../dex/useRowLink"
 import { useMediaQuery } from "@astryxdesign/core/hooks"
 import { norm } from "./search"
 
@@ -153,6 +154,7 @@ export function MovesPanel({
 }) {
     // 좁은 화면: 타입·분류를 기술 이름 아래로 합쳐 표가 가로로 넘치지 않게 (기술 목록 화면과 같은 방식)
     const compact = useMediaQuery("(max-width: 639px)")
+    const rowClick = useRowClick()
     // Astryx 표는 머리칸을 균등하게 나눈다 → 좁은 화면에서는 숫자 칸을 내용 폭으로, 이름 칸이 나머지를
     const narrowCol = compact ? "min-w-12 whitespace-nowrap" : "whitespace-nowrap"
     const { game, rows } = useMemo<{ game: string | null; rows: MoveRow[] }>(() => {
@@ -271,7 +273,7 @@ export function MovesPanel({
                         {visible.map((r) => {
                             const m = MOVE_BY_NAME.get(r.slug)
                             return (
-                                <TableRow key={`${r.method}:${r.slug}:${r.level ?? ""}`}>
+                                <TableRow key={`${r.method}:${r.slug}:${r.level ?? ""}`} {...rowClick(m ? `/moves/${r.slug}` : null)}>
                                     {showLevel && (
                                         <TableCell className="whitespace-nowrap">
                                             <Text color="secondary" hasTabularNumbers>

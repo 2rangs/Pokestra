@@ -3,8 +3,7 @@ import { ClickableCard } from "@astryxdesign/core/ClickableCard"
 import { Text } from "@astryxdesign/core/Text"
 import { VStack } from "@astryxdesign/core/VStack"
 import { HStack } from "@astryxdesign/core/HStack"
-import { useLang, useT } from "../i18n"
-import { pokedexMessages } from "../i18n/messages/pokedex"
+import { useLang } from "../i18n"
 import {
     type DexPokemon,
     formLabel as getFormLabel,
@@ -14,7 +13,6 @@ import {
 import { pokemonImageCandidates } from "../lib/images"
 import { PokeImage } from "./ui/PokeImage"
 import { TypeChip } from "./ui/TypeChip"
-import { GenderDiffMark } from "./pokedex/GenderDiffMark"
 import { dexNumber } from "./pokedex/format"
 
 type Props = {
@@ -31,7 +29,6 @@ export function PokemonImage({ p, className, size }: { p: DexPokemon; className:
 
 function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) {
     const lang = useLang()
-    const t = useT(pokedexMessages)
     const formLabel = getFormLabel(p, lang)
     const name = pokemonName(p, lang)
     const no = dexNumber(getSpeciesId(p))
@@ -67,7 +64,6 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
                         <Text type="large" weight="bold" maxLines={1}>
                             {name}
                         </Text>
-                        {p.genderDiff && <GenderDiffMark t={t} />}
                     </HStack>
                     {formLabel && (
                         <Text type="supporting" maxLines={1}>

@@ -17,12 +17,28 @@ export function foldSearch(s: string): string {
         .replace(/[\s\-_・·.'’]+/g, '')
 }
 
-/** 여러 이름을 한 검색 키로 묶는다 */
+const CHOSUNG = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'
+const HANGUL_RE = /[가-힣]/
+
+/** 한글 음절 → 초성 ("리자몽" → "ㄹㅈㅁ"). 한글이 아닌 글자는 그대로 둔다 ("10만볼트" → "10ㅁㅂㅌ") */
+export function toChosung(s: string): string {
+    let out = ''
+    for (const ch of s) {
+        const code = ch.charCodeAt(0) - 0xac00
+        out += code >= 0 && code < 11172 ? CHOSUNG[Math.floor(code / 588)] : ch
+    }
+    return out
+}
+
+/** 한글이 든 이름이면 초성 버전도 검색 키에 넣는다 (초성 검색: "ㄹㅈㅁ" → 리자몽) */
+export function withChosung(names: readonly (string | null | undefined)[]): string[] {
+    const list = names.filter((n): n is string => !!n)
+    return [...list, ...list.filter((n) => HANGUL_RE.test(n)).map(toChosung)]
+}
+
+/** 여러 이름을 한 검색 키로 묶는다 (한글 이름의 초성 포함) */
 export function buildSearchKey(...names: (string | null | undefined)[]): string {
-    return names
-        .filter((n): n is string => !!n)
-        .map(foldSearch)
-        .join('\u0000')
+    return withChosung(names).map(foldSearch).join('\u0000')
 }
 
 /**
