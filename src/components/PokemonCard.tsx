@@ -20,6 +20,8 @@ type Props = {
     /** 정렬 기준 값(능력치·종족값 합계)을 카드 하단에 강조 (없으면 표시하지 않음 — 설명 없는 숫자는 상세/표에서) */
     highlightLabel?: string
     highlightValue?: number
+    /** 좁은 화면에서도 카드 모양 유지 (홈의 가로 줄 등). 기본은 sm 미만에서 한 줄 행 */
+    alwaysCard?: boolean
 }
 
 /** 포켓몬 이미지: 표시 크기에 맞춰 도트/공식 일러스트 순서로 시도 */
@@ -27,7 +29,9 @@ export function PokemonImage({ p, className, size }: { p: DexPokemon; className:
     return <PokeImage sources={pokemonImageCandidates(p.id, size, { sprite: p.sprite })} alt="" size={size} className={`${className} rounded-md`} />
 }
 
-function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) {
+function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue, alwaysCard = false }: Props) {
+    /** 좁은 화면의 한 줄 행 배치용 클래스 (alwaysCard 면 쓰지 않는다) */
+    const row = (cls: string) => (alwaysCard ? "" : cls)
     const lang = useLang()
     const formLabel = getFormLabel(p, lang)
     const name = pokemonName(p, lang)
@@ -48,12 +52,12 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
     // 같은 요소를 CSS 로만 바꿔서 무한 스크롤·포커스 이동(a[href] 순서)이 그대로 동작한다.
     return (
         <ClickableCard href={`/pokemon/${p.id}`} label={`${no} ${name}${formLabel ? ` (${formLabel})` : ""}`} padding={3} className="h-full">
-            <VStack gap={3} hAlign="stretch" className="max-sm:flex-row max-sm:items-center max-sm:gap-3">
-                <HStack justify="center" vAlign="center" className="shrink-0 rounded-lg bg-muted p-2 max-sm:bg-transparent max-sm:p-0">
-                    <PokemonImage p={p} size={40} className="size-10 sm:hidden" />
-                    <PokemonImage p={p} size={128} className="size-32 max-sm:hidden" />
+            <VStack gap={3} hAlign="stretch" className={row("max-sm:flex-row max-sm:items-center max-sm:gap-3")}>
+                <HStack justify="center" vAlign="center" className={`shrink-0 rounded-lg bg-muted p-2 ${row("max-sm:bg-transparent max-sm:p-0")}`}>
+                    {!alwaysCard && <PokemonImage p={p} size={40} className="size-10 sm:hidden" />}
+                    <PokemonImage p={p} size={128} className={`size-32 ${row("max-sm:hidden")}`} />
                 </HStack>
-                <VStack gap={0.5} className="min-w-0 max-sm:flex-1">
+                <VStack gap={0.5} className={`min-w-0 ${row("max-sm:flex-1")}`}>
                     <HStack gap={2} vAlign="center" justify="between">
                         <Text type="supporting" hasTabularNumbers textWrap="nowrap">
                             {no}
@@ -71,7 +75,7 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
                         </Text>
                     )}
                 </VStack>
-                <HStack gap={1} vAlign="center" wrap="wrap" className="max-sm:shrink-0 max-sm:flex-nowrap">
+                <HStack gap={1} vAlign="center" wrap="wrap" className={row("max-sm:shrink-0 max-sm:flex-nowrap")}>
                     {p.types.map((type) => (
                         <TypeChip key={type} type={type} size="sm" />
                     ))}

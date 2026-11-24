@@ -1,10 +1,9 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Button } from '@astryxdesign/core/Button'
 import { Card } from '@astryxdesign/core/Card'
-import { ClickableCard } from '@astryxdesign/core/ClickableCard'
 import { Grid } from '@astryxdesign/core/Grid'
-import { Divider } from '@astryxdesign/core/Divider'
+import { Token } from '@astryxdesign/core/Token'
 import { Heading } from '@astryxdesign/core/Heading'
 import { HStack } from '@astryxdesign/core/HStack'
 import { Icon } from '@astryxdesign/core/Icon'
@@ -12,28 +11,15 @@ import { Text } from '@astryxdesign/core/Text'
 import { Typeahead, TypeaheadItem, type SearchableItem, type SearchSource } from '@astryxdesign/core/Typeahead'
 import { VStack } from '@astryxdesign/core/VStack'
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
-import { StatBar } from '../components/ui/shared'
-import { TypeChip } from '../components/ui/TypeChip'
-import { statBandFill } from '../lib/statBand'
+import { SilhouetteQuiz } from '../components/home/SilhouetteQuiz'
+import { StatMap } from '../components/home/StatMap'
+import { TypeGlyph } from '../components/ui/TypeChip'
 import { PokeImage } from '../components/ui/PokeImage'
-import { DEX_ITEMS } from '../lib/items'
 import { pokemonImageCandidates } from '../lib/images'
 import { buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
 import { formatNumber, useDocumentTitle, useLang, useT } from '../i18n'
 import { homeMessages } from '../i18n/messages/home'
-import {
-    ABILITIES,
-    ALL_POKEMON,
-    type DexPokemon,
-    displayName,
-    GENERATIONS,
-    getDexPokemon,
-    getSpeciesId,
-    isAlternateForm,
-    MOVES,
-    STAT_KEYS,
-    statLabel,
-} from '../lib/dex'
+import { ALL_POKEMON, type DexPokemon, displayName, GENERATIONS, getDexPokemon, getSpeciesId, isAlternateForm, TYPES, typeName } from '../lib/dex'
 import { useSlashFocus } from '../hooks/useSlashFocus'
 import { usePokedexStore } from '../stores/pokedexStore'
 
@@ -56,35 +42,9 @@ const INDEX: readonly Indexed[] = ALL_POKEMON.map((p) => ({
 }))
 
 const SPECIES = ALL_POKEMON.filter((p) => !isAlternateForm(p))
-const POTD_POOL = SPECIES.filter((p) => p.sprite)
-
-const COUNTS = {
-    species: SPECIES.length,
-    all: ALL_POKEMON.length,
-    moves: MOVES.filter((m) => m.type !== 'shadow').length,
-    abilities: ABILITIES.length,
-    items: DEX_ITEMS.length,
-}
-
-const byId = (ids: number[]) => ids.map((id) => getDexPokemon(id)).filter((p): p is DexPokemon => !!p)
 
 /** 검색창 아래 바로가기 */
-const POPULAR = byId([25, 6, 445, 149, 94, 448, 700, 1000])
-
-/** 세대별 스타팅 포켓몬 (풀, 불꽃, 물) */
-const STARTERS: Record<number, number[]> = {
-    1: [1, 4, 7],
-    2: [152, 155, 158],
-    3: [252, 255, 258],
-    4: [387, 390, 393],
-    5: [495, 498, 501],
-    6: [650, 653, 656],
-    7: [722, 725, 728],
-    8: [810, 813, 816],
-    9: [906, 909, 912],
-}
-
-/** 도구 카드 그림에 쓰는 포켓몬 */
+const POPULAR = [25, 6, 445, 149, 94, 448, 700, 1000].map((id) => getDexPokemon(id)).filter((p): p is DexPokemon => !!p)
 
 const MAX_SUGGESTIONS = 6
 
@@ -115,22 +75,6 @@ function findPokemon(query: string): DexPokemon[] {
         .map((x) => x.e.p)
 }
 
-/** 오늘 날짜(로컬) → 결정적인 포켓몬 */
-function todayKey(): string {
-    const d = new Date()
-    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
-}
-
-function pokemonOfDay(key: string): DexPokemon {
-    // FNV-1a
-    let h = 0x811c9dc5
-    for (let i = 0; i < key.length; i++) {
-        h ^= key.charCodeAt(i)
-        h = Math.imul(h, 0x01000193)
-    }
-    return POTD_POOL[(h >>> 0) % POTD_POOL.length]
-}
-
 
 // ── 페이지 ──
 
@@ -138,48 +82,101 @@ export default function HomePage() {
     const t = useT(homeMessages)
     useDocumentTitle(null)
 
+    // 놀이 + 탐색 + 한눈에 보기: 위는 실루엣 퀴즈 | 찾기(검색·타입·세대), 아래는 전체 종족값 지도.
+    // 같은 카드 줄을 반복하지 않고, 저마다 다른 방식으로 도감에 들어가게 한다.
     return (
-        <VStack gap={4}>
-            {/* 검색 + 오늘의 포켓몬 */}
-            <section className="grid items-start gap-4 lg:grid-cols-3">
-                <VStack gap={4} className="min-w-0 lg:col-span-2">
-                    <VStack gap={3}>
-                        <Heading level={1} type="display-3" textWrap="balance">
-                            {t('heroTitle')}
-                        </Heading>
-                        <VisuallyHidden>
-                            <p>{t('heroLead')}</p>
-                        </VisuallyHidden>
-                        <HeroSearch />
-                        <PopularPokemon />
-                    </VStack>
-                    <ShortcutsSection />
-                </VStack>
-                <PokemonOfTheDay />
-            </section>
-
-            <GenerationsSection />
+        <VStack gap={5}>
+            <VisuallyHidden>
+                <Heading level={1}>{t('heroTitle')}</Heading>
+                <p>{t('heroLead')}</p>
+            </VisuallyHidden>
+            <Grid columns={{ minWidth: 420, max: 2 }} gap={5}>
+                <SilhouetteQuiz />
+                <ExploreCard />
+            </Grid>
+            <StatMap />
         </VStack>
     )
 }
 
-function SectionHeading({ id, children }: { id: string; children: string }) {
+// ── 찾기: 검색 · 자주 찾는 포켓몬 · 타입 · 세대 ──
+
+/** 타입마다 종 수 (폼 제외) */
+const TYPE_COUNTS = new Map(TYPES.map((ty) => [ty.name, SPECIES.filter((p) => p.types.includes(ty.name)).length]))
+
+function generationTitle(id: number, lang: string): string {
+    if (lang === 'ko') return `${id}세대`
+    if (lang === 'ja') return `第${id}世代`
+    return `Gen ${id}`
+}
+
+function ExploreCard() {
+    const lang = useLang()
+    const t = useT(homeMessages)
+    const navigate = useNavigate()
+    const resetFilters = usePokedexStore((s) => s.resetFilters)
+    const setTypes = usePokedexStore((s) => s.setTypes)
+    const toggleGeneration = usePokedexStore((s) => s.toggleGeneration)
+
+    const openType = (type: string) => {
+        resetFilters()
+        setTypes([type])
+        navigate('/pokedex')
+    }
+    const openGen = (id: number) => {
+        resetFilters()
+        toggleGeneration(id)
+        navigate('/pokedex')
+    }
+
     return (
-        <Heading level={2} id={id}>
-            {children}
-        </Heading>
+        <Card role="region" aria-labelledby="explore-heading" padding={5} className="h-full max-sm:p-4">
+            <VStack gap={4}>
+                <Heading level={2} id="explore-heading">
+                    {t('exploreHeading')}
+                </Heading>
+                <HeroSearch />
+                <PopularPokemon />
+                <VStack gap={1.5}>
+                    <Text type="supporting" color="secondary" id="types-label">
+                        {t('typesHeading')}
+                    </Text>
+                    <HStack gap={1.5} wrap="wrap" role="group" aria-labelledby="types-label">
+                        {TYPES.map((ty) => (
+                            <Token
+                                key={ty.name}
+                                icon={<TypeGlyph type={ty.name} size="sm" />}
+                                label={typeName(ty.name, lang)}
+                                endContent={
+                                    <Text type="supporting" color="secondary" hasTabularNumbers>
+                                        {formatNumber(TYPE_COUNTS.get(ty.name) ?? 0, lang)}
+                                    </Text>
+                                }
+                                onClick={() => openType(ty.name)}
+                            />
+                        ))}
+                    </HStack>
+                </VStack>
+                <VStack gap={1.5}>
+                    <Text type="supporting" color="secondary" id="gens-label">
+                        {t('gensHeading')}
+                    </Text>
+                    <HStack gap={1.5} wrap="wrap" role="group" aria-labelledby="gens-label">
+                        {GENERATIONS.map((g) => (
+                            <Token
+                                key={g.id}
+                                label={`${generationTitle(g.id, lang)} ${t(`region${g.id}` as HomeKey)}`}
+                                onClick={() => openGen(g.id)}
+                            />
+                        ))}
+                    </HStack>
+                </VStack>
+            </VStack>
+        </Card>
     )
 }
 
-const SPRITE_BOX: Record<number, string> = { 32: 'h-8 w-8', 40: 'h-10 w-10', 48: 'h-12 w-12' }
-
-/** 도트 스프라이트 */
-function Sprite({ p, size = 48, className = '' }: { p: DexPokemon; size?: number; className?: string }) {
-    const box = SPRITE_BOX[size] ?? ''
-    return <PokeImage sources={pokemonImageCandidates(p.id, size, { sprite: p.sprite })} alt="" size={size} className={`${box} ${className}`} />
-}
-
-// ── 자주 찾는 포켓몬 ──
+const SPRITE_BOX: Record<number, string> = { 32: 'h-8 w-8' }
 
 function PopularPokemon() {
     const lang = useLang()
@@ -196,7 +193,7 @@ function PopularPokemon() {
                             to={`/pokemon/${p.id}`}
                             className="flex min-h-11 items-center gap-1 rounded-full border border-border bg-surface py-0.5 pr-3 pl-1 text-sm text-primary transition-colors sm:min-h-0 hover:border-border-emphasized hover:bg-muted"
                         >
-                            <Sprite p={p} size={32} />
+                            <PokeImage sources={pokemonImageCandidates(p.id, 32, { sprite: p.sprite })} alt="" size={32} className={SPRITE_BOX[32]} />
                             {displayName(p, lang)}
                         </Link>
                     </li>
@@ -204,162 +201,6 @@ function PopularPokemon() {
             </ul>
         </VStack>
     )
-}
-
-// ── 오늘의 포켓몬 ──
-
-function PokemonOfTheDay() {
-    const lang = useLang()
-    const t = useT(homeMessages)
-    const [key] = useState(todayKey)
-    const p = useMemo(() => pokemonOfDay(key), [key])
-    const name = displayName(p, lang)
-    const maxStat = Math.max(...STAT_KEYS.map((k) => p.stats[k]))
-
-    return (
-        <Card role="region" aria-labelledby="potd-heading" padding={4}>
-            <VStack gap={3}>
-                <HStack gap={2} justify="between" vAlign="center">
-                    <Text type="supporting" weight="semibold" id="potd-heading">
-                        {t('potdTitle')}
-                    </Text>
-                    <Text type="supporting" color="secondary" hasTabularNumbers>
-                        {padDexNo(getSpeciesId(p))}
-                    </Text>
-                </HStack>
-                <HStack gap={3} vAlign="center">
-                    <Link to={`/pokemon/${p.id}`} className="block shrink-0 rounded-lg bg-muted" aria-label={name}>
-                        <PokeImage
-                            sources={pokemonImageCandidates(p.id, 96, { sprite: p.sprite })}
-                            alt=""
-                            size={96}
-                            priority
-                            className="h-24 w-24"
-                        />
-                    </Link>
-                    <VStack gap={1.5}>
-                        <Heading level={2} maxLines={2}>
-                            {name}
-                        </Heading>
-                        <HStack gap={1.5} wrap="wrap">
-                            {p.types.map((ty) => (
-                                <TypeChip key={ty} type={ty} />
-                            ))}
-                        </HStack>
-                    </VStack>
-                </HStack>
-                <Divider />
-                <VStack as="ul" gap={1} aria-label={t('potdTitle')}>
-                    {STAT_KEYS.map((k) => {
-                        const top = p.stats[k] === maxStat
-                        return (
-                            <HStack as="li" key={k} gap={3} vAlign="center">
-                                <HStack className="w-18 shrink-0 sm:w-20">
-                                    <Text color={top ? 'primary' : 'secondary'} weight={top ? 'semibold' : 'normal'} maxLines={1}>
-                                        {statLabel(k, lang, true)}
-                                    </Text>
-                                </HStack>
-                                <HStack justify="end" className="w-9 shrink-0 sm:w-10">
-                                    <Text weight="semibold" hasTabularNumbers>
-                                        {p.stats[k]}
-                                    </Text>
-                                </HStack>
-                                <HStack className="min-w-0 flex-1">
-                                    <StatBar value={p.stats[k]} max={200} fillClass={statBandFill(p.stats[k])} label={statLabel(k, lang)} />
-                                </HStack>
-                            </HStack>
-                        )
-                    })}
-                </VStack>
-                <Button variant="primary" href={`/pokemon/${p.id}`} label={t('potdCta')} />
-            </VStack>
-        </Card>
-    )
-}
-
-// ── 바로 가기 ──
-
-function ShortcutsSection() {
-    const lang = useLang()
-    const t = useT(homeMessages)
-    const items: { to: string; title: HomeKey; count: HomeKey; n: number }[] = [
-        { to: '/pokedex', title: 'featPokedexTitle', count: 'countSpecies', n: COUNTS.species },
-        { to: '/moves', title: 'featMovesTitle', count: 'countMoves', n: COUNTS.moves },
-        { to: '/abilities', title: 'featAbilitiesTitle', count: 'countAbilities', n: COUNTS.abilities },
-        { to: '/items', title: 'featItemsTitle', count: 'countItems', n: COUNTS.items },
-        { to: '/sprites', title: 'featSpritesTitle', count: 'countSprites', n: COUNTS.all },
-    ]
-    return (
-        // 좁은 화면에서는 아래 탭 줄이 같은 일을 하므로 숨긴다 (오늘의 포켓몬이 첫 화면에 오게)
-        <VStack as="section" gap={2} aria-labelledby="shortcuts-heading" className="max-lg:hidden">
-            <SectionHeading id="shortcuts-heading">{t('toolsHeading')}</SectionHeading>
-            <Grid columns={{ minWidth: 148, repeat: 'fit' }} gap={2}>
-                {items.map((it) => (
-                    <ClickableCard key={it.to} href={it.to} label={t(it.title)} padding={3}>
-                        <HStack gap={2} vAlign="center" justify="between">
-                            <VStack gap={0}>
-                                <Text weight="semibold">{t(it.title)}</Text>
-                                <Text type="supporting" color="secondary" hasTabularNumbers maxLines={1}>
-                                    {t(it.count, { n: formatNumber(it.n, lang) })}
-                                </Text>
-                            </VStack>
-                            <Icon icon="chevronRight" color="secondary" />
-                        </HStack>
-                    </ClickableCard>
-                ))}
-            </Grid>
-        </VStack>
-    )
-}
-
-// ── 세대별 ──
-
-function GenerationsSection() {
-    const lang = useLang()
-    const t = useT(homeMessages)
-    const navigate = useNavigate()
-    const resetFilters = usePokedexStore((s) => s.resetFilters)
-    const toggleGeneration = usePokedexStore((s) => s.toggleGeneration)
-
-    const open = (id: number) => {
-        resetFilters()
-        toggleGeneration(id)
-        navigate('/pokedex')
-    }
-
-    return (
-        <VStack as="section" gap={2} aria-labelledby="gens-heading">
-            <SectionHeading id="gens-heading">{t('gensHeading')}</SectionHeading>
-            <Grid columns={{ minWidth: 300, max: 3 }} gap={3}>
-                {GENERATIONS.filter((g) => STARTERS[g.id]).map((g) => {
-                    const title = `${generationTitle(g.id, lang)} ${t(`region${g.id}` as HomeKey)}`
-                    return (
-                        <ClickableCard key={g.id} label={title} onClick={() => open(g.id)}>
-                            <HStack gap={3} align="center" justify="between">
-                                <VStack gap={0.5}>
-                                    <Heading level={3}>{title}</Heading>
-                                    <Text type="supporting" color="secondary" hasTabularNumbers>
-                                        {t('genSpecies', { n: formatNumber(g.pokemonSpecies.length, lang) })}
-                                    </Text>
-                                </VStack>
-                                <HStack gap={1} className="shrink-0" aria-hidden>
-                                    {byId(STARTERS[g.id]).map((p) => (
-                                        <Sprite key={p.id} p={p} size={40} />
-                                    ))}
-                                </HStack>
-                            </HStack>
-                        </ClickableCard>
-                    )
-                })}
-            </Grid>
-        </VStack>
-    )
-}
-
-function generationTitle(id: number, lang: string): string {
-    if (lang === 'ko') return `${id}세대`
-    if (lang === 'ja') return `第${id}世代`
-    return `Gen ${id}`
 }
 
 // ── 검색 (Astryx Typeahead) ──

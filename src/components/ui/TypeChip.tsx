@@ -15,8 +15,10 @@ import { TYPE_ICON_TYPES, multiplierLabel, multiplierMessageKey, multiplierTone,
 import { cx } from './utils'
 
 export type TypeChipSize = 'sm' | 'md'
+/** 아이콘만 쓰는 자리(타일 등)의 큰 크기 */
+export type TypeGlyphSize = TypeChipSize | 'lg'
 
-const ICON_CLASS: Record<TypeChipSize, string> = { sm: 'size-3.5', md: 'size-4' }
+const ICON_CLASS: Record<TypeGlyphSize, string> = { sm: 'size-3.5', md: 'size-4', lg: 'size-8' }
 /**
  * Token 크기는 한 단계 위로: Token sm(20px)은 14px 글자에 비해 낮아 글자가 눌려 보인다.
  * 우리 sm → Token md, md → Token lg.
@@ -28,7 +30,7 @@ const TOKEN_SIZE = { sm: 'md', md: 'lg' } as const
  * 그림은 scripts/type-icons.py 가 PokeAPI sprites 의 타입 라벨에서 잘라 만든 public/assets/types/square/*.png
  * (사용자가 준 레퍼런스와 같은 스타일). 아이콘이 없는 타입(스텔라 등)은 그리지 않는다.
  */
-export function TypeGlyph({ type, size = 'md' }: { type: string; size?: TypeChipSize }) {
+export function TypeGlyph({ type, size = 'md' }: { type: string; size?: TypeGlyphSize }) {
     if (!TYPE_ICON_TYPES.has(type)) return null
     return (
         <img
