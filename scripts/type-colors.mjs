@@ -78,6 +78,21 @@ function fit(L0, C, H, text, dir) {
 }
 
 /**
+ * 배지 색의 출발점(타입 기준 색과 다를 때만). 흰 글자 대비 때문에 명도를 내리면 주황은 갈색, 노랑은 올리브가 되어
+ * 비슷한 타입끼리 겹친다(불꽃↔땅, 전기↔바위, 에스퍼↔격투). 그래서 색상(hue)을 서로 벌린 출발점을 쓴다.
+ */
+const BADGE_SEED = {
+    fire: '#F04E14', // 붉은 주황
+    fighting: '#93302B', // 어두운 벽돌 (불꽃과 구분)
+    psychic: '#F2386A', // 빨강 쪽 핑크 (격투·페어리와 구분)
+    poison: '#9150D6', // 푸른 보라 (페어리와 구분)
+    fairy: '#E05AAE', // 핑크
+    electric: '#EDBB00', // 채도 높은 금색
+    ground: '#9A6B45', // 채도 낮춘 갈색 (불꽃·전기와 구분)
+    rock: '#8F8466', // 회색빛 카키 (땅·전기와 구분)
+}
+
+/**
  * 배지: 모든 타입이 흰 글자·흰 문양 (사용자 결정 — 진한 단색 배지).
  * 기준 색의 명도(L)만 낮춰 흰 글자 대비 AA 에 맞춘다. 어두워지며 탁해지는 것을 줄이려 채도를 조금 올린다(색역 안에서).
  */
@@ -97,8 +112,9 @@ function textOn(base, surface, dir) {
 const out = {}
 for (const [type, base] of Object.entries(BASE)) {
     const [, C, H] = rgbToOklch(hexToRgb(base))
-    const light = badge(base)
-    const dark = badge(base, { lMax: 0.8, chroma: 0.92 })
+    const seed = BADGE_SEED[type] ?? base
+    const light = badge(seed)
+    const dark = badge(seed, { lMax: 0.8, chroma: 0.92 })
     out[type] = {
         bg: [light.bg, dark.bg],
         on: [light.on, dark.on],

@@ -11,7 +11,7 @@ export const TYPE_COLOR_TOKENS = {
         text: ['#6a6c69', '#a0a29f'],
     },
     fire: {
-        bg: ['#ab6405', '#ab6402'],
+        bg: ['#d54003', '#d33f01'],
         on: ['#ffffff', '#ffffff'],
         subtle: ['#ffeddd', '#3d250e'],
         border: ['#dd9143', '#ac6818'],
@@ -25,7 +25,7 @@ export const TYPE_COLOR_TOKENS = {
         text: ['#2a6eb1', '#4f92d7'],
     },
     electric: {
-        bg: ['#887301', '#897305'],
+        bg: ['#8f7003', '#8f7002'],
         on: ['#ffffff', '#ffffff'],
         subtle: ['#f7f1d6', '#332b0a'],
         border: ['#c0a30c', '#907905'],
@@ -46,21 +46,21 @@ export const TYPE_COLOR_TOKENS = {
         text: ['#107a6e', '#74cec0'],
     },
     fighting: {
-        bg: ['#dc2d59', '#d3385a'],
+        bg: ['#9a2522', '#962c28'],
         on: ['#ffffff', '#ffffff'],
         subtle: ['#feebec', '#412024'],
         border: ['#f97487', '#c44b60'],
         text: ['#c53454', '#ee5b75'],
     },
     poison: {
-        bg: ['#ad49c8', '#a84ec1'],
+        bg: ['#9545e4', '#934cdb'],
         on: ['#ffffff', '#ffffff'],
         subtle: ['#faeaff', '#36233b'],
         border: ['#ce82e4', '#9e59b2'],
         text: ['#9c49b3', '#c16cd9'],
     },
     ground: {
-        bg: ['#bf5515', '#b85823'],
+        bg: ['#9f693c', '#9c6a42'],
         on: ['#ffffff', '#ffffff'],
         subtle: ['#feece3', '#402315'],
         border: ['#e28c62', '#b0633d'],
@@ -74,7 +74,7 @@ export const TYPE_COLOR_TOKENS = {
         text: ['#546c98', '#a1bbec'],
     },
     psychic: {
-        bg: ['#c9484a', '#c44e4e'],
+        bg: ['#e50059', '#e4075a'],
         on: ['#ffffff', '#ffffff'],
         subtle: ['#feebe9', '#41211f'],
         border: ['#ea827e', '#b75a57'],
@@ -88,7 +88,7 @@ export const TYPE_COLOR_TOKENS = {
         text: ['#597604', '#92bc2c'],
     },
     rock: {
-        bg: ['#84743d', '#837443'],
+        bg: ['#807451', '#7f7454'],
         on: ['#ffffff', '#ffffff'],
         subtle: ['#f4f0e1', '#302b1a'],
         border: ['#b1a479', '#857a53'],
@@ -123,7 +123,7 @@ export const TYPE_COLOR_TOKENS = {
         text: ['#367583', '#5897a5'],
     },
     fairy: {
-        bg: ['#b34bad', '#ae4fa7'],
+        bg: ['#cf2f9a', '#c93b98'],
         on: ['#ffffff', '#ffffff'],
         subtle: ['#fee8fc', '#392237'],
         border: ['#d582ce', '#a55a9f'],
