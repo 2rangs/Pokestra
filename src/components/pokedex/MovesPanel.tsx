@@ -277,7 +277,7 @@ export function MovesPanel({
                                     <TableCell>
                                         <span className="flex min-w-28 flex-col">
                                             {m ? (
-                                                <Link href={`/moves/${r.slug}`} weight="medium">
+                                                <Link href={`/moves/${r.slug}`} weight="medium" color="primary">
                                                     {moveName(r.slug, lang)}
                                                 </Link>
                                             ) : (

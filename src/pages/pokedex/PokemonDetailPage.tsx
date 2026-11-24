@@ -1,4 +1,5 @@
 import { type ReactNode, Fragment, useEffect, useMemo } from "react"
+import { Blockquote } from "@astryxdesign/core/Blockquote"
 import { useNavigate, useParams, useSearchParams } from "react-router"
 import { Button } from "@astryxdesign/core/Button"
 import { Card } from "@astryxdesign/core/Card"
@@ -424,8 +425,9 @@ export default function PokemonDetailPage() {
         </Text>
     )
     const flavorNode = flavor ? (
+        // 도감 설명은 게임 속 도감 항목처럼 인용 블록으로
         <span lang={flavorEntry?.language.name.split("-")[0]} className="block max-w-prose break-keep">
-            <Text as="p">{flavor}</Text>
+            <Blockquote>{flavor}</Blockquote>
         </span>
     ) : speciesQ.isPending && speciesId ? (
         <VStack gap={1}>
@@ -533,7 +535,8 @@ export default function PokemonDetailPage() {
                     priority: true,
                 }}
                 number={
-                    <Text type="supporting" hasTabularNumbers>
+                    // 도감 번호는 이 화면의 정체성: 강조색·고정폭 숫자
+                    <Text type="large" weight="semibold" color="accent" hasTabularNumbers>
                         {dexNumber(shownNo)}
                     </Text>
                 }
@@ -658,7 +661,7 @@ export default function PokemonDetailPage() {
                                                     {shownAbilities.map((a) => (
                                                         <VStack as="li" key={a.name} gap={0.5}>
                                                             <HStack gap={2} vAlign="center" wrap="wrap">
-                                                                <Link href={`/abilities/${a.name}`} weight="semibold">
+                                                                <Link href={`/abilities/${a.name}`} weight="semibold" color="primary">
                                                                     {abilityName(a.name, lang)}
                                                                 </Link>
                                                                 {a.hidden && <Token size="sm" color="purple" label={t("hiddenAbility")} />}

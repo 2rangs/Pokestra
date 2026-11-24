@@ -28,7 +28,7 @@ const Row = memo(function Row({ p, sortStat }: { p: DexPokemon; sortStat: StatKe
             <TableCell>
                 <span className="flex min-w-32 flex-col">
                     <span className="flex items-center gap-1">
-                        <Link href={`/pokemon/${p.id}`} weight="semibold">
+                        <Link href={`/pokemon/${p.id}`} weight="semibold" color="primary">
                             {pokemonName(p, lang)}
                         </Link>
                         {p.genderDiff && <GenderDiffMark t={t} />}

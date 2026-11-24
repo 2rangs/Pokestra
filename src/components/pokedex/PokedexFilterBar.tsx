@@ -71,7 +71,7 @@ export function PokedexFilterBar({
         <section
             id="pokedex-filter-bar"
             aria-label={t("filters")}
-            className="sticky top-23.25 z-30 -mx-4 flex flex-col gap-2 border-b border-border bg-body px-4 py-2 sm:-mx-6 sm:px-6 lg:top-12.25"
+            className="sticky top-12.25 z-30 -mx-4 flex flex-col gap-2 border-b border-border bg-body px-4 py-2 sm:-mx-6 sm:px-6"
         >
             <HStack wrap="wrap" align="end" gap={2}>
                 <HStack ref={searchRef} className="order-1 min-w-0 flex-1">

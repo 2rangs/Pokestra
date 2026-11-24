@@ -290,7 +290,8 @@ function ShortcutsSection() {
         { to: '/sprites', title: 'featSpritesTitle', count: 'countSprites', n: COUNTS.all },
     ]
     return (
-        <VStack as="section" gap={2} aria-labelledby="shortcuts-heading">
+        // 좁은 화면에서는 아래 탭 줄이 같은 일을 하므로 숨긴다 (오늘의 포켓몬이 첫 화면에 오게)
+        <VStack as="section" gap={2} aria-labelledby="shortcuts-heading" className="max-lg:hidden">
             <SectionHeading id="shortcuts-heading">{t('toolsHeading')}</SectionHeading>
             <Grid columns={{ minWidth: 148, repeat: 'fit' }} gap={2}>
                 {items.map((it) => (

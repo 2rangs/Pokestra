@@ -26,6 +26,7 @@ import {
 } from '../components/dex/DexUi'
 import { FactList, Panel, type Fact } from '../components/pokedex/DetailPanel'
 import { TypeChip } from '../components/ui/TypeChip'
+import { useMediaQuery } from '@astryxdesign/core/hooks'
 import { buildSearchKey, cleanDesc, foldSearch } from '../components/dex/text'
 import { useProgressive } from '../components/dex/useProgressive'
 import { useUrlParams } from '../components/dex/useUrlParams'
@@ -155,28 +156,42 @@ function MoveList() {
     const rows = useMemo<MoveRow[]>(() => filtered.slice(0, shown).map((m) => ({ key: m.name, m })), [filtered, shown])
     const search = location.search
 
+    // 좁은 화면: 타입·분류를 이름 아래 한 줄로 합쳐 표가 가로로 넘치지 않게 (이름 · 위력 · 명중 · PP)
+    const compact = useMediaQuery('(max-width: 639px)')
+    const classBadge = (m: MoveRow['m']) => <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} />
     const columns: TableColumn<MoveRow>[] = [
         {
             key: 'name',
             header: t('colMove'),
-            width: proportional(2, { minWidth: 132 }),
+            width: proportional(2, { minWidth: compact ? 120 : 132 }),
             sortable: true,
-            renderCell: ({ m }) => (
-                <Link href={`/moves/${m.name}${search}`} weight="semibold">
-                    {moveName(m.name, lang)}
-                </Link>
-            ),
+            renderCell: ({ m }) => {
+                const link = (
+                    <Link href={`/moves/${m.name}${search}`} weight="semibold" color="primary">
+                        {moveName(m.name, lang)}
+                    </Link>
+                )
+                if (!compact) return link
+                return (
+                    <VStack gap={0.5} paddingBlock={0.5}>
+                        {link}
+                        <HStack gap={1} wrap="wrap">
+                            <TypeChip type={m.type} size="sm" />
+                            {classBadge(m)}
+                        </HStack>
+                    </VStack>
+                )
+            },
         },
-        { key: 'type', header: t('type'), width: pixel(108), renderCell: ({ m }) => <TypeChip type={m.type} size="sm" /> },
-        {
-            key: 'cls',
-            header: t('category'),
-            width: pixel(84),
-            renderCell: ({ m }) => <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} />,
-        },
-        { key: 'power', header: t('power'), width: pixel(76), align: 'end', sortable: true, renderCell: ({ m }) => <Num v={m.power} /> },
-        { key: 'accuracy', header: t('accuracy'), width: pixel(84), align: 'end', sortable: true, renderCell: ({ m }) => <Num v={m.accuracy} /> },
-        { key: 'pp', header: t('pp'), width: pixel(60), align: 'end', sortable: true, renderCell: ({ m }) => <Num v={m.pp} /> },
+        ...(compact
+            ? []
+            : [
+                  { key: 'type', header: t('type'), width: pixel(108), renderCell: ({ m }: MoveRow) => <TypeChip type={m.type} size="sm" /> },
+                  { key: 'cls', header: t('category'), width: pixel(84), renderCell: ({ m }: MoveRow) => classBadge(m) },
+              ]),
+        { key: 'power', header: t('power'), width: pixel(compact ? 56 : 76), align: 'end', sortable: true, renderCell: ({ m }) => <Num v={m.power} /> },
+        { key: 'accuracy', header: t('accuracy'), width: pixel(compact ? 56 : 84), align: 'end', sortable: true, renderCell: ({ m }) => <Num v={m.accuracy} /> },
+        { key: 'pp', header: t('pp'), width: pixel(compact ? 44 : 60), align: 'end', sortable: true, renderCell: ({ m }) => <Num v={m.pp} /> },
     ]
 
     return (

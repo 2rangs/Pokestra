@@ -265,7 +265,7 @@ export default function PokedexPage() {
                 </VStack>
             ) : (
                 <VStack ref={resultsRef} className={`transition-opacity ${isSearching ? "opacity-60" : ""}`}>
-                    <Grid columns={{ minWidth: 128, max: 10 }} gap={2}>
+                    <Grid columns={{ minWidth: 128, max: 10 }} gap={2} className="max-sm:grid-cols-1 max-sm:gap-1">
                         {visible.map((e) => (
                             <PokemonCard
                                 key={e.p.id}
@@ -283,9 +283,9 @@ export default function PokedexPage() {
                         </HStack>
                     )}
                     {hasMore && (
-                        <Grid columns={{ minWidth: 128, max: 10 }} gap={2} aria-hidden>
+                        <Grid columns={{ minWidth: 128, max: 10 }} gap={2} aria-hidden className="max-sm:grid-cols-1 max-sm:gap-1">
                             {results.slice(visibleCount, visibleCount + PAGE_SIZE).map((e, i) => (
-                                <HStack key={e.p.id} data-slot={visibleCount + i} className="h-46 sm:h-50" />
+                                <HStack key={e.p.id} data-slot={visibleCount + i} className="h-15 sm:h-50" />
                             ))}
                         </Grid>
                     )}

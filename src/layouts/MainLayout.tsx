@@ -1,18 +1,67 @@
 import { Suspense, useEffect, useState, type ReactNode } from 'react'
-import { Outlet, useLocation } from 'react-router'
+import { Link, Outlet, useLocation } from 'react-router'
 import { TopNav, TopNavHeading, TopNavItem } from '@astryxdesign/core/TopNav'
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl'
 import { IconButton } from '@astryxdesign/core/IconButton'
-import { LANGS, useDocumentLang, useLang, useLangStore, useT, type Lang } from '../i18n'
+import { Text } from '@astryxdesign/core/Text'
+import { DropdownMenu } from '@astryxdesign/core/DropdownMenu'
+import { Icon } from '@astryxdesign/core/Icon'
+import { PokeImage } from '../components/ui/PokeImage'
+import { cx } from '../components/ui/utils'
+import { pokemonImageCandidates } from '../lib/images'
+import { itemIconUrl } from '../lib/spriteUrls'
+import { LANG_LABEL, LANGS, useDocumentLang, useLang, useLangStore, useT, type Lang } from '../i18n'
 import { commonMessages } from '../i18n/messages/common'
 
+/**
+ * 섹션마다 게임 속 물건을 아이콘으로: 몬스터볼(도감), 기술머신(기술), 특성캡슐(특성), 상처약(도구),
+ * 그리고 그림을 그리는 포켓몬 루브도(스프라이트). 모두 도트라 픽셀 렌더링.
+ */
 const NAV_ITEMS = [
-    { to: '/pokedex', key: 'navPokedex', match: ['/pokedex', '/pokemon'] },
-    { to: '/moves', key: 'navMoves', match: ['/moves'] },
-    { to: '/abilities', key: 'navAbilities', match: ['/abilities'] },
-    { to: '/items', key: 'navItems', match: ['/items'] },
-    { to: '/sprites', key: 'navSprites', match: ['/sprites'] },
+    { to: '/pokedex', key: 'navPokedex', match: ['/pokedex', '/pokemon'], icon: [itemIconUrl('poke-ball')] },
+    { to: '/moves', key: 'navMoves', match: ['/moves'], icon: [itemIconUrl('tm-normal')] },
+    { to: '/abilities', key: 'navAbilities', match: ['/abilities'], icon: [itemIconUrl('ability-capsule')] },
+    { to: '/items', key: 'navItems', match: ['/items'], icon: [itemIconUrl('potion')] },
+    { to: '/sprites', key: 'navSprites', match: ['/sprites'], icon: pokemonImageCandidates(235, 30) },
 ] as const
+
+function NavIcon({ sources, size }: { sources: readonly string[]; size: number }) {
+    return <PokeImage sources={[...sources]} alt="" size={size} pixelated className={size === 24 ? 'size-6' : 'size-7.5'} />
+}
+
+/** 좁은 화면: 엄지가 닿는 아래 탭 줄 (lg 미만). 각 칸은 56px 높이, 선택된 칸은 강조색 글자 + 위쪽 선. */
+function BottomTabs({ pathname, label }: { pathname: string; label: string }) {
+    const t = useT(commonMessages)
+    return (
+        <nav
+            aria-label={label}
+            className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
+        >
+            <ul className="mx-auto grid max-w-xl grid-cols-5">
+                {NAV_ITEMS.map(({ to, key, match, icon }) => {
+                    const selected = match.some((m) => pathname.startsWith(m))
+                    return (
+                        <li key={to}>
+                            <Link
+                                to={to}
+                                aria-current={selected ? 'page' : undefined}
+                                className={cx(
+                                    'flex min-h-14 flex-col items-center justify-center gap-0.5 border-t-2 outline-none focus-visible:bg-muted',
+                                    selected ? 'border-accent' : 'border-transparent',
+                                )}
+                            >
+                                <NavIcon sources={icon} size={30} />
+                                <Text type="supporting" weight={selected ? 'semibold' : 'normal'} color={selected ? 'accent' : 'secondary'} maxLines={1}>
+                                    {t(key)}
+                                </Text>
+                            </Link>
+                        </li>
+                    )
+                })}
+            </ul>
+        </nav>
+    )
+}
 
 /** 몬스터볼 마크 */
 function Mark({ className }: { className?: string }) {
@@ -35,13 +84,29 @@ function LanguageSwitch() {
     const setLang = useLangStore((s) => s.setLang)
     const t = useT(commonMessages)
     return (
-        <span className="max-sm:-my-3 max-sm:*:*:min-h-11 max-sm:*:*:min-w-11">
-            <SegmentedControl size="sm" label={t('language')} value={lang} onChange={(v) => setLang(v as Lang)}>
-                {LANGS.map((l) => (
-                    <SegmentedControlItem key={l} value={l} label={LANG_SHORT[l]} />
-                ))}
-            </SegmentedControl>
-        </span>
+        <>
+            {/* 넓은 화면: 세 언어를 한눈에 */}
+            <span className="max-lg:hidden">
+                <SegmentedControl size="sm" label={t('language')} value={lang} onChange={(v) => setLang(v as Lang)}>
+                    {LANGS.map((l) => (
+                        <SegmentedControlItem key={l} value={l} label={LANG_SHORT[l]} />
+                    ))}
+                </SegmentedControl>
+            </span>
+            {/* 좁은 화면: 44px 버튼 하나 + 아래에서 올라오는 선택지 (헤더 한 줄 유지) */}
+            <span className="lg:hidden">
+                <DropdownMenu
+                    presentation="adaptive"
+                    alignment="end"
+                    button={{ label: LANG_SHORT[lang], 'aria-label': `${t('language')}: ${LANG_LABEL[lang]}`, variant: 'ghost', size: 'lg' }}
+                    items={LANGS.map((l) => ({
+                        label: LANG_LABEL[l],
+                        onClick: () => setLang(l),
+                        endContent: l === lang ? <Icon icon="check" color="accent" /> : undefined,
+                    }))}
+                />
+            </span>
+        </>
     )
 }
 
@@ -54,7 +119,7 @@ function BackToTop({ label }: { label: string }) {
         return () => window.removeEventListener('scroll', onScroll)
     }, [])
     return (
-        <span className={`fixed right-4 bottom-4 z-40 max-sm:*:min-h-11 max-sm:*:min-w-11 transition-opacity ${show ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
+        <span className={`fixed right-4 bottom-20 z-40 lg:bottom-4 max-sm:*:min-h-11 max-sm:*:min-w-11 transition-opacity ${show ? 'opacity-100' : 'pointer-events-none opacity-0'}`}>
             <IconButton
                 label={label}
                 variant="secondary"
@@ -78,8 +143,8 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
         window.scrollTo(0, 0)
     }, [pathname])
 
-    const items = NAV_ITEMS.map(({ to, key, match }) => (
-        <TopNavItem key={to} href={to} label={t(key)} isSelected={match.some((m) => pathname.startsWith(m))} />
+    const items = NAV_ITEMS.map(({ to, key, match, icon }) => (
+        <TopNavItem key={to} href={to} label={t(key)} icon={<NavIcon sources={icon} size={24} />} isSelected={match.some((m) => pathname.startsWith(m))} />
     ))
 
     return (
@@ -91,8 +156,8 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                 {t('skipToContent')}
             </a>
 
-            {/* 헤더 높이 (모바일 두 줄 / lg 한 줄) 에 맞춘 sticky 오프셋이
-                PokedexFilterBar 와 ItemListPage 에 top-23.25 / lg:top-12.25 로 있다. 높이를 바꾸면 함께 고친다. */}
+            {/* 헤더는 모든 너비에서 한 줄(49px). 이에 맞춘 sticky 오프셋 top-12.25 가
+                PokedexFilterBar 와 ItemListPage 에 있다. 높이를 바꾸면 함께 고친다. 좁은 화면의 섹션 이동은 BottomTabs. */}
             <header className="sticky top-0 z-50 border-b border-border bg-surface">
                 <div className="mx-auto max-w-7xl sm:px-2">
                     <TopNav
@@ -102,13 +167,9 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                         endContent={<LanguageSwitch />}
                     />
                 </div>
-                {/* 좁은 화면: 가로 스크롤 탭 줄 */}
-                <nav aria-label="Sections" className="overflow-x-auto px-4 sm:px-6 [scrollbar-width:none] lg:hidden">
-                    <span className="flex w-max gap-1 max-lg:*:min-h-11 max-lg:*:items-center">{items}</span>
-                </nav>
             </header>
 
-            <main id="main" className="flex-1">
+            <main id="main" className="flex-1 max-lg:pb-16">
                 <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
                     <Suspense fallback={fallback}>
                         <Outlet />
@@ -116,13 +177,14 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                 </div>
             </main>
 
-            <footer className="border-t border-border px-4 py-8 text-center text-xs leading-relaxed text-secondary">
+            <footer className="border-t border-border px-4 py-8 max-lg:pb-24 text-center text-xs leading-relaxed text-secondary">
                 <p>{t('footerData')}</p>
                 <p>{t('footerCopyright')}</p>
                 <p>{t('footerFan')}</p>
             </footer>
 
             <BackToTop label={t('backToTop')} />
+            <BottomTabs pathname={pathname} label={t('sections')} />
         </div>
     )
 }

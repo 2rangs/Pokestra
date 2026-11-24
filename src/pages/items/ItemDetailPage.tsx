@@ -135,7 +135,7 @@ export default function ItemDetailPage() {
                                     <VStack gap={1}>
                                         <HStack gap={2} align="center" wrap="wrap">
                                             {berry.naturalGiftType ? <TypeChip type={berry.naturalGiftType} size="sm" /> : <Text>{DASH}</Text>}
-                                            <Text hasTabularNumbers>{berry.naturalGiftPower ?? DASH}</Text>
+                                            <Text type="large" weight="semibold" hasTabularNumbers>{berry.naturalGiftPower ?? DASH}</Text>
                                         </HStack>
                                         <Text type="supporting" color="secondary">
                                             {t('naturalGiftHelp')}
@@ -145,31 +145,31 @@ export default function ItemDetailPage() {
                             )}
                             <MetadataListItem label={t('flingLabel')}>
                                 <VStack gap={1}>
-                                    <Text hasTabularNumbers>{item.flingPower ?? DASH}</Text>
+                                    <Text type="large" weight="semibold" hasTabularNumbers>{item.flingPower ?? DASH}</Text>
                                     <Text type="supporting" color="secondary">
                                         {t('flingHelp')}
                                     </Text>
                                 </VStack>
                             </MetadataListItem>
                             <MetadataListItem label={t('flingEffect')}>
-                                <Text>{item.flingEffect ? t(`flingEffect_${item.flingEffect}`) : DASH}</Text>
+                                <Text weight="semibold">{item.flingEffect ? t(`flingEffect_${item.flingEffect}`) : DASH}</Text>
                             </MetadataListItem>
                             {berry && (
                                 <>
                                     <MetadataListItem label={t('firmness')}>
                                         <VStack gap={1}>
-                                            <Text>{berry.firmness ? t(`firmness_${berry.firmness}`) : DASH}</Text>
+                                            <Text weight="semibold">{berry.firmness ? t(`firmness_${berry.firmness}`) : DASH}</Text>
                                             <Text type="supporting" color="secondary">
                                                 {t('firmnessHelp')}
                                             </Text>
                                         </VStack>
                                     </MetadataListItem>
                                     <MetadataListItem label={t('size')}>
-                                        <Text hasTabularNumbers>{berry.size != null ? t('sizeValue', { n: (berry.size / 10).toFixed(1) }) : DASH}</Text>
+                                        <Text weight="semibold" hasTabularNumbers>{berry.size != null ? t('sizeValue', { n: (berry.size / 10).toFixed(1) }) : DASH}</Text>
                                     </MetadataListItem>
                                     <MetadataListItem label={t('growthTime')}>
                                         <VStack gap={1}>
-                                            <Text hasTabularNumbers>{berry.growthTime != null ? t('growthValue', { n: berry.growthTime }) : DASH}</Text>
+                                            <Text weight="semibold" hasTabularNumbers>{berry.growthTime != null ? t('growthValue', { n: berry.growthTime }) : DASH}</Text>
                                             <Text type="supporting" color="secondary">
                                                 {t('growthTimeHelp')}
                                             </Text>
