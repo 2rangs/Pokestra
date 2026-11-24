@@ -14,6 +14,7 @@ import { VStack } from '@astryxdesign/core/VStack'
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
 import { StatBar } from '../components/ui/shared'
 import { TypeChip } from '../components/ui/TypeChip'
+import { statBandFill } from '../lib/statBand'
 import { PokeImage } from '../components/ui/PokeImage'
 import { DEX_ITEMS } from '../lib/items'
 import { pokemonImageCandidates } from '../lib/images'
@@ -264,7 +265,7 @@ function PokemonOfTheDay() {
                                     </Text>
                                 </HStack>
                                 <HStack className="min-w-0 flex-1">
-                                    <StatBar value={p.stats[k]} max={200} fillClass={top ? 'fill-primary' : 'fill-secondary'} label={statLabel(k, lang)} />
+                                    <StatBar value={p.stats[k]} max={200} fillClass={statBandFill(p.stats[k])} label={statLabel(k, lang)} />
                                 </HStack>
                             </HStack>
                         )

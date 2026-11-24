@@ -30,6 +30,20 @@ for (const [type, roles] of Object.entries(TYPE_COLOR_TOKENS)) {
   };
 }
 
+// 종족값 막대 6단계 (낮음 → 높음). 막대 옆에 숫자가 늘 있어 색은 보조 신호다.
+// 라이트: 옅은 트랙(#f1f1f1) 위에서 선명하게, 다크: 어두운 트랙 위에서 눈부시지 않게 조금 낮춘 명도.
+const STAT_BANDS: Record<string, [string, string]> = {
+  '1': ['#e5484d', '#e5484d'],
+  '2': ['#f2780c', '#f0812a'],
+  '3': ['#e8b100', '#d9a800'],
+  '4': ['#7cc513', '#76b81c'],
+  '5': ['#22b45c', '#2aa860'],
+  '6': ['#0fb5ae', '#16a8a2'],
+};
+for (const [band, value] of Object.entries(STAT_BANDS)) {
+  localTokens[`--pokestra-stat-${band}`] = value;
+}
+
 export const pokestraTheme = defineTheme({
   extends: pokestraSettings,
   name: 'pokestra',

@@ -312,7 +312,13 @@ export const pokestraTheme = {
     "--pokestra-type-stellar-on": "light-dark(#ffffff, #ffffff)",
     "--pokestra-type-stellar-subtle": "light-dark(#eeeffe, #292843)",
     "--pokestra-type-stellar-border": "light-dark(#9c95fe, #7368d5)",
-    "--pokestra-type-stellar-text": "light-dark(#6a57da, #8a7dfe)"
+    "--pokestra-type-stellar-text": "light-dark(#6a57da, #8a7dfe)",
+    "--pokestra-stat-1": "light-dark(#e5484d, #e5484d)",
+    "--pokestra-stat-2": "light-dark(#f2780c, #f0812a)",
+    "--pokestra-stat-3": "light-dark(#e8b100, #d9a800)",
+    "--pokestra-stat-4": "light-dark(#7cc513, #76b81c)",
+    "--pokestra-stat-5": "light-dark(#22b45c, #2aa860)",
+    "--pokestra-stat-6": "light-dark(#0fb5ae, #16a8a2)"
   },
   __localTokenOwners: {
     "--astryx-theme-neutral-color-status-fill-accent": "neutral",
@@ -410,7 +416,13 @@ export const pokestraTheme = {
     "--pokestra-type-stellar-on": "pokestra",
     "--pokestra-type-stellar-subtle": "pokestra",
     "--pokestra-type-stellar-border": "pokestra",
-    "--pokestra-type-stellar-text": "pokestra"
+    "--pokestra-type-stellar-text": "pokestra",
+    "--pokestra-stat-1": "pokestra",
+    "--pokestra-stat-2": "pokestra",
+    "--pokestra-stat-3": "pokestra",
+    "--pokestra-stat-4": "pokestra",
+    "--pokestra-stat-5": "pokestra",
+    "--pokestra-stat-6": "pokestra"
   },
   __localTokenLineage: ["neutral","pokestra-settings","pokestra"],
   components: {
