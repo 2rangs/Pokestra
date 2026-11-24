@@ -16,6 +16,7 @@ export const ROUTES = [
     ['pokedex-table', '/pokedex?view=table'],
     ['detail', '/pokemon/6'],
     ['detail-forms', '/pokemon/25'],
+    ['detail-moves', '/pokemon/6?tab=moves'],
     ['moves', '/moves'],
     ['move-detail', '/moves/thunderbolt'],
     ['abilities', '/abilities'],

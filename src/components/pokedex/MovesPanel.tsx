@@ -19,6 +19,7 @@ import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { MOVE_BY_NAME, damageClassName, moveName, titleCaseSlug } from "../../lib/dex"
 import { TypeChip } from "../ui/TypeChip"
 import { ClassBadge } from "../dex/DexUi"
+import { useMediaQuery } from "@astryxdesign/core/hooks"
 import { norm } from "./search"
 
 type T = TFunction<PokedexKey>
@@ -150,6 +151,10 @@ export function MovesPanel({
     t: T
     allLabel: string
 }) {
+    // 좁은 화면: 타입·분류를 기술 이름 아래로 합쳐 표가 가로로 넘치지 않게 (기술 목록 화면과 같은 방식)
+    const compact = useMediaQuery("(max-width: 639px)")
+    // Astryx 표는 머리칸을 균등하게 나눈다 → 좁은 화면에서는 숫자 칸을 내용 폭으로, 이름 칸이 나머지를
+    const narrowCol = compact ? "min-w-12 whitespace-nowrap" : "whitespace-nowrap"
     const { game, rows } = useMemo<{ game: string | null; rows: MoveRow[] }>(() => {
         if (detail) return buildMoveRows(detail.moves)
         return { game: null, rows: (fallbackMoves ?? []).map((slug) => ({ slug, method: "other", level: null })) }
@@ -253,13 +258,13 @@ export function MovesPanel({
                 <Table density="compact" hasHover aria-label={t("tabMoves")}>
                     <TableHeader>
                         <TableRow isHeaderRow>
-                            {showLevel && <TableHeaderCell scope="col">{t("colLevel")}</TableHeaderCell>}
-                            <TableHeaderCell scope="col">{t("colMove")}</TableHeaderCell>
-                            <TableHeaderCell scope="col">{t("colType")}</TableHeaderCell>
-                            <TableHeaderCell scope="col">{t("colClass")}</TableHeaderCell>
-                            <TableHeaderCell scope="col" className="text-right">{t("colPower")}</TableHeaderCell>
-                            <TableHeaderCell scope="col" className="text-right">{t("colAccuracy")}</TableHeaderCell>
-                            <TableHeaderCell scope="col" className="text-right">{t("colPP")}</TableHeaderCell>
+                            {showLevel && <TableHeaderCell scope="col" className={compact ? "min-w-15 whitespace-nowrap" : "whitespace-nowrap"}>{t("colLevel")}</TableHeaderCell>}
+                            <TableHeaderCell scope="col" className={compact ? "w-full" : undefined}>{t("colMove")}</TableHeaderCell>
+                            {!compact && <TableHeaderCell scope="col">{t("colType")}</TableHeaderCell>}
+                            {!compact && <TableHeaderCell scope="col">{t("colClass")}</TableHeaderCell>}
+                            <TableHeaderCell scope="col" className={`${narrowCol} text-right`}>{t("colPower")}</TableHeaderCell>
+                            <TableHeaderCell scope="col" className={`${narrowCol} text-right`}>{t("colAccuracy")}</TableHeaderCell>
+                            <TableHeaderCell scope="col" className={`${narrowCol} text-right`}>{t("colPP")}</TableHeaderCell>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -268,7 +273,7 @@ export function MovesPanel({
                             return (
                                 <TableRow key={`${r.method}:${r.slug}:${r.level ?? ""}`}>
                                     {showLevel && (
-                                        <TableCell>
+                                        <TableCell className="whitespace-nowrap">
                                             <Text color="secondary" hasTabularNumbers>
                                                 {r.method === "level-up" ? (r.level === 0 ? t("evoMoveLevel") : r.level) : "-"}
                                             </Text>
@@ -286,19 +291,27 @@ export function MovesPanel({
                                             {method === "all" && r.method !== "level-up" && (
                                                 <Text type="supporting">{t(METHOD_LABEL[r.method])}</Text>
                                             )}
+                                            {compact && m && (
+                                                <HStack gap={1} wrap="wrap" paddingBlockStart={0.5}>
+                                                    <TypeChip type={m.type} size="sm" />
+                                                    <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} />
+                                                </HStack>
+                                            )}
                                         </span>
                                     </TableCell>
-                                    <TableCell>{m && <TypeChip type={m.type} size="sm" />}</TableCell>
-                                    <TableCell>
-                                        {m ? <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} /> : <Text color="secondary">-</Text>}
-                                    </TableCell>
-                                    <TableCell className="text-right">
+                                    {!compact && <TableCell>{m && <TypeChip type={m.type} size="sm" />}</TableCell>}
+                                    {!compact && (
+                                        <TableCell>
+                                            {m ? <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} /> : <Text color="secondary">-</Text>}
+                                        </TableCell>
+                                    )}
+                                    <TableCell className="whitespace-nowrap text-right">
                                         <Text hasTabularNumbers>{m?.power ?? "-"}</Text>
                                     </TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="whitespace-nowrap text-right">
                                         <Text color="secondary" hasTabularNumbers>{m?.accuracy ?? "-"}</Text>
                                     </TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="whitespace-nowrap text-right">
                                         <Text color="secondary" hasTabularNumbers>{m?.pp ?? "-"}</Text>
                                     </TableCell>
                                 </TableRow>
