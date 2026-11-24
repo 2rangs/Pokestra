@@ -3,7 +3,6 @@
  *
  * - PageTitle: 페이지 제목(Heading 1) + 설명
  * - SectionTitle: 섹션 제목(Heading 2) + 오른쪽 보조 내용
- * - TypeTag / TypeIconDot: 포켓몬 타입 아이콘 + 이름
  * - StatBar: 능력치 막대
  * - Spinner: 로딩
  */
@@ -14,9 +13,7 @@ import { Skeleton } from '@astryxdesign/core/Skeleton'
 import { Spinner as AxSpinner } from '@astryxdesign/core/Spinner'
 import { VStack } from '@astryxdesign/core/VStack'
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
-import { useLang } from '../../i18n'
-import { typeName } from '../../lib/dex'
-import { cx, typeColor } from './utils'
+import { cx } from './utils'
 
 // ── 제목 ──
 
@@ -83,100 +80,47 @@ export function SectionTitle({
     )
 }
 
-// ── 타입 ──
-
-const KNOWN_TYPE_ICONS = new Set([
-    'normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 'poison', 'ground',
-    'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy',
-])
-
-export function TypeIconDot({ type, className = 'h-4 w-4' }: { type: string; className?: string }) {
-    if (!KNOWN_TYPE_ICONS.has(type)) {
-        return <span aria-hidden className={cx('inline-block shrink-0 rounded-full', className)} style={{ background: typeColor(type) }} />
-    }
-    return (
-        <img
-            src={`${import.meta.env.BASE_URL}assets/types/${type}.svg`}
-            alt=""
-            aria-hidden
-            className={cx('shrink-0', className)}
-            width={16}
-            height={16}
-        />
-    )
-}
-
-/** 타입 표시: 아이콘 + 이름 (테두리 있는 작은 태그) */
-export function TypeTag({
-    type,
-    size = 'sm',
-    label,
-    title,
-    className,
-}: {
-    type: string
-    size?: 'xs' | 'sm' | 'md' | 'lg'
-    /** 이름 대신 쓸 글자 (예: 테라 타입) */
-    label?: ReactNode
-    title?: string
-    className?: string
-}) {
-    const lang = useLang()
-    const s = {
-        xs: { box: 'gap-1 px-1.5 py-px text-[11px]', icon: 'h-3 w-3' },
-        sm: { box: 'gap-1 px-2 py-0.5 text-xs', icon: 'h-3.5 w-3.5' },
-        md: { box: 'gap-1.5 px-2.5 py-1 text-sm', icon: 'h-4 w-4' },
-        lg: { box: 'gap-1.5 px-3 py-1 text-base', icon: 'h-5 w-5' },
-    }[size]
-    return (
-        <span
-            title={title}
-            className={cx(
-                'inline-flex shrink-0 items-center rounded-full border border-border bg-surface font-medium whitespace-nowrap text-primary',
-                s.box,
-                className,
-            )}
-        >
-            <TypeIconDot type={type} className={s.icon} />
-            {label ?? typeName(type, lang)}
-        </span>
-    )
-}
-
 // ── 능력치 막대 ──
 
-/** 0~max 막대. highlight 이면 강조색 */
+/**
+ * 0~max 막대 (SVG: 폭을 속성으로 그려 인라인 style 이 없다).
+ * fillClass: 막대 색 유틸리티(예: TYPE_COLOR_CLASSES[type].fill). 기본은 강조색, highlight 가 아니면 조금 옅게.
+ */
 export function StatBar({
     value,
     max = 255,
     highlight,
-    color,
+    fillClass,
     className,
     label,
 }: {
     value: number
     max?: number
     highlight?: boolean
-    /** 막대 색 (기본: 강조색) */
-    color?: string
+    fillClass?: string
     className?: string
     label?: string
 }) {
     const pct = Math.max(0, Math.min(100, (value / max) * 100))
     return (
-        <span
-            className={cx('relative block h-2 w-full overflow-hidden rounded-full bg-muted', className)}
+        <svg
+            className={cx('block h-2 w-full overflow-hidden rounded-full', className)}
             role="meter"
             aria-valuemin={0}
             aria-valuemax={max}
             aria-valuenow={value}
             aria-label={label}
         >
-            <span
-                className={cx('absolute inset-y-0 left-0 rounded-full', !color && (highlight ? 'bg-accent' : 'bg-accent/70'))}
-                style={{ width: `${pct}%`, ...(color ? { background: color } : null) }}
-            />
-        </span>
+            <rect width="100%" height="100%" rx={4} className="fill-muted" />
+            {pct > 0 && (
+                <rect
+                    width={`${pct}%`}
+                    height="100%"
+                    rx={4}
+                    className={cx(fillClass ?? 'fill-accent', !highlight && !fillClass && 'opacity-70')}
+                />
+            )}
+        </svg>
     )
 }
 

@@ -482,10 +482,4 @@ export function pokemonWithMove(slug: string): readonly DexPokemon[] {
     return pokemonByMove.get(slug) ?? []
 }
 
-/** 타입 slug → 대표 색 */
-export const TYPE_COLOR: Record<string, string> = {
-    normal: '#A0A29F', fire: '#FBA54C', water: '#4D90D5', electric: '#F4D23B', grass: '#5FBD58', ice: '#74CEC0',
-    fighting: '#D3425F', poison: '#B763CF', ground: '#DA7C4D', flying: '#A1BBEC', psychic: '#FA8581', bug: '#92BC2C',
-    rock: '#C9BB8A', ghost: '#5F6DBC', dragon: '#0C69C8', dark: '#595761', steel: '#5695A3', fairy: '#EE90E6',
-    stellar: '#7c6cf0', typeless: '#94a3b8',
-}
+// 타입 색은 pokestra 테마 토큰(--pokestra-type-*)으로 옮겼다: src/lib/typeColorClasses.ts, scripts/type-colors.mjs

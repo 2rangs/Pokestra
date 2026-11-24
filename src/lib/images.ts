@@ -23,6 +23,17 @@ export function pokemonImageCandidates(
     return [...new Set(list.filter(Boolean))]
 }
 
+/** 도트처럼 픽셀 렌더링할 URL: /sprites/pokemon/ 아래 도트·7세대 아이콘 (일러스트·HOME·SV 아이콘은 매끈한 그림이라 제외) */
+export function isPixelSprite(url: string | undefined): boolean {
+    if (!url || !url.includes('/sprites/pokemon/')) return false
+    return !url.includes('/official-artwork/') && !url.includes('/home/') && !url.includes('/scarlet-violet/icons/')
+}
+
+/** 7세대 박스 아이콘(40×30)은 그림이 가운데 절반쯤만 차지한다 → 표시할 때 키워 칸을 채운다 */
+export function isPaddedBoxIcon(url: string | undefined): boolean {
+    return !!url && url.includes('/generation-vii/icons/')
+}
+
 /** 브라우저가 한가할 때 이미지를 미리 받아 캐시에 올린다. */
 export function preloadImages(urls: string[]): void {
     const run = () => {

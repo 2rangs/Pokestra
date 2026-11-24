@@ -17,7 +17,8 @@ import type { PokemonDetail, PokemonMoveEntry } from "../../hooks/usePokemon"
 import { type Lang, type TFunction, collator } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { MOVE_BY_NAME, damageClassName, moveName, titleCaseSlug } from "../../lib/dex"
-import { TypeTag } from "../ui/shared"
+import { TypeChip } from "../ui/TypeChip"
+import { ClassBadge } from "../dex/DexUi"
 import { norm } from "./search"
 
 type T = TFunction<PokedexKey>
@@ -287,9 +288,9 @@ export function MovesPanel({
                                             )}
                                         </span>
                                     </TableCell>
-                                    <TableCell>{m && <TypeTag type={m.type} size="xs" />}</TableCell>
+                                    <TableCell>{m && <TypeChip type={m.type} size="sm" />}</TableCell>
                                     <TableCell>
-                                        <Text color="secondary">{m ? damageClassName(m.damageClass, lang) : "-"}</Text>
+                                        {m ? <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} /> : <Text color="secondary">-</Text>}
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Text hasTabularNumbers>{m?.power ?? "-"}</Text>

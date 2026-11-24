@@ -14,7 +14,8 @@ import { VStack } from '@astryxdesign/core/VStack'
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
 import { BackLink, EmptyState } from '../../components/dex/DexUi'
 import { PokeImage } from '../../components/ui/PokeImage'
-import { StatBar, TypeTag } from '../../components/ui/shared'
+import { StatBar } from '../../components/ui/shared'
+import { TypeChip } from '../../components/ui/TypeChip'
 import { LANGS, LANG_LABEL, useDocumentTitle, useLang, useT } from '../../i18n'
 import { itemsMessages } from '../../i18n/messages/items'
 import { displayName } from '../../lib/dex'
@@ -133,7 +134,7 @@ export default function ItemDetailPage() {
                                 <MetadataListItem label={t('naturalGiftLabel')}>
                                     <VStack gap={1}>
                                         <HStack gap={2} align="center" wrap="wrap">
-                                            {berry.naturalGiftType ? <TypeTag type={berry.naturalGiftType} /> : <Text>{DASH}</Text>}
+                                            {berry.naturalGiftType ? <TypeChip type={berry.naturalGiftType} size="sm" /> : <Text>{DASH}</Text>}
                                             <Text hasTabularNumbers>{berry.naturalGiftPower ?? DASH}</Text>
                                         </HStack>
                                         <Text type="supporting" color="secondary">

@@ -7,7 +7,7 @@ import { useLang, useT } from "../../i18n"
 import { pokedexMessages } from "../../i18n/messages/pokedex"
 import { type DexMove, MOVE_BY_NAME, damageClassName, moveName } from "../../lib/dex"
 import { usePokedexStore } from "../../stores/pokedexStore"
-import { TypeIconDot } from "../ui/shared"
+import { TypeGlyph } from "../ui/TypeChip"
 import { exactMove, findMoveSuggestions } from "./search"
 
 type MoveItem = SearchableItem<DexMove>
@@ -84,7 +84,7 @@ export function MoveFilter({ compact }: { compact?: boolean }) {
                 renderItem={(item) => (
                     <TypeaheadItem
                         item={item}
-                        icon={item.auxiliaryData ? <TypeIconDot type={item.auxiliaryData.type} /> : undefined}
+                        icon={item.auxiliaryData ? <TypeGlyph type={item.auxiliaryData.type} /> : undefined}
                         description={
                             item.auxiliaryData
                                 ? [lang === "en" ? null : item.auxiliaryData.nameEn, damageClassName(item.auxiliaryData.damageClass, lang)]

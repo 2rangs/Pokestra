@@ -351,6 +351,7 @@ function MoveDetail({ slug }: { slug: string }) {
                         )}
                         <HStack gap={2} align="center" wrap="wrap">
                             <TypeChip type={m.type} size="md" />
+                            <ClassBadge damageClass={m.damageClass} label={damageClassName(m.damageClass, lang)} />
                         </HStack>
                     </VStack>
                     <Panel>

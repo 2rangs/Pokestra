@@ -6,7 +6,7 @@ import { useLang, useT } from "../../i18n"
 import { pokedexMessages } from "../../i18n/messages/pokedex"
 import { type DexPokemon, type StatKey, STAT_KEYS, baseStatTotal, formLabel, getSpeciesId, pokemonName, statLabel } from "../../lib/dex"
 import { PokemonImage } from "../PokemonCard"
-import { TypeTag } from "../ui/shared"
+import { TypeChip } from "../ui/TypeChip"
 import { GenderDiffMark } from "./GenderDiffMark"
 import { dexNumber } from "./format"
 
@@ -39,7 +39,7 @@ const Row = memo(function Row({ p, sortStat }: { p: DexPokemon; sortStat: StatKe
             <TableCell>
                 <span className="flex flex-wrap gap-1">
                     {p.types.map((type) => (
-                        <TypeTag key={type} type={type} size="xs" />
+                        <TypeChip key={type} type={type} size="sm" />
                     ))}
                 </span>
             </TableCell>

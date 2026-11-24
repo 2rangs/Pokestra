@@ -12,6 +12,7 @@ import { Link } from '@astryxdesign/core/Link'
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl'
 import { Selector } from '@astryxdesign/core/Selector'
 import { Text } from '@astryxdesign/core/Text'
+import { Token, type TokenColor } from '@astryxdesign/core/Token'
 import { TextInput } from '@astryxdesign/core/TextInput'
 import { ToggleButton } from '@astryxdesign/core/ToggleButton'
 import { VStack } from '@astryxdesign/core/VStack'
@@ -20,22 +21,16 @@ import { commonMessages } from '../../i18n/messages/common'
 import { type DexPokemon, displayName, getSpeciesId } from '../../lib/dex'
 import { pokemonImageCandidates } from '../../lib/images'
 import { PokeImage } from '../ui/PokeImage'
-import { PageTitle, TypeTag } from '../ui/shared'
+import { PageTitle } from '../ui/shared'
 import { padDexNo } from './text'
 
 // ── 타입 / 분류 ──
 
-export function TypeBadge({ type, size = 'sm' }: { type: string; size?: 'sm' | 'md' }) {
-    return <TypeTag type={type} size={size} />
-}
+const DAMAGE_CLASS_COLOR: Record<string, TokenColor> = { physical: 'orange', special: 'blue', status: 'gray' }
 
-/** 물리/특수/변화 분류: 글자로만 표시 (변화는 보조색) */
+/** 물리/특수/변화 분류: 의미 색 Token (물리 주황 · 특수 파랑 · 변화 회색) */
 export function ClassBadge({ label, damageClass }: { label: string; damageClass: string }) {
-    return (
-        <Text size="sm" weight="medium" color={damageClass === 'status' ? 'secondary' : 'primary'}>
-            {label}
-        </Text>
-    )
+    return <Token label={label} size="sm" color={DAMAGE_CLASS_COLOR[damageClass] ?? 'default'} />
 }
 
 // ── 필터 ──

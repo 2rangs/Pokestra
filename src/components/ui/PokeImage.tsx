@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
+import { isPaddedBoxIcon, isPixelSprite } from '../../lib/images'
 import { Skeleton } from '@astryxdesign/core/Skeleton'
 import { VStack } from '@astryxdesign/core/VStack'
 
@@ -13,11 +14,6 @@ type Props = {
     /** auto: 현재 URL이 /sprites/pokemon/ 아래 도트(official-artwork·home 아님)면 true */
     pixelated?: boolean | 'auto'
     priority?: boolean
-}
-
-function isPixelSprite(url: string | undefined): boolean {
-    if (!url || !url.includes('/sprites/pokemon/')) return false
-    return !url.includes('/official-artwork/') && !url.includes('/home/')
 }
 
 export function PokeImage({ sources, alt, size, className, pixelated = 'auto', priority = false }: Props) {
@@ -76,7 +72,7 @@ export function PokeImage({ sources, alt, size, className, pixelated = 'auto', p
                 onError={() => setState((s) => (s.key === key ? { ...s, index: s.index + 1, loaded: false } : s))}
                 className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 motion-reduce:transition-none ${
                     cur.loaded ? 'opacity-100' : 'opacity-0'
-                } ${usePixelated ? '[image-rendering:pixelated]' : ''}`}
+                } ${usePixelated ? '[image-rendering:pixelated]' : ''} ${isPaddedBoxIcon(url) ? 'scale-175' : ''}`}
             />
         </VStack>
     )

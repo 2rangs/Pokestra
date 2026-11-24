@@ -12,8 +12,9 @@ import {
     pokemonName,
 } from "../lib/dex"
 import { pokemonImageCandidates } from "../lib/images"
+import { TYPE_COLOR_CLASSES } from "../lib/typeColorClasses"
 import { PokeImage } from "./ui/PokeImage"
-import { TypeTag } from "./ui/shared"
+import { TypeChip } from "./ui/TypeChip"
 import { GenderDiffMark } from "./pokedex/GenderDiffMark"
 import { dexNumber } from "./pokedex/format"
 
@@ -41,6 +42,8 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
     const name = pokemonName(p, lang)
     const no = dexNumber(getSpeciesId(p))
     const sub = secondaryName(p, lang)
+    // 이미지 칸: 주 타입의 아주 옅은 면 (pokestra 테마 토큰)
+    const typeSurface = TYPE_COLOR_CLASSES[p.types[0]]?.subtle ?? "bg-muted"
 
     return (
         <ClickableCard href={`/pokemon/${p.id}`} label={`${no} ${name}${formLabel ? ` (${formLabel})` : ""}`} padding={2} className="h-full">
@@ -48,7 +51,7 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
                 <Text type="supporting" hasTabularNumbers textWrap="nowrap">
                     {no}
                 </Text>
-                <HStack justify="center">
+                <HStack justify="center" className={`rounded-md ${typeSurface}`}>
                     <PokemonImage p={p} size={72} className="h-18 w-18" />
                 </HStack>
                 <VStack gap={0}>
@@ -64,7 +67,7 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
                 </VStack>
                 <HStack gap={1} wrap="wrap" vAlign="center">
                     {p.types.map((type) => (
-                        <TypeTag key={type} type={type} size="xs" />
+                        <TypeChip key={type} type={type} size="sm" />
                     ))}
                     {highlightLabel !== undefined && highlightValue !== undefined && (
                         <Text type="supporting" textWrap="nowrap" className="ms-auto">

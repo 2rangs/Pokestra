@@ -14,7 +14,7 @@ import { type Lang, useLang, useT } from "../../i18n"
 import { type PokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
 import { GENERATIONS, TYPES, type StatKey, generationName, statLabel, typeName } from "../../lib/dex"
 import { MAX_SELECTED_TYPES, type PokedexSortKey, type SortDir, usePokedexStore } from "../../stores/pokedexStore"
-import { TypeIconDot } from "../ui/shared"
+import { TypeGlyph } from "../ui/TypeChip"
 import { MoveFilter } from "./MoveFilter"
 
 /** 정렬 옵션 (라벨: 메시지 키 또는 스탯) */
@@ -151,7 +151,7 @@ export function PokedexFilterBar({
                         key={type.name}
                         size="sm"
                         isIconOnly
-                        icon={<TypeIconDot type={type.name} />}
+                        icon={<TypeGlyph type={type.name} />}
                         label={typeName(type.name, lang)}
                         isPressed={selectedTypes.includes(type.name)}
                         onPressedChange={() => toggleType(type.name)}
