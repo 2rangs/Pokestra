@@ -32,7 +32,7 @@ function wikitext(title) {
 
 /** 위키 작품 표기 → PokeAPI version slug */
 const VERSION = {
-    레드: 'red', 그린: 'green', 블루: 'blue', 피카츄: 'yellow', 금: 'gold', 은: 'silver', 크리스탈: 'crystal',
+    레드: 'red', 그린: 'green', 블루: 'blue', 적: 'red', 녹: 'green', 청: 'blue', 피카츄: 'yellow', 금: 'gold', 은: 'silver', 크리스탈: 'crystal',
     루비: 'ruby', 사파이어: 'sapphire', 에메랄드: 'emerald', 파이어레드: 'firered', 리프그린: 'leafgreen',
     디아루가: 'diamond', 다이아몬드: 'diamond', 펄기아: 'pearl', 펄: 'pearl', 기라티나: 'platinum', 플라티나: 'platinum',
     하트골드: 'heartgold', 소울실버: 'soulsilver', 블랙: 'black', 화이트: 'white', 블랙2: 'black-2', 화이트2: 'white-2',
@@ -55,10 +55,18 @@ function matchForm(label, forms) {
     const n = norm(label)
     const exact = forms.find((f) => formNames[f.id]?.ko && norm(formNames[f.id].ko) === n)
     if (exact) return exact.id
+    // 위키 표기가 공식 이름을 품거나 그 반대("오리지널캡 피카츄" ⊃ "오리지널캡", "오리진폼")
+    const part = forms.find((f) => {
+        const o = formNames[f.id]?.ko
+        return o && (n.includes(norm(o)) || norm(o).includes(n))
+    })
+    if (part) return part.id
     const has = (f, tok) => f.name.split('-').includes(tok)
     const rules = [
         ['거다이맥스', (f) => has(f, 'gmax')], ['알로라', (f) => has(f, 'alola')], ['가라르', (f) => has(f, 'galar')],
-        ['히스이', (f) => has(f, 'hisui')], ['팔데아', (f) => has(f, 'paldea')],
+        ['히스이', (f) => has(f, 'hisui')], ['팔데아', (f) => has(f, 'paldea')], ['오리진', (f) => has(f, 'origin')],
+        ['굴레를 벗어난', (f) => has(f, 'unbound')], ['블레이드', (f) => has(f, 'blade')], ['소과종', (f) => has(f, 'small')],
+        ['대과종', (f) => has(f, 'large')], ['특대과종', (f) => has(f, 'super')], ['들킨', (f) => has(f, 'busted')], ['테라스탈', (f) => has(f, 'terastal')], ['스텔라', (f) => has(f, 'stellar')],
     ]
     for (const [kw, ok] of rules) if (label.includes(kw)) return forms.find(ok)?.id ?? null
     if (label.includes('메가')) {
@@ -71,7 +79,13 @@ function matchForm(label, forms) {
 
 /** {{틀|a=b|c=d}} 의 이름 있는 인자 (중괄호 안 중괄호는 고려하지 않는다: 도감 틀에는 없다) */
 const args = (s) => Object.fromEntries([...s.matchAll(/\|([^=|{}]+)=([^|{}]*)/g)].map((m) => [m[1].trim(), m[2].trim()]))
-const clean = (t) => t.replace(/<br\s*\/?>/g, ' ').replace(/\[\[(?:[^|\]]*\|)?([^\]]*)\]\]/g, '$1').replace(/'''?/g, '').replace(/\s+/g, ' ').trim()
+/** 설명이 아닌 자리 표시(등장하지 않음 등) */
+const PLACEHOLDER = /^(등장하지 않음|미등장|없음|-|—|\?)$/
+/** 위키 링크 [[문서|글]] → 글, [[분류:…]] 는 지운다. 인자 구분자 | 와 섞이지 않게 파싱 전에 푼다 */
+const unlink = (w) => w.replace(/\[\[분류:[^\]]*\]\]/g, '').replace(/\[\[(?:[^|\]]*\|)?([^\]]*)\]\]/g, '$1')
+/** 모습별로 <hr> 로 이어 쓴 설명은 " / " 로, <small>(이름)</small> 등 태그는 벗긴다 */
+const clean = (t) =>
+    t.replace(/<br\s*\/?>/g, ' ').replace(/<hr\s*\/?>/g, ' / ').replace(/<[^>]+>/g, '').replace(/'''?/g, '').replace(/\s+/g, ' ').trim()
 
 const unknownVersions = new Set()
 const GEN = { red: 1, green: 1, blue: 1, yellow: 1, gold: 2, silver: 2, crystal: 2, ruby: 3, sapphire: 3, emerald: 3, firered: 3, leafgreen: 3,
@@ -94,14 +108,14 @@ function oldTemplate(w) {
         }
     }
     const out = []
-    for (const m of w.slice(i, j).matchAll(/\|([^=|\n]+?) 도감=([^|]*)/g)) {
+    for (const m of w.slice(i, j).matchAll(/\|([^=|\n]+?)\s*도감\s*=([^|]*)/g)) {
         const v = VERSION[m[1].trim()]
-        const text = clean(m[2].replace(/\}\}\s*$/, ''))
+        const text = clean(m[2].replace(/\s*\}+\s*$/, '')) // 틀의 마지막 인자에 붙은 닫는 괄호
         if (!v) {
             unknownVersions.add(m[1].trim())
             continue
         }
-        if (text) out.push({ v: [v], t: text, g: GEN[v] ?? 0 })
+        if (text && !PLACEHOLDER.test(text)) out.push({ v: [v], t: text, g: GEN[v] ?? 0 })
     }
     return out
 }
@@ -110,7 +124,8 @@ let pages = 0
 let entries = 0
 const species = pokemon.filter((p) => p.id <= 10000)
 for (const sp of species) {
-    const w = wikitext(`${sp.nameKo} (포켓몬)`) ?? wikitext(sp.nameKo)
+    const raw = wikitext(`${sp.nameKo} (포켓몬)`) ?? wikitext(sp.nameKo)
+    const w = raw && unlink(raw)
     if (!w) {
         console.log(`  ! 문서 없음: ${sp.id} ${sp.nameKo}`)
         continue
@@ -137,22 +152,28 @@ for (const sp of species) {
             form = null
         } else if (kind === '폼') {
             const label = rest.replace(/^\|/, '').trim()
-            form = { label, id: matchForm(label, forms) }
-            if (form.id === null) unmatchedForms.push(`${sp.id} ${sp.nameKo}: ${label}`)
+            // 짝이 없으면 대개 기본 모습(실드폼·평상시 모습·어나더폼)이나 데이터에 없는 꾸밈 모습(계절) → 종의 설명으로
+            const id = matchForm(label, forms)
+            if (id === null) unmatchedForms.push(`${sp.id} ${sp.nameKo}: ${label}`)
+            form = id === null ? null : { label, id }
         } else {
             const a = args(rest)
             const names = Object.keys(a).filter((k) => /^버전\d*$/.test(k)).sort().map((k) => a[k])
             const versions = names.map((v) => VERSION[v] ?? (unknownVersions.add(v), null)).filter(Boolean)
             const text = clean(a.설명 ?? '')
-            if (!versions.length || !text) continue
-            if (form && form.id === null) continue
+            if (!versions.length || !text || PLACEHOLDER.test(text)) continue
             out.push(form ? { v: versions, t: text, g: gen, f: form.id } : { v: versions, t: text, g: gen })
         }
     }
-    entries += out.length
-    if (out.length) writeFileSync(new URL(`${sp.id}.json`, OUT), JSON.stringify(out) + '\n')
+    const seen = new Set()
+    const uniq = out.filter((e) => {
+        const k = `${e.f ?? ''}|${e.v.join(',')}|${e.t}`
+        return seen.has(k) ? false : (seen.add(k), true)
+    })
+    entries += uniq.length
+    if (uniq.length) writeFileSync(new URL(`${sp.id}.json`, OUT), JSON.stringify(uniq) + '\n')
     if (sp.id % 50 === 0) console.log(`  ${sp.id}/${species.length} …`)
 }
 console.log(`문서 ${pages}, 설명 ${entries}`)
 console.log('모르는 작품 표기:', [...unknownVersions].join(', ') || '없음')
-console.log(`짝을 못 찾은 모습 ${unmatchedForms.length}:`, unmatchedForms.slice(0, 40).join(' / '))
+console.log(`짝을 못 찾아 종의 설명으로 넣은 모습 ${unmatchedForms.length}:`, unmatchedForms.join(' / '))
