@@ -2,6 +2,17 @@
   "name": "pokestra",
   "like": "neutral",
   "mode": "both",
-  "settings": [],
+  "settings": [
+    {
+      "thing": "text-size",
+      "value": "larger",
+      "source": "dial"
+    },
+    {
+      "thing": "--font-size-sm",
+      "value": "0.875rem",
+      "source": "token"
+    }
+  ],
   "lifted": []
 }

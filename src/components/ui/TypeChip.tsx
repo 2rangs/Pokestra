@@ -18,6 +18,11 @@ import { cx } from './utils'
 export type TypeChipSize = 'sm' | 'md'
 
 const ICON_CLASS: Record<TypeChipSize, string> = { sm: 'size-3.5', md: 'size-4' }
+/**
+ * Token 크기는 한 단계 위로: Token sm(20px)은 14px 글자에 비해 낮아 글자가 눌려 보인다.
+ * 우리 sm → Token md, md → Token lg.
+ */
+const TOKEN_SIZE = { sm: 'md', md: 'lg' } as const
 
 /** 타입 아이콘(색 원 + 흰 문양 SVG): 필터 버튼·검색 후보처럼 중립 바탕 위에서. 아이콘이 없는 타입은 그리지 않는다. */
 export function TypeGlyph({ type, size = 'md' }: { type: string; size?: TypeChipSize }) {
@@ -68,7 +73,7 @@ export function TypeChip({ type, size = 'md', label, iconOnly = false, href, cla
     return (
         <Token
             label={name}
-            size={size}
+            size={TOKEN_SIZE[size]}
             color={typeTokenColor(type)}
             icon={<TypeMark type={type} size={size} />}
             isLabelHidden={iconOnly}

@@ -25,7 +25,7 @@ for (const [type, roles] of Object.entries(TYPE_COLOR_TOKENS)) {
   tokenVariants[`color:${type}`] = {
     backgroundColor: `var(--pokestra-type-${type}-bg)`,
     color: `var(--pokestra-type-${type}-on)`,
-    fontWeight: 'var(--font-weight-bold)',
+    fontWeight: 'var(--font-weight-semibold)',
     borderRadius: 'var(--radius-inner)',
   };
 }

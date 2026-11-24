@@ -51,8 +51,8 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
     // 같은 요소를 CSS 로만 바꿔서 무한 스크롤·포커스 이동(a[href] 순서)이 그대로 동작한다.
     return (
         <ClickableCard href={`/pokemon/${p.id}`} label={`${no} ${name}${formLabel ? ` (${formLabel})` : ""}`} padding={2} className="h-full">
-            <VStack gap={1.5} hAlign="stretch" className="max-sm:flex-row max-sm:items-center max-sm:gap-2">
-                <HStack gap={1} vAlign="center" justify="between" className="max-sm:w-15 max-sm:shrink-0 max-sm:flex-col max-sm:items-start max-sm:gap-0">
+            <VStack gap={1.5} hAlign="center" className="text-center max-sm:flex-row max-sm:items-center max-sm:gap-2 max-sm:text-start">
+                <HStack gap={1} vAlign="center" justify="center" className="max-sm:w-15 max-sm:shrink-0 max-sm:flex-col max-sm:items-start max-sm:gap-0">
                     <Text type="supporting" hasTabularNumbers textWrap="nowrap">
                         {no}
                     </Text>
@@ -62,7 +62,7 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
                     <PokemonImage p={p} size={40} className="size-10 sm:hidden" />
                     <PokemonImage p={p} size={72} className="h-18 w-18 max-sm:hidden" />
                 </HStack>
-                <VStack gap={0} className="min-w-0 max-sm:flex-1">
+                <VStack gap={0} hAlign="center" className="min-w-0 max-sm:flex-1 max-sm:items-start">
                     <HStack gap={1} vAlign="center">
                         <Text weight="semibold" maxLines={1}>
                             {name}
@@ -75,7 +75,7 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
                         </Text>
                     )}
                 </VStack>
-                <HStack gap={1} vAlign="center" className="max-sm:shrink-0">
+                <HStack gap={1} vAlign="center" justify="center" className="max-sm:shrink-0">
                     {p.types.map((type) => (
                         <TypeChip key={type} type={type} size="sm" />
                     ))}
