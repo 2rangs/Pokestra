@@ -17,3 +17,13 @@ export function GenderToggle({ value, onChange, t }: Props) {
         </SegmentedControl>
     )
 }
+
+/** 일반/이로치 모습 전환 */
+export function ShinyToggle({ value, onChange, t }: { value: boolean; onChange: (v: boolean) => void; t: TFunction<PokedexKey> }) {
+    return (
+        <SegmentedControl label={t("colorToggleLabel")} value={value ? "shiny" : "normal"} onChange={(v) => onChange(v === "shiny")} size="sm">
+            <SegmentedControlItem value="normal" label={t("colorNormal")} />
+            <SegmentedControlItem value="shiny" label={t("colorShiny")} />
+        </SegmentedControl>
+    )
+}

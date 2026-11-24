@@ -42,11 +42,14 @@ export interface PokemonSprites {
     front_shiny_female?: SpriteUrl
     other?: {
         'official-artwork'?: { front_default?: SpriteUrl; front_shiny?: SpriteUrl }
-        home?: { front_default?: SpriteUrl; front_shiny?: SpriteUrl; front_female?: SpriteUrl }
+        home?: { front_default?: SpriteUrl; front_shiny?: SpriteUrl; front_female?: SpriteUrl; front_shiny_female?: SpriteUrl }
         dream_world?: { front_default?: SpriteUrl; front_female?: SpriteUrl }
     }
     /** generation-i → { red-blue: { front_default, ... } } */
-    versions?: Record<string, Record<string, { front_default?: SpriteUrl; front_female?: SpriteUrl } | null | undefined>>
+    versions?: Record<
+        string,
+        Record<string, { front_default?: SpriteUrl; front_female?: SpriteUrl; front_shiny?: SpriteUrl; front_shiny_female?: SpriteUrl } | null | undefined>
+    >
 }
 
 /** PokeAPI `pokemon/{id}` 응답 (사용하는 필드 위주) */

@@ -27,7 +27,7 @@ import { EvolutionTree } from "../../components/pokedex/EvolutionChain"
 import { dexNumber, ROMAN } from "../../components/pokedex/format"
 import { MovesPanel } from "../../components/pokedex/MovesPanel"
 import { SpritesGallery } from "../../components/pokedex/SpritesGallery"
-import { GenderToggle } from "../../components/pokedex/GenderToggle"
+import { GenderToggle, ShinyToggle } from "../../components/pokedex/GenderToggle"
 import { CryButtons, GenerationSelect } from "../../components/pokedex/GenerationBar"
 import { TypeChip } from "../../components/ui/TypeChip"
 import { getIdFromUrl } from "../../common/utils"
@@ -42,6 +42,7 @@ import { commonMessages } from "../../i18n/messages/common"
 import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messages/pokedex"
 import { itemLabel as itemName } from "../../lib/itemLabel"
 import { parseSex } from "../../lib/gender"
+import { artworkUrl } from "../../lib/spriteUrls"
 import { LATEST_GEN, type GenStatKey, abilitiesAt, clampGen, cryAt, femaleArtAt, spriteAt, statsAt, typesAt } from "../../lib/generation"
 import { pokemonImageCandidates, preloadImages } from "../../lib/images"
 import { PokeImage } from "../../components/ui/PokeImage"
@@ -246,6 +247,19 @@ export default function PokemonDetailPage() {
             { replace: true },
         )
 
+    // 이로치: ?shiny=1 (링크로 공유, 이전/다음으로 넘어가도 유지)
+    const shiny = searchParams.get("shiny") === "1"
+    const setShiny = (next: boolean) =>
+        setSearchParams(
+            (prevParams) => {
+                const q = new URLSearchParams(prevParams)
+                if (next) q.set("shiny", "1")
+                else q.delete("shiny")
+                return q
+            },
+            { replace: true },
+        )
+
     const typesView = useMemo(
         () => (genDetail && gen !== null ? typesAt(genDetail, gen) : null),
         [genDetail, gen],
@@ -329,9 +343,10 @@ export default function PokemonDetailPage() {
         if (tab !== "overview") q.set("tab", tab)
         if (gen !== null) q.set("gen", String(gen))
         if (sex === "f") q.set("sex", "f")
+        if (shiny) q.set("shiny", "1")
         const str = q.toString()
         return str ? `?${str}` : ""
-    }, [tab, gen, sex])
+    }, [tab, gen, sex, shiny])
 
     // 다른 포켓몬으로 이동하면 맨 위로
     useEffect(() => {
@@ -390,18 +405,24 @@ export default function PokemonDetailPage() {
     const id = local?.id ?? detail?.id ?? 0
     const shownNo = speciesId ?? id
     const currentNote = gen !== null ? <Text type="supporting" color="secondary">{t("currentValuesNote")}</Text> : undefined
-    const artwork = local ? officialArtworkUrl(local.id) : (detail?.sprites.other?.["official-artwork"]?.front_default ?? "")
-    const spriteFallback = local?.sprite ?? detail?.sprites.front_default ?? null
-    // 머리말 이미지 후보: 세대 도트(로딩 중엔 빈 칸, 실패하면 일러스트로) / 현재 일러스트. 암컷이면 암컷 그림부터
+    const artwork = shiny
+        ? id
+            ? artworkUrl(id, true)
+            : ""
+        : local
+          ? officialArtworkUrl(local.id)
+          : (detail?.sprites.other?.["official-artwork"]?.front_default ?? "")
+    const spriteFallback = shiny ? (local?.spriteShiny ?? detail?.sprites.front_shiny ?? null) : (local?.sprite ?? detail?.sprites.front_default ?? null)
+    // 머리말 이미지 후보: 세대 도트(로딩 중엔 빈 칸, 실패하면 일러스트로) / 현재 일러스트. 암컷이면 암컷 그림부터, 이로치면 이로치 그림
     const headerSources =
         gen !== null
             ? genDetail
-                ? [spriteAt(genDetail.sprites, gen, { female: sex === "f" }), artwork]
+                ? [spriteAt(genDetail.sprites, gen, { female: sex === "f", shiny }), artwork]
                 : detailQ.isError
                   ? [artwork, spriteFallback]
                   : []
             : sex === "f" && detail
-              ? [femaleArtAt(detail.sprites), artwork, spriteFallback]
+              ? [femaleArtAt(detail.sprites, shiny), artwork, spriteFallback]
               : [artwork, spriteFallback]
     const decimal = { minimumFractionDigits: 1, maximumFractionDigits: 1 }
 
@@ -548,7 +569,7 @@ export default function PokemonDetailPage() {
                         labels={{ nav: t("neighbors"), prev: t("prev"), next: t("next"), hint: t("keyboardHint") }}
                     />
                 }
-                imageFooter={forms.length > 1 ? <FormPicker forms={forms} id={id} lang={lang} label={t("forms")} /> : undefined}
+                imageFooter={forms.length > 1 ? <FormPicker forms={forms} id={id} lang={lang} label={t("forms")} search={shiny ? "?shiny=1" : ""} /> : undefined}
                 image={{
                     key: id,
                     sources: headerSources,
@@ -597,6 +618,7 @@ export default function PokemonDetailPage() {
                         {/* 다른 폼은 세대 기록이 없어 세대 선택을 뺀다 */}
                         {!isAltForm && <GenerationSelect debut={debut} gen={gen} onChange={setGen} lang={lang} t={t} />}
                         {hasGenderDiff && <GenderToggle value={sex} onChange={setSex} t={t} />}
+                        <ShinyToggle value={shiny} onChange={setShiny} t={t} />
                         <CryButtons cry={cry} debut={debut} legacyFirst={gen !== null && gen <= 5} loading={!detail} t={t} />
                     </>
                 }
@@ -809,7 +831,7 @@ export default function PokemonDetailPage() {
  * 그림 바로 아래 폼 선택: 폼마다 그림 타일(크게 눌리는 버튼). 지금 폼은 테두리로, 위 줄에는 올린(또는 지금) 폼 이름.
  * 글자 칩·드롭다운보다 모양으로 바로 고를 수 있고, 폼이 많아도(피카츄 17개) 한눈에 보인다.
  */
-function FormPicker({ forms, id, lang, label }: { forms: readonly DexPokemon[]; id: number; lang: Lang; label: string }) {
+function FormPicker({ forms, id, lang, label, search }: { forms: readonly DexPokemon[]; id: number; lang: Lang; label: string; search: string }) {
     const [hover, setHover] = useState<number | null>(null)
     const formName = (f: DexPokemon) => formLabel(f, lang) ?? pokemonName(f, lang)
     const shown = forms.find((f) => f.id === (hover ?? id)) ?? forms[0]
@@ -829,7 +851,7 @@ function FormPicker({ forms, id, lang, label }: { forms: readonly DexPokemon[]; 
                     return (
                         <li key={f.id}>
                             <RouterLink
-                                to={`/pokemon/${f.id}`}
+                                to={`/pokemon/${f.id}${search}`}
                                 aria-label={formName(f)}
                                 aria-current={current ? "page" : undefined}
                                 title={formName(f)}
