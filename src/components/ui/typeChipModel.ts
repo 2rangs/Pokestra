@@ -8,7 +8,7 @@ export const THEMED_TYPES = [
 ] as const
 export type ThemedType = (typeof THEMED_TYPES)[number]
 
-/** 아이콘 SVG 가 있는 18 타입 (public/assets/types) */
+/** 아이콘이 있는 18 타입 (public/assets/types/square·glyph, scripts/type-icons.py) */
 export const TYPE_ICON_TYPES: ReadonlySet<string> = new Set(THEMED_TYPES.filter((t) => t !== 'stellar'))
 
 export const isThemedType = (type: string): type is ThemedType => (THEMED_TYPES as readonly string[]).includes(type)

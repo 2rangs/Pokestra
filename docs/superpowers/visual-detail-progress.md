@@ -137,3 +137,8 @@
   벌레 2.7, 바위 2.0, 강철 2.6, 페어리 1.8 (독 6.3, 고스트 7.6, 드래곤 6.1, 악 8.9 는 통과). 사용자 결정으로 따르고,
   배지 글자에 옅은 그림자(`textShadow`)·문양에 `drop-shadow-sm` 로 읽기를 돕는다. 테스트는 "레퍼런스 색 + 흰 글자"를 검사.
   이전의 `BADGE_SEED`(색상 벌리기)는 레퍼런스로 대체되어 제거. 아이콘은 기존 문양 유지(레퍼런스의 네모 아이콘 원본 없음).
+- **레퍼런스 아이콘**: 나무위키 문서는 Cloudflare 봇 확인 때문에 이 환경에서 받을 수 없었다(우회 시도는 권한 검사에서 거부).
+  대신 앱이 이미 쓰는 PokeAPI sprites 의 레전드 아르세우스 타입 라벨(`types/generation-viii/legends-arceus/{id}.png`)이
+  레퍼런스와 같은 아이콘이라, `scripts/type-icons.py` 로 왼쪽 네모(36×36, 둥근 모서리)를 잘라 `public/assets/types/square/*.png`,
+  문양만 흰색으로 뽑아 `public/assets/types/glyph/*.png` 를 만들었다. `TypeGlyph`(중립 바탕) = 네모, `TypeMark`(배지 안) = 흰 문양.
+  이전 SVG 문양 데이터(`typeGlyphs.ts`)는 삭제.

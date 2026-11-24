@@ -11,7 +11,6 @@ import { typeChipMessages } from '../../i18n/messages/typeChips'
 import { typeName } from '../../lib/dex'
 import { Text } from '@astryxdesign/core/Text'
 import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
-import { TYPE_GLYPHS } from './typeGlyphs'
 import { TYPE_ICON_TYPES, multiplierLabel, multiplierMessageKey, multiplierTone, typeTokenColor } from './typeChipModel'
 import { cx } from './utils'
 
@@ -24,12 +23,16 @@ const ICON_CLASS: Record<TypeChipSize, string> = { sm: 'size-3.5', md: 'size-4' 
  */
 const TOKEN_SIZE = { sm: 'md', md: 'lg' } as const
 
-/** 타입 아이콘(색 원 + 흰 문양 SVG): 필터 버튼·검색 후보처럼 중립 바탕 위에서. 아이콘이 없는 타입은 그리지 않는다. */
+/**
+ * 타입 아이콘(타입 색 둥근 네모 + 문양): 필터 목록·검색 후보처럼 중립 바탕 위에서.
+ * 그림은 scripts/type-icons.py 가 PokeAPI sprites 의 타입 라벨에서 잘라 만든 public/assets/types/square/*.png
+ * (사용자가 준 레퍼런스와 같은 스타일). 아이콘이 없는 타입(스텔라 등)은 그리지 않는다.
+ */
 export function TypeGlyph({ type, size = 'md' }: { type: string; size?: TypeChipSize }) {
     if (!TYPE_ICON_TYPES.has(type)) return null
     return (
         <img
-            src={`${import.meta.env.BASE_URL}assets/types/${type}.svg`}
+            src={`${import.meta.env.BASE_URL}assets/types/square/${type}.png`}
             alt=""
             aria-hidden
             width={16}
@@ -39,16 +42,18 @@ export function TypeGlyph({ type, size = 'md' }: { type: string; size?: TypeChip
     )
 }
 
-/** 타입 문양만 (currentColor): 타입 색 배지 위의 흰 문양 */
+/** 타입 문양만(흰색, public/assets/types/glyph/*.png): 타입 색 배지 안에서 */
 export function TypeMark({ type, size = 'md' }: { type: string; size?: TypeChipSize }) {
-    const shapes = TYPE_GLYPHS[type]
-    if (!shapes) return null
+    if (!TYPE_ICON_TYPES.has(type)) return null
     return (
-        <svg viewBox="0 0 128 128" fill="currentColor" aria-hidden className={cx('shrink-0 drop-shadow-sm', ICON_CLASS[size])}>
-            {shapes.map(([tag, a], i) =>
-                tag === 'path' ? <path key={i} d={a.d} /> : tag === 'polygon' ? <polygon key={i} points={a.points} /> : <circle key={i} cx={a.cx} cy={a.cy} r={a.r} />,
-            )}
-        </svg>
+        <img
+            src={`${import.meta.env.BASE_URL}assets/types/glyph/${type}.png`}
+            alt=""
+            aria-hidden
+            width={16}
+            height={16}
+            className={cx('shrink-0 drop-shadow-sm', ICON_CLASS[size])}
+        />
     )
 }
 
