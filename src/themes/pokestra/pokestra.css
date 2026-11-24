@@ -483,6 +483,8 @@
     --pokestra-game-violet-on: light-dark(#ffffff, #ffffff);
     --pokestra-game-legends-za-bg: light-dark(#2A9D6F, #2A9D6F);
     --pokestra-game-legends-za-on: light-dark(#141414, #141414);
+    --pokestra-game-champions-bg: light-dark(#C8102E, #C8102E);
+    --pokestra-game-champions-on: light-dark(#ffffff, #ffffff);
   }
 
   :scope {

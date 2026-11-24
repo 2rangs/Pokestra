@@ -18,7 +18,7 @@ const GAMES = {
     'lets-go-pikachu': ['#F0CF1C', 'LP'], 'lets-go-eevee': ['#C8864A', 'LE'],
     sword: ['#00A1E9', 'Sw'], shield: ['#BF004F', 'Sh'],
     'legends-arceus': ['#36597B', 'LA'], 'brilliant-diamond': ['#1F8EE6', 'BD'], 'shining-pearl': ['#E44A85', 'SP'],
-    scarlet: ['#F34134', 'Sc'], violet: ['#8334B7', 'Vi'], 'legends-za': ['#2A9D6F', 'ZA'],
+    scarlet: ['#F34134', 'Sc'], violet: ['#8334B7', 'Vi'], 'legends-za': ['#2A9D6F', 'ZA'], champions: ['#C8102E', 'Ch'],
 }
 
 const lin = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)

@@ -40,4 +40,5 @@ export const GAME_COLOR_TOKENS: Record<string, { bg: string; on: string }> = {
     'scarlet': { bg: '#F34134', on: '#141414' },
     'violet': { bg: '#8334B7', on: '#ffffff' },
     'legends-za': { bg: '#2A9D6F', on: '#141414' },
+    'champions': { bg: '#C8102E', on: '#ffffff' },
 }

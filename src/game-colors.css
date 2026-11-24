@@ -79,4 +79,6 @@
   --color-game-violet-on: var(--pokestra-game-violet-on);
   --color-game-legends-za: var(--pokestra-game-legends-za-bg);
   --color-game-legends-za-on: var(--pokestra-game-legends-za-on);
+  --color-game-champions: var(--pokestra-game-champions-bg);
+  --color-game-champions-on: var(--pokestra-game-champions-on);
 }

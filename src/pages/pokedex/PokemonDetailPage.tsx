@@ -971,7 +971,7 @@ export default function PokemonDetailPage() {
 
                 {tab === "sprites" &&
                     (detail ? (
-                        <SpritesGallery sprites={detail.sprites} lang={lang} t={t} />
+                        <SpritesGallery sprites={detail.sprites} lang={lang} t={t} shiny={shiny} />
                     ) : detailQ.isError ? (
                         <LoadError message={t("loadErrorTitle")} onRetry={() => void detailQ.refetch()} retryLabel={retry} />
                     ) : (

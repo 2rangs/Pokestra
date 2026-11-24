@@ -40,4 +40,5 @@ export const GAME_BADGES: Record<string, { cls: string; abbr: string }> = {
     'scarlet': { cls: 'bg-game-scarlet text-game-scarlet-on', abbr: 'Sc' },
     'violet': { cls: 'bg-game-violet text-game-violet-on', abbr: 'Vi' },
     'legends-za': { cls: 'bg-game-legends-za text-game-legends-za-on', abbr: 'ZA' },
+    'champions': { cls: 'bg-game-champions text-game-champions-on', abbr: 'Ch' },
 }

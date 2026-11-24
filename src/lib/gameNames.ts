@@ -42,6 +42,7 @@ const VERSION_NAME: Record<string, Record<Lang, string>> = {
     scarlet: { ko: '스칼렛', en: 'Scarlet', ja: 'スカーレット' },
     violet: { ko: '바이올렛', en: 'Violet', ja: 'バイオレット' },
     'legends-za': { ko: '레전드 Z-A', en: 'Legends: Z-A', ja: 'LEGENDS Z-A' },
+    champions: { ko: '챔피언스', en: 'Champions', ja: 'チャンピオンズ' },
 }
 
 /** 작품 이름 (모르는 slug 는 제목 형태로) */
@@ -69,10 +70,29 @@ const VERSION_GEN: Record<string, number> = {
     x: 6, y: 6, 'omega-ruby': 6, 'alpha-sapphire': 6,
     sun: 7, moon: 7, 'ultra-sun': 7, 'ultra-moon': 7, 'lets-go-pikachu': 7, 'lets-go-eevee': 7,
     sword: 8, shield: 8, 'legends-arceus': 8, 'brilliant-diamond': 8, 'shining-pearl': 8,
-    scarlet: 9, violet: 9, 'legends-za': 9,
+    scarlet: 9, violet: 9, 'legends-za': 9, champions: 9,
 }
 
 /** 작품의 세대 (모르면 null) */
 export function versionGeneration(slug: string): number | null {
     return VERSION_GEN[slug] ?? null
+}
+
+/**
+ * 스프라이트 묶음 이름("scarlet-violet", "omegaruby-alphasapphire", "lets-go-pikachu-lets-go-eevee") → "스칼렛 · 바이올렛".
+ * 아는 작품 이름을 긴 것부터 앞에서 맞춰 나간다. 못 맞추면 제목 형태로.
+ */
+export function spriteGameName(key: string, lang: Lang): string {
+    if (VERSION_NAME[key]) return VERSION_NAME[key][lang]
+    const flat = (v: string) => v.replace(/-/g, '')
+    const known = Object.keys(VERSION_NAME).sort((a, b) => flat(b).length - flat(a).length)
+    let rest = flat(key)
+    const found: string[] = []
+    while (rest) {
+        const v = known.find((k) => rest.startsWith(flat(k)))
+        if (!v) return titleCaseSlug(key)
+        found.push(v)
+        rest = rest.slice(flat(v).length)
+    }
+    return found.map((v) => VERSION_NAME[v][lang]).join(' · ')
 }

@@ -396,7 +396,9 @@ export const pokestraTheme = {
     "--pokestra-game-violet-bg": "light-dark(#8334B7, #8334B7)",
     "--pokestra-game-violet-on": "light-dark(#ffffff, #ffffff)",
     "--pokestra-game-legends-za-bg": "light-dark(#2A9D6F, #2A9D6F)",
-    "--pokestra-game-legends-za-on": "light-dark(#141414, #141414)"
+    "--pokestra-game-legends-za-on": "light-dark(#141414, #141414)",
+    "--pokestra-game-champions-bg": "light-dark(#C8102E, #C8102E)",
+    "--pokestra-game-champions-on": "light-dark(#ffffff, #ffffff)"
   },
   __localTokenOwners: {
     "--astryx-theme-neutral-color-status-fill-accent": "neutral",
@@ -578,7 +580,9 @@ export const pokestraTheme = {
     "--pokestra-game-violet-bg": "pokestra",
     "--pokestra-game-violet-on": "pokestra",
     "--pokestra-game-legends-za-bg": "pokestra",
-    "--pokestra-game-legends-za-on": "pokestra"
+    "--pokestra-game-legends-za-on": "pokestra",
+    "--pokestra-game-champions-bg": "pokestra",
+    "--pokestra-game-champions-on": "pokestra"
   },
   __localTokenLineage: ["neutral","pokestra-settings","pokestra"],
   components: {

@@ -8,7 +8,8 @@ import { VStack } from "@astryxdesign/core/VStack"
 import type { PokemonSprites } from "../../hooks/usePokemon"
 import type { Lang, TFunction } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
-import { generationName, titleCaseSlug } from "../../lib/dex"
+import { generationName } from "../../lib/dex"
+import { spriteGameName } from "../../lib/gameNames"
 import { PokeImage } from "../ui/PokeImage"
 import { PixelSprite } from "../ui/PixelSprite"
 import { ROMAN } from "./format"
@@ -51,7 +52,8 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
     )
 }
 
-export function SpritesGallery({ sprites, lang, t }: { sprites: PokemonSprites; lang: Lang; t: T }) {
+/** shiny: 상세의 "✦ 이로치"를 켜면 세대별 도트도 이로치로 (이로치 도트가 없는 작품은 일반 도트, 이름 옆에 표시) */
+export function SpritesGallery({ sprites, lang, t, shiny = false }: { sprites: PokemonSprites; lang: Lang; t: T; shiny?: boolean }) {
     const main = present([
         ["spriteDefault", sprites.front_default],
         ["spriteBack", sprites.back_default],
@@ -73,7 +75,9 @@ export function SpritesGallery({ sprites, lang, t }: { sprites: PokemonSprites; 
         const gen = ROMAN[genKey.replace("generation-", "")] ?? 0
         const items: { label: string; src: string }[] = []
         for (const [game, data] of Object.entries(games)) {
-            if (data?.front_default) items.push({ label: titleCaseSlug(game), src: data.front_default })
+            const src = (shiny ? data?.front_shiny : null) ?? data?.front_default
+            const name = game === "icons" ? t("spriteIcons") : spriteGameName(game, lang)
+            if (src) items.push({ label: shiny && !data?.front_shiny ? `${name} (${t("colorNormal")})` : name, src })
         }
         if (items.length) gens.push({ gen, items })
     }
