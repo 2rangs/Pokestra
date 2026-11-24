@@ -1,9 +1,0 @@
-/* 종족값 막대 색 (pokestra 테마 토큰 --pokestra-stat-1..6 → fill-stat-1..6). src/lib/statBand.ts 에서 쓴다. */
-@theme reference inline {
-  --color-stat-1: var(--pokestra-stat-1);
-  --color-stat-2: var(--pokestra-stat-2);
-  --color-stat-3: var(--pokestra-stat-3);
-  --color-stat-4: var(--pokestra-stat-4);
-  --color-stat-5: var(--pokestra-stat-5);
-  --color-stat-6: var(--pokestra-stat-6);
-}

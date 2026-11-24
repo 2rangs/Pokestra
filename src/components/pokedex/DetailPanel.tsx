@@ -58,15 +58,16 @@ export interface Fact {
 /** 정의 목록: 라벨 칸 고정 폭(값이 한 줄로 정렬), 라벨 흐리게 · 값 진하게 */
 export function FactList({ facts }: { facts: readonly Fact[] }) {
     return (
-        <VStack as="dl" gap={2}>
+        // 행마다 얇은 구분선: 라벨(보조색) · 값(진하게)이 한 쌍으로 읽힌다
+        <VStack as="dl" gap={0} className="divide-y divide-border">
             {facts.map((f) => (
-                <HStack key={f.label} gap={3} vAlign="start">
+                <HStack key={f.label} gap={3} vAlign="start" paddingBlock={1.5} className="first:pt-0 last:pb-0">
                     <HStack as="dt" gap={1} vAlign="center" className="min-h-6 w-28 shrink-0">
                         <Text color="secondary">{f.label}</Text>
                         {f.hint && <InfoTip content={f.hint.content} label={f.hint.label} size="xsm" />}
                     </HStack>
                     <HStack as="dd" gap={1} vAlign="center" wrap="wrap" className="min-h-6 min-w-0 flex-1">
-                        {typeof f.value === "string" || typeof f.value === "number" ? <Text hasTabularNumbers>{f.value}</Text> : f.value}
+                        {typeof f.value === "string" || typeof f.value === "number" ? <Text weight="medium" hasTabularNumbers>{f.value}</Text> : f.value}
                     </HStack>
                 </HStack>
             ))}

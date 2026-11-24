@@ -167,6 +167,7 @@ function DetailSkeleton({ label }: { label: string }) {
                 subline={<Skeleton width={200} height={24} />}
                 strip={strip}
                 controls={<Skeleton width={96} height={28} />}
+                flavorLabel={"\u00a0"}
                 flavor={
                     <VStack gap={1}>
                         <Skeleton height={20} />
@@ -585,11 +586,11 @@ export default function PokemonDetailPage() {
                             <TypeChip key={ty} type={ty} />
                         ))}
                         {typesView?.changedIn != null && (
-                            <Token size="sm" color="yellow" label={t("changedInGen", { gen: typesView.changedIn })} />
+                            <Token size="sm" label={t("changedInGen", { gen: typesView.changedIn })} />
                         )}
-                        {species?.is_legendary && <Token size="sm" color="yellow" label={t("legendary")} />}
-                        {species?.is_mythical && <Token size="sm" color="pink" label={t("mythical")} />}
-                        {species?.is_baby && <Token size="sm" color="purple" label={t("baby")} />}
+                        {species?.is_legendary && <Token size="sm" label={t("legendary")} />}
+                        {species?.is_mythical && <Token size="sm" label={t("mythical")} />}
+                        {species?.is_baby && <Token size="sm" label={t("baby")} />}
                     </>
                 }
                 subline={otherNames.length > 0 || genusEntry ? subline : speciesQ.isPending && speciesId ? <Skeleton width={200} height={24} /> : null}
@@ -608,6 +609,7 @@ export default function PokemonDetailPage() {
                     </>
                 }
                 flavor={flavorNode}
+                flavorLabel={t("pokedexEntry")}
             />
 
             {/* ── 탭 ── */}
@@ -682,18 +684,19 @@ export default function PokemonDetailPage() {
                                                 title={t("abilities")}
                                                 titleNote={
                                                     abilitiesView?.at?.changedIn != null ? (
-                                                        <Token size="sm" color="yellow" label={t("changedInGen", { gen: abilitiesView.at.changedIn })} />
+                                                        <Token size="sm" label={t("changedInGen", { gen: abilitiesView.at.changedIn })} />
                                                     ) : undefined
                                                 }
                                             >
-                                                <VStack as="ul" gap={2}>
+                                                {/* 특성마다 한 묶음: 사이에 구분선 */}
+                                                <VStack as="ul" gap={0} className="divide-y divide-border">
                                                     {shownAbilities.map((a) => (
-                                                        <VStack as="li" key={a.name} gap={0.5}>
+                                                        <VStack as="li" key={a.name} gap={0.5} paddingBlock={2} className="first:pt-0 last:pb-0">
                                                             <HStack gap={2} vAlign="center" wrap="wrap">
                                                                 <Link href={`/abilities/${a.name}`} weight="semibold" color="primary">
                                                                     {abilityName(a.name, lang)}
                                                                 </Link>
-                                                                {a.hidden && <Token size="sm" color="purple" label={t("hiddenAbility")} />}
+                                                                {a.hidden && <Token size="sm" label={t("hiddenAbility")} />}
                                                             </HStack>
                                                             <Text type="supporting" as="p">
                                                                 {localText(ABILITY_BY_NAME.get(a.name)?.desc, lang) ?? t("abilityNoDesc")}
@@ -750,7 +753,7 @@ export default function PokemonDetailPage() {
                                         return (
                                             <li key={f.id} aria-current={current ? "page" : undefined}>
                                                 {current ? (
-                                                    <Token label={label} icon={icon} color="blue" />
+                                                    <Token label={label} icon={icon} color="gray" />
                                                 ) : (
                                                     <Token label={label} icon={icon} href={`/pokemon/${f.id}`} />
                                                 )}

@@ -77,17 +77,15 @@ function fit(L0, C, H, text, dir) {
     return { d: Infinity, hex: null }
 }
 
-/** 흰 글자를 이만큼(OKLCH L) 더 움직여도 선호한다: 게임 UI 처럼 흰 글자 배지가 기본 */
-const WHITE_BIAS = 0.14
-
-/** 배지: 흰 글자(어둡게) / 검은 글자(밝게) 중 기준 색에서 덜 움직이는 쪽 (흰 글자 우대) */
+/**
+ * 배지: 모든 타입이 흰 글자·흰 문양 (사용자 결정 — 진한 단색 배지).
+ * 기준 색의 명도(L)만 낮춰 흰 글자 대비 AA 에 맞춘다. 어두워지며 탁해지는 것을 줄이려 채도를 조금 올린다(색역 안에서).
+ */
 function badge(base, { lMax = 1, chroma = 1 } = {}) {
     const [L0, C0, H] = rgbToOklch(hexToRgb(base))
     const L = Math.min(L0, lMax)
-    const C = C0 * chroma
-    const white = fit(L, C, H, ON_LIGHT, -1)
-    const black = fit(L, C, H, ON_DARK, +1)
-    return white.d <= black.d + WHITE_BIAS ? { bg: white.hex, on: ON_LIGHT } : { bg: black.hex, on: ON_DARK }
+    const C = C0 * chroma * 1.15
+    return { bg: fit(L, C, H, ON_LIGHT, -1).hex, on: ON_LIGHT }
 }
 
 /** 면(surface) 위에 바로 쓰는 타입 글자색 */

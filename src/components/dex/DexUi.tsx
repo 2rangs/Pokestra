@@ -12,7 +12,6 @@ import { Link } from '@astryxdesign/core/Link'
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl'
 import { Selector } from '@astryxdesign/core/Selector'
 import { Text } from '@astryxdesign/core/Text'
-import { Token, type TokenColor } from '@astryxdesign/core/Token'
 import { TextInput } from '@astryxdesign/core/TextInput'
 import { ToggleButton } from '@astryxdesign/core/ToggleButton'
 import { VStack } from '@astryxdesign/core/VStack'
@@ -26,11 +25,13 @@ import { padDexNo } from './text'
 
 // ── 타입 / 분류 ──
 
-const DAMAGE_CLASS_COLOR: Record<string, TokenColor> = { physical: 'orange', special: 'blue', status: 'gray' }
-
-/** 물리/특수/변화 분류: 의미 색 Token (물리 주황 · 특수 파랑 · 변화 회색) */
+/** 물리/특수/변화 분류: 글자만 (색은 타입에만 쓴다). 변화는 보조색 */
 export function ClassBadge({ label, damageClass }: { label: string; damageClass: string }) {
-    return <Token label={label} size="sm" color={DAMAGE_CLASS_COLOR[damageClass] ?? 'default'} />
+    return (
+        <Text type="supporting" weight="medium" color={damageClass === 'status' ? 'secondary' : 'primary'} textWrap="nowrap">
+            {label}
+        </Text>
+    )
 }
 
 // ── 필터 ──

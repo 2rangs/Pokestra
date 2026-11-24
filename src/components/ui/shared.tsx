@@ -84,7 +84,7 @@ export function SectionTitle({
 
 /**
  * 0~max 막대 (SVG: 폭을 속성으로 그려 인라인 style 이 없다).
- * fillClass: 막대 색 유틸리티(예: statBandFill(value)). 기본은 강조색, highlight 가 아니면 조금 옅게.
+ * fillClass: 막대 색 유틸리티(예: fill-primary). 기본은 강조색, highlight 가 아니면 조금 옅게.
  */
 export function StatBar({
     value,

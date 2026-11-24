@@ -297,7 +297,7 @@ function HolderGroup({ title, items, resetKey, hidden }: { title: string; items:
                     <PokemonChip
                         key={h.p.id}
                         pokemon={h.p}
-                        badge={h.hidden ? <Token size="sm" color="purple" label={t('hiddenShort')} /> : undefined}
+                        badge={h.hidden ? <Token size="sm" label={t('hiddenShort')} /> : undefined}
                     />
                 ))}
             </Grid>

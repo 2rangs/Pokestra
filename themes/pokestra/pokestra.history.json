@@ -1,1 +1,1 @@
-["{\n  \"name\": \"pokestra\",\n  \"like\": \"neutral\",\n  \"mode\": \"both\",\n  \"settings\": [],\n  \"lifted\": []\n}\n"]
+["{\n  \"name\": \"pokestra\",\n  \"like\": \"neutral\",\n  \"mode\": \"both\",\n  \"settings\": [],\n  \"lifted\": []\n}\n","{\n  \"name\": \"pokestra\",\n  \"like\": \"neutral\",\n  \"mode\": \"both\",\n  \"settings\": [\n    {\n      \"thing\": \"accent\",\n      \"value\": \"#d8312a\",\n      \"source\": \"dial\"\n    }\n  ],\n  \"lifted\": [],\n  \"palette\": \"283ecb8bdd598c57489f69e8aaea30f8fd16e73c1d28c3df91df3cdb6674d37f\"\n}\n"]

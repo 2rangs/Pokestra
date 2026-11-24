@@ -1,31 +1,25 @@
 /**
  * 타입 배지(TypeChip)와 상성 배수 칩(MultiplierChip).
  *
- * - 배경·글자 색은 pokestra 테마의 Token `color:<type>` 변형(--pokestra-type-<type>-bg/on)에서 온다.
+ * - 타입 배지: 진한 타입 색 단색 + 흰 문양·흰 글자 (pokestra 테마 Token `color:<type>` 변형).
  *   라이트/다크 모두 글자 대비 4.5:1 이상 (src/lib/typeColors.test.ts).
- * - 기존 ui/shared 의 TypeTag 와는 별개의 새 컴포넌트다.
- *   (사용처 교체는 밀도 트랙 머지 후 진행)
+ * - 화면의 색은 타입에만 쓴다. 상성 배수는 흑백(굵기·글자색)으로 위험도를 구분한다.
  */
 import { Token } from '@astryxdesign/core/Token'
 import { useLang, useT } from '../../i18n'
 import { typeChipMessages } from '../../i18n/messages/typeChips'
 import { typeName } from '../../lib/dex'
-import {
-    TONE_TOKEN_COLOR,
-    TYPE_ICON_TYPES,
-    multiplierLabel,
-    multiplierMessageKey,
-    multiplierTone,
-    typeBorderClass,
-    typeTokenColor,
-} from './typeChipModel'
+import { Text } from '@astryxdesign/core/Text'
+import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
+import { TYPE_GLYPHS } from './typeGlyphs'
+import { TYPE_ICON_TYPES, multiplierLabel, multiplierMessageKey, multiplierTone, typeTokenColor } from './typeChipModel'
 import { cx } from './utils'
 
 export type TypeChipSize = 'sm' | 'md'
 
 const ICON_CLASS: Record<TypeChipSize, string> = { sm: 'size-3.5', md: 'size-4' }
 
-/** 타입 아이콘(원형 SVG). 아이콘이 없는 타입은 그리지 않는다. */
+/** 타입 아이콘(색 원 + 흰 문양 SVG): 필터 버튼·검색 후보처럼 중립 바탕 위에서. 아이콘이 없는 타입은 그리지 않는다. */
 export function TypeGlyph({ type, size = 'md' }: { type: string; size?: TypeChipSize }) {
     if (!TYPE_ICON_TYPES.has(type)) return null
     return (
@@ -37,6 +31,19 @@ export function TypeGlyph({ type, size = 'md' }: { type: string; size?: TypeChip
             height={16}
             className={cx('shrink-0', ICON_CLASS[size])}
         />
+    )
+}
+
+/** 타입 문양만 (currentColor): 타입 색 배지 위의 흰 문양 */
+export function TypeMark({ type, size = 'md' }: { type: string; size?: TypeChipSize }) {
+    const shapes = TYPE_GLYPHS[type]
+    if (!shapes) return null
+    return (
+        <svg viewBox="0 0 128 128" fill="currentColor" aria-hidden className={cx('shrink-0', ICON_CLASS[size])}>
+            {shapes.map(([tag, a], i) =>
+                tag === 'path' ? <path key={i} d={a.d} /> : tag === 'polygon' ? <polygon key={i} points={a.points} /> : <circle key={i} cx={a.cx} cy={a.cy} r={a.r} />,
+            )}
+        </svg>
     )
 }
 
@@ -54,7 +61,7 @@ export type TypeChipProps = {
     className?: string
 }
 
-/** 타입 배지: 타입 아이콘 + 이름, 배경이 타입 색 (Astryx Token) */
+/** 타입 배지: 진한 타입 색 단색 + 흰 문양 + 흰 이름 (Astryx Token) */
 export function TypeChip({ type, size = 'md', label, iconOnly = false, href, className }: TypeChipProps) {
     const lang = useLang()
     const name = label ?? typeName(type, lang)
@@ -63,7 +70,7 @@ export function TypeChip({ type, size = 'md', label, iconOnly = false, href, cla
             label={name}
             size={size}
             color={typeTokenColor(type)}
-            icon={<TypeGlyph type={type} size={size} />}
+            icon={<TypeMark type={type} size={size} />}
             isLabelHidden={iconOnly}
             href={href}
             className={cx('shrink-0', className)}
@@ -74,29 +81,29 @@ export function TypeChip({ type, size = 'md', label, iconOnly = false, href, cla
 export type MultiplierChipProps = {
     /** 상성 배수: 4, 2, 1, 0.5, 0.25, 0 */
     multiplier: number
-    /** 공격 타입: 아이콘과 타입 색 테두리를 더한다 */
-    type?: string
     /** defense: 받는 피해(×4 위험), attack: 주는 피해(×4 좋음). 기본 defense */
     perspective?: 'defense' | 'attack'
-    size?: TypeChipSize
     className?: string
 }
 
-/** 상성 배수 칩: 의미 색(위험/주의/안전) 배경 + (타입이 있으면) 타입 아이콘·타입 색 테두리 */
-export function MultiplierChip({ multiplier, type, perspective = 'defense', size = 'sm', className }: MultiplierChipProps) {
-    const lang = useLang()
+/**
+ * 상성 배수: 흑백. 위험할수록(받는 쪽 ×4·×2) 진하고 굵게, 덜 위험할수록 흐리게.
+ * 뜻은 스크린리더용 글자로 붙인다.
+ */
+export function MultiplierChip({ multiplier, perspective = 'defense', className }: MultiplierChipProps) {
     const t = useT(typeChipMessages)
     const tone = multiplierTone(multiplier, perspective)
-    const meaning = t(multiplierMessageKey(multiplier, perspective))
-    const label = multiplierLabel(multiplier)
+    const strong = tone === 'danger' || tone === 'warning'
     return (
-        <Token
-            label={label}
-            size={size}
-            color={TONE_TOKEN_COLOR[tone]}
-            icon={type ? <TypeGlyph type={type} size={size} /> : undefined}
-            description={type ? `${typeName(type, lang)} ${label}: ${meaning}` : `${label}: ${meaning}`}
-            className={cx('shrink-0 font-semibold tabular-nums', type && cx('border', typeBorderClass(type)), className)}
-        />
+        <Text
+            weight={tone === 'danger' ? 'bold' : strong ? 'semibold' : 'medium'}
+            color={strong ? 'primary' : 'secondary'}
+            hasTabularNumbers
+            textWrap="nowrap"
+            className={className}
+        >
+            {multiplierLabel(multiplier)}
+            <VisuallyHidden> {t(multiplierMessageKey(multiplier, perspective))}</VisuallyHidden>
+        </Text>
     )
 }

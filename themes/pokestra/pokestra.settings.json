@@ -2,13 +2,6 @@
   "name": "pokestra",
   "like": "neutral",
   "mode": "both",
-  "settings": [
-    {
-      "thing": "accent",
-      "value": "#d8312a",
-      "source": "dial"
-    }
-  ],
-  "lifted": [],
-  "palette": "283ecb8bdd598c57489f69e8aaea30f8fd16e73c1d28c3df91df3cdb6674d37f"
+  "settings": [],
+  "lifted": []
 }

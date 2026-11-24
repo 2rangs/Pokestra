@@ -40,9 +40,11 @@ interface Props {
     strip: readonly StripItem[]
     controls: ReactNode
     flavor: ReactNode
+    /** 도감 설명 묶음의 작은 제목 */
+    flavorLabel: string
 }
 
-export function DetailHeader({ nav, image, number, name, badges, subline, strip, controls, flavor }: Props) {
+export function DetailHeader({ nav, image, number, name, badges, subline, strip, controls, flavor, flavorLabel }: Props) {
     return (
         <Card>
             <VStack gap={3}>
@@ -59,14 +61,12 @@ export function DetailHeader({ nav, image, number, name, badges, subline, strip,
                         />
                     </figure>
                     <VStack gap={3} className="contents md:flex md:min-w-0 md:flex-1">
-                        {/* 신원: 번호 → 이름(타입은 같은 줄 오른쪽) → 다른 이름·분류 */}
-                        <VStack gap={1} className="min-w-0 flex-1 basis-40 md:flex-none">
+                        {/* 신원: 번호 → 이름 → 타입(이름 바로 아래, 시선이 이어지게) → 다른 이름·분류 */}
+                        <VStack gap={1.5} className="min-w-0 flex-1 basis-40 md:flex-none">
                             {number}
-                            <HStack gap={2} vAlign="center" justify="between" wrap="wrap">
-                                {name}
-                                <HStack gap={1.5} vAlign="center" wrap="wrap">
-                                    {badges}
-                                </HStack>
+                            {name}
+                            <HStack gap={1.5} vAlign="center" wrap="wrap">
+                                {badges}
                             </HStack>
                             {subline}
                         </VStack>
@@ -92,10 +92,21 @@ export function DetailHeader({ nav, image, number, name, badges, subline, strip,
                                     </VStack>
                                 ))}
                             </dl>
+                            <Divider />
                             <HStack gap={2} vAlign="center" wrap="wrap">
                                 {controls}
                             </HStack>
-                            {flavor}
+                            {flavor && (
+                                <>
+                                    <Divider />
+                                    <VStack gap={1}>
+                                        <Text type="supporting" weight="medium">
+                                            {flavorLabel}
+                                        </Text>
+                                        {flavor}
+                                    </VStack>
+                                </>
+                            )}
                         </VStack>
                     </VStack>
                 </HStack>

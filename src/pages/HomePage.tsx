@@ -4,6 +4,7 @@ import { Button } from '@astryxdesign/core/Button'
 import { Card } from '@astryxdesign/core/Card'
 import { ClickableCard } from '@astryxdesign/core/ClickableCard'
 import { Grid } from '@astryxdesign/core/Grid'
+import { Divider } from '@astryxdesign/core/Divider'
 import { Heading } from '@astryxdesign/core/Heading'
 import { HStack } from '@astryxdesign/core/HStack'
 import { Icon } from '@astryxdesign/core/Icon'
@@ -14,7 +15,6 @@ import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
 import { StatBar } from '../components/ui/shared'
 import { TypeChip } from '../components/ui/TypeChip'
 import { PokeImage } from '../components/ui/PokeImage'
-import { statBandFill } from '../lib/statBand'
 import { DEX_ITEMS } from '../lib/items'
 import { pokemonImageCandidates } from '../lib/images'
 import { buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
@@ -247,6 +247,7 @@ function PokemonOfTheDay() {
                         </HStack>
                     </VStack>
                 </HStack>
+                <Divider />
                 <VStack as="ul" gap={1} aria-label={t('potdTitle')}>
                     {STAT_KEYS.map((k) => {
                         const top = p.stats[k] === maxStat
@@ -263,7 +264,7 @@ function PokemonOfTheDay() {
                                     </Text>
                                 </HStack>
                                 <HStack className="min-w-0 flex-1">
-                                    <StatBar value={p.stats[k]} max={200} fillClass={statBandFill(p.stats[k])} label={statLabel(k, lang)} />
+                                    <StatBar value={p.stats[k]} max={200} fillClass={top ? 'fill-primary' : 'fill-secondary'} label={statLabel(k, lang)} />
                                 </HStack>
                             </HStack>
                         )

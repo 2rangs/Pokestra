@@ -2,7 +2,7 @@
  * 종족값 가로 막대 (숫자가 함께 있어 표 대용이 된다).
  * - 순서 고정: HP · 공격 · 방어 · 특공 · 특방 · 스피드(1세대는 특수) → 합계.
  * - 라벨 칸 고정 폭 · 값은 오른쪽 정렬 tabular · 막대는 0–200 고정 눈금(넘으면 꽉 채우고 "200+").
- * - 막대: 값 구간별 색(낮음 빨강 → 높음 청록, src/lib/statBand.ts), 옅은 트랙, 데이터 끝만 4px 둥글게. 최고 값은 굵기로 강조.
+ * - 막대: 흑백(색은 타입에만). 보조색 막대, 최고 값만 진한 색 + 굵은 글자. 옅은 트랙, 데이터 끝만 4px 둥글게.
  * - 비교(현재) 값은 점선 눈금. 행마다 툴팁(호버·초점·탭). 목록 전체가 탭 한 번, ↑/↓ 로 행 이동(로빙 포커스).
  */
 import { type KeyboardEvent, createRef, useMemo, useState } from "react"
@@ -11,7 +11,6 @@ import { Divider } from "@astryxdesign/core/Divider"
 import { HStack } from "@astryxdesign/core/HStack"
 import { Text } from "@astryxdesign/core/Text"
 import { VStack } from "@astryxdesign/core/VStack"
-import { statBandFill } from "../../lib/statBand"
 import { STAT_SCALE_MAX, type StatDatum, exceedsScale, nextRowIndex, scaleFraction } from "./statChartModel"
 
 /** 라벨·값·200+ 칸 고정 폭 (px): 행마다 막대 시작점과 끝점이 같다 */
@@ -26,7 +25,7 @@ function Bar({ d, showCurrent }: { d: StatDatum; showCurrent: boolean }) {
     return (
         <svg className="block h-3 min-w-0 flex-1 overflow-visible" aria-hidden>
             <rect width="100%" height="100%" rx={4} className="fill-muted" />
-            <g className={statBandFill(d.value)}>
+            <g className={d.isTop ? "fill-primary" : "fill-secondary"}>
                 {width > 0 && <rect width={pct(d.value)} height="100%" rx={4} />}
                 {/* 기준선 쪽 모서리는 각지게: 둥근 왼쪽 끝을 4px 사각형으로 덮는다 (아주 짧은 막대는 생략) */}
                 {width > 0.02 && <rect width={4} height="100%" />}
