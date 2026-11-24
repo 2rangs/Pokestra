@@ -44,7 +44,7 @@ export function TypeMark({ type, size = 'md' }: { type: string; size?: TypeChipS
     const shapes = TYPE_GLYPHS[type]
     if (!shapes) return null
     return (
-        <svg viewBox="0 0 128 128" fill="currentColor" aria-hidden className={cx('shrink-0', ICON_CLASS[size])}>
+        <svg viewBox="0 0 128 128" fill="currentColor" aria-hidden className={cx('shrink-0 drop-shadow-sm', ICON_CLASS[size])}>
             {shapes.map(([tag, a], i) =>
                 tag === 'path' ? <path key={i} d={a.d} /> : tag === 'polygon' ? <polygon key={i} points={a.points} /> : <circle key={i} cx={a.cx} cy={a.cy} r={a.r} />,
             )}

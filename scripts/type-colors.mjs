@@ -1,12 +1,13 @@
-// 타입 색 토큰 생성기: 기준 색(public/assets/types 아이콘과 같은 TYPE_COLOR)에서
+// 타입 색 토큰 생성기: 기준 색(레퍼런스 타입 색)에서
 // 라이트/다크 배지 배경·글자·옅은 면·테두리·글자색을 만들어 themes/pokestra/typeColors.ts 로 쓴다.
 // 실행: node scripts/type-colors.mjs   (결과 파일은 커밋한다. 대비 검사는 src/lib/typeColors.test.ts)
 import { writeFileSync } from 'node:fs'
 
+// 기준 색 = 사용자가 준 레퍼런스(게임 타입 표시)의 이름 칸 색을 픽셀로 읽은 값. 스텔라는 레퍼런스에 없어 기존 값.
 const BASE = {
-    normal: '#A0A29F', fire: '#FBA54C', water: '#4D90D5', electric: '#F4D23B', grass: '#5FBD58', ice: '#74CEC0',
-    fighting: '#D3425F', poison: '#B763CF', ground: '#DA7C4D', flying: '#A1BBEC', psychic: '#FA8581', bug: '#92BC2C',
-    rock: '#C9BB8A', ghost: '#5F6DBC', dragon: '#0C69C8', dark: '#595761', steel: '#5695A3', fairy: '#EE90E6',
+    normal: '#949495', fire: '#E56C3E', water: '#5185C5', grass: '#66A945', electric: '#F6D851', ice: '#6DC8EB',
+    fighting: '#E09C40', poison: '#735198', ground: '#9C7743', flying: '#A2C3E7', psychic: '#DD6B7B', bug: '#9FA244',
+    rock: '#BFB889', ghost: '#684870', dragon: '#535CA8', dark: '#4C4948', steel: '#69A9C7', fairy: '#DAB4D4',
     stellar: '#7C6CF0',
 }
 
@@ -78,29 +79,12 @@ function fit(L0, C, H, text, dir) {
 }
 
 /**
- * 배지 색의 출발점(타입 기준 색과 다를 때만). 흰 글자 대비 때문에 명도를 내리면 주황은 갈색, 노랑은 올리브가 되어
- * 비슷한 타입끼리 겹친다(불꽃↔땅, 전기↔바위, 에스퍼↔격투). 그래서 색상(hue)을 서로 벌린 출발점을 쓴다.
+ * 배지: 레퍼런스 색 그대로 + 흰 글자·흰 문양 (사용자 결정).
+ * 밝은 타입(전기·얼음·비행·페어리·바위 등)은 흰 글자 대비가 4.5:1 에 못 미친다 — 레퍼런스를 따르기로 한 결정이고,
+ * 테마의 배지 변형에 옅은 글자 그림자를 넣어 읽기를 돕는다. 대비 수치는 docs 진행 기록에 남긴다.
  */
-const BADGE_SEED = {
-    fire: '#F04E14', // 붉은 주황
-    fighting: '#93302B', // 어두운 벽돌 (불꽃과 구분)
-    psychic: '#F2386A', // 빨강 쪽 핑크 (격투·페어리와 구분)
-    poison: '#9150D6', // 푸른 보라 (페어리와 구분)
-    fairy: '#E05AAE', // 핑크
-    electric: '#EDBB00', // 채도 높은 금색
-    ground: '#9A6B45', // 채도 낮춘 갈색 (불꽃·전기와 구분)
-    rock: '#8F8466', // 회색빛 카키 (땅·전기와 구분)
-}
-
-/**
- * 배지: 모든 타입이 흰 글자·흰 문양 (사용자 결정 — 진한 단색 배지).
- * 기준 색의 명도(L)만 낮춰 흰 글자 대비 AA 에 맞춘다. 어두워지며 탁해지는 것을 줄이려 채도를 조금 올린다(색역 안에서).
- */
-function badge(base, { lMax = 1, chroma = 1 } = {}) {
-    const [L0, C0, H] = rgbToOklch(hexToRgb(base))
-    const L = Math.min(L0, lMax)
-    const C = C0 * chroma * 1.15
-    return { bg: fit(L, C, H, ON_LIGHT, -1).hex, on: ON_LIGHT }
+function badge(base) {
+    return { bg: base.toLowerCase(), on: ON_LIGHT }
 }
 
 /** 면(surface) 위에 바로 쓰는 타입 글자색 */
@@ -112,9 +96,8 @@ function textOn(base, surface, dir) {
 const out = {}
 for (const [type, base] of Object.entries(BASE)) {
     const [, C, H] = rgbToOklch(hexToRgb(base))
-    const seed = BADGE_SEED[type] ?? base
-    const light = badge(seed)
-    const dark = badge(seed, { lMax: 0.8, chroma: 0.92 })
+    const light = badge(base)
+    const dark = badge(base)
     out[type] = {
         bg: [light.bg, dark.bg],
         on: [light.on, dark.on],

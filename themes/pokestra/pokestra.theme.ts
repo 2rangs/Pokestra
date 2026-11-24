@@ -27,6 +27,8 @@ for (const [type, roles] of Object.entries(TYPE_COLOR_TOKENS)) {
     color: `var(--pokestra-type-${type}-on)`,
     fontWeight: 'var(--font-weight-semibold)',
     borderRadius: 'var(--radius-inner)',
+    // 레퍼런스의 밝은 타입 색(전기·얼음·비행 등) 위 흰 글자를 읽기 쉽게 하는 옅은 그림자
+    textShadow: '0 1px 1.5px rgb(0 0 0 / 0.35)',
   };
 }
 

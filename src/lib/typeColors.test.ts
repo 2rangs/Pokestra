@@ -39,8 +39,17 @@ function contrastReport() {
 describe('타입 색 토큰 (pokestra 테마)', () => {
     const report = contrastReport()
 
-    test.each(report)('$type/$mode 배지 글자 대비 ≥ 4.5', (r) => {
-        expect(r.badge).toBeGreaterThanOrEqual(AA)
+    // 배지는 사용자가 준 레퍼런스 색 그대로 + 흰 글자(밝은 타입은 AA 미달 — 결정 사항, 테마가 글자 그림자로 보완).
+    // 레퍼런스에서 벗어나지 않았는지와 글자가 흰색인지를 검사한다.
+    const REFERENCE: Record<string, string> = {
+        normal: '#949495', fire: '#e56c3e', water: '#5185c5', grass: '#66a945', electric: '#f6d851', ice: '#6dc8eb',
+        fighting: '#e09c40', poison: '#735198', ground: '#9c7743', flying: '#a2c3e7', psychic: '#dd6b7b', bug: '#9fa244',
+        rock: '#bfb889', ghost: '#684870', dragon: '#535ca8', dark: '#4c4948', steel: '#69a9c7', fairy: '#dab4d4',
+    }
+    test.each(report.filter((r) => r.type !== 'stellar'))('$type/$mode 배지 = 레퍼런스 색 + 흰 글자', (r) => {
+        const i = r.mode === 'light' ? 0 : 1
+        expect(tok(r.type, 'bg')[i]).toBe(REFERENCE[r.type])
+        expect(tok(r.type, 'on')[i]).toBe('#ffffff')
     })
     test.each(report)('$type/$mode 타입 글자색이 surface·body 위에서 ≥ 4.5', (r) => {
         expect(r.textOnSurface).toBeGreaterThanOrEqual(AA)

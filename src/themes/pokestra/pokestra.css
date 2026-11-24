@@ -304,97 +304,97 @@
     --color-border-error: var(--color-text-error);
     --duration-exit: var(--duration-fast);
     --astryx-theme-neutral-color-status-fill-accent: light-dark(#0074e2, #6d9cfe);
-    --pokestra-type-normal-bg: light-dark(#737572, #737572);
+    --pokestra-type-normal-bg: light-dark(#949495, #949495);
     --pokestra-type-normal-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-normal-subtle: light-dark(#f0f0ef, #2b2c2a);
-    --pokestra-type-normal-border: light-dark(#a3a5a2, #797b78);
-    --pokestra-type-normal-text: light-dark(#6a6c69, #a0a29f);
-    --pokestra-type-fire-bg: light-dark(#d54003, #d33f01);
+    --pokestra-type-normal-subtle: light-dark(#f0f0f0, #2b2b2c);
+    --pokestra-type-normal-border: light-dark(#a4a4a5, #7a7a7b);
+    --pokestra-type-normal-text: light-dark(#6c6c6d, #949495);
+    --pokestra-type-fire-bg: light-dark(#e56c3e, #e56c3e);
     --pokestra-type-fire-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-fire-subtle: light-dark(#ffeddd, #3d250e);
-    --pokestra-type-fire-border: light-dark(#dd9143, #ac6818);
-    --pokestra-type-fire-text: light-dark(#9f5d01, #fba54c);
-    --pokestra-type-water-bg: light-dark(#2377c5, #2e77bf);
+    --pokestra-type-fire-subtle: light-dark(#ffebe5, #402217);
+    --pokestra-type-fire-border: light-dark(#f08259, #bc5934);
+    --pokestra-type-fire-text: light-dark(#bb4610, #e56c3e);
+    --pokestra-type-water-bg: light-dark(#5185c5, #5185c5);
     --pokestra-type-water-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-water-subtle: light-dark(#e6f2fe, #172d43);
-    --pokestra-type-water-border: light-dark(#6da9e9, #477eb7);
-    --pokestra-type-water-text: light-dark(#2a6eb1, #4f92d7);
-    --pokestra-type-electric-bg: light-dark(#8f7003, #8f7002);
+    --pokestra-type-water-subtle: light-dark(#e7f1fe, #192c44);
+    --pokestra-type-water-border: light-dark(#78a8e3, #517db2);
+    --pokestra-type-water-text: light-dark(#3b6ead, #5d91d2);
+    --pokestra-type-grass-bg: light-dark(#66a945, #66a945);
+    --pokestra-type-grass-on: light-dark(#ffffff, #ffffff);
+    --pokestra-type-grass-subtle: light-dark(#e6f6df, #1f3117);
+    --pokestra-type-grass-border: light-dark(#7bb860, #548b3a);
+    --pokestra-type-grass-text: light-dark(#397b0b, #66a945);
+    --pokestra-type-electric-bg: light-dark(#f6d851, #f6d851);
     --pokestra-type-electric-on: light-dark(#ffffff, #ffffff);
     --pokestra-type-electric-subtle: light-dark(#f7f1d6, #332b0a);
-    --pokestra-type-electric-border: light-dark(#c0a30c, #907905);
-    --pokestra-type-electric-text: light-dark(#806b05, #f4d23b);
-    --pokestra-type-grass-bg: light-dark(#048800, #178712);
-    --pokestra-type-grass-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-grass-subtle: light-dark(#e3f7e1, #1c321a);
-    --pokestra-type-grass-border: light-dark(#69bc62, #428e3c);
-    --pokestra-type-grass-text: light-dark(#177e12, #5fbd58);
-    --pokestra-type-ice-bg: light-dark(#038276, #0e8275);
+    --pokestra-type-electric-border: light-dark(#bea426, #8f7905);
+    --pokestra-type-electric-text: light-dark(#7d6b06, #f6d851);
+    --pokestra-type-ice-bg: light-dark(#6dc8eb, #6dc8eb);
     --pokestra-type-ice-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-ice-subtle: light-dark(#def6f2, #10322d);
-    --pokestra-type-ice-border: light-dark(#66b5a9, #3f897e);
-    --pokestra-type-ice-text: light-dark(#107a6e, #74cec0);
-    --pokestra-type-fighting-bg: light-dark(#9a2522, #962c28);
+    --pokestra-type-ice-subtle: light-dark(#ddf5ff, #0d303c);
+    --pokestra-type-ice-border: light-dark(#61b1cf, #3985a0);
+    --pokestra-type-ice-text: light-dark(#077595, #6dc8eb);
+    --pokestra-type-fighting-bg: light-dark(#e09c40, #e09c40);
     --pokestra-type-fighting-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-fighting-subtle: light-dark(#feebec, #412024);
-    --pokestra-type-fighting-border: light-dark(#f97487, #c44b60);
-    --pokestra-type-fighting-text: light-dark(#c53454, #ee5b75);
-    --pokestra-type-poison-bg: light-dark(#9545e4, #934cdb);
+    --pokestra-type-fighting-subtle: light-dark(#ffedd9, #3b270c);
+    --pokestra-type-fighting-border: light-dark(#d39748, #a46d1e);
+    --pokestra-type-fighting-text: light-dark(#976102, #e09c40);
+    --pokestra-type-poison-bg: light-dark(#735198, #735198);
     --pokestra-type-poison-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-poison-subtle: light-dark(#faeaff, #36233b);
-    --pokestra-type-poison-border: light-dark(#ce82e4, #9e59b2);
-    --pokestra-type-poison-text: light-dark(#9c49b3, #c16cd9);
-    --pokestra-type-ground-bg: light-dark(#9f693c, #9c6a42);
+    --pokestra-type-poison-subtle: light-dark(#f4ecff, #31253f);
+    --pokestra-type-poison-border: light-dark(#b394d9, #876ba9);
+    --pokestra-type-poison-text: light-dark(#735198, #a17fca);
+    --pokestra-type-ground-bg: light-dark(#9c7743, #9c7743);
     --pokestra-type-ground-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-ground-subtle: light-dark(#feece3, #402315);
-    --pokestra-type-ground-border: light-dark(#e28c62, #b0633d);
-    --pokestra-type-ground-text: light-dark(#ad5322, #da7c4d);
-    --pokestra-type-flying-bg: light-dark(#5a75a9, #5b74a4);
+    --pokestra-type-ground-subtle: light-dark(#faeede, #362915);
+    --pokestra-type-ground-border: light-dark(#c19e6f, #937449);
+    --pokestra-type-ground-text: light-dark(#8a6531, #af8955);
+    --pokestra-type-flying-bg: light-dark(#a2c3e7, #a2c3e7);
     --pokestra-type-flying-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-flying-subtle: light-dark(#e9f0ff, #222b3d);
-    --pokestra-type-flying-border: light-dark(#8ea5d0, #667aa1);
-    --pokestra-type-flying-text: light-dark(#546c98, #a1bbec);
-    --pokestra-type-psychic-bg: light-dark(#e50059, #e4075a);
+    --pokestra-type-flying-subtle: light-dark(#e7f1fd, #212c39);
+    --pokestra-type-flying-border: light-dark(#8ba8c7, #637d99);
+    --pokestra-type-flying-text: light-dark(#506f8f, #a2c3e7);
+    --pokestra-type-psychic-bg: light-dark(#dd6b7b, #dd6b7b);
     --pokestra-type-psychic-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-psychic-subtle: light-dark(#feebe9, #41211f);
-    --pokestra-type-psychic-border: light-dark(#ea827e, #b75a57);
-    --pokestra-type-psychic-text: light-dark(#b64948, #fa8581);
-    --pokestra-type-bug-bg: light-dark(#5f7e00, #5f7e05);
+    --pokestra-type-psychic-subtle: light-dark(#feebec, #412024);
+    --pokestra-type-psychic-border: light-dark(#e9818e, #b65966);
+    --pokestra-type-psychic-text: light-dark(#b5485a, #dd6b7b);
+    --pokestra-type-bug-bg: light-dark(#9fa244, #9fa244);
     --pokestra-type-bug-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-bug-subtle: light-dark(#ebf5db, #263012);
-    --pokestra-type-bug-border: light-dark(#8fb53b, #678803);
-    --pokestra-type-bug-text: light-dark(#597604, #92bc2c);
-    --pokestra-type-rock-bg: light-dark(#807451, #7f7454);
+    --pokestra-type-bug-subtle: light-dark(#f1f3d8, #2c2e0d);
+    --pokestra-type-bug-border: light-dark(#a8ab59, #7d8033);
+    --pokestra-type-bug-text: light-dark(#6e7000, #9fa244);
+    --pokestra-type-rock-bg: light-dark(#bfb889, #bfb889);
     --pokestra-type-rock-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-rock-subtle: light-dark(#f4f0e1, #302b1a);
-    --pokestra-type-rock-border: light-dark(#b1a479, #857a53);
-    --pokestra-type-rock-text: light-dark(#796c3d, #c9bb8a);
-    --pokestra-type-ghost-bg: light-dark(#5c6bc6, #5e6cc0);
+    --pokestra-type-rock-subtle: light-dark(#f3f1e2, #2e2c1b);
+    --pokestra-type-rock-border: light-dark(#aca67d, #817c56);
+    --pokestra-type-rock-text: light-dark(#746d41, #bfb889);
+    --pokestra-type-ghost-bg: light-dark(#684870, #684870);
     --pokestra-type-ghost-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-ghost-subtle: light-dark(#ebefff, #242944);
-    --pokestra-type-ghost-border: light-dark(#8f9fea, #6775b8);
-    --pokestra-type-ghost-text: light-dark(#5866b4, #7a8adc);
-    --pokestra-type-dragon-bg: light-dark(#0269cb, #0069cb);
+    --pokestra-type-ghost-subtle: light-dark(#f7ecfa, #332636);
+    --pokestra-type-ghost-border: light-dark(#b797bf, #8b6e92);
+    --pokestra-type-ghost-text: light-dark(#684870, #a683ae);
+    --pokestra-type-dragon-bg: light-dark(#535ca8, #535ca8);
     --pokestra-type-dragon-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-dragon-subtle: light-dark(#e7f1ff, #192c44);
-    --pokestra-type-dragon-border: light-dark(#61a7fe, #387bcc);
-    --pokestra-type-dragon-text: light-dark(#0c69c8, #3c8ff1);
-    --pokestra-type-dark-bg: light-dark(#595762, #595761);
+    --pokestra-type-dragon-subtle: light-dark(#ecefff, #252944);
+    --pokestra-type-dragon-border: light-dark(#929ee8, #6a74b6);
+    --pokestra-type-dragon-text: light-dark(#535ca8, #7d89d9);
+    --pokestra-type-dark-bg: light-dark(#4c4948, #4c4948);
     --pokestra-type-dark-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-dark-subtle: light-dark(#f0eff3, #2b2b2f);
-    --pokestra-type-dark-border: light-dark(#a5a3ad, #7b7982);
-    --pokestra-type-dark-text: light-dark(#595761, #8f8d97);
-    --pokestra-type-steel-bg: light-dark(#317e8e, #397d8c);
+    --pokestra-type-dark-subtle: light-dark(#f1f0ef, #2c2b2b);
+    --pokestra-type-dark-border: light-dark(#a7a4a3, #7c7a79);
+    --pokestra-type-dark-text: light-dark(#4c4948, #918e8c);
+    --pokestra-type-steel-bg: light-dark(#69a9c7, #69a9c7);
     --pokestra-type-steel-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-steel-subtle: light-dark(#e2f4f8, #182f35);
-    --pokestra-type-steel-border: light-dark(#77afbc, #50848f);
-    --pokestra-type-steel-text: light-dark(#367583, #5897a5);
-    --pokestra-type-fairy-bg: light-dark(#cf2f9a, #c93b98);
+    --pokestra-type-steel-subtle: light-dark(#e1f4fd, #172f3a);
+    --pokestra-type-steel-border: light-dark(#75aec9, #4e829a);
+    --pokestra-type-steel-text: light-dark(#337490, #69a9c7);
+    --pokestra-type-fairy-bg: light-dark(#dab4d4, #dab4d4);
     --pokestra-type-fairy-on: light-dark(#ffffff, #ffffff);
-    --pokestra-type-fairy-subtle: light-dark(#fee8fc, #392237);
-    --pokestra-type-fairy-border: light-dark(#d582ce, #a55a9f);
-    --pokestra-type-fairy-text: light-dark(#a2499c, #ee90e6);
-    --pokestra-type-stellar-bg: light-dark(#745bf5, #725eea);
+    --pokestra-type-fairy-subtle: light-dark(#f8ecf6, #342632);
+    --pokestra-type-fairy-border: light-dark(#ba98b4, #8d6f88);
+    --pokestra-type-fairy-text: light-dark(#83617e, #dab4d4);
+    --pokestra-type-stellar-bg: light-dark(#7c6cf0, #7c6cf0);
     --pokestra-type-stellar-on: light-dark(#ffffff, #ffffff);
     --pokestra-type-stellar-subtle: light-dark(#eeeffe, #292843);
     --pokestra-type-stellar-border: light-dark(#9c95fe, #7368d5);
@@ -641,6 +641,7 @@
     color: var(--pokestra-type-normal-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="fire"] {
@@ -648,6 +649,7 @@
     color: var(--pokestra-type-fire-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="water"] {
@@ -655,13 +657,7 @@
     color: var(--pokestra-type-water-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
-  }
-
-  .astryx-token[data-color="electric"] {
-    background-color: var(--pokestra-type-electric-bg);
-    color: var(--pokestra-type-electric-on);
-    font-weight: var(--font-weight-semibold);
-    border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="grass"] {
@@ -669,6 +665,15 @@
     color: var(--pokestra-type-grass-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
+  }
+
+  .astryx-token[data-color="electric"] {
+    background-color: var(--pokestra-type-electric-bg);
+    color: var(--pokestra-type-electric-on);
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="ice"] {
@@ -676,6 +681,7 @@
     color: var(--pokestra-type-ice-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="fighting"] {
@@ -683,6 +689,7 @@
     color: var(--pokestra-type-fighting-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="poison"] {
@@ -690,6 +697,7 @@
     color: var(--pokestra-type-poison-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="ground"] {
@@ -697,6 +705,7 @@
     color: var(--pokestra-type-ground-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="flying"] {
@@ -704,6 +713,7 @@
     color: var(--pokestra-type-flying-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="psychic"] {
@@ -711,6 +721,7 @@
     color: var(--pokestra-type-psychic-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="bug"] {
@@ -718,6 +729,7 @@
     color: var(--pokestra-type-bug-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="rock"] {
@@ -725,6 +737,7 @@
     color: var(--pokestra-type-rock-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="ghost"] {
@@ -732,6 +745,7 @@
     color: var(--pokestra-type-ghost-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="dragon"] {
@@ -739,6 +753,7 @@
     color: var(--pokestra-type-dragon-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="dark"] {
@@ -746,6 +761,7 @@
     color: var(--pokestra-type-dark-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="steel"] {
@@ -753,6 +769,7 @@
     color: var(--pokestra-type-steel-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="fairy"] {
@@ -760,6 +777,7 @@
     color: var(--pokestra-type-fairy-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-token[data-color="stellar"] {
@@ -767,6 +785,7 @@
     color: var(--pokestra-type-stellar-on);
     font-weight: var(--font-weight-semibold);
     border-radius: var(--radius-inner);
+    text-shadow: 0 1px 1.5px rgb(0 0 0 / 0.35);
   }
 
   .astryx-text[data-color="primary"] { color: var(--color-text-primary); }

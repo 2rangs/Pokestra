@@ -20,8 +20,8 @@ declare module '@astryxdesign/core/Token' {
     'normal': true;
     'fire': true;
     'water': true;
-    'electric': true;
     'grass': true;
+    'electric': true;
     'ice': true;
     'fighting': true;
     'poison': true;
