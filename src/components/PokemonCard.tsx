@@ -46,25 +46,25 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
             </Text>
         ) : null
 
-    // 카드: 번호(+정렬 값) → 그림 → 이름(폼) → 타입 한 줄. 꾸밈 칸 없이 정보만, 줄마다 한 가지.
-    // 좁은 화면(sm 미만)에서는 게임 도감 목록처럼 한 줄: 번호 · 박스 아이콘 · 이름 · 타입.
+    // 데스크톱 카드(갤러리): 옅은 판 위의 큰 그림 → 번호(+정렬 값) → 이름 → 타입. 왼쪽 정렬, 줄마다 한 가지.
+    // 좁은 화면(sm 미만): 게임 도감 목록처럼 한 줄 — 박스 아이콘 · 번호/이름 · 타입.
     // 같은 요소를 CSS 로만 바꿔서 무한 스크롤·포커스 이동(a[href] 순서)이 그대로 동작한다.
     return (
-        <ClickableCard href={`/pokemon/${p.id}`} label={`${no} ${name}${formLabel ? ` (${formLabel})` : ""}`} padding={2} className="h-full">
-            <VStack gap={1.5} hAlign="center" className="text-center max-sm:flex-row max-sm:items-center max-sm:gap-2 max-sm:text-start">
-                <HStack gap={1} vAlign="center" justify="center" className="max-sm:w-15 max-sm:shrink-0 max-sm:flex-col max-sm:items-start max-sm:gap-0">
-                    <Text type="supporting" hasTabularNumbers textWrap="nowrap">
-                        {no}
-                    </Text>
-                    {highlight}
-                </HStack>
-                <HStack justify="center" vAlign="center" className="shrink-0">
+        <ClickableCard href={`/pokemon/${p.id}`} label={`${no} ${name}${formLabel ? ` (${formLabel})` : ""}`} padding={3} className="h-full">
+            <VStack gap={3} hAlign="stretch" className="max-sm:flex-row max-sm:items-center max-sm:gap-3">
+                <HStack justify="center" vAlign="center" className="shrink-0 rounded-lg bg-muted p-2 max-sm:bg-transparent max-sm:p-0">
                     <PokemonImage p={p} size={40} className="size-10 sm:hidden" />
-                    <PokemonImage p={p} size={72} className="h-18 w-18 max-sm:hidden" />
+                    <PokemonImage p={p} size={128} className="size-32 max-sm:hidden" />
                 </HStack>
-                <VStack gap={0} hAlign="center" className="min-w-0 max-sm:flex-1 max-sm:items-start">
+                <VStack gap={0.5} className="min-w-0 max-sm:flex-1">
+                    <HStack gap={2} vAlign="center" justify="between">
+                        <Text type="supporting" hasTabularNumbers textWrap="nowrap">
+                            {no}
+                        </Text>
+                        {highlight}
+                    </HStack>
                     <HStack gap={1} vAlign="center">
-                        <Text weight="semibold" maxLines={1}>
+                        <Text type="large" weight="bold" maxLines={1}>
                             {name}
                         </Text>
                         {p.genderDiff && <GenderDiffMark t={t} />}
@@ -75,7 +75,7 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
                         </Text>
                     )}
                 </VStack>
-                <HStack gap={1} vAlign="center" justify="center" className="max-sm:shrink-0">
+                <HStack gap={1} vAlign="center" wrap="wrap" className="max-sm:shrink-0 max-sm:flex-nowrap">
                     {p.types.map((type) => (
                         <TypeChip key={type} type={type} size="sm" />
                     ))}

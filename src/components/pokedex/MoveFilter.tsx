@@ -57,6 +57,7 @@ export function MoveFilter({ compact }: { compact?: boolean }) {
                 label={t("learnableMove")}
                 isLabelHidden={compact}
                 width={compact ? 224 : undefined}
+                size={compact ? "lg" : undefined}
                 status={
                     compact
                         ? resolvedMove

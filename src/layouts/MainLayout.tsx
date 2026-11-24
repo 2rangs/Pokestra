@@ -11,6 +11,7 @@ import { Icon } from '@astryxdesign/core/Icon'
 import { PokeImage } from '../components/ui/PokeImage'
 import { cx } from '../components/ui/utils'
 import { pokemonImageCandidates } from '../lib/images'
+import { useScrollRestoration } from '../hooks/useScrollRestoration'
 import { itemIconUrl } from '../lib/spriteUrls'
 import { LANG_LABEL, LANGS, useDocumentLang, useLang, useLangStore, useT, type Lang } from '../i18n'
 import { commonMessages } from '../i18n/messages/common'
@@ -185,9 +186,8 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
     const t = useT(commonMessages)
     const { pathname } = useLocation()
 
-    useEffect(() => {
-        window.scrollTo(0, 0)
-    }, [pathname])
+    // 새 화면은 맨 위, 뒤로 가기는 떠날 때의 위치로 (목록에서 상세를 보고 돌아올 때)
+    useScrollRestoration()
 
     const items = NAV_ITEMS.map(({ to, key, match, icon }) => (
         <TopNavItem key={to} href={to} label={t(key)} icon={<NavIcon sources={icon} size={24} />} isSelected={match.some((m) => pathname.startsWith(m))} />

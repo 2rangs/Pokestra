@@ -7,6 +7,7 @@ import { Heading } from "@astryxdesign/core/Heading"
 import { HStack } from "@astryxdesign/core/HStack"
 import { SegmentedControl, SegmentedControlItem } from "@astryxdesign/core/SegmentedControl"
 import { Text } from "@astryxdesign/core/Text"
+import { Switch } from "@astryxdesign/core/Switch"
 import { VStack } from "@astryxdesign/core/VStack"
 import { PokemonCard } from "../../components/PokemonCard.tsx"
 import { PokedexFilterBar } from "../../components/pokedex/PokedexFilterBar"
@@ -202,6 +203,15 @@ export default function PokedexPage() {
     const isDirty =
         activeFilterCount > 0 || nameSearch.trim() !== "" || moveSearch !== "" || selectedMove != null || sortKey !== "id" || sortDir !== "asc"
 
+    // 필터 칩의 "모두 지우기": 타입·세대·기술만 (검색어·정렬은 그대로)
+    const clearFilterChips = () => {
+        const s = usePokedexStore.getState()
+        s.clearTypes()
+        s.setGenerations([])
+        s.setSelectedMove(null)
+        setMoveFilterKey((k) => k + 1)
+    }
+
     const reset = () => {
         resetFilters()
         setMoveFilterKey((k) => k + 1)
@@ -222,6 +232,7 @@ export default function PokedexPage() {
                 activeFilterCount={activeFilterCount}
                 open={filtersOpen}
                 onToggleOpen={() => setFiltersOpen((v) => !v)}
+                onClearAll={clearFilterChips}
             />
 
             {/* ── 결과 헤더 ── */}
@@ -236,7 +247,13 @@ export default function PokedexPage() {
                         </Text>
                     )}
                 </span>
-                <HStack gap={2} vAlign="center">
+                <HStack gap={3} vAlign="center">
+                    <Switch
+                        label={t("includeForms")}
+                        labelTooltip={t("includeFormsHint")}
+                        value={includeForms}
+                        onChange={(v) => usePokedexStore.getState().setIncludeForms(v)}
+                    />
                     <Button variant="ghost" size="sm" label={t("reset")} onClick={reset} isDisabled={!isDirty} />
                     <SegmentedControl size="sm" label={t("viewMode")} value={view} onChange={(v) => setView(v as View)}>
                         <SegmentedControlItem value="grid" label={t("viewGrid")} />
@@ -265,7 +282,7 @@ export default function PokedexPage() {
                 </VStack>
             ) : (
                 <VStack ref={resultsRef} className={`transition-opacity ${isSearching ? "opacity-60" : ""}`}>
-                    <Grid columns={{ minWidth: 128, max: 10 }} gap={2} className="max-sm:grid-cols-1 max-sm:gap-1">
+                    <Grid columns={{ minWidth: 180, max: 6 }} gap={4} className="max-sm:grid-cols-1 max-sm:gap-1.5">
                         {visible.map((e) => (
                             <PokemonCard
                                 key={e.p.id}
@@ -283,9 +300,9 @@ export default function PokedexPage() {
                         </HStack>
                     )}
                     {hasMore && (
-                        <Grid columns={{ minWidth: 128, max: 10 }} gap={2} aria-hidden className="max-sm:grid-cols-1 max-sm:gap-1">
+                        <Grid columns={{ minWidth: 180, max: 6 }} gap={4} aria-hidden className="max-sm:grid-cols-1 max-sm:gap-1.5">
                             {results.slice(visibleCount, visibleCount + PAGE_SIZE).map((e, i) => (
-                                <HStack key={e.p.id} data-slot={visibleCount + i} className="h-15 sm:h-50" />
+                                <HStack key={e.p.id} data-slot={visibleCount + i} className="h-17 sm:h-72" />
                             ))}
                         </Grid>
                     )}

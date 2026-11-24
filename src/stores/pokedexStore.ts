@@ -31,6 +31,8 @@ interface PokedexState extends PokedexFilters {
     setMoveSearch: (v: string) => void
     setSelectedMove: (slug: string | null) => void
     toggleType: (type: string) => void
+    /** 타입 목록을 한 번에 (최대 개수를 넘으면 마지막에 고른 것들만) */
+    setTypes: (types: string[]) => void
     clearTypes: () => void
     toggleGeneration: (id: number) => void
     setGenerations: (ids: number[]) => void
@@ -72,6 +74,7 @@ export const usePokedexStore = create<PokedexState>()(
                     const next = [...s.selectedTypes, type].slice(-MAX_SELECTED_TYPES)
                     return { selectedTypes: next, page: 1 }
                 }),
+            setTypes: (types) => set({ selectedTypes: [...new Set(types)].slice(-MAX_SELECTED_TYPES), page: 1 }),
             clearTypes: () => set({ selectedTypes: [], page: 1 }),
             toggleGeneration: (id) =>
                 set((s) => ({
