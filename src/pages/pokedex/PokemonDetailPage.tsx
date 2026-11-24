@@ -1,5 +1,6 @@
 import { type ReactNode, Fragment, useEffect, useMemo } from "react"
 import { Blockquote } from "@astryxdesign/core/Blockquote"
+import { gameTitle } from "../../lib/gameNames"
 import { useNavigate, useParams, useSearchParams } from "react-router"
 import { Button } from "@astryxdesign/core/Button"
 import { Card } from "@astryxdesign/core/Card"
@@ -427,7 +428,7 @@ export default function PokemonDetailPage() {
     const flavorNode = flavor ? (
         // 도감 설명은 게임 속 도감 항목처럼 인용 블록으로
         <span lang={flavorEntry?.language.name.split("-")[0]} className="block max-w-prose break-keep">
-            <Blockquote>{flavor}</Blockquote>
+            <Blockquote cite={flavorEntry ? gameTitle(flavorEntry.version.name, lang) : undefined}>{flavor}</Blockquote>
         </span>
     ) : speciesQ.isPending && speciesId ? (
         <VStack gap={1}>
