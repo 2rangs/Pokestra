@@ -1,7 +1,7 @@
 import { type ReactNode, Fragment, useEffect, useMemo, useState } from "react"
 import { Blockquote } from "@astryxdesign/core/Blockquote"
-import { gameTitle, versionName } from "../../lib/gameNames"
-import { type FlavorOption, buildFlavorOptions, defaultFlavor, flavorMatch, groupFlavors } from "../../lib/flavorEntries"
+import { KNOWN_VERSIONS, gameTitle, versionGeneration, versionName } from "../../lib/gameNames"
+import { type FlavorOption, NO_KOREAN_RELEASE, buildFlavorOptions, defaultFlavor, flavorMatch, groupFlavors, wikiEntries } from "../../lib/flavorEntries"
 import { Selector } from "@astryxdesign/core/Selector"
 import { Link as RouterLink, useNavigate, useParams, useSearchParams } from "react-router"
 import { Button } from "@astryxdesign/core/Button"
@@ -37,6 +37,7 @@ import {
     useEvolutionChain,
     usePokemonDetail,
     usePokemonForms,
+    useWikiFlavors,
     usePokemonSpecies,
 } from "../../hooks/usePokemon"
 import { LANGS, type Lang, formatNumber, useDocumentTitle, useLang, useT } from "../../i18n"
@@ -45,7 +46,6 @@ import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messa
 import { itemLabel as itemName } from "../../lib/itemLabel"
 import { parseSex } from "../../lib/gender"
 import { artworkUrl } from "../../lib/spriteUrls"
-import { versionGeneration } from "../../lib/gameNames"
 import { LATEST_GEN, type GenStatKey, abilitiesAt, clampGen, cryAt, femaleArtAt, spriteAt, statsAt, typesAt } from "../../lib/generation"
 import { pokemonImageCandidates, preloadImages } from "../../lib/images"
 import { PokeImage } from "../../components/ui/PokeImage"
@@ -297,10 +297,20 @@ export default function PokemonDetailPage() {
 
     // 도감 설명은 작품마다 다르다: 작품별 후보(최신부터, 같은 글은 묶음, 사용자 언어가 없는 작품은 영어로)
     const flavorPrimary = pickByLang(species?.flavor_text_entries, lang, true)?.language.name
-    const flavorOptions = useMemo(
-        () => (flavorPrimary ? buildFlavorOptions(species?.flavor_text_entries, flavorPrimary, flavorPrimary === "en" ? null : "en", cleanFlavor) : []),
-        [species, flavorPrimary],
+    // 한국어: PokeAPI 에 없는 작품(1~5세대 등)·모습별 설명은 포켓몬 위키에서 모은 설명으로 채운다
+    const wikiQ = useWikiFlavors(speciesId, lang === "ko")
+    const apiKoVersions = useMemo(
+        () => new Set((species?.flavor_text_entries ?? []).filter((e) => e.language.name === "ko").map((e) => e.version.name)),
+        [species],
     )
+    const flavorOptions = useMemo(() => {
+        if (!flavorPrimary) return []
+        const extra = lang === "ko" ? wikiEntries(wikiQ.data, apiKoVersions, "ko") : []
+        const entries = [...(species?.flavor_text_entries ?? []), ...extra]
+        return buildFlavorOptions(entries, flavorPrimary, flavorPrimary === "en" ? null : "en", cleanFlavor).map((o) =>
+            o.lang === "ko" && !o.versions.some((v) => apiKoVersions.has(v)) ? { ...o, wiki: true } : o,
+        )
+    }, [species, flavorPrimary, lang, wikiQ.data, apiKoVersions])
     // 고른 작품은 세대 선택이 바뀌면 그 세대의 기본으로 돌아간다
     const [flavorPick, setFlavorPick] = useState<{ id: string; gen: number | null; species: number | null } | null>(null)
     // 메가진화·리전폼 등 모습별 도감 설명 (PokeAPI 에는 영어만). 위키처럼 세대 묶음 안에 모습별로 붙인다
@@ -313,10 +323,11 @@ export default function PokemonDetailPage() {
         () =>
             altForms.flatMap((p, i) => {
                 const entries = formData[i]?.flavor_text_entries
-                const own = groupFlavors(entries, lang, cleanFlavor)
+                const wiki = lang === "ko" ? groupFlavors(wikiEntries(wikiQ.data, new Set(), "ko", p.id), "ko", cleanFlavor).map((o) => ({ ...o, wiki: true })) : []
+                const own = wiki.length ? wiki : groupFlavors(entries, lang, cleanFlavor)
                 return (own.length ? own : groupFlavors(entries, "en", cleanFlavor)).map((o) => ({ ...o, id: `form:${p.id}:${o.id}`, formId: p.id }))
             }),
-        [altForms, formData, lang],
+        [altForms, formData, lang, wikiQ.data],
     )
     const allFlavors = useMemo(() => [...formFlavors, ...flavorOptions], [formFlavors, flavorOptions])
     const pickedFlavor =
@@ -324,9 +335,11 @@ export default function PokemonDetailPage() {
     // 기본: 이 모습만의 설명이 사용자 언어로 있으면 그것, 아니면 종의 설명(사용자 언어 우선)
     const flavorShown = pickedFlavor ?? formFlavors.find((o) => o.formId === (local?.id ?? detail?.id ?? 0) && o.lang === lang) ?? defaultFlavor(flavorOptions, gen, flavorPrimary)
     // 도감 설명을 고르면 그 작품의 세대로(스프라이트·타입·종족값·울음소리가 함께 바뀐다). 최신 세대면 "현재"
-    const chooseFlavor = (optionId: string) => {
+    const chooseFlavor = (rowId: string) => {
+        // 모두 보기의 행은 "설명 id@세대" (같은 글이 여러 세대에 있으면 세대마다 한 줄)
+        const [optionId, rowGen] = rowId.split("@")
         const o = allFlavors.find((x) => x.id === optionId)
-        const g = o ? versionGeneration(o.versions[0]) : null
+        const g = rowGen ? Number(rowGen) : o ? versionGeneration(o.versions[0]) : null
         const nextGen = isAltForm || o?.formId || g == null ? gen : g >= LATEST_GEN ? null : Math.max(g, debut ?? 1)
         if (nextGen !== gen) setGen(nextGen)
         setFlavorPick({ id: optionId, gen: nextGen, species: speciesId ?? null })
@@ -497,10 +510,20 @@ export default function PokemonDetailPage() {
         return f ? displayName(f, lang) : ""
     }
     const flavorGroups = (() => {
-        const genOf = (o: FlavorOption) => versionGeneration(o.versions[0]) ?? 0
-        const gens = [...new Set(allFlavors.map(genOf))].sort((a, b) => b - a)
+        // 같은 글이 여러 세대 작품에 실렸으면 세대마다 그 세대 작품만 남긴 줄로 (위키처럼 세대별로 빠짐없이)
+        const rows = allFlavors.flatMap((o) => {
+            const gens = [...new Set(o.versions.map((v) => versionGeneration(v) ?? 0))]
+            const order = (v: string) => KNOWN_VERSIONS.indexOf(v)
+            return gens.map((g) => ({
+                ...o,
+                id: `${o.id}@${g}`,
+                versions: o.versions.filter((v) => (versionGeneration(v) ?? 0) === g).sort((x, y) => order(x) - order(y)), // 발매 순서
+                rowGen: g,
+            }))
+        })
+        const gens = [...new Set(rows.map((r) => r.rowGen))].sort((a, b) => b - a)
         return gens.map((g) => {
-            const inGen = allFlavors.filter((o) => genOf(o) === g)
+            const inGen = rows.filter((r) => r.rowGen === g)
             const species = inGen.filter((o) => !o.formId)
             const byForm = altForms
                 .map((f) => ({ formId: f.id, title: formNameOf(f.id), items: inGen.filter((o) => o.formId === f.id) }))
@@ -510,8 +533,12 @@ export default function PokemonDetailPage() {
     })()
     // 출처 + (고른 세대와 다른 작품이면) 리메이크인지·가까운 작품인지
     const flavorCite = (o: NonNullable<typeof flavorShown>) => {
-        const notes = o.formId ? [formNameOf(o.formId), sourceTitle(o.versions)] : [sourceTitle(o.versions)]
+        // 세대를 골랐으면 그 세대 작품만 적고 나머지는 "외 N작품"
+        const inGen = gen === null ? [] : o.versions.filter((v) => versionGeneration(v) === gen)
+        const src = inGen.length ? `${sourceTitle(inGen)}${inGen.length < o.versions.length ? ` ${t("entryMoreGames", { n: o.versions.length - inGen.length })}` : ""}` : sourceTitle(o.versions)
+        const notes = o.formId ? [formNameOf(o.formId), src] : [src]
         if (o.lang !== flavorPrimary) notes.push(t("entryFallbackLang"))
+        if (o.wiki) notes.push(o.versions.every((v) => NO_KOREAN_RELEASE.has(v)) ? t("entryWikiTranslation") : t("entryWiki"))
         const match = gen !== null ? flavorMatch(o, gen) : "same"
         if (match === "remake") notes.push(t("entryRemake", { gen: gen ?? 0 }))
         if (match === "nearest") notes.push(t("entryNearest", { gen: gen ?? 0 }))
@@ -521,7 +548,10 @@ export default function PokemonDetailPage() {
     const flavorRows = (items: readonly FlavorOption[]) => (
         <VStack as="ul" gap={0} className="divide-y divide-border border-y border-border">
             {items.map((o) => {
-                const current = o.id === flavorShown?.id
+                // 지금 보이는 설명이면서, 세대를 골랐으면 그 세대 줄(안 골랐으면 첫 줄)
+                const [baseId, rowGen] = o.id.split("@")
+                const shownGen = gen ?? versionGeneration(flavorShown?.versions[0] ?? "") ?? 0
+                const current = baseId === flavorShown?.id && Number(rowGen) === shownGen
                 return (
                     <li key={o.id} lang={o.lang.split("-")[0]}>
                         <button
@@ -535,6 +565,7 @@ export default function PokemonDetailPage() {
                                 <Text type="supporting" weight={current ? "semibold" : "normal"} color="secondary">
                                     {versionList(o.versions)}
                                     {o.lang !== lang ? ` (${o.lang})` : ""}
+                                    {o.wiki ? ` · ${o.versions.every((v) => NO_KOREAN_RELEASE.has(v)) ? t("entryWikiTranslation") : t("entryWiki")}` : ""}
                                 </Text>
                             </VStack>
                             <Text className="break-keep">{o.text}</Text>
@@ -562,6 +593,15 @@ export default function PokemonDetailPage() {
                         ))}
                     </VStack>
                 ))}
+                {allFlavors.some((o) => o.wiki) && (
+                    <Text type="supporting" color="secondary">
+                        {t("entryWikiCredit")}{" "}
+                        <Link href="https://pokemon.fandom.com/ko/" target="_blank" rel="noreferrer">
+                            {t("entryWikiName")}
+                        </Link>{" "}
+                        (CC BY-SA 3.0)
+                    </Text>
+                )}
             </VStack>
         ) : (
             // 도감 설명은 게임 속 도감 항목처럼 인용 블록 + 출처 작품

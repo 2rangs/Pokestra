@@ -2,6 +2,7 @@
 /** 작품 slug → 배지 배경·글자 (라이트/다크 같은 값: 작품 고유 색) */
 export const GAME_COLOR_TOKENS: Record<string, { bg: string; on: string }> = {
     'red': { bg: '#DA3914', on: '#ffffff' },
+    'green': { bg: '#3E9A4B', on: '#141414' },
     'blue': { bg: '#2E50D8', on: '#ffffff' },
     'yellow': { bg: '#F4C430', on: '#141414' },
     'gold': { bg: '#C9A227', on: '#141414' },

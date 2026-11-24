@@ -6,7 +6,7 @@ import { writeFileSync } from 'node:fs'
 
 /** version slug → [대표 색, 약칭] */
 const GAMES = {
-    red: ['#DA3914', 'R'], blue: ['#2E50D8', 'B'], yellow: ['#F4C430', 'Y'],
+    red: ['#DA3914', 'R'], green: ['#3E9A4B', 'Gr'], blue: ['#2E50D8', 'B'], yellow: ['#F4C430', 'Y'],
     gold: ['#C9A227', 'G'], silver: ['#A8A9AD', 'S'], crystal: ['#3FB8D9', 'C'],
     ruby: ['#CD2236', 'Ru'], sapphire: ['#3D51A7', 'Sa'], emerald: ['#009652', 'E'],
     firered: ['#F15C01', 'FR'], leafgreen: ['#7DBA00', 'LG'],

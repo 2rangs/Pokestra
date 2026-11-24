@@ -407,6 +407,8 @@
     --pokestra-stat-6: light-dark(#0fb5ae, #16a8a2);
     --pokestra-game-red-bg: light-dark(#DA3914, #DA3914);
     --pokestra-game-red-on: light-dark(#ffffff, #ffffff);
+    --pokestra-game-green-bg: light-dark(#3E9A4B, #3E9A4B);
+    --pokestra-game-green-on: light-dark(#141414, #141414);
     --pokestra-game-blue-bg: light-dark(#2E50D8, #2E50D8);
     --pokestra-game-blue-on: light-dark(#ffffff, #ffffff);
     --pokestra-game-yellow-bg: light-dark(#F4C430, #F4C430);

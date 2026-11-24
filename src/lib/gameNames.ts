@@ -4,6 +4,7 @@ import { titleCaseSlug } from './dex'
 /** PokeAPI version(작품 하나) → 이름. 도감 설명의 출처 표기용 */
 const VERSION_NAME: Record<string, Record<Lang, string>> = {
     red: { ko: '레드', en: 'Red', ja: '赤' },
+    green: { ko: '그린', en: 'Green (JP)', ja: '緑' },
     blue: { ko: '블루', en: 'Blue', ja: '青' },
     yellow: { ko: '피카츄', en: 'Yellow', ja: 'ピカチュウ' },
     gold: { ko: '금', en: 'Gold', ja: '金' },
@@ -60,7 +61,7 @@ export const KNOWN_VERSIONS: readonly string[] = Object.keys(VERSION_NAME)
 
 /** 작품 → 세대 (도감 설명을 세대 선택과 맞추는 데 쓴다) */
 const VERSION_GEN: Record<string, number> = {
-    red: 1, blue: 1, yellow: 1,
+    red: 1, green: 1, blue: 1, yellow: 1,
     gold: 2, silver: 2, crystal: 2,
     ruby: 3, sapphire: 3, emerald: 3, firered: 3, leafgreen: 3,
     diamond: 4, pearl: 4, platinum: 4, heartgold: 4, soulsilver: 4,

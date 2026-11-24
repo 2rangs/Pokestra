@@ -2,6 +2,7 @@
 // 작품 slug → 배지 클래스·약칭 (src/game-colors.css 브리지, 값은 pokestra 테마 토큰).
 export const GAME_BADGES: Record<string, { cls: string; abbr: string }> = {
     'red': { cls: 'bg-game-red text-game-red-on', abbr: 'R' },
+    'green': { cls: 'bg-game-green text-game-green-on', abbr: 'Gr' },
     'blue': { cls: 'bg-game-blue text-game-blue-on', abbr: 'B' },
     'yellow': { cls: 'bg-game-yellow text-game-yellow-on', abbr: 'Y' },
     'gold': { cls: 'bg-game-gold text-game-gold-on', abbr: 'G' },

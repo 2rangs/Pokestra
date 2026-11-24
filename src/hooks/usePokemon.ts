@@ -261,6 +261,25 @@ export const usePokemonForms = (names: readonly string[]) =>
         combine: (results) => results.map((r) => r.data),
     })
 
+/** 포켓몬 위키(CC BY-SA)에서 모은 한국어 도감 설명 (scripts/wiki-flavors.mjs → public/data/flavor-ko). f 는 모습 id */
+export interface WikiFlavor {
+    v: string[]
+    t: string
+    g: number
+    f?: number
+}
+export const useWikiFlavors = (speciesId: number | undefined, enabled: boolean) =>
+    useQuery({
+        queryKey: ['wiki-flavors', speciesId],
+        queryFn: async () => {
+            const res = await fetch(`${import.meta.env.BASE_URL}data/flavor-ko/${speciesId}.json`)
+            return res.ok ? ((await res.json()) as WikiFlavor[]) : []
+        },
+        enabled: enabled && !!speciesId,
+        staleTime: Infinity,
+        retry: false,
+    })
+
 export const useEvolutionChain = (url: string | undefined) =>
     useQuery({
         queryKey: ['evolution-chain', url],

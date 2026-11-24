@@ -22,6 +22,19 @@ export interface FlavorOption {
     lang: string
     /** 이 모습(메가진화·리전폼 등)만의 설명이면 그 모습의 포켓몬 id */
     formId?: number
+    /** 포켓몬 위키에서 가져온 설명 (PokeAPI 에 그 언어 설명이 없는 작품) */
+    wiki?: boolean
+}
+
+/** 한국어판이 나오지 않은 작품 (위키의 한국어 설명은 번역이다) */
+export const NO_KOREAN_RELEASE: ReadonlySet<string> = new Set(['red', 'green', 'blue', 'yellow', 'crystal', 'ruby', 'sapphire', 'emerald', 'firered', 'leafgreen'])
+
+/** 위키 설명 → PokeAPI 설명 모양. PokeAPI 에 이미 그 언어 설명이 있는 작품은 뺀다 */
+export function wikiEntries(wiki: readonly { v: string[]; t: string; f?: number }[] | undefined, have: ReadonlySet<string>, lang: string, formId?: number): FlavorSource[] {
+    if (!wiki) return []
+    return wiki
+        .filter((w) => (formId === undefined ? w.f === undefined : w.f === formId))
+        .flatMap((w) => w.v.filter((v) => !have.has(v)).map((v) => ({ flavor_text: w.t, language: { name: lang }, version: { name: v } })))
 }
 
 type Clean = (text: string, code: string) => string

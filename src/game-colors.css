@@ -3,6 +3,8 @@
 @theme reference inline {
   --color-game-red: var(--pokestra-game-red-bg);
   --color-game-red-on: var(--pokestra-game-red-on);
+  --color-game-green: var(--pokestra-game-green-bg);
+  --color-game-green-on: var(--pokestra-game-green-on);
   --color-game-blue: var(--pokestra-game-blue-bg);
   --color-game-blue-on: var(--pokestra-game-blue-on);
   --color-game-yellow: var(--pokestra-game-yellow-bg);
