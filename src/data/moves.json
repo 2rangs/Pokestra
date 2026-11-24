@@ -32,9 +32,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "날카로운 당수로 상대를 때려서 공격한다. 급소에 맞기 쉽다.",
+      "en": "The target is attacked with a sharp chop. Critical hits land more easily.",
+      "ja": "鋭い　チョップで相手を　たたいて　攻撃する。急所に　当たりやすい。"
     }
   },
   {
@@ -51,9 +51,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "연속 뺨치기로 상대를 때려서 공격한다. 2-5회 동안 연속으로 쓴다.",
+      "en": "The target is slapped repeatedly, back and forth, two to five times in a row.",
+      "ja": "おうふく　ビンタで相手を　たたいて　攻撃する。２ー５回の　間　連続で　だす。"
     }
   },
   {
@@ -488,9 +488,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "높이 점프해서 킥으로 상대를 공격한다. 빗나가면 자신이 데미지를 입는다.",
+      "en": "The user jumps up high, then strikes with a kick. If the kick misses, the user hurts itself.",
+      "ja": "高い　ジャンプからの　キックで相手を　攻撃する。はずすと　自分が　ダメージを　受ける。"
     }
   },
   {
@@ -507,9 +507,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "몸을 재빨리 회전시키며 걷어차서 공격한다. 상대를 풀죽게 만들 때가 있다.",
+      "en": "The user lashes out with a quick, spinning kick. This may also make the target flinch.",
+      "ja": "体を　素早く　回転させながらけとばして　攻撃する。相手を　ひるませる　ことが　ある。"
     }
   },
   {
@@ -773,9 +773,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "2개의 침을 상대에게 꿰찔러 2회 연속으로 데미지를 준다. 독 상태로 만들 때가 있다.",
+      "en": "The user damages the target twice in succession by jabbing it with two spikes. This may also poison the target.",
+      "ja": "２本の　ハリを　相手に　突き刺し２回連続で　ダメージ。毒状態に　することが　ある。"
     }
   },
   {
@@ -925,9 +925,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "충격파를 상대에 부딪쳐서 공격한다. 언제나 20의 데미지를 준다.",
+      "en": "The target is hit with a destructive shock wave that always inflicts 20 HP damage.",
+      "ja": "衝撃波を相手に　ぶつけて　攻撃する。２０の　ダメージを　決まって　与える。"
     }
   },
   {
@@ -1552,9 +1552,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "분노의 충격파를 상대에게 부딪쳐서 공격한다. 언제나 40의 데미지를 준다.",
+      "en": "This attack hits the target with a shock wave of pure rage. This attack always inflicts 40 HP damage.",
+      "ja": "怒りの　衝撃波を相手に　ぶつけて　攻撃する。４０の　ダメージを　決まって　与える。"
     }
   },
   {
@@ -1818,9 +1818,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "잠들어 있는 힘을 몸속에서 끌어내어 자신의 공격을 올린다.",
+      "en": "The user meditates to awaken the power deep within its body and raise its Attack stat.",
+      "ja": "眠っている　力を体の　奥から　ひきだして自分の　攻撃を　あげる。"
     }
   },
   {
@@ -1875,9 +1875,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "기술을 썼을 때 공격을 받으면 분노의 힘으로 공격이 올라간다.",
+      "en": "As long as this move is in use, the power of rage raises the Attack stat each time the user is hit in battle.",
+      "ja": "技を　だしたときに　攻撃を受けると　怒りの　力で攻撃が　あがる。"
     }
   },
   {
@@ -2122,9 +2122,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "튼튼한 장막을 만들어 자신의 방어를 크게 올린다.",
+      "en": "The user throws up a sturdy wall that sharply raises its Defense stat.",
+      "ja": "頑丈な　壁を　つくって自分の　防御を　ぐーんと　あげる。"
     }
   },
   {
@@ -2217,9 +2217,9 @@
     "priority": 1,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "2턴 동안 공격을 견뎌 입은 데미지를 2배로 만들어 상대에게 돌려준다.",
+      "en": "The user endures attacks for two turns, then strikes back to cause double the damage taken.",
+      "ja": "２ターンの　間　攻撃に　たえて受けた　ダメージを　２倍にして相手に　返す。"
     }
   },
   {
@@ -2255,9 +2255,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "상대가 사용한 기술을 흉내 내어 자신도 똑같은 기술을 쓴다.",
+      "en": "The user counters the target by mimicking the target’s last move.",
+      "ja": "相手の　使った　技を　まねして自分も　同じ技を　使う。"
     }
   },
   {
@@ -2293,9 +2293,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "큰 알을 온 힘을 다해 상대에게 내던져서 공격한다.",
+      "en": "A large egg is hurled at the target with maximum force to inflict damage.",
+      "ja": "大きな　タマゴを　力いっぱい相手に　投げつけて　攻撃する。"
     }
   },
   {
@@ -2369,9 +2369,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "손에 들고 있는 뼈로 상대를 세게 때려서 공격한다. 상대를 풀죽게 만들 때가 있다.",
+      "en": "The user clubs the target with a bone. This may also make the target flinch.",
+      "ja": "手に　持った　ホネで相手を　なぐりつけて　攻撃する。相手を　ひるませることが　ある。"
     }
   },
   {
@@ -2426,9 +2426,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "매우 튼튼하고 두꺼운 껍질에 4-5턴 동안 상대를 끼워서 공격한다.",
+      "en": "The target is clamped and squeezed by the user’s very thick and sturdy shell for four to five turns.",
+      "ja": "とても　頑丈な　ぶあつい　殻に４ー５ターンの　間相手を　はさんで　攻撃する。"
     }
   },
   {
@@ -2483,9 +2483,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "날카로운 침을 상대에게 발사해서 공격한다. 2-5회 동안 연속으로 쓴다.",
+      "en": "Sharp spikes are shot at the target in rapid succession. They hit two to five times in a row.",
+      "ja": "鋭い　ハリを相手に　発射して　攻撃する。２ー５回の　間　連続で　だす。"
     }
   },
   {
@@ -2502,9 +2502,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "촉수나 덩굴 등을 휘감아서 공격한다. 상대의 스피드를 떨어뜨릴 때가 있다.",
+      "en": "The target is attacked with long, creeping tentacles, vines, or the like. This may also lower the target’s Speed stat.",
+      "ja": "触手や　ツタなどを　からみつけて攻撃する。相手の　素早さをさげることが　ある。"
     }
   },
   {
@@ -2654,9 +2654,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "둥근 것을 상대에게 내던져서 공격한다. 2-5회 동안 연속으로 쓴다.",
+      "en": "Round objects are hurled at the target to strike two to five times in a row.",
+      "ja": "まるい　ものを相手に　投げつけて　攻撃する。２ー５回の　間　連続で　だす。"
     }
   },
   {
@@ -2749,9 +2749,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "매우 많은 거품을 상대에게 내뿜어 공격한다. 상대의 스피드를 떨어뜨릴 때가 있다.",
+      "en": "A spray of countless bubbles is jetted at the opposing Pokémon. This may also lower their Speed stat.",
+      "ja": "無数の　泡を　相手に　吹きかけて攻撃する。　相手の　素早さをさげることが　ある。"
     }
   },
   {
@@ -2768,9 +2768,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "리드미컬한 펀치를 날려 상대를 공격한다. 혼란시킬 때가 있다.",
+      "en": "The target is hit with rhythmically launched punches. This may also leave the target confused.",
+      "ja": "リズミカルに　パンチを　くりだして相手を　攻撃する。混乱させることが　ある。"
     }
   },
   {
@@ -2825,9 +2825,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "이상한 염력파를 상대에게 발사하여 공격한다. 사용할 때마다 데미지가 바뀐다.",
+      "en": "The target is attacked with an odd psychic wave. The attack varies in intensity.",
+      "ja": "不思議な　念波を相手に　発射して　攻撃する。使うたびに　ダメージが　変わる。"
     }
   },
   {
@@ -3015,9 +3015,9 @@
     "priority": 0,
     "generation": 1,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "몸의 각을 늘려서 더욱 각지게 하여 자신의 공격을 올린다.",
+      "en": "The user makes its edges more jagged, which raises its Attack stat.",
+      "ja": "体の　かどを　増やしてカクカクに　なることで自分の　攻撃を　あげる。"
     }
   },
   {
@@ -3205,9 +3205,9 @@
     "priority": 0,
     "generation": 2,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "끈적끈적하고 가는 실을 칭칭 휘감아 상대를 배틀에서 도망칠 수 없게 한다.",
+      "en": "The user ensnares the target with thin, gooey silk so it can’t flee from battle.",
+      "ja": "ネバネバした　細い　糸をグルグルと　からませて　相手を戦闘から　逃げられなくする。"
     }
   },
   {
@@ -3243,9 +3243,9 @@
     "priority": 0,
     "generation": 2,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "잠듦 상태의 상대에게 악몽을 꾸게 하여 매 턴 조금씩 HP를 떨어뜨려 간다.",
+      "en": "A sleeping target sees a nightmare that inflicts some damage every turn.",
+      "ja": "眠り状態の　相手に悪夢を　みせて　毎ターン　少しずつＨＰを　減らしていく。"
     }
   },
   {
@@ -3509,9 +3509,9 @@
     "priority": 0,
     "generation": 2,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "슬금슬금 상대에게 다가가 방심한 틈을 타서 세게 때린다. 공격은 반드시 명중한다.",
+      "en": "The user approaches the target disarmingly, then throws a sucker punch. This attack never misses.",
+      "ja": "さりげなく　相手に　ちかづき油断した　すきを　みて　なぐりつける。攻撃は　必ず　命中する。"
     }
   },
   {
@@ -3661,9 +3661,9 @@
     "priority": 0,
     "generation": 2,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "고스트타입에 효과가 없는 기술이나 회피율이 높은 상대라 할지라도 공격이 맞게 된다.",
+      "en": "Enables a Ghost-type target to be hit by Normal- and Fighting-type attacks. This also enables an evasive target to be hit.",
+      "ja": "ゴーストタイプに　効果がない　技や回避率の　高い　相手に攻撃が　当たるように　なる。"
     }
   },
   {
@@ -4098,9 +4098,9 @@
     "priority": 0,
     "generation": 2,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "트레이너를 위해 전력으로 상대를 공격한다. 친밀할수록 위력이 올라간다.",
+      "en": "This full-power attack grows more powerful the more the user likes its Trainer.",
+      "ja": "トレーナーの　ために　全力で相手を　攻撃する。なついているほど　威力は　あがる。"
     }
   },
   {
@@ -4136,9 +4136,9 @@
     "priority": 0,
     "generation": 2,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "불만을 풀기 위해 전력으로 상대를 공격한다. 친밀하지 않을수록 위력이 올라간다.",
+      "en": "This full-power attack grows more powerful the less the user likes its Trainer.",
+      "ja": "不満を　はらすため　全力で相手を　攻撃する。なついていないほど　威力は　あがる。"
     }
   },
   {
@@ -4212,9 +4212,9 @@
     "priority": 0,
     "generation": 2,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "땅을 흔들어서 자신의 주위에 있는 포켓몬을 공격한다. 기술의 위력이 여러모로 바뀐다.",
+      "en": "The user attacks everything around it with a ground-shaking quake. Its power varies.",
+      "ja": "地面を　揺らして　自分の周りに　いるものを　攻撃する。技の　威力は　いろいろ　変わる。"
     }
   },
   {
@@ -4326,9 +4326,9 @@
     "priority": 0,
     "generation": 2,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "상대 포켓몬이 교체될 때 기술을 쓰면 2배의 위력으로 공격할 수 있다.",
+      "en": "The power of this attack move is doubled if it’s used on a target that’s switching out of battle.",
+      "ja": "相手　ポケモンが　入れ替わるときに技を　だしていると倍の　威力で　攻撃できる。"
     }
   },
   {
@@ -5029,9 +5029,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "마비 상태의 상대에게는 위력이 2배가 되지만 대신 상대의 마비가 풀린다.",
+      "en": "This attack’s power is doubled when used on a target with paralysis. This also cures the target’s paralysis, however.",
+      "ja": "まひ状態の　相手には威力が　２倍に　なるがかわりに　相手の　まひが　治る。"
     }
   },
   {
@@ -5200,9 +5200,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "서둘러서 같은 편의 도움을 받아 같은 편 포켓몬이 기억하고 있는 기술 중 하나를 쓴다.",
+      "en": "The user hurriedly and randomly uses a move among those known by ally Pokémon.",
+      "ja": "大急ぎで　味方の　助けを　かりて味方の　ポケモンが　おぼえている技を　どれか　１つ　使う。"
     }
   },
   {
@@ -5447,9 +5447,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "몸을 쉬게 하여 자신이 입은 독, 마비, 화상의 상태 이상을 치료한다.",
+      "en": "The user rests to cure itself of poisoning, a burn, or paralysis.",
+      "ja": "体を　やすめて　自分が　おっている毒　まひ　やけどの状態異常を　治す。"
     }
   },
   {
@@ -5485,9 +5485,9 @@
     "priority": 4,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "상대가 사용하려고 한 회복 기술이나 능력 변화의 기술을 빼앗아 자신에게 쓴다.",
+      "en": "The user steals the effects of any attempts to use a healing or stat-changing move.",
+      "ja": "相手が　使おうと　した回復技や　能力変化の技を　うばって　自分に　使う。"
     }
   },
   {
@@ -5504,9 +5504,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "사용하는 장소에 따라 추가 효과가 변화하는 공격이다.",
+      "en": "The additional effects of this attack depend upon where it was used.",
+      "ja": "使う場所で　追加効果が変化する　攻撃。"
     }
   },
   {
@@ -5561,9 +5561,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "물가나 풀밭, 동굴 등 있는 장소에 맞춰서 자신의 타입을 바꾼다.",
+      "en": "The user’s type is changed depending on its environment, such as at water’s edge, in grass, or in a cave.",
+      "ja": "水辺や　草むら　どうくつなどいる　場所に　あわせて自分の　タイプを　変える。"
     }
   },
   {
@@ -5694,9 +5694,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "주위를 진흙투성이로 만든다. 5턴 동안 전기타입의 기술을 약하게 한다.",
+      "en": "The user kicks up mud on the battlefield. This weakens Electric-type moves for five turns.",
+      "ja": "あたりを　泥まみれにする。５ターンの　間でんきタイプの　技を　弱める。"
     }
   },
   {
@@ -5713,9 +5713,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "5턴 동안 상대를 공격한다. 기술이 맞을 때마다 위력이 올라간다.",
+      "en": "The user attacks the target for five turns. The move’s power increases each time it hits.",
+      "ja": "５ターンの　間　相手を　攻撃する。技が　当たるたび　威力が　あがる。"
     }
   },
   {
@@ -5732,9 +5732,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "바늘팔을 세차게 흔들어 공격한다. 상대를 풀죽게 만들 때가 있다.",
+      "en": "The user attacks by wildly swinging its thorny arms. This may also make the target flinch.",
+      "ja": "トゲの　腕を激しく　ふるって　攻撃する。相手を　ひるませることが　ある。"
     }
   },
   {
@@ -5922,9 +5922,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can't be used. It's recommended that this move is forgotten. Once forgotten, this move can't be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "기분 좋은 평온한 향기를 맡게 하여 같은 편 모두의 상태 이상을 회복한다.",
+      "en": "The user releases a soothing scent that heals all status conditions affecting the user’s party.",
+      "ja": "心地好い　やすらぐ　香りを　かがせて味方全員の　状態異常を　回復する。"
     }
   },
   {
@@ -5998,9 +5998,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "고스트타입에 효과가 없는 기술이나 회피율이 높은 상대라 할지라도 공격이 맞게 된다.",
+      "en": "Enables a Ghost-type target to be hit by Normal- and Fighting-type attacks. This also enables an evasive target to be hit.",
+      "ja": "ゴーストタイプに　効果がない　技や回避率の　高い　相手に攻撃が　当たるように　なる。"
     }
   },
   {
@@ -6074,9 +6074,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "기분 좋은 피리 소리를 들려주어 상대를 잠듦 상태로 만든다.",
+      "en": "The user plays a pleasant melody that lulls the target into a deep sleep.",
+      "ja": "心地好い　笛の　音色を　聞かせて相手を　眠りの　状態に　する。"
     }
   },
   {
@@ -6150,9 +6150,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "이상한 빛을 발사해서 공격한다. 상대를 혼란시킬 때가 있다.",
+      "en": "The user attacks with a sinister beam of light. This may also confuse the target.",
+      "ja": "不思議な　光を発射して　攻撃する。相手を　混乱させることが　ある。"
     }
   },
   {
@@ -6207,9 +6207,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "하늘을 향하는 듯한 높은 업퍼로 상대를 밀어올려 공격한다.",
+      "en": "The user attacks the target with an uppercut thrown skyward with force.",
+      "ja": "空に　むかうような　高い　アッパーで相手を　突きあげて　攻撃する。"
     }
   },
   {
@@ -6568,9 +6568,9 @@
     "priority": 0,
     "generation": 3,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "주위를 물로 흠뻑 젖게 만든다. 5턴 동안 불꽃타입의 기술을 약하게 한다.",
+      "en": "The user soaks the battlefield with water. This weakens Fire-type moves for five turns.",
+      "ja": "あたりを　水で　びしょびしょにする。５ターンの　間ほのおタイプの　技を　弱める。"
     }
   },
   {
@@ -6777,9 +6777,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "악타입에 효과가 없는 기술이나 회피율이 높은 상대라 할지라도 공격이 맞게 된다.",
+      "en": "Enables a Dark-type target to be hit by Psychic-type attacks. This also enables an evasive target to be hit.",
+      "ja": "あくタイプに　効果がない　技や回避率の　高い　相手に攻撃が　当たるように　なる。"
     }
   },
   {
@@ -6796,9 +6796,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "잠듦 상태의 상대에게 큰 데미지를 준다. 대신 상대는 잠에서 깬다.",
+      "en": "This attack inflicts big damage on a sleeping target. This also wakes the target up, however.",
+      "ja": "眠り状態の　相手に大きな　ダメージを　与える。かわりに　相手は　眠りから　さめる。"
     }
   },
   {
@@ -6891,9 +6891,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "나무열매에서 힘을 얻어 공격한다. 지니게 한 나무열매에 따라 기술의 타입과 위력이 바뀐다.",
+      "en": "The user draws power to attack by using its held Berry. The Berry determines the move’s type and power.",
+      "ja": "きのみから　力を　もらい攻撃する。持たせた　きのみで技の　タイプと　威力が　変わる。"
     }
   },
   {
@@ -7081,9 +7081,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "지니게 한 도구를 5턴 동안 쓸 수 없게 한다. 트레이너도 그 포켓몬에게는 도구를 쓸 수 없다.",
+      "en": "This move prevents the target from using its held item for five turns. Its Trainer is also prevented from using items on it.",
+      "ja": "持たせた　道具を　５ターンの　間使えなくする。　トレーナーもその　ポケモンには　道具を　使えない。"
     }
   },
   {
@@ -7138,9 +7138,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "마지막수단의 남은 PP가 적으면 적을수록 기술의 위력이 올라간다.",
+      "en": "The fewer PP this move has, the greater its power.",
+      "ja": "きりふだの　残り　ＰＰが少なければ　少ないほど技の　威力が　あがる。"
     }
   },
   {
@@ -7176,9 +7176,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "강하게 조여 공격을 한다. 상대의 HP가 많이 남아 있을수록 위력이 올라간다.",
+      "en": "The user powerfully wrings the target. The more HP the target has, the greater the move’s power.",
+      "ja": "強く　締めあげて　攻撃を　する。相手の　ＨＰが　残っているほど威力は　あがる。"
     }
   },
   {
@@ -7233,9 +7233,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "하늘을 향해 기도를 올려 5턴 동안 상대의 공격을 급소에 맞지 않게 한다.",
+      "en": "The user chants an incantation toward the sky, preventing opposing Pokémon from landing critical hits for five turns.",
+      "ja": "天に　むかって　おいのりを　ささげ５ターンの　間　相手の　攻撃を急所に　当たらなくする。"
     }
   },
   {
@@ -7252,9 +7252,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "위력을 올려 상대가 쓰려고 하는 기술을 먼저 쓴다. 먼저 쓰지 않으면 실패한다.",
+      "en": "The user cuts ahead of the target to copy and use the target’s intended move with greater power. This move fails if it isn’t used first.",
+      "ja": "威力を　あげて　相手がだそうとする　技を　先にだす。先に　だせないと　失敗する。"
     }
   },
   {
@@ -7328,9 +7328,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "능력 변화로 상대가 파워업한 만큼 기술의 위력이 올라간다.",
+      "en": "The more the target has powered up with stat changes, the greater the move’s power.",
+      "ja": "能力変化で相手が　パワーアップ　しているほど技の　威力が　あがる。"
     }
   },
   {
@@ -8088,9 +8088,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "단단한 진흙구슬을 상대에게 발사하여 공격한다. 명중률을 떨어뜨릴 때가 있다.",
+      "en": "The user launches a hard-packed mud ball to attack. This may also lower the target’s accuracy.",
+      "ja": "硬い　泥の　弾を相手に　発射して　攻撃する。命中率を　さげることが　ある。"
     }
   },
   {
@@ -8145,9 +8145,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "갈고닦은 몸에서 섬광의 힘을 상대에게 쏜다. 명중률을 떨어뜨릴 때가 있다.",
+      "en": "The user lets loose a flash of energy at the target from its polished body. This may also lower the target’s accuracy.",
+      "ja": "磨きあげられた　体からせん光の　力を　相手に　放つ。命中率を　さげることが　ある。"
     }
   },
   {
@@ -8449,9 +8449,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "수컷은 암컷을 암컷은 수컷을 유혹하여 상대의 특수공격을 크게 떨어뜨린다.",
+      "en": "If any opposing Pokémon is the opposite gender of the user, it is charmed, which harshly lowers its Sp. Atk stat.",
+      "ja": "♂なら♀を　♀なら♂を　誘惑して相手の　特攻を　がくっと　さげる。"
     }
   },
   {
@@ -8658,9 +8658,9 @@
     "priority": 0,
     "generation": 4,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "부하를 불러내어 상처를 회복한다. 최대 HP의 절반만큼 자신의 HP를 회복한다.",
+      "en": "The user calls out its underlings to heal it. The user regains up to half of its max HP.",
+      "ja": "しもべを　呼びだして　きずを　治す。最大ＨＰの　半分自分の　ＨＰを　回復する。"
     }
   },
   {
@@ -9057,9 +9057,9 @@
     "priority": 0,
     "generation": 5,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "초능력으로 상대를 띄운다. 3턴 동안 공격이 상대에게 맞기 쉬워진다.",
+      "en": "The user makes the target float with its psychic power. The target is easier to hit for three turns.",
+      "ja": "超能力で　相手を　浮かせる。３ターンの　間　攻撃が相手に　当たりやすく　なる。"
     }
   },
   {
@@ -9133,9 +9133,9 @@
     "priority": 0,
     "generation": 5,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "맞으면 튀는 불꽃으로 상대를 공격한다. 튕긴 불꽃은 옆의 상대에게도 쏟아진다.",
+      "en": "The user attacks the target with a bursting flame. The bursting flame damages Pokémon next to the target as well.",
+      "ja": "当たると　はじける　炎で　相手を攻撃する。はじけた　炎は隣の　相手にも　ふりかかる。"
     }
   },
   {
@@ -9209,9 +9209,9 @@
     "priority": 0,
     "generation": 5,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "이상한 전파로 주위에 있는 자신과 같은 타입의 포켓몬에게 데미지를 준다.",
+      "en": "Using an odd shock wave, the user inflicts damage on any Pokémon of the same type in the area around it.",
+      "ja": "不思議な　電波で　周りに　いる自分と　同じ　タイプのポケモンに　ダメージを　与える。"
     }
   },
   {
@@ -9456,9 +9456,9 @@
     "priority": 0,
     "generation": 5,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "틈을 보며 착실하게 공격한다. 상대의 능력 변화에 관계없이 데미지를 준다.",
+      "en": "Looking for an opening, the user strikes consistently. The target’s stat changes don’t affect this attack’s damage.",
+      "ja": "すきを　みて　堅実に　攻撃する。相手の　能力変化に関係なく　ダメージを　与える。"
     }
   },
   {
@@ -9627,9 +9627,9 @@
     "priority": 0,
     "generation": 5,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "1턴째에 상대를 하늘로 끌고 가서 2턴째에 떨어뜨려 공격한다. 끌려간 상대는 움직일 수 없다.",
+      "en": "The user takes the target into the sky, then drops it during the next turn. The target cannot attack while in the sky.",
+      "ja": "１ターン目で　相手を　空へ　連れさり２ターン目に　落として　攻撃する。連れさられた　相手は　動けない。"
     }
   },
   {
@@ -9798,9 +9798,9 @@
     "priority": 0,
     "generation": 5,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "상대가 도구를 지니고 있지 않을 때 자신이 지니고 있는 도구를 상대에게 건넨다.",
+      "en": "The user passes its held item to the target when the target isn’t holding an item.",
+      "ja": "相手が　道具を　持っていないとき自分が　持っている　道具を相手に　わたす。"
     }
   },
   {
@@ -10083,9 +10083,9 @@
     "priority": 0,
     "generation": 5,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "귀여운 모습으로 방심시켜서 강렬한 일격을 날린다. 상대를 풀죽게 만들 때가 있다.",
+      "en": "The user unleashes a vicious blow after its cute act makes the target less wary. This may also make the target flinch.",
+      "ja": "かわいい　しぐさで　油断させて強烈な　一撃を　浴びせる。相手を　ひるませることが　ある。"
     }
   },
   {
@@ -10197,9 +10197,9 @@
     "priority": 0,
     "generation": 5,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "둥글게 뭉친 몸을 회전하여 상대를 뭉개 버린다. 상대를 풀죽게 만들 때가 있다.",
+      "en": "The user crushes its target by rolling over the target with its rolled-up body. This may also make the target flinch.",
+      "ja": "まるめた　体で　回転して相手を　おしつぶす。相手を　ひるませることが　ある。"
     }
   },
   {
@@ -10691,9 +10691,9 @@
     "priority": 0,
     "generation": 6,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "땅을 일구어 초목이 자라기 쉽게 한다. 풀타입의 공격과 특수공격이 오른다.",
+      "en": "Tilling the soil, the user makes it easier for plants to grow. This raises the Attack and Sp. Atk stats of Grass-type Pokémon.",
+      "ja": "地面を　耕して　草木が育ちやすいようにする。　くさタイプの攻撃と　特攻が　あがる。"
     }
   },
   {
@@ -10805,9 +10805,9 @@
     "priority": 1,
     "generation": 6,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "전기를 띤 입자를 확산시켜 노말타입 기술을 전기타입으로 바꿔버린다.",
+      "en": "The user disperses electrically charged particles, which changes Normal-type moves to Electric-type moves.",
+      "ja": "電気を　帯びた　粒子を拡散し　ノーマルタイプの　技をでんきタイプに　してしまう。"
     }
   },
   {
@@ -11812,9 +11812,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 기세를 몰아 전력으로 상대에게 부딪친다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user builds up its momentum using its Z-Power and crashes into the target at full speed. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　勢いを　つけて全力で　相手に　ぶつかる。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -11831,9 +11831,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -11850,9 +11850,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 만든 에너지 구슬을 전력으로 상대에게 부딪친다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user rams an energy orb created by its Z-Power into the target with full force. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　作った　エネルギーの　弾を全力で　相手に　ぶつける。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -11869,9 +11869,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -11888,9 +11888,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 기세 좋게 날아올라 상대를 향해 전력으로 낙하한다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user soars up with its Z-Power and plummets toward the target at full speed. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　勢いよく　飛びあがり相手に　向かって　全力で　落下。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -11907,9 +11907,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -11926,9 +11926,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 독의 늪을 만들어 전력으로 상대를 가라앉힌다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user creates a poisonous swamp using its Z-Power and sinks the target into it at full force. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　毒の　沼を　湧きあがらせ全力で　相手を　沈める。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -11945,9 +11945,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -11964,9 +11964,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 땅 깊숙이 파고들어 전력으로 상대에게 부딪친다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user burrows deep into the ground and slams into the target with the full force of its Z-Power. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　地面の　奥深くに　潜り全力で　相手に　ぶつかる。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -11983,9 +11983,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12002,9 +12002,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 큰 바위산을 불러내 전력으로 상대에게 부딪친다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user summons a huge rock mountain using its Z-Power and drops it onto the target with full force. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　大きな　岩山を　呼びだし全力で　相手に　ぶつける。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12021,9 +12021,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12040,9 +12040,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 뱉어낸 실이 전력으로 상대를 붙들어 맨다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user binds the target with full force with threads of silk that the user spits using its Z-Power. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　吐きだした　糸が全力で　相手を　縛りつける。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12059,9 +12059,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12078,9 +12078,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 불러낸 강한 원념이 전력으로 상대에게 쏟아진다. 원래 기술에 따라 위력이 변한다.",
+      "en": "Deep-seated grudges summoned by the user’s Z-Power trap the target. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　呼びよせた　強い　怨念が全力で　相手に　降りかかる。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12097,9 +12097,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12116,9 +12116,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 고속 회전을 하여 전력으로 상대에게 부딪친다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user spins very fast and rams into the target with the full force of its Z-Power. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　高速回転を　おこない全力で　相手に　ぶつかる。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12135,9 +12135,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12154,9 +12154,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 활활 타는 불꽃을 뱉어내 전력으로 상대에게 부딪친다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user breathes a stream of intense fire toward the target with the full force of its Z-Power. The power varies depending on the original move.",
+      "ja": "Ｚパワーで　燃えさかる　炎を　吐きだし全力で　相手に　ぶつける。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12173,9 +12173,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12192,9 +12192,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 큰 바다회오리를 만들어 전력으로 상대를 집어삼킨다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user creates a huge whirling current using its Z-Power to swallow the target with full force. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　大きな　渦潮を　作り全力で　相手を　飲みこむ。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12211,9 +12211,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12230,9 +12230,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 화초들의 에너지를 빌려 전력으로 상대를 공격한다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user collects energy from plants using its Z-Power and attacks the target with full force. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　草花の　エネルギーを　借り全力で　相手を　攻撃する。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12249,9 +12249,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12268,9 +12268,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 비축한 강한 전기를 전력으로 상대에게 부딪친다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user hits the target with a powerful electric current collected by its Z-Power. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　溜めた　強い　電気を全力で　相手に　ぶつける。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12287,9 +12287,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12306,9 +12306,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 상대를 조종해 전력으로 매서운 맛을 보여준다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user controls the target with its Z-Power and hurts the target with full force. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　相手を　操り全力で　痛い　思いを　させる。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12325,9 +12325,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12344,9 +12344,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 기온을 급격하게 떨어뜨려 전력으로 상대를 얼린다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user dramatically drops the temperature using its Z-Power and freezes the target with full force. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　気温を　急激に　下げ全力で　相手を　凍らせる。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12363,9 +12363,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12382,9 +12382,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 오라를 실체화시켜 전력으로 상대를 공격한다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user materializes its aura using its Z-Power and attacks the target with full force. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　オーラを　実体化し全力で　相手に　襲いかかる。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12401,9 +12401,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12420,9 +12420,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 어둠의 에너지를 모아 전력으로 상대를 끌어당긴다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user gathers dark energy using its Z-Power and sucks the target into it. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　悪の　エネルギーを　集め全力で　相手を　吸いよせる。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12439,9 +12439,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12458,9 +12458,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 매혹의 공간을 만들어 전력으로 상대를 가지고 논다. 원래 기술에 따라 위력이 변한다.",
+      "en": "The user creates a very charming space using its Z-Power and totally toys with the target. The power varies, depending on the original move.",
+      "ja": "Ｚパワーで　魅惑の　空間を　作り全力で　相手を　もてあそぶ。元になった　技で　威力が　変わる。"
     }
   },
   {
@@ -12477,9 +12477,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Dummy Data",
+      "en": "Dummy Data",
+      "ja": "ダミーデータ"
     }
   },
   {
@@ -12496,9 +12496,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 최대 전력을 몸에 두른 피카츄가 전력으로 상대에게 덤벼든다.",
+      "en": "The user, Pikachu, surrounds itself with the maximum amount of electricity using its Z-Power and pounces on its target with full force.",
+      "ja": "Ｚパワーで　最大　電力を身に　まとったピカチュウが全力で　相手に　飛び掛る。"
     }
   },
   {
@@ -12743,9 +12743,9 @@
     "priority": 3,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "포켓몬에게 스포트라이트를 비춰 그 턴에서 그 포켓몬만 공격할 수 있게 한다.",
+      "en": "The user shines a spotlight on the target so that only the target will be attacked during the turn.",
+      "ja": "ポケモンに　スポットライトを　当てそのターンに　そのポケモンしか狙えない　ようにする。"
     }
   },
   {
@@ -13199,9 +13199,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 무수한 화살을 만들어낸 모크나이퍼가 전력으로 상대를 꿰뚫는 공격이다.",
+      "en": "The user, Decidueye, creates countless arrows using its Z-Power and shoots the target with full force.",
+      "ja": "Ｚパワーで　無数の　矢を　作りだしたジュナイパーが　全力で相手を　射抜く　攻撃。"
     }
   },
   {
@@ -13218,9 +13218,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 강한 육체를 얻은 어흥염이 전력으로 상대에게 부딪쳐 공격한다.",
+      "en": "The user, Incineroar, strengthens its body using its Z-Power and crashes into the target with full force.",
+      "ja": "Ｚパワーで　タフな　肉体を　得たガオガエンが　全力で相手に　ぶつかって　攻撃する。"
     }
   },
   {
@@ -13237,9 +13237,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 대량의 물을 부른 누리레느가 전력으로 상대를 공격한다.",
+      "en": "The user, Primarina, summons a massive amount of water using its Z-Power and attacks the target with full force.",
+      "ja": "Ｚパワーで　大量の　水を　呼んだアシレーヌが　全力で相手を　攻撃する。"
     }
   },
   {
@@ -13256,9 +13256,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 알로라의 힘을 얻은 토속신포켓몬 전력의 공격. 상대의 남은 HP를 많이 줄인다.",
+      "en": "The user, the Land Spirit Pokémon, obtains Alola’s energy using its Z-Power and attacks the target with full force. This reduces the target’s HP greatly.",
+      "ja": "Ｚパワーで　アローラの　力を　得たとちがみポケモン　全力の　攻撃。相手の　残りＨＰを　たくさん　減らす。"
     }
   },
   {
@@ -13275,9 +13275,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워를 얻은 마샤도가 펀치와 킥의 연속기술을 전력으로 상대에게 퍼붓는다.",
+      "en": "After obtaining Z-Power, the user, Marshadow, punches and kicks the target consecutively with full force.",
+      "ja": "Ｚパワーを　得た　マーシャドーがパンチと　キックの　連続技を全力で　相手に　叩き込む。"
     }
   },
   {
@@ -13294,9 +13294,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워를 얻은 알로라지방의 라이츄가 전력으로 공격한다. 상대를 마비 상태로 만든다.",
+      "en": "After obtaining Z-Power, the user, Alolan Raichu, attacks the target with full force. This move leaves the target with paralysis.",
+      "ja": "Ｚパワーを　得た　アローラ地方のライチュウが　全力で　攻撃する。相手を　まひ　状態に　する。"
     }
   },
   {
@@ -13313,9 +13313,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워로 진심을 낸 잠만보가 거대한 몸을 움직여서 전력으로 상대를 공격한다.",
+      "en": "Z-Power brings out the true capabilities of the user, Snorlax. The Pokémon moves its enormous body energetically and attacks the target with full force.",
+      "ja": "Ｚパワーで　本気を　出した　カビゴンが巨体を　躍動させて全力で　相手に　襲いかかる。"
     }
   },
   {
@@ -13332,9 +13332,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워를 얻은 이브이가 진화한 동료들의 힘을 빌려 능력을 크게 올린다.",
+      "en": "After obtaining Z-Power, the user, Eevee, gets energy from its evolved friends and boosts its stats sharply.",
+      "ja": "Ｚパワーを　得た　イーブイが進化した　仲間たちの　力を　借りて能力を　ぐーんと　上げる。"
     }
   },
   {
@@ -13351,9 +13351,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워를 얻은 뮤가 전력으로 상대를 공격한다. 발밑이 사이코필드가 된다.",
+      "en": "After obtaining Z-Power, the user, Mew, attacks the target with full force. The terrain will be charged with psychic energy.",
+      "ja": "Ｚパワーを　得た　ミュウが全力で　相手を　攻撃する。足元が　サイコフィールドになる。"
     }
   },
   {
@@ -13655,9 +13655,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "모자를 쓴 피카츄가 Z파워로 파워업한 전격을 쏜다. 급소에 맞기 쉽다.",
+      "en": "The user, Pikachu wearing a cap, powers up a jolt of electricity using its Z-Power and unleashes it. Critical hits land more easily.",
+      "ja": "帽子を　かぶった　ピカチュウがＺパワーで　パワーアップした　電撃を放つ。　急所に　当たりやすい。"
     }
   },
   {
@@ -13731,9 +13731,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "네크로즈마가 상대의 특성 효과를 무시하고 공격과 특수공격 중 높은 쪽으로 데미지를 준다.",
+      "en": "This attack inflicts Attack or Sp. Atk damage— whichever stat is higher for the user, Necrozma. This move ignores the target’s Ability.",
+      "ja": "ネクロズマが　相手の　特性の効果を　無視して　攻撃と　特攻の高いほうで　ダメージを　与える。"
     }
   },
   {
@@ -13750,9 +13750,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워를 얻은 솔가레오가 전력으로 공격한다. 상대의 특성 효과를 무시할 수 있다.",
+      "en": "After obtaining Z-Power, the user, Solgaleo, attacks the target with full force. This move can ignore the effect of the target’s Ability.",
+      "ja": "Ｚパワーを　得た　ソルガレオが全力で　攻撃する。　相手の特性の　効果を　無視できる。"
     }
   },
   {
@@ -13769,9 +13769,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워를 얻은 루나아라가 전력으로 공격한다. 상대의 특성 효과를 무시할 수 있다.",
+      "en": "After obtaining Z-Power, the user, Lunala, attacks the target with full force. This move can ignore the effect of the target’s Ability.",
+      "ja": "Ｚパワーを　得た　ルナアーラが全力で　攻撃する。　相手の特性の　効果を　無視できる。"
     }
   },
   {
@@ -13788,9 +13788,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워를 얻은 따라큐가 전력으로 투닥투닥 공격한다.",
+      "en": "After obtaining Z-Power, the user, Mimikyu, punches the target with full force.",
+      "ja": "Ｚパワーを　得た　ミミッキュが全力で　ぽかぽか　攻撃。"
     }
   },
   {
@@ -13807,9 +13807,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워를 얻은 루가루암이 전력으로 공격한다. 추가로 필드 상태를 없앤다.",
+      "en": "After obtaining Z-Power, the user, Lycanroc, attacks the target with full force. This move negates the effect on the battlefield.",
+      "ja": "Ｚパワーを　得た　ルガルガンが全力で　攻撃する。　追加でフィールド状態を　打ち消す。"
     }
   },
   {
@@ -13826,9 +13826,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "Z파워를 얻은 짜랑고우거가 전력으로 상대를 공격한다. 추가로 자신의 능력이 올라간다.",
+      "en": "After obtaining Z-Power, the user, Kommo-o, attacks the opposing Pokémon with full force. This move boosts the user’s stats.",
+      "ja": "Ｚパワーを　得た　ジャラランガが全力で　相手を　攻撃する。追加で　自分の　能力が　上がる。"
     }
   },
   {
@@ -13845,9 +13845,9 @@
     "priority": 2,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "맹렬한 속도의 전격 공격. 반드시 선제공격할 수 있고 급소에 맞는다.",
+      "en": "The user attacks the target with bursts of electricity at high speed. This move always goes first and results in a critical hit.",
+      "ja": "猛スピードの　電撃　アタック。必ず　先制攻撃　できて急所に　あたる。"
     }
   },
   {
@@ -13864,9 +13864,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "커다란 파도에 전기를 날리고 상대에게 부딪쳐서 공격한다. 마비 상태로 만들 때가 있다.",
+      "en": "The user charges a huge wave with electricity and hits the opposing Pokémon with the wave. This may also leave the opposing Pokémon with paralysis.",
+      "ja": "大きな　波に　電気を　あびせ相手に　ぶつけて　攻撃する。まひ状態に　することが　ある。"
     }
   },
   {
@@ -13883,9 +13883,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "두둥실 떠오른 다음 단숨에 급강하해서 공격한다. 상대를 풀죽게 만들 때가 있다.",
+      "en": "The user floats in the air, and then dives at a steep angle to attack the target. This may also make the target flinch.",
+      "ja": "ふんわりと　浮かび　あがり一気に　急降下して　攻撃。相手を　ひるませることが　ある。"
     }
   },
   {
@@ -13902,9 +13902,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "트레이너를 좋아하는 피카츄의 마음이 강할수록 위력이 올라가는 전격. 반드시 명중한다.",
+      "en": "The more Pikachu loves its Trainer, the greater the move’s power. It never misses.",
+      "ja": "ピカチュウの　トレーナーへの　大好きな気持ちが　強いほど　威力があがる　電撃。　必ず　命中する。"
     }
   },
   {
@@ -13921,9 +13921,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "물덩어리를 부딪쳐서 공격한다. 물을 흡수하여 데미지의 절반만큼 HP를 회복한다.",
+      "en": "The user attacks by shooting water bubbles at the target. It then absorbs water and restores its HP by half the damage taken by the target.",
+      "ja": "水のかたまりを　ぶつけて　攻撃。水を　吸いとり　ダメージの半分の　HPを　回復する。"
     }
   },
   {
@@ -13940,9 +13940,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "전기를 상대에게 날려서 공격한다. 상대를 마비 상태로 만든다.",
+      "en": "The user shoots a jolt of electricity to attack the target. This also leaves the target with paralysis.",
+      "ja": "電気を　飛ばし　相手にあびせて　攻撃する。　相手を　まひ状態に　する。"
     }
   },
   {
@@ -13959,9 +13959,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "불꽃을 두른 몸으로 기세 좋게 상대에게 부딪친다. 상대를 화상 상태로 만든다.",
+      "en": "The user cloaks itself in fire and charges at the target. This also leaves the target with a burn.",
+      "ja": "炎を　まとった　体で勢いよく　相手に　ぶつかる。相手を　やけど状態に　する。"
     }
   },
   {
@@ -13978,9 +13978,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "염동력을 한가득 날린다. 상대의 특수공격을 약하게 만드는 이상한 장막을 만든다.",
+      "en": "The user bombards the target with telekinetic force. A wondrous wall of light is put up to weaken the power of the opposing Pokémon’s special moves.",
+      "ja": "念力を　これでもかと　あびせる。相手の　特殊攻撃を　弱める不思議な　かべを　つくりだす。"
     }
   },
   {
@@ -13997,9 +13997,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "악함을 어필해서 공격한다. 상대의 물리공격을 약하게 만드는 이상한 장막을 만든다.",
+      "en": "The user acts bad and attacks the target. A wondrous wall of light is put up to weaken the power of the opposing Pokémon’s physical moves.",
+      "ja": "わるさを　アピールして　攻撃。相手の　物理攻撃を　弱める不思議な　かべを　つくりだす。"
     }
   },
   {
@@ -14016,9 +14016,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "거대한 덩굴을 자라게 하고 씨를 흩뿌려서 공격한다. 씨는 매 턴 상대의 HP를 흡수한다.",
+      "en": "The user grows a gigantic stalk that scatters seeds to attack the target. The seeds drain the target’s HP every turn.",
+      "ja": "巨大な　ツルを　生やし　タネを撒きちらかして　攻撃する。　タネは毎ターン　相手の　HPを　吸いとる。"
     }
   },
   {
@@ -14035,9 +14035,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "차갑게 얼어붙은 흑안개의 결정으로 공격한다. 전원의 능력 변화를 원래대로 돌린다.",
+      "en": "The user attacks with a crystal made of cold frozen haze. It eliminates every stat change among all the Pokémon engaged in battle.",
+      "ja": "冷たく　凍った　くろいきりの結晶で　攻撃。　全員の能力変化を　もとに　もどす。"
     }
   },
   {
@@ -14054,9 +14054,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "숨 막힐 듯 진한 향기의 회오리로 상대를 휘감아 공격한다. 같은 편의 상태 이상을 회복한다.",
+      "en": "The user attacks the target by wrapping it with a whirlwind of an overpowering scent. This also heals all status conditions of the user’s party.",
+      "ja": "むせかえる　ような　香りの　竜巻で相手を　つつんで　攻撃。　味方の状態異常を　回復する。"
     }
   },
   {
@@ -14073,9 +14073,9 @@
     "priority": 0,
     "generation": 7,
     "desc": {
-      "ko": "사용할 수 없는 기술입니다. 다시 배우게 할 수 없지만 기술을 잊게 하는 것을 권장합니다.",
-      "en": "This move can’t be used. It’s recommended that this move is forgotten. Once forgotten, this move can’t be remembered.",
-      "ja": "この技は　使えません思い出すことが　できなくなりますが技を　忘れることを　おすすめします"
+      "ko": "트레이너를 좋아하는 이브이의 마음이 강할수록 위력이 올라가는 몸통박치기. 반드시 명중한다.",
+      "en": "The more Eevee loves its Trainer, the greater the move’s power. It never misses.",
+      "ja": "イーブイの　トレーナーへの　大好きな気持ちが　強いほど　威力が　あがる体当たり。　必ず　命中する。"
     }
   },
   {
