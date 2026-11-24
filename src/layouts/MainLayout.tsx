@@ -4,6 +4,8 @@ import { TopNav, TopNavHeading, TopNavItem } from '@astryxdesign/core/TopNav'
 import { SegmentedControl, SegmentedControlItem } from '@astryxdesign/core/SegmentedControl'
 import { IconButton } from '@astryxdesign/core/IconButton'
 import { Text } from '@astryxdesign/core/Text'
+import { HStack } from '@astryxdesign/core/HStack'
+import { COLOR_MODES, type ColorMode, useColorModeStore } from '../stores/colorModeStore'
 import { DropdownMenu } from '@astryxdesign/core/DropdownMenu'
 import { Icon } from '@astryxdesign/core/Icon'
 import { PokeImage } from '../components/ui/PokeImage'
@@ -110,6 +112,50 @@ function LanguageSwitch() {
     )
 }
 
+const MODE_ICON: Record<ColorMode, ReactNode> = {
+    system: (
+        <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+            <rect x="3" y="4" width="18" height="12" rx="2" />
+            <path d="M8 20h8M12 16v4" />
+        </svg>
+    ),
+    light: (
+        <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+        </svg>
+    ),
+    dark: (
+        <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+            <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
+        </svg>
+    ),
+}
+const MODE_LABEL = { system: 'colorModeSystem', light: 'colorModeLight', dark: 'colorModeDark' } as const
+
+/** 화면 모드 메뉴: 아이콘 버튼 하나 (휴대폰은 아래에서 올라오는 선택지) */
+function ColorModeMenu() {
+    const t = useT(commonMessages)
+    const mode = useColorModeStore((s) => s.mode)
+    const setMode = useColorModeStore((s) => s.setMode)
+    return (
+        <DropdownMenu
+            presentation="adaptive"
+            alignment="end"
+            hasChevron={false}
+            renderTrigger={(props) => (
+                <IconButton {...props} label={`${t('colorMode')}: ${t(MODE_LABEL[mode])}`} variant="ghost" size="lg" icon={MODE_ICON[mode]} />
+            )}
+            items={COLOR_MODES.map((m) => ({
+                label: t(MODE_LABEL[m]),
+                icon: MODE_ICON[m],
+                onClick: () => setMode(m),
+                endContent: m === mode ? <Icon icon="check" color="accent" /> : undefined,
+            }))}
+        />
+    )
+}
+
 function BackToTop({ label }: { label: string }) {
     const [show, setShow] = useState(false)
     useEffect(() => {
@@ -164,7 +210,12 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                         label="Main"
                         heading={<TopNavHeading logo={<Mark className="h-7 w-7" />} heading="Pokestra" headingHref="/" />}
                         startContent={<span className="hidden items-center gap-1 lg:flex">{items}</span>}
-                        endContent={<LanguageSwitch />}
+                        endContent={
+                            <HStack gap={1} vAlign="center">
+                                <ColorModeMenu />
+                                <LanguageSwitch />
+                            </HStack>
+                        }
                     />
                 </div>
             </header>

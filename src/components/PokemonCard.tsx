@@ -12,7 +12,6 @@ import {
     pokemonName,
 } from "../lib/dex"
 import { pokemonImageCandidates } from "../lib/images"
-import { TYPE_COLOR_CLASSES } from "../lib/typeColorClasses"
 import { PokeImage } from "./ui/PokeImage"
 import { TypeChip } from "./ui/TypeChip"
 import { GenderDiffMark } from "./pokedex/GenderDiffMark"
@@ -42,8 +41,6 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
     const name = pokemonName(p, lang)
     const no = dexNumber(getSpeciesId(p))
     const sub = secondaryName(p, lang)
-    // 이미지 칸: 주 타입의 아주 옅은 면 (pokestra 테마 토큰)
-    const typeSurface = TYPE_COLOR_CLASSES[p.types[0]]?.subtle ?? "bg-muted"
 
     // 좁은 화면(sm 미만)에서는 게임 도감 목록처럼 한 줄: 번호 · 박스 아이콘 · 이름 · 타입.
     // 같은 요소를 CSS 로만 바꿔서 무한 스크롤·포커스 이동(a[href] 순서)이 그대로 동작한다.
@@ -53,7 +50,7 @@ function PokemonCardImpl({ pokemon: p, highlightLabel, highlightValue }: Props) 
                 <Text type="supporting" hasTabularNumbers textWrap="nowrap" className="max-sm:w-15 max-sm:shrink-0">
                     {no}
                 </Text>
-                <HStack justify="center" vAlign="center" className={`shrink-0 rounded-md ${typeSurface}`}>
+                <HStack justify="center" vAlign="center" className="shrink-0 rounded-md bg-muted">
                     <PokemonImage p={p} size={40} className="size-10 sm:hidden" />
                     <PokemonImage p={p} size={72} className="h-18 w-18 max-sm:hidden" />
                 </HStack>

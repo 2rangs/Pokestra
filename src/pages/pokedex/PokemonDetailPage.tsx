@@ -519,7 +519,6 @@ export default function PokemonDetailPage() {
 
             {/* ── 머리말: 이전/다음 → 이미지 → 번호·이름·타입 → 수치 줄 → 조작 줄 → 설명 ── */}
             <DetailHeader
-                type={types[0]}
                 nav={
                     <NeighborNav
                         prev={prev}

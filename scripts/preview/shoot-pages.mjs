@@ -1,5 +1,5 @@
 // 앱 화면 스크린샷 (Vite 개발 서버 5192 + Playwright). 비주얼 패스 전/후 비교용.
-// 실행: node scripts/preview/shoot-pages.mjs <출력 폴더> [desktop|mobile|all] [route 이름 필터]
+// 실행: node scripts/preview/shoot-pages.mjs <출력 폴더> [desktop|mobile|all] [route 이름 필터 또는 ''] [light|dark]
 import { mkdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { createServer } from 'vite'
@@ -8,6 +8,7 @@ const { chromium } = createRequire(import.meta.url)('playwright')
 const outDir = process.argv[2] ?? 'docs/screenshots/visual'
 const which = process.argv[3] ?? 'all'
 const only = process.argv[4]
+const scheme = process.argv[5] === 'dark' ? 'dark' : 'light' // 화면 모드 기본값(system)이 따르는 기기 설정
 const PORT = 5192 // 5180 은 다른 세션 전용
 
 export const ROUTES = [
@@ -35,13 +36,13 @@ const browser = await chromium.launch()
 try {
     for (const [vp, size] of Object.entries(VIEWPORTS)) {
         if (which !== 'all' && which !== vp) continue
-        const ctx = await browser.newContext({ viewport: size, deviceScaleFactor: 1, locale: 'ko-KR' })
+        const ctx = await browser.newContext({ viewport: size, deviceScaleFactor: 1, locale: 'ko-KR', colorScheme: scheme })
         for (const [name, route] of ROUTES) {
             if (only && !name.includes(only)) continue
             const page = await ctx.newPage()
             await page.goto(`${base}#${route}`, { waitUntil: 'networkidle' })
             await page.waitForTimeout(800)
-            await page.screenshot({ path: `${outDir}/${name}-${vp}.png`, fullPage: true })
+            await page.screenshot({ path: `${outDir}/${name}-${vp}${scheme === 'dark' ? '-dark' : ''}.png`, fullPage: true })
             await page.close()
         }
         await ctx.close()

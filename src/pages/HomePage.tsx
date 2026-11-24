@@ -216,9 +216,8 @@ function PokemonOfTheDay() {
     const colors = TYPE_COLOR_CLASSES[p.types[0]] ?? TYPE_COLOR_CLASSES.normal
     const maxStat = Math.max(...STAT_KEYS.map((k) => p.stats[k]))
 
-    // 주 타입의 옅은 면 + 타입 색 테두리 (pokestra 테마 토큰)
     return (
-        <Card role="region" aria-labelledby="potd-heading" padding={4} className={`${colors.subtle} border ${colors.border}`}>
+        <Card role="region" aria-labelledby="potd-heading" padding={4}>
             <VStack gap={3}>
                 <HStack gap={2} justify="between" vAlign="center">
                     <Text type="supporting" weight="semibold" id="potd-heading">
@@ -229,7 +228,7 @@ function PokemonOfTheDay() {
                     </Text>
                 </HStack>
                 <HStack gap={3} vAlign="center">
-                    <Link to={`/pokemon/${p.id}`} className="block shrink-0 rounded-lg bg-surface/70" aria-label={name}>
+                    <Link to={`/pokemon/${p.id}`} className="block shrink-0 rounded-lg bg-muted" aria-label={name}>
                         <PokeImage
                             sources={pokemonImageCandidates(p.id, 96, { sprite: p.sprite })}
                             alt=""

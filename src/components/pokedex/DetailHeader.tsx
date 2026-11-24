@@ -19,7 +19,6 @@ import { VStack } from "@astryxdesign/core/VStack"
 import { PokeImage } from "../ui/PokeImage"
 import type { Lang } from "../../i18n"
 import { type DexPokemon, pokemonName } from "../../lib/dex"
-import { TYPE_COLOR_CLASSES } from "../../lib/typeColorClasses"
 import { dexNumber } from "./format"
 
 export interface StripItem {
@@ -30,8 +29,6 @@ export interface StripItem {
 }
 
 interface Props {
-    /** 첫 타입 (바탕 색). 없으면 기본 카드 면 */
-    type?: string
     nav: ReactNode
     image: { key?: number; sources: (string | null | undefined)[]; alt: string; priority?: boolean }
     number: ReactNode
@@ -45,10 +42,9 @@ interface Props {
     flavor: ReactNode
 }
 
-export function DetailHeader({ type, nav, image, number, name, badges, subline, strip, controls, flavor }: Props) {
-    const surface = type ? TYPE_COLOR_CLASSES[type]?.subtle : undefined
+export function DetailHeader({ nav, image, number, name, badges, subline, strip, controls, flavor }: Props) {
     return (
-        <Card className={surface}>
+        <Card>
             <VStack gap={3}>
                 {nav}
                 <HStack gap={4} vAlign="start" wrap="wrap" className="gap-y-3">
