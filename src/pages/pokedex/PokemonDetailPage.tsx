@@ -548,6 +548,7 @@ export default function PokemonDetailPage() {
                         labels={{ nav: t("neighbors"), prev: t("prev"), next: t("next"), hint: t("keyboardHint") }}
                     />
                 }
+                imageFooter={forms.length > 1 ? <FormPicker forms={forms} id={id} lang={lang} label={t("forms")} /> : undefined}
                 image={{
                     key: id,
                     sources: headerSources,
@@ -747,28 +748,6 @@ export default function PokemonDetailPage() {
                             }
                         />
 
-                        {forms.length > 1 && (
-                            <Panel title={t("forms")}>
-                                <HStack as="ul" gap={2} wrap="wrap">
-                                    {forms.map((f) => {
-                                        const current = f.id === id
-                                        const label = formLabel(f, lang) ?? pokemonName(f, lang)
-                                        const icon = f.sprite ? (
-                                            <PokeImage sources={pokemonImageCandidates(f.id, 24, { sprite: f.sprite })} alt="" size={24} className="size-6" />
-                                        ) : undefined
-                                        return (
-                                            <li key={f.id} aria-current={current ? "page" : undefined}>
-                                                {current ? (
-                                                    <Token label={label} icon={icon} color="gray" />
-                                                ) : (
-                                                    <Token label={label} icon={icon} href={`/pokemon/${f.id}`} />
-                                                )}
-                                            </li>
-                                        )
-                                    })}
-                                </HStack>
-                            </Panel>
-                        )}
                     </VStack>
                 )}
 
@@ -823,5 +802,42 @@ export default function PokemonDetailPage() {
                     ))}
             </div>
         </VStack>
+    )
+}
+
+/**
+ * 그림 바로 아래 폼 선택. 폼이 적으면(4개 이하) 한눈에 보이는 칩, 많으면(피카츄 등) 그림 붙은 목록 선택.
+ */
+function FormPicker({ forms, id, lang, label }: { forms: readonly DexPokemon[]; id: number; lang: Lang; label: string }) {
+    const navigate = useNavigate()
+    const formName = (f: DexPokemon) => formLabel(f, lang) ?? pokemonName(f, lang)
+    const icon = (f: DexPokemon) =>
+        f.sprite ? <PokeImage sources={pokemonImageCandidates(f.id, 24, { sprite: f.sprite })} alt="" size={24} className="size-6" /> : undefined
+    if (forms.length > 4) {
+        return (
+            <Selector
+                label={label}
+                isLabelHidden
+                width="100%"
+                presentation="adaptive"
+                value={String(id)}
+                onChange={(v) => navigate(`/pokemon/${v}`)}
+                options={forms.map((f) => ({ value: String(f.id), label: formName(f), icon: icon(f) }))}
+                renderValue={(o) => `${o.label} · ${label} ${forms.length}`}
+            />
+        )
+    }
+    return (
+        <HStack as="ul" gap={1.5} wrap="wrap" aria-label={label}>
+            {forms.map((f) => (
+                <li key={f.id} aria-current={f.id === id ? "page" : undefined}>
+                    {f.id === id ? (
+                        <Token label={formName(f)} icon={icon(f)} color="gray" />
+                    ) : (
+                        <Token label={formName(f)} icon={icon(f)} href={`/pokemon/${f.id}`} />
+                    )}
+                </li>
+            ))}
+        </HStack>
     )
 }

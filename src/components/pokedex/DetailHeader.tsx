@@ -31,6 +31,8 @@ export interface StripItem {
 interface Props {
     nav: ReactNode
     image: { key?: number; sources: (string | null | undefined)[]; alt: string; priority?: boolean }
+    /** 그림 바로 아래 (폼 선택) */
+    imageFooter?: ReactNode
     number: ReactNode
     name: ReactNode
     /** 이름 줄 오른쪽 (타입 칩 등) */
@@ -46,22 +48,26 @@ interface Props {
     flavorControl?: ReactNode
 }
 
-export function DetailHeader({ nav, image, number, name, badges, subline, strip, controls, flavor, flavorLabel, flavorControl }: Props) {
+export function DetailHeader({ nav, image, imageFooter, number, name, badges, subline, strip, controls, flavor, flavorLabel, flavorControl }: Props) {
     return (
         <Card>
             <VStack gap={3}>
                 {nav}
                 <HStack gap={4} vAlign="start" wrap="wrap" className="gap-y-3">
-                    <figure className="shrink-0 rounded-lg bg-surface p-1 md:p-2">
-                        <PokeImage
-                            key={image.key}
-                            sources={image.sources}
-                            alt={image.alt}
-                            size={240}
-                            className="size-28 md:size-60"
-                            priority={image.priority}
-                        />
-                    </figure>
+                    {/* 그림 + 폼 선택. 휴대폰에서는 폼 선택이 이름 줄 다음 한 줄 전체를 쓴다 */}
+                    <VStack gap={2} className="max-md:contents md:w-64 md:shrink-0">
+                        <figure className="shrink-0 rounded-lg bg-surface p-1 md:p-2">
+                            <PokeImage
+                                key={image.key}
+                                sources={image.sources}
+                                alt={image.alt}
+                                size={240}
+                                className="size-28 md:size-60"
+                                priority={image.priority}
+                            />
+                        </figure>
+                        {imageFooter && <VStack className="min-w-0 max-md:order-1 max-md:basis-full">{imageFooter}</VStack>}
+                    </VStack>
                     <VStack gap={3} className="contents md:flex md:min-w-0 md:flex-1">
                         {/* 신원: 번호 → 이름 → 타입(이름 바로 아래, 시선이 이어지게) → 다른 이름·분류 */}
                         <VStack gap={1.5} className="min-w-0 flex-1 basis-40 md:flex-none">
@@ -72,7 +78,7 @@ export function DetailHeader({ nav, image, number, name, badges, subline, strip,
                             </HStack>
                             {subline}
                         </VStack>
-                        <VStack gap={3} className="min-w-0 basis-full md:basis-auto">
+                        <VStack gap={3} className="min-w-0 basis-full max-md:order-2 md:basis-auto">
                             <Divider />
                             {/* 핵심 수치: 칸 4개(휴대폰 2×2), 라벨 위·값 아래 */}
                             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-4 sm:gap-x-0 sm:divide-x sm:divide-border">
