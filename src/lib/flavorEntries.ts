@@ -20,6 +20,8 @@ export interface FlavorOption {
     versions: string[]
     /** 이 설명의 언어 코드 (대체 언어면 사용자 언어와 다르다) */
     lang: string
+    /** 이 모습(메가진화·리전폼 등)만의 설명이면 그 모습의 포켓몬 id */
+    formId?: number
 }
 
 type Clean = (text: string, code: string) => string
@@ -60,13 +62,39 @@ export function buildFlavorOptions(
     return [...main, ...extra].sort((a, b) => rank(b) - rank(a) || Number(a.lang !== primary) - Number(b.lang !== primary))
 }
 
+/** 세대별 리메이크 작품: 옛 세대에 한국어 설명이 없을 때 그 세대를 다시 만든 작품의 설명을 쓴다 */
+export const REMAKES: Readonly<Record<number, readonly string[]>> = {
+    1: ['lets-go-pikachu', 'lets-go-eevee', 'firered', 'leafgreen'],
+    2: ['heartgold', 'soulsilver'],
+    3: ['omega-ruby', 'alpha-sapphire'],
+    4: ['brilliant-diamond', 'shining-pearl'],
+}
+
+/** 설명이 고른 세대와 어떤 관계인지: 그 세대 작품 / 리메이크 / 가장 가까운 작품 */
+export type FlavorMatch = 'same' | 'remake' | 'nearest'
+
+export function flavorMatch(o: FlavorOption, gen: number | null): FlavorMatch {
+    if (gen === null || o.versions.some((v) => versionGeneration(v) === gen)) return 'same'
+    if (o.versions.some((v) => REMAKES[gen]?.includes(v))) return 'remake'
+    return 'nearest'
+}
+
 /**
  * 기본 선택: 사용자 언어 설명을 먼저.
- * 세대를 골랐으면 그 세대의 사용자 언어 설명 → 그 세대의 대체 언어 설명이 아니라 가장 가까운 최신 사용자 언어 설명 순.
- * (예: 최신 작품에 영어 설명만 있어도 한국어 설명이 있는 작품을 기본으로 보여 준다. 영어 설명은 목록에서 고를 수 있다)
+ * 세대를 골랐으면 그 세대 작품 → 그 세대의 리메이크 작품 → 세대가 가장 가까운 작품(같으면 나중 작품) 순.
+ * 사용자 언어 설명이 하나도 없을 때만 대체 언어(영어)로 같은 순서를 따른다.
  */
 export function defaultFlavor(options: readonly FlavorOption[], gen: number | null, primary?: string): FlavorOption | undefined {
     const own = primary ? options.filter((o) => o.lang === primary) : options
-    const inGen = (list: readonly FlavorOption[]) => (gen === null ? undefined : list.find((o) => o.versions.some((v) => versionGeneration(v) === gen)))
-    return inGen(own) ?? own[0] ?? inGen(options) ?? options[0]
+    const pick = (list: readonly FlavorOption[]) => {
+        if (!list.length) return undefined
+        if (gen === null) return list[0]
+        const same = list.find((o) => flavorMatch(o, gen) === 'same')
+        if (same) return same
+        const remake = list.find((o) => flavorMatch(o, gen) === 'remake')
+        if (remake) return remake
+        const dist = (o: FlavorOption) => Math.min(...o.versions.map((v) => Math.abs((versionGeneration(v) ?? 99) - gen)))
+        return [...list].sort((a, b) => dist(a) - dist(b))[0]
+    }
+    return pick(own) ?? pick(options)
 }

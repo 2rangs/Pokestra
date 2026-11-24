@@ -11,6 +11,7 @@
 import {defineTheme} from '@astryxdesign/core/theme';
 import {pokestraSettings} from './pokestra.settings';
 import {TYPE_COLOR_TOKENS} from './typeColors';
+import {GAME_COLOR_TOKENS} from './gameColors';
 
 type Mode = readonly [light: string, dark: string];
 const tuple = (v: Mode): [string, string] => [v[0], v[1]];
@@ -44,6 +45,12 @@ const STAT_BANDS: Record<string, [string, string]> = {
 };
 for (const [band, value] of Object.entries(STAT_BANDS)) {
   localTokens[`--pokestra-stat-${band}`] = value;
+}
+
+// 작품(게임) 배지 색: 도감 설명의 출처 표시. 작품 고유 색이라 라이트/다크 같은 값
+for (const [game, {bg, on}] of Object.entries(GAME_COLOR_TOKENS)) {
+  localTokens[`--pokestra-game-${game}-bg`] = [bg, bg];
+  localTokens[`--pokestra-game-${game}-on`] = [on, on];
 }
 
 export const pokestraTheme = defineTheme({

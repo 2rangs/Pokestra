@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import { api } from '../common/api'
 
 // ── Types ──
@@ -58,6 +58,8 @@ export interface PokemonDetail {
     name: string
     base_experience: number | null
     species: { name: string; url: string }
+    /** 모습(폼) 목록. 메가진화·리전폼 등은 첫 항목이 그 모습 */
+    forms?: { name: string; url: string }[]
     types: { slot: number; type: { name: string } }[]
     sprites: PokemonSprites
     stats: { base_stat: number; effort: number; stat: { name: string } }[]
@@ -240,6 +242,23 @@ export const useMoveDetail = (name: string) =>
         queryFn: () => api.get<MoveDetail>(`move/${name}`),
         enabled: !!name,
         staleTime: Infinity,
+    })
+
+/** 모습(폼) 하나의 도감 설명 (메가진화·리전폼 등 고유 설명. PokeAPI 에는 영어만 있다) */
+export interface PokemonForm {
+    name: string
+    flavor_text_entries: { flavor_text: string; language: { name: string }; version: { name: string } }[]
+}
+/** 여러 모습의 도감 설명 (없는 모습·실패는 undefined) */
+export const usePokemonForms = (names: readonly string[]) =>
+    useQueries({
+        queries: names.map((name) => ({
+            queryKey: ['pokemon-form', name],
+            queryFn: () => api.get<PokemonForm>(`pokemon-form/${name}`),
+            staleTime: Infinity,
+            retry: false,
+        })),
+        combine: (results) => results.map((r) => r.data),
     })
 
 export const useEvolutionChain = (url: string | undefined) =>

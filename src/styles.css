@@ -12,6 +12,7 @@
 @import "@astryxdesign/core/tailwind-theme.css";
 @import "./type-colors.css";
 @import "./stat-colors.css";
+@import "./game-colors.css";
 @import "tailwindcss/utilities.css" layer(utilities);
 
 @layer base {

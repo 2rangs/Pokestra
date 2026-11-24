@@ -1,7 +1,7 @@
 import { type ReactNode, Fragment, useEffect, useMemo, useState } from "react"
 import { Blockquote } from "@astryxdesign/core/Blockquote"
 import { gameTitle, versionName } from "../../lib/gameNames"
-import { buildFlavorOptions, defaultFlavor } from "../../lib/flavorEntries"
+import { type FlavorOption, buildFlavorOptions, defaultFlavor, flavorMatch, groupFlavors } from "../../lib/flavorEntries"
 import { Selector } from "@astryxdesign/core/Selector"
 import { Link as RouterLink, useNavigate, useParams, useSearchParams } from "react-router"
 import { Button } from "@astryxdesign/core/Button"
@@ -30,11 +30,13 @@ import { SpritesGallery } from "../../components/pokedex/SpritesGallery"
 import { GenderToggle, ShinyToggle } from "../../components/pokedex/GenderToggle"
 import { CryButtons, GenerationSelect } from "../../components/pokedex/GenerationBar"
 import { TypeChip } from "../../components/ui/TypeChip"
+import { GameBadges } from "../../components/ui/GameBadge"
 import { getIdFromUrl } from "../../common/utils"
 import {
     type PokemonSpecies,
     useEvolutionChain,
     usePokemonDetail,
+    usePokemonForms,
     usePokemonSpecies,
 } from "../../hooks/usePokemon"
 import { LANGS, type Lang, formatNumber, useDocumentTitle, useLang, useT } from "../../i18n"
@@ -43,6 +45,7 @@ import { type PokedexKey, isPokedexKey, pokedexMessages } from "../../i18n/messa
 import { itemLabel as itemName } from "../../lib/itemLabel"
 import { parseSex } from "../../lib/gender"
 import { artworkUrl } from "../../lib/spriteUrls"
+import { versionGeneration } from "../../lib/gameNames"
 import { LATEST_GEN, type GenStatKey, abilitiesAt, clampGen, cryAt, femaleArtAt, spriteAt, statsAt, typesAt } from "../../lib/generation"
 import { pokemonImageCandidates, preloadImages } from "../../lib/images"
 import { PokeImage } from "../../components/ui/PokeImage"
@@ -61,6 +64,8 @@ import {
     getDexPokemon,
     getGeneration,
     getSpeciesId,
+    isAlternateForm,
+    displayName,
     localText,
     officialArtworkUrl,
     pokemonName,
@@ -298,9 +303,35 @@ export default function PokemonDetailPage() {
     )
     // 고른 작품은 세대 선택이 바뀌면 그 세대의 기본으로 돌아간다
     const [flavorPick, setFlavorPick] = useState<{ id: string; gen: number | null; species: number | null } | null>(null)
-    const flavorShown =
-        (flavorPick && flavorPick.gen === gen && flavorPick.species === (speciesId ?? null) && flavorOptions.find((o) => o.id === flavorPick.id)) ||
-        defaultFlavor(flavorOptions, gen, flavorPrimary)
+    // 메가진화·리전폼 등 모습별 도감 설명 (PokeAPI 에는 영어만). 위키처럼 세대 묶음 안에 모습별로 붙인다
+    const altForms = useMemo(
+        () => (speciesId ? ALL_POKEMON.filter((p) => getSpeciesId(p) === speciesId && isAlternateForm(p)) : []),
+        [speciesId],
+    )
+    const formData = usePokemonForms(altForms.map((p) => p.name))
+    const formFlavors = useMemo<FlavorOption[]>(
+        () =>
+            altForms.flatMap((p, i) => {
+                const entries = formData[i]?.flavor_text_entries
+                const own = groupFlavors(entries, lang, cleanFlavor)
+                return (own.length ? own : groupFlavors(entries, "en", cleanFlavor)).map((o) => ({ ...o, id: `form:${p.id}:${o.id}`, formId: p.id }))
+            }),
+        [altForms, formData, lang],
+    )
+    const allFlavors = useMemo(() => [...formFlavors, ...flavorOptions], [formFlavors, flavorOptions])
+    const pickedFlavor =
+        (flavorPick && flavorPick.gen === gen && flavorPick.species === (speciesId ?? null) && allFlavors.find((o) => o.id === flavorPick.id)) || undefined
+    // 기본: 이 모습만의 설명이 사용자 언어로 있으면 그것, 아니면 종의 설명(사용자 언어 우선)
+    const flavorShown = pickedFlavor ?? formFlavors.find((o) => o.formId === (local?.id ?? detail?.id ?? 0) && o.lang === lang) ?? defaultFlavor(flavorOptions, gen, flavorPrimary)
+    // 도감 설명을 고르면 그 작품의 세대로(스프라이트·타입·종족값·울음소리가 함께 바뀐다). 최신 세대면 "현재"
+    const chooseFlavor = (optionId: string) => {
+        const o = allFlavors.find((x) => x.id === optionId)
+        const g = o ? versionGeneration(o.versions[0]) : null
+        const nextGen = isAltForm || o?.formId || g == null ? gen : g >= LATEST_GEN ? null : Math.max(g, debut ?? 1)
+        if (nextGen !== gen) setGen(nextGen)
+        setFlavorPick({ id: optionId, gen: nextGen, species: speciesId ?? null })
+    }
+    const [allEntries, setAllEntries] = useState(false)
     const versionList = (versions: readonly string[]) => versions.map((v) => versionName(v, lang)).join(" · ")
     const sourceTitle = (versions: readonly string[]) => [gameTitle(versions[0], lang), ...versions.slice(1).map((v) => versionName(v, lang))].join(" · ")
     const genusEntry = pickByLang(species?.genera, lang)
@@ -417,7 +448,7 @@ export default function PokemonDetailPage() {
     const headerSources =
         gen !== null
             ? genDetail
-                ? [spriteAt(genDetail.sprites, gen, { female: sex === "f", shiny }), artwork]
+                ? [spriteAt(genDetail.sprites, gen, { female: sex === "f", shiny, version: pickedFlavor?.versions[0] }), artwork]
                 : detailQ.isError
                   ? [artwork, spriteFallback]
                   : []
@@ -460,19 +491,85 @@ export default function PokemonDetailPage() {
             {genusEntry ? `${otherNames.length > 0 ? " · " : ""}${genusEntry.genus}` : null}
         </Text>
     )
+    // 모두 보기 묶음: 세대별(최신부터). 세대 안에서는 종의 설명 → 모습별 설명(위키의 "폼" 칸처럼)
+    const formNameOf = (fid: number) => {
+        const f = altForms.find((p) => p.id === fid)
+        return f ? displayName(f, lang) : ""
+    }
+    const flavorGroups = (() => {
+        const genOf = (o: FlavorOption) => versionGeneration(o.versions[0]) ?? 0
+        const gens = [...new Set(allFlavors.map(genOf))].sort((a, b) => b - a)
+        return gens.map((g) => {
+            const inGen = allFlavors.filter((o) => genOf(o) === g)
+            const species = inGen.filter((o) => !o.formId)
+            const byForm = altForms
+                .map((f) => ({ formId: f.id, title: formNameOf(f.id), items: inGen.filter((o) => o.formId === f.id) }))
+                .filter((x) => x.items.length > 0)
+            return { key: `gen-${g}`, title: g ? generationName(g, lang) : "—", species, byForm }
+        })
+    })()
+    // 출처 + (고른 세대와 다른 작품이면) 리메이크인지·가까운 작품인지
+    const flavorCite = (o: NonNullable<typeof flavorShown>) => {
+        const notes = o.formId ? [formNameOf(o.formId), sourceTitle(o.versions)] : [sourceTitle(o.versions)]
+        if (o.lang !== flavorPrimary) notes.push(t("entryFallbackLang"))
+        const match = gen !== null ? flavorMatch(o, gen) : "same"
+        if (match === "remake") notes.push(t("entryRemake", { gen: gen ?? 0 }))
+        if (match === "nearest") notes.push(t("entryNearest", { gen: gen ?? 0 }))
+        return notes.join(" · ")
+    }
+    // 설명 행 묶음: 항목 사이 구분선, 작품은 색 배지 + 이름. 누르면 그 설명(종의 설명이면 그 세대로)
+    const flavorRows = (items: readonly FlavorOption[]) => (
+        <VStack as="ul" gap={0} className="divide-y divide-border border-y border-border">
+            {items.map((o) => {
+                const current = o.id === flavorShown?.id
+                return (
+                    <li key={o.id} lang={o.lang.split("-")[0]}>
+                        <button
+                            type="button"
+                            aria-pressed={current}
+                            onClick={() => chooseFlavor(o.id)}
+                            className={`flex w-full gap-4 px-2 py-2.5 text-left transition-colors max-sm:flex-col max-sm:gap-1.5 ${current ? "bg-muted" : "hover:bg-muted"}`}
+                        >
+                            <VStack as="span" gap={1} className="w-44 shrink-0">
+                                <GameBadges versions={o.versions} />
+                                <Text type="supporting" weight={current ? "semibold" : "normal"} color="secondary">
+                                    {versionList(o.versions)}
+                                    {o.lang !== lang ? ` (${o.lang})` : ""}
+                                </Text>
+                            </VStack>
+                            <Text className="break-keep">{o.text}</Text>
+                        </button>
+                    </li>
+                )
+            })}
+        </VStack>
+    )
     const flavorNode = flavorShown ? (
-        // 도감 설명은 게임 속 도감 항목처럼 인용 블록 + 출처 작품
-        <span lang={flavorShown.lang.split("-")[0]} className="block max-w-prose break-keep">
-            <Blockquote
-                cite={
-                    flavorShown.lang !== flavorPrimary
-                        ? `${sourceTitle(flavorShown.versions)} · ${t("entryFallbackLang")}`
-                        : sourceTitle(flavorShown.versions)
-                }
-            >
-                {flavorShown.text}
-            </Blockquote>
-        </span>    ) : speciesQ.isPending && speciesId ? (
+        allEntries ? (
+            // 작품별 도감 설명 모두: (이 모습만의 설명) → 세대별 묶음. 항목 사이 구분선, 작품은 색 배지 + 이름. 누르면 그 설명·세대로
+            <VStack gap={4} aria-label={t("entriesAll")}>
+                {flavorGroups.map((group) => (
+                    <VStack key={group.key} as="section" gap={1.5}>
+                        <Text weight="bold">{group.title}</Text>
+                        {group.species.length > 0 && flavorRows(group.species)}
+                        {group.byForm.map((f) => (
+                            <VStack key={f.formId} gap={1} className="ps-3">
+                                <Text type="supporting" weight="semibold" color="secondary">
+                                    {t("entriesFormGroup", { form: f.title })}
+                                </Text>
+                                {flavorRows(f.items)}
+                            </VStack>
+                        ))}
+                    </VStack>
+                ))}
+            </VStack>
+        ) : (
+            // 도감 설명은 게임 속 도감 항목처럼 인용 블록 + 출처 작품
+            <span lang={flavorShown.lang.split("-")[0]} className="block max-w-prose break-keep">
+                <Blockquote cite={flavorCite(flavorShown)}>{flavorShown.text}</Blockquote>
+            </span>
+        )
+    ) : speciesQ.isPending && speciesId ? (
         <VStack gap={1}>
             <Skeleton height={20} />
             <Skeleton width="60%" height={20} />
@@ -625,18 +722,38 @@ export default function PokemonDetailPage() {
                 flavor={flavorNode}
                 flavorLabel={t("pokedexEntry")}
                 flavorControl={
-                    flavorShown && flavorOptions.length > 1 ? (
-                        <Selector
-                            label={t("entryGame")}
-                            isLabelHidden
-                            size="sm"
-                            variant="ghost"
-                            presentation="adaptive"
-                            options={flavorOptions.map((o) => ({ value: o.id, label: versionList(o.versions) }))}
-                            value={flavorShown.id}
-                            onChange={(v) => setFlavorPick({ id: v, gen, species: speciesId ?? null })}
-                            renderValue={(o) => `${o.label} (${flavorOptions.length})`}
-                        />
+                    flavorShown && allFlavors.length > 1 ? (
+                        <HStack gap={1} vAlign="center">
+                            {!allEntries && (
+                                <Selector
+                                    label={t("entryGame")}
+                                    isLabelHidden
+                                    size="sm"
+                                    variant="ghost"
+                                    presentation="adaptive"
+                                    options={allFlavors.map((o) => ({
+                                        value: o.id,
+                                        label: o.formId ? `${formNameOf(o.formId)} · ${versionList(o.versions)}` : versionList(o.versions),
+                                        icon: <GameBadges versions={o.versions.slice(0, 1)} />,
+                                    }))}
+                                    value={flavorShown.id}
+                                    onChange={chooseFlavor}
+                                />
+                            )}
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                label={
+                                    allEntries
+                                        ? t("entriesHide")
+                                        : formFlavors.some((o) => o.formId === id) && !flavorShown.formId
+                                          ? `${t("entriesShowAll")} · ${t("entriesFormHint", { n: formFlavors.filter((o) => o.formId === id).length })}`
+                                          : `${t("entriesShowAll")} (${allFlavors.length})`
+                                }
+                                onClick={() => setAllEntries((v) => !v)}
+                                aria-expanded={allEntries}
+                            />
+                        </HStack>
                     ) : undefined
                 }
             />

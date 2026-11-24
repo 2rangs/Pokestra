@@ -99,13 +99,21 @@ export function statsAt(d: PokemonDetail, gen: number): { key: GenStatKey; value
     return out
 }
 
-export function spriteAt(sprites: PokemonSprites, gen: number, opts?: { female?: boolean; shiny?: boolean }): string | null {
+/** version slug("omega-ruby")가 스프라이트 게임 키("omegaruby-alphasapphire")에 들어 있는지 */
+const gameHasVersion = (game: string, version: string) => game.replace(/-/g, "").includes(version.replace(/-/g, ""))
+
+export function spriteAt(sprites: PokemonSprites, gen: number, opts?: { female?: boolean; shiny?: boolean; version?: string }): string | null {
     const roman = ROMAN_BY_GEN[gen]
     const games = roman ? sprites.versions?.["generation-" + roman] : undefined
     if (!games) return null
     // 이로치: 그 세대 이로치 도트(1세대처럼 없으면 null → 이로치 일러스트로)
     const pick = (female: boolean) => {
-        for (const [game, sprite] of Object.entries(games)) {
+        // 작품을 골랐으면(도감 설명) 그 작품의 도트를 먼저
+        const entries = Object.entries(games).sort(([a], [b]) => {
+            const v = opts?.version
+            return v ? Number(gameHasVersion(b, v)) - Number(gameHasVersion(a, v)) : 0
+        })
+        for (const [game, sprite] of entries) {
             if (game === "icons" || !sprite) continue
             const url = opts?.shiny ? (female ? sprite.front_shiny_female : sprite.front_shiny) : female ? sprite.front_female : sprite.front_default
             if (url) return url
