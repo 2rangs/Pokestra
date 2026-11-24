@@ -10,10 +10,11 @@ import { HStack } from "@astryxdesign/core/HStack"
 import { InfoTip } from "@astryxdesign/core/InfoTip"
 import { Text } from "@astryxdesign/core/Text"
 import { VStack } from "@astryxdesign/core/VStack"
-import type { Lang, TFunction } from "../../i18n"
+import { type Lang, type TFunction, formatNumber } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { statLabel } from "../../lib/dex"
 import type { GenStatKey } from "../../lib/generation"
+import { isRankKey, RANK_POPULATION, topPercent } from "../../lib/statRank"
 import { StatBars } from "./StatBars"
 import { STAT_SCALE_MAX, type StatDatum, buildStatData, compareTotals, statsDiffer } from "./statChartModel"
 
@@ -58,16 +59,25 @@ export function BaseStatsChart({ stats, current, gen, headingId, footer, lang, t
     const showLegend = gen !== null && (showCurrent || totals.differs)
     const fullLabel = (d: StatDatum) => (d.key === "special" ? t("specialStat") : statLabel(d.key, lang))
 
+    // 분포: 전체 포켓몬(폼 제외, 현재 값) 중 상위 몇 %인지. 1세대 특수처럼 모집단이 없는 값은 빈칸
+    const rankOf = (key: string, value: number) => {
+        const p = isRankKey(key) ? topPercent(key, value) : null
+        return p === null ? null : t("topPercent", { n: p })
+    }
+    const rank = (d: StatDatum) => rankOf(d.key, d.value)
     const tip = (d: StatDatum) => {
+        const r = rank(d)
+        const withRank = (s: string) => (r ? `${s} · ${r}` : s)
         if (gen !== null && d.current !== null && d.current !== d.value) {
             const base = `${fullLabel(d)} — ${t("statTipCompare", { gen, v: d.value, c: d.current })}`
-            return d.changedIn != null ? `${base} (${t("changedInGen", { gen: d.changedIn })})` : base
+            return withRank(d.changedIn != null ? `${base} (${t("changedInGen", { gen: d.changedIn })})` : base)
         }
-        return d.isTop ? `${fullLabel(d)} ${d.value} · ${t("highestStat")}` : `${fullLabel(d)} ${d.value}`
+        return withRank(d.isTop ? `${fullLabel(d)} ${d.value} · ${t("highestStat")}` : `${fullLabel(d)} ${d.value}`)
     }
     const hint = data.some((d) => d.key === "special")
         ? `${t("statScaleHint", { max: STAT_SCALE_MAX })} ${t("specialStatNote")}`
         : t("statScaleHint", { max: STAT_SCALE_MAX })
+    const fullHint = `${hint} ${t("topPercentHint", { n: formatNumber(RANK_POPULATION, lang) })}`
 
     return (
         <Card>
@@ -78,7 +88,7 @@ export function BaseStatsChart({ stats, current, gen, headingId, footer, lang, t
                             <Heading level={2} id={headingId}>
                                 {t("baseStats")}
                             </Heading>
-                            <InfoTip content={hint} label={t("infoAbout", { label: t("baseStats") })} />
+                            <InfoTip content={fullHint} label={t("infoAbout", { label: t("baseStats") })} />
                         </HStack>
                         {showLegend && gen !== null && <Legend gen={gen} t={t} />}
                     </HStack>
@@ -90,9 +100,11 @@ export function BaseStatsChart({ stats, current, gen, headingId, footer, lang, t
                         total={{
                             label: t("total"),
                             value: totals.selected,
+                            rank: rankOf("total", totals.selected),
                             note: gen !== null && totals.differs && totals.current !== null ? t("statTipCompare", { gen, v: totals.selected, c: totals.current }) : null,
                         }}
                         listLabel={t("baseStats")}
+                        rank={rank}
                     />
                     {footer}
                 </VStack>

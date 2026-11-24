@@ -18,6 +18,8 @@ import { STAT_SCALE_MAX, type StatDatum, exceedsScale, nextRowIndex, scaleFracti
 const LABEL_W = 64
 const VALUE_W = 32
 const CAP_W = 36
+/** "상위 N%" 칸 */
+const RANK_W = 64
 
 const pct = (v: number) => `${(scaleFraction(v) * 100).toFixed(2)}%`
 
@@ -44,11 +46,13 @@ interface Props {
     /** 행 툴팁 내용 (스크린리더 이름으로도 쓴다) */
     tip: (d: StatDatum) => string
     showCurrent: boolean
-    total: { label: string; value: number; note: string | null }
+    total: { label: string; value: number; note: string | null; rank?: string | null }
     listLabel: string
+    /** 행마다 "상위 N%" (분포). 없으면 칸을 두지 않는다 */
+    rank?: (d: StatDatum) => string | null
 }
 
-export function StatBars({ data, label, tip, showCurrent, total, listLabel }: Props) {
+export function StatBars({ data, label, tip, showCurrent, total, listLabel, rank }: Props) {
     const [focusIndex, setFocusIndex] = useState(0)
     const count = data.length
     const refs = useMemo(() => Array.from({ length: count }, () => createRef<HTMLElement>()), [count])
@@ -103,6 +107,13 @@ export function StatBars({ data, label, tip, showCurrent, total, listLabel }: Pr
                                         {exceedsScale(d.value) && <Text type="supporting">{`${STAT_SCALE_MAX}+`}</Text>}
                                     </HStack>
                                 )}
+                                {rank && (
+                                    <HStack width={RANK_W} justify="end">
+                                        <Text type="supporting" color={d.isTop ? "primary" : "secondary"} hasTabularNumbers textWrap="nowrap">
+                                            {rank(d)}
+                                        </Text>
+                                    </HStack>
+                                )}
                             </HStack>
                         </Tooltip>
                     </VStack>
@@ -111,6 +122,11 @@ export function StatBars({ data, label, tip, showCurrent, total, listLabel }: Pr
             <Divider />
             <HStack gap={3} vAlign="center" minHeight={36} wrap="wrap">
                 {cells(total.label, total.value, true)}
+                {total.rank && (
+                    <Text type="supporting" weight="medium" color="primary" hasTabularNumbers textWrap="nowrap">
+                        {total.rank}
+                    </Text>
+                )}
                 {total.note && (
                     <Text type="supporting" hasTabularNumbers>
                         {total.note}
