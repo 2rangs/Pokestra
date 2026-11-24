@@ -163,7 +163,8 @@ function MoveList() {
         {
             key: 'name',
             header: t('colMove'),
-            width: proportional(2, { minWidth: compact ? 120 : 132 }),
+            // 넓은 화면: 이름은 적당한 폭, 남는 자리는 오른쪽 끝의 효과 설명이 쓴다 (숫자가 이름 가까이)
+            width: compact ? proportional(2, { minWidth: 120 }) : pixel(200),
             sortable: true,
             renderCell: ({ m }) => {
                 const link = (
@@ -192,6 +193,20 @@ function MoveList() {
         { key: 'power', header: t('power'), width: pixel(compact ? 56 : 76), align: 'end', sortable: true, renderCell: ({ m }) => <Num v={m.power} /> },
         { key: 'accuracy', header: t('accuracy'), width: pixel(compact ? 56 : 84), align: 'end', sortable: true, renderCell: ({ m }) => <Num v={m.accuracy} /> },
         { key: 'pp', header: t('pp'), width: pixel(compact ? 44 : 60), align: 'end', sortable: true, renderCell: ({ m }) => <Num v={m.pp} /> },
+        ...(compact
+            ? []
+            : [
+                  {
+                      key: 'desc',
+                      header: t('description'),
+                      width: proportional(3, { minWidth: 200 }),
+                      renderCell: ({ m }: MoveRow) => (
+                          <Text type="supporting" color="secondary" maxLines={1}>
+                              {cleanDesc(localText(m.desc, lang), lang) ?? ''}
+                          </Text>
+                      ),
+                  },
+              ]),
     ]
 
     return (
