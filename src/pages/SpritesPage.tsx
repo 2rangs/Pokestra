@@ -2,6 +2,7 @@ import { memo, useDeferredValue, useMemo, useRef } from 'react'
 import { CheckboxInput } from '@astryxdesign/core/CheckboxInput'
 import { ClickableCard } from '@astryxdesign/core/ClickableCard'
 import { Grid } from '@astryxdesign/core/Grid'
+import { PixelSprite } from '../components/ui/PixelSprite'
 import { Text } from '@astryxdesign/core/Text'
 import { VStack } from '@astryxdesign/core/VStack'
 import { EmptyState, FilterRow, LoadMore, PageHeader, SearchField, Segmented, SelectField } from '../components/dex/DexUi'
@@ -141,7 +142,7 @@ export default function SpritesPage() {
                 {filtered.length === 0 ? (
                     <EmptyState />
                 ) : (
-                    <Grid columns={{ minWidth: 80, max: 14 }} gap={1.5} role="list" aria-label={t('gallery')}>
+                    <Grid columns={{ minWidth: 160, max: 5 }} gap={2} role="list" aria-label={t('gallery')}>
                         {filtered.slice(0, shown).map((e) => (
                             <span key={e.p.id} role="listitem" className="block min-w-0">
                                 <SpriteCard entry={e} style={style} shiny={shiny} />
@@ -162,11 +163,15 @@ const SpriteCard = memo(function SpriteCard({ entry: e, style, shiny }: { entry:
     const src = style === 'artwork' ? artworkUrl(e.p.id, shiny) : shiny ? e.p.spriteShiny : e.p.sprite
 
     return (
-        <ClickableCard href={`/pokemon/${e.p.id}`} label={shiny ? `${name} (${t('shiny')})` : name} padding={1.5} height="100%">
+        <ClickableCard href={`/pokemon/${e.p.id}`} label={shiny ? `${name} (${t('shiny')})` : name} padding={2} height="100%">
             <VStack gap={0.5} hAlign="center">
-                <span className="flex aspect-square w-full max-w-20 items-center justify-center">
-                    <PokeImage sources={[src]} alt="" size={80} pixelated={false} className="h-full w-full" />
-                </span>
+                {style === 'sprite' && src ? (
+                    <PixelSprite src={src} alt="" box={192} className="max-w-full max-sm:size-36" />
+                ) : (
+                    <span className="flex aspect-square w-full max-w-48 items-center justify-center">
+                        <PokeImage sources={[src]} alt="" size={192} pixelated={false} className="h-full w-full" />
+                    </span>
+                )}
                 <Text type="supporting" hasTabularNumbers>
                     {padDexNo(e.speciesId)}
                 </Text>

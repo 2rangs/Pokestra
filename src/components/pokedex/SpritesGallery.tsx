@@ -10,19 +10,24 @@ import type { Lang, TFunction } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { generationName, titleCaseSlug } from "../../lib/dex"
 import { PokeImage } from "../ui/PokeImage"
+import { PixelSprite } from "../ui/PixelSprite"
 import { ROMAN } from "./format"
 
 type T = TFunction<PokedexKey>
 
 
 
-function SpriteItem({ label, src, size, pixelated }: { label: string; src: string; size: "sm" | "md" | "lg"; pixelated?: boolean }) {
-    const box = size === "lg" ? "h-28 w-28" : size === "md" ? "h-24 w-24" : "h-18 w-18"
+function SpriteItem({ label, src, pixelated }: { label: string; src: string; pixelated?: boolean }) {
+    // 게임 도트는 원본 픽셀의 정수배로 크게, 일러스트(HOME·드림월드)는 같은 칸에 맞춰
     return (
-        <figure className="flex w-28 flex-col items-center gap-1.5">
-            <span className={`${box} flex items-center justify-center rounded-lg border border-border bg-muted`}>
-                <PokeImage sources={[src]} alt={label} size={size === "lg" ? 112 : size === "md" ? 96 : 72} pixelated={!!pixelated} className="h-11/12 w-11/12" />
-            </span>
+        <figure className="flex w-48 flex-col items-center gap-1.5 max-sm:w-36">
+            <HStack justify="center" vAlign="center" className="size-48 rounded-lg border border-border bg-muted max-sm:size-36">
+                {pixelated ? (
+                    <PixelSprite src={src} alt={label} className="max-sm:size-36" />
+                ) : (
+                    <PokeImage sources={[src]} alt={label} size={176} pixelated={false} className="size-44 max-sm:size-32" />
+                )}
+            </HStack>
             <figcaption className="text-center">
                 <Text type="supporting">{label}</Text>
             </figcaption>
@@ -84,7 +89,7 @@ export function SpritesGallery({ sprites, lang, t }: { sprites: PokemonSprites; 
                 <Group title={t("spritesGame")}>
                     <HStack gap={3} wrap="wrap">
                         {main.map(([k, src]) => (
-                            <SpriteItem key={k} label={t(k)} src={src} size="md" pixelated />
+                            <SpriteItem key={k} label={t(k)} src={src} pixelated />
                         ))}
                     </HStack>
                 </Group>
@@ -93,7 +98,7 @@ export function SpritesGallery({ sprites, lang, t }: { sprites: PokemonSprites; 
                 <Group title={t("spritesArtwork")}>
                     <HStack gap={3} wrap="wrap">
                         {extra.map(([k, src]) => (
-                            <SpriteItem key={k} label={t(k)} src={src} size="lg" />
+                            <SpriteItem key={k} label={t(k)} src={src} />
                         ))}
                     </HStack>
                 </Group>
@@ -106,7 +111,7 @@ export function SpritesGallery({ sprites, lang, t }: { sprites: PokemonSprites; 
                                 <Heading level={3}>{gen ? generationName(gen, lang) : "-"}</Heading>
                                 <HStack gap={3} wrap="wrap">
                                     {items.map((x) => (
-                                        <SpriteItem key={x.label} label={x.label} src={x.src} size="sm" pixelated />
+                                        <SpriteItem key={x.label} label={x.label} src={x.src} pixelated />
                                     ))}
                                 </HStack>
                             </VStack>
