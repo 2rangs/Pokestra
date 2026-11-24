@@ -13,6 +13,7 @@ export const updatesMessages = defineMessages({
         kindFix: '고침',
         go: '바로 가 보기',
         latest: '최신',
+        count: '소식 {n}개',
         empty: '이 종류의 소식이 아직 없어요',
     },
     en: {
@@ -26,6 +27,7 @@ export const updatesMessages = defineMessages({
         kindFix: 'Fixed',
         go: 'Take a look',
         latest: 'Latest',
+        count: '{n} updates',
         empty: 'No updates of this type yet',
     },
     ja: {
@@ -39,6 +41,7 @@ export const updatesMessages = defineMessages({
         kindFix: '修正',
         go: '見てみる',
         latest: '最新',
+        count: '{n}件',
         empty: 'この種類のお知らせはまだありません',
     },
 })
