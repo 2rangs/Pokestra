@@ -3998,7 +3998,7 @@
     "nameJa": "かんつうドリル",
     "generation": 9,
     "desc": {
-      "ko": null,
+      "ko": "접촉 기술을 사용할 때 상대의 방어 효과를 무시하고 본래 데미지의 1/4만큼 데미지를 준다. 상대의 방어 효과 이외에는 발동된다.",
       "en": "When the Pokémon uses contact moves, it can hit even targets that are protecting themselves, dealing 1/4 of the damage that the move would otherwise deal. Everything aside from the target's protective effects is still triggered.",
       "ja": "接触技を使う時相手の守りの効果を無視して本来の1/4のダメージを与える。相手の守りの効果以外は発動される。"
     }
@@ -4011,7 +4011,7 @@
     "nameJa": "ドラゴンスキン",
     "generation": 9,
     "desc": {
-      "ko": null,
+      "ko": "노말타입 기술이 드래곤타입이 되며 위력이 1.2배가 된다.",
       "en": "The Pokémon's Normal-type moves become Dragon-type moves and their power is boosted by 20%.",
       "ja": "ノーマルタイプの技がドラゴンタイプになり威力が1.2倍になる。"
     }
@@ -4024,7 +4024,7 @@
     "nameJa": "メガソーラー",
     "generation": 9,
     "desc": {
-      "ko": null,
+      "ko": "날씨가 쾌청 상태가 아니라도 쾌청 상태인 것처럼 기술을 사용할 수 있다.",
       "en": "Even when the sunlight has not turned harsh, the Pokémon can use its moves as if the weather were harsh sunlight.",
       "ja": "天気が　にほんばれ状態でなくてもにほんばれ状態として技を使うことができる。"
     }
@@ -4037,7 +4037,7 @@
     "nameJa": "とびだすハバネロ",
     "generation": 9,
     "desc": {
-      "ko": null,
+      "ko": "기술로 데미지를 입으면 상대를 화상 상태로 만든다.",
       "en": "When the Pokémon takes damage from a move, it burns the attacker.",
       "ja": "技のダメージを受けると相手をやけど状態にする。"
     }
@@ -4050,7 +4050,7 @@
     "nameJa": "うなぎのぼり",
     "generation": 9,
     "desc": {
-      "ko": null,
+      "ko": "땅 위에 있지 않게 되어 땅타입 기술, 압정뿌리기, 독압정, 끈적끈적네트 상태의 효과를 받지 않는다. 공격으로 상대를 쓰러뜨리면 자신의 가장 높은 능력이 1단계 올라간다.",
       "en": "The Pokémon floats off the ground, making it immune to Ground-type moves, as well as the Spikes, Toxic Spikes, and Sticky Web statuses. When the Pokémon knocks out a target with an attack, its highest stat is boosted by 1 stage.",
       "ja": null
     }
@@ -4063,7 +4063,7 @@
     "nameJa": "ほのおのたてがみ",
     "generation": 9,
     "desc": {
-      "ko": null,
+      "ko": "불꽃타입 기술의 위력이 1.5배가 된다.",
       "en": "Boosts the power of the Pokémon's Fire-type moves by 50%.",
       "ja": null
     }
@@ -4076,7 +4076,7 @@
     "nameJa": "はどうのぼうご",
     "generation": 9,
     "desc": {
-      "ko": null,
+      "ko": "접촉 기술로 입는 데미지가 반감된다.",
       "en": "A Pokémon with Aura Guard takes half damage from moves that make contact. Moves affected by Long Reach which make contact will deal regular damage.",
       "ja": null
     }

@@ -35,7 +35,7 @@ test('sparse items stay renderable', () => {
   expect(roseli.desc?.ko).toBeTruthy()
   expect(ITEM_BY_SLUG.get('kee-berry')!.berry).toMatchObject({ firmness: null, size: null, flavors: null, naturalGiftPower: 100 })
   expect(ITEM_BY_SLUG.get('golden-razz-berry')!.berry).toBeNull()
-  expect(itemDesc(ITEM_BY_SLUG.get('booster-energy')!, 'ko')).toBeNull()
+  expect(itemDesc(ITEM_BY_SLUG.get('booster-energy')!, 'ko')?.lang).toBe('ko') // PokeAPI 한국어 설명으로 채움 (scripts/fill-ko-descs.mjs)
   expect(itemDesc({ ...ITEM_BY_SLUG.get('leftovers')!, desc: { ko: null, en: 'E', ja: null } }, 'ko')).toEqual({ text: 'E', lang: 'en' })
 })
 test('parseItemQuery defaults', () =>

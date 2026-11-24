@@ -11,6 +11,7 @@ import generationsJson from '../data/generations.json'
 import movesJson from '../data/moves.json'
 import eggGroupsJson from '../data/eggGroups.json'
 import abilitiesJson from '../data/abilities.json'
+import FORM_NAMES from '../data/formNames.json'
 import type { Lang } from '../i18n'
 import { artworkUrl } from './spriteUrls'
 
@@ -279,15 +280,54 @@ const FORM_TOKEN_KO: Readonly<Record<string, string>> = {
  * 대체 폼의 한국어 라벨 (예: "charizard-mega-x" → "메가 X", "vulpix-alola" → "알로라").
  * 사전에 없는 토큰은 영문 그대로 둔다. 기본 폼이면 null.
  */
+/** 공식 데이터(PokeAPI)에 그 언어 이름이 없는 폼의 직접 번역 (한국어판 게임 표기) */
+const FORM_NAME_FIX: Partial<Record<Lang, Record<number, string>>> = {
+    ko: {
+        10080: '하드록', 10081: '마담', 10082: '아이돌', 10083: '닥터', 10084: '마스크드', 10085: '옷갈아입기',
+        10116: '유대변화', 10144: '토템 둔갑한 모습', 10145: '토템 들킨 모습', 10151: '마이페이스',
+        10158: '파트너', 10159: '파트너',
+        10219: '하이한 모습 거다이맥스', 10228: '로우한 모습 거다이맥스', 10226: '일격의 태세 거다이맥스', 10227: '연격의 태세 거다이맥스',
+        10247: '백색근의 모습',
+        10250: '팔데아 컴뱃종', 10251: '팔데아 블레이즈종', 10252: '팔데아 워터종',
+        10255: '세마디폼', 10256: '마이티폼', 10257: '세식구',
+        10258: '늘어진 모습', 10259: '뻗은 모습',
+        10260: '블루 페더', 10261: '옐로 페더', 10262: '화이트 페더',
+        10263: '도보폼',
+        10264: '제한형태', 10265: '질주형태', 10266: '유영형태', 10267: '활공형태',
+        10268: '리미티드모드', 10269: '드라이브모드', 10270: '플로트모드', 10271: '글라이드모드',
+    },
+    ja: {
+        10116: 'きずなへんげ', 10144: 'ぬし ばけたすがた', 10145: 'ぬし ばれたすがた', 10151: 'マイペース',
+        10158: 'パートナー', 10159: 'パートナー',
+        10264: 'せいげんけいたい', 10265: 'しっそうけいたい', 10266: 'ゆうえいけいたい', 10267: 'かっくうけいたい',
+        10268: 'リミテッドモード', 10269: 'ドライブモード', 10270: 'フロートモード', 10271: 'グライドモード',
+    },
+}
+
+/** 사전으로 만든 라벨이 그 언어로 다 옮겨졌는지 (X·Y·숫자 같은 한 글자 기호는 괜찮다) */
+const UNTRANSLATED = /[A-Za-z]{2,}/
+
+/** 공식 폼 이름 (PokeAPI pokemon_form_names, scripts/form-names.mjs) */
+function officialFormName(id: number, lang: Lang): string | null {
+    return (FORM_NAMES as Record<string, Partial<Record<Lang, string>>>)[id]?.[lang] ?? null
+}
+
+/** 사전 라벨이 다 옮겨졌으면 그것(짧고 일관됨: "메가 X"), 아니면 직접 번역 → 공식 이름 → 사전 라벨 */
+function pickFormLabel(id: number, lang: Lang, fromTokens: string): string {
+    if (!UNTRANSLATED.test(fromTokens)) return fromTokens
+    return FORM_NAME_FIX[lang]?.[id] ?? officialFormName(id, lang) ?? fromTokens
+}
+
 export function formLabelKo(p: Pick<DexPokemon, 'id' | 'name'>): string | null {
     if (!isAlternateForm(p)) return null
     const species = getSpeciesSlug(p)
     const suffix = p.name.startsWith(species + '-') ? p.name.slice(species.length + 1) : p.name
     if (!suffix) return null
-    return suffix
+    const fromTokens = suffix
         .split('-')
         .map((t) => FORM_TOKEN_KO[t] ?? (t.length === 1 ? t.toUpperCase() : t[0].toUpperCase() + t.slice(1)))
         .join(' ')
+    return pickFormLabel(p.id, 'ko', fromTokens)
 }
 
 /** 표시용 한국어 이름 (폼이면 "리자몽 (메가 X)") */
@@ -427,10 +467,11 @@ export function formLabel(p: Pick<DexPokemon, 'id' | 'name'>, lang: Lang): strin
     const suffix = p.name.startsWith(species + '-') ? p.name.slice(species.length + 1) : p.name
     if (!suffix) return null
     const dict = lang === 'ja' ? FORM_TOKEN_JA : FORM_TOKEN_EN
-    return suffix
+    const fromTokens = suffix
         .split('-')
         .map((t) => dict[t] ?? (t.length === 1 ? t.toUpperCase() : t[0].toUpperCase() + t.slice(1)))
         .join(' ')
+    return lang === 'ja' ? pickFormLabel(p.id, 'ja', fromTokens) : fromTokens
 }
 
 /** 종 이름 (폼 라벨 없이) */

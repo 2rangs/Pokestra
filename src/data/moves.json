@@ -17017,7 +17017,10 @@
     "pp": 10,
     "priority": 0,
     "generation": 9,
-    "desc": null
+    "desc": {
+      "ko": "스타모빌이 쓰는 기술. 불꽃을 뿜는 엔진을 회전시켜 부딪친다. 상대를 화상 상태로 만들 때가 있다.",
+      "en": "A move used by Starmobiles. The user revs its blazing engine and rams the target. This may also leave the target with a burn."
+    }
   },
   {
     "id": 897,
@@ -17032,7 +17035,10 @@
     "pp": 10,
     "priority": 0,
     "generation": 9,
-    "desc": null
+    "desc": {
+      "ko": "스타모빌이 쓰는 기술. 악의를 담아 엔진을 회전시켜 부딪친다. 상대를 잠듦 상태로 만들 때가 있다.",
+      "en": "A move used by Starmobiles. The user revs its engine with malicious intent and rams the target. This may also make the target fall asleep."
+    }
   },
   {
     "id": 898,
@@ -17047,7 +17053,10 @@
     "pp": 10,
     "priority": 0,
     "generation": 9,
-    "desc": null
+    "desc": {
+      "ko": "스타모빌이 쓰는 기술. 독을 뿜는 엔진을 회전시켜 부딪친다. 상대를 독 상태로 만들 때가 있다.",
+      "en": "A move used by Starmobiles. The user revs its poisonous engine and rams the target. This may also poison the target."
+    }
   },
   {
     "id": 899,
@@ -17062,7 +17071,10 @@
     "pp": 10,
     "priority": 0,
     "generation": 9,
-    "desc": null
+    "desc": {
+      "ko": "스타모빌이 쓰는 기술. 엔진을 힘껏 회전시켜 부딪친다. 상대를 마비 상태로 만들 때가 있다.",
+      "en": "A move used by Starmobiles. The user revs its engine forcefully and rams the target. This may also leave the target with paralysis."
+    }
   },
   {
     "id": 900,
@@ -17077,7 +17089,10 @@
     "pp": 10,
     "priority": 0,
     "generation": 9,
-    "desc": null
+    "desc": {
+      "ko": "스타모빌이 쓰는 기술. 신비한 엔진을 회전시켜 부딪친다. 상대를 혼란 상태로 만들 때가 있다.",
+      "en": "A move used by Starmobiles. The user revs its fae-like engine and rams the target. This may also confuse the target."
+    }
   },
   {
     "id": 901,
@@ -17453,7 +17468,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 몸을 던져 부딪친다. 하이퍼 상태에서는 급소에 맞기 쉽다.",
+      "en": "A move only Shadow Pokémon can use. Has an increased chance for a critical hit in Hyper Mode."
+    }
   },
   {
     "id": 10002,
@@ -17468,7 +17486,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 어둠의 힘을 터뜨려 공격한다. 급소에 맞기 쉽다.",
+      "en": "A move only Shadow Pokémon can use. Has an increased chance for a critical hit."
+    }
   },
   {
     "id": 10003,
@@ -17483,7 +17504,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 어둠의 힘을 담아 몸통으로 부딪친다.",
+      "en": "A move only Shadow Pokémon can use. The user rams the target with shadowy power."
+    }
   },
   {
     "id": 10004,
@@ -17498,7 +17522,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 어둠의 전격으로 공격한다. 상대를 마비 상태로 만들 때가 있다.",
+      "en": "A move only Shadow Pokémon can use. May paralyze the target."
+    }
   },
   {
     "id": 10005,
@@ -17513,7 +17540,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 어둠의 힘을 담아 상대를 강하게 때린다.",
+      "en": "A move only Shadow Pokémon can use. The user strikes the target with shadowy power."
+    }
   },
   {
     "id": 10006,
@@ -17528,7 +17558,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 어둠의 냉기로 공격한다. 상대를 얼음 상태로 만들 때가 있다.",
+      "en": "A move only Shadow Pokémon can use. May freeze the target."
+    }
   },
   {
     "id": 10007,
@@ -17543,7 +17576,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 목숨을 건 강력한 일격. 자신도 HP의 절반만큼 데미지를 입는다.",
+      "en": "A move only Shadow Pokémon can use. The user loses half of its HP in recoil."
+    }
   },
   {
     "id": 10008,
@@ -17558,7 +17594,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 어둠의 불꽃으로 공격한다. 상대를 화상 상태로 만들 때가 있다.",
+      "en": "A move only Shadow Pokémon can use. May burn the target."
+    }
   },
   {
     "id": 10009,
@@ -17573,7 +17612,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 어둠의 힘을 마구 퍼부어 상대 모두를 공격한다.",
+      "en": "A move only Shadow Pokémon can use. Hits all opposing Pokémon."
+    }
   },
   {
     "id": 10010,
@@ -17588,7 +17630,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 어둠의 폭풍을 일으켜 상대 모두를 공격한다.",
+      "en": "A move only Shadow Pokémon can use. Hits all opposing Pokémon."
+    }
   },
   {
     "id": 10011,
@@ -17603,7 +17648,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 어둠의 파동을 퍼뜨려 상대 모두를 공격한다.",
+      "en": "A move only Shadow Pokémon can use. Hits all opposing Pokémon."
+    }
   },
   {
     "id": 10012,
@@ -17618,7 +17666,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 상대의 방어를 2랭크 떨어뜨린다.",
+      "en": "A move only Shadow Pokémon can use. Lowers the target's Defense by two stages."
+    }
   },
   {
     "id": 10013,
@@ -17633,7 +17684,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 배틀에 나와 있는 모든 포켓몬의 HP를 절반으로 만든다. 다음 턴은 움직일 수 없다.",
+      "en": "A move only Shadow Pokémon can use. Halves the HP of all Pokémon on the field. The user must recharge next turn."
+    }
   },
   {
     "id": 10014,
@@ -17648,7 +17702,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 상대가 배틀에서 도망칠 수 없게 한다.",
+      "en": "A move only Shadow Pokémon can use. Prevents the target from fleeing."
+    }
   },
   {
     "id": 10015,
@@ -17663,7 +17720,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 상대의 회피율을 2랭크 떨어뜨린다.",
+      "en": "A move only Shadow Pokémon can use. Lowers the target's evasiveness by two stages."
+    }
   },
   {
     "id": 10016,
@@ -17678,7 +17738,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 상대를 혼란 상태로 만든다.",
+      "en": "A move only Shadow Pokémon can use. Confuses the target."
+    }
   },
   {
     "id": 10017,
@@ -17693,7 +17756,10 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 리플렉터, 빛의장막, 신비의부적의 효과를 없앤다.",
+      "en": "A move only Shadow Pokémon can use. Removes Light Screen, Reflect, and Safeguard."
+    }
   },
   {
     "id": 10018,
@@ -17708,6 +17774,9 @@
     "pp": null,
     "priority": 0,
     "generation": 3,
-    "desc": null
+    "desc": {
+      "ko": "다크포켓몬만 쓸 수 있는 기술. 5턴 동안 날씨를 다크스카이로 바꾼다.",
+      "en": "A move only Shadow Pokémon can use. Changes the weather to Shadow Sky for five turns."
+    }
   }
 ]

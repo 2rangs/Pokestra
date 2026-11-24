@@ -40,4 +40,13 @@ describe('도감 설명', () => {
         expect(defaultFlavor(opts, null)?.text).toBe('sword-ko')
         expect(defaultFlavor([], null)).toBeUndefined()
     })
+
+    test('사용자 언어를 넘기면 영어 대체 설명보다 사용자 언어 설명이 기본', () => {
+        const opts = buildFlavorOptions([e('za-en', 'en', 'legends-za'), e('sv-ko', 'ko', 'scarlet'), e('red-en', 'en', 'red')], 'ko', 'en', clean)
+        expect(opts.map((o) => o.text)).toContain('za-en') // 영어 설명도 목록에는 남는다
+        expect(defaultFlavor(opts, null, 'ko')?.text).toBe('sv-ko')
+        expect(defaultFlavor(opts, 1, 'ko')?.text).toBe('sv-ko') // 그 세대에 한국어가 없으면 가장 최신 한국어
+        expect(defaultFlavor(opts, 9, 'ko')?.text).toBe('sv-ko')
+        expect(defaultFlavor(opts.filter((o) => o.lang === 'en'), null, 'ko')?.lang).toBe('en') // 한국어가 하나도 없으면 영어
+    })
 })

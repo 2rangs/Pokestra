@@ -60,11 +60,13 @@ export function buildFlavorOptions(
     return [...main, ...extra].sort((a, b) => rank(b) - rank(a) || Number(a.lang !== primary) - Number(b.lang !== primary))
 }
 
-/** 기본 선택: 세대를 골랐으면 그 세대 작품의 첫(최신) 설명, 없으면 가장 최신 설명 */
-export function defaultFlavor(options: readonly FlavorOption[], gen: number | null): FlavorOption | undefined {
-    if (gen !== null) {
-        const inGen = options.find((o) => o.versions.some((v) => versionGeneration(v) === gen))
-        if (inGen) return inGen
-    }
-    return options[0]
+/**
+ * 기본 선택: 사용자 언어 설명을 먼저.
+ * 세대를 골랐으면 그 세대의 사용자 언어 설명 → 그 세대의 대체 언어 설명이 아니라 가장 가까운 최신 사용자 언어 설명 순.
+ * (예: 최신 작품에 영어 설명만 있어도 한국어 설명이 있는 작품을 기본으로 보여 준다. 영어 설명은 목록에서 고를 수 있다)
+ */
+export function defaultFlavor(options: readonly FlavorOption[], gen: number | null, primary?: string): FlavorOption | undefined {
+    const own = primary ? options.filter((o) => o.lang === primary) : options
+    const inGen = (list: readonly FlavorOption[]) => (gen === null ? undefined : list.find((o) => o.versions.some((v) => versionGeneration(v) === gen)))
+    return inGen(own) ?? own[0] ?? inGen(options) ?? options[0]
 }

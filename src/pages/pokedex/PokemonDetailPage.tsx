@@ -3,7 +3,7 @@ import { Blockquote } from "@astryxdesign/core/Blockquote"
 import { gameTitle, versionName } from "../../lib/gameNames"
 import { buildFlavorOptions, defaultFlavor } from "../../lib/flavorEntries"
 import { Selector } from "@astryxdesign/core/Selector"
-import { useNavigate, useParams, useSearchParams } from "react-router"
+import { Link as RouterLink, useNavigate, useParams, useSearchParams } from "react-router"
 import { Button } from "@astryxdesign/core/Button"
 import { Card } from "@astryxdesign/core/Card"
 import { EmptyState } from "@astryxdesign/core/EmptyState"
@@ -286,7 +286,7 @@ export default function PokemonDetailPage() {
     const [flavorPick, setFlavorPick] = useState<{ id: string; gen: number | null; species: number | null } | null>(null)
     const flavorShown =
         (flavorPick && flavorPick.gen === gen && flavorPick.species === (speciesId ?? null) && flavorOptions.find((o) => o.id === flavorPick.id)) ||
-        defaultFlavor(flavorOptions, gen)
+        defaultFlavor(flavorOptions, gen, flavorPrimary)
     const versionList = (versions: readonly string[]) => versions.map((v) => versionName(v, lang)).join(" · ")
     const sourceTitle = (versions: readonly string[]) => [gameTitle(versions[0], lang), ...versions.slice(1).map((v) => versionName(v, lang))].join(" · ")
     const genusEntry = pickByLang(species?.genera, lang)
@@ -806,38 +806,47 @@ export default function PokemonDetailPage() {
 }
 
 /**
- * 그림 바로 아래 폼 선택. 폼이 적으면(4개 이하) 한눈에 보이는 칩, 많으면(피카츄 등) 그림 붙은 목록 선택.
+ * 그림 바로 아래 폼 선택: 폼마다 그림 타일(크게 눌리는 버튼). 지금 폼은 테두리로, 위 줄에는 올린(또는 지금) 폼 이름.
+ * 글자 칩·드롭다운보다 모양으로 바로 고를 수 있고, 폼이 많아도(피카츄 17개) 한눈에 보인다.
  */
 function FormPicker({ forms, id, lang, label }: { forms: readonly DexPokemon[]; id: number; lang: Lang; label: string }) {
-    const navigate = useNavigate()
+    const [hover, setHover] = useState<number | null>(null)
     const formName = (f: DexPokemon) => formLabel(f, lang) ?? pokemonName(f, lang)
-    const icon = (f: DexPokemon) =>
-        f.sprite ? <PokeImage sources={pokemonImageCandidates(f.id, 24, { sprite: f.sprite })} alt="" size={24} className="size-6" /> : undefined
-    if (forms.length > 4) {
-        return (
-            <Selector
-                label={label}
-                isLabelHidden
-                width="100%"
-                presentation="adaptive"
-                value={String(id)}
-                onChange={(v) => navigate(`/pokemon/${v}`)}
-                options={forms.map((f) => ({ value: String(f.id), label: formName(f), icon: icon(f) }))}
-                renderValue={(o) => `${o.label} · ${label} ${forms.length}`}
-            />
-        )
-    }
+    const shown = forms.find((f) => f.id === (hover ?? id)) ?? forms[0]
     return (
-        <HStack as="ul" gap={1.5} wrap="wrap" aria-label={label}>
-            {forms.map((f) => (
-                <li key={f.id} aria-current={f.id === id ? "page" : undefined}>
-                    {f.id === id ? (
-                        <Token label={formName(f)} icon={icon(f)} color="gray" />
-                    ) : (
-                        <Token label={formName(f)} icon={icon(f)} href={`/pokemon/${f.id}`} />
-                    )}
-                </li>
-            ))}
-        </HStack>
+        <VStack gap={1.5}>
+            <HStack gap={1.5} vAlign="center">
+                <Text type="supporting" color="secondary" hasTabularNumbers>
+                    {label} {forms.length}
+                </Text>
+                <Text type="supporting" weight="semibold" maxLines={1} aria-live="polite">
+                    {formName(shown)}
+                </Text>
+            </HStack>
+            <ul aria-label={label} className="grid grid-cols-[repeat(auto-fill,minmax(3.25rem,1fr))] gap-1.5">
+                {forms.map((f) => {
+                    const current = f.id === id
+                    return (
+                        <li key={f.id}>
+                            <RouterLink
+                                to={`/pokemon/${f.id}`}
+                                aria-label={formName(f)}
+                                aria-current={current ? "page" : undefined}
+                                title={formName(f)}
+                                onMouseEnter={() => setHover(f.id)}
+                                onMouseLeave={() => setHover(null)}
+                                onFocus={() => setHover(f.id)}
+                                onBlur={() => setHover(null)}
+                                className={`flex aspect-square items-center justify-center rounded-lg border transition-colors ${
+                                    current ? "border-2 border-primary bg-muted" : "border-border bg-surface hover:border-border-emphasized hover:bg-muted"
+                                }`}
+                            >
+                                <PokeImage sources={pokemonImageCandidates(f.id, 40, { sprite: f.sprite })} alt="" size={40} className="size-10" />
+                            </RouterLink>
+                        </li>
+                    )
+                })}
+            </ul>
+        </VStack>
     )
 }
