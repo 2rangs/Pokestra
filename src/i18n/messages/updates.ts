@@ -1,0 +1,44 @@
+import { defineMessages } from '..'
+
+/** 업데이트 소식 페이지 */
+export const updatesMessages = defineMessages({
+    ko: {
+        title: '업데이트 소식',
+        lead: 'Pokestra에 새로 생긴 기능과 바뀐 점을 알려 드려요.',
+        filter: '종류',
+        kindAll: '전체',
+        kindNew: '새 기능',
+        kindImprove: '개선',
+        kindData: '데이터',
+        kindFix: '고침',
+        go: '바로 가 보기',
+        latest: '최신',
+        empty: '이 종류의 소식이 아직 없어요',
+    },
+    en: {
+        title: "What's new",
+        lead: 'New features and changes in Pokestra.',
+        filter: 'Type',
+        kindAll: 'All',
+        kindNew: 'New',
+        kindImprove: 'Improved',
+        kindData: 'Data',
+        kindFix: 'Fixed',
+        go: 'Take a look',
+        latest: 'Latest',
+        empty: 'No updates of this type yet',
+    },
+    ja: {
+        title: 'アップデート情報',
+        lead: 'Pokestra の新機能と変更点をお知らせします。',
+        filter: '種類',
+        kindAll: 'すべて',
+        kindNew: '新機能',
+        kindImprove: '改善',
+        kindData: 'データ',
+        kindFix: '修正',
+        go: '見てみる',
+        latest: '最新',
+        empty: 'この種類のお知らせはまだありません',
+    },
+})

@@ -15,6 +15,8 @@ import { useScrollRestoration } from '../hooks/useScrollRestoration'
 import { itemIconUrl } from '../lib/spriteUrls'
 import { LANG_LABEL, LANGS, useDocumentLang, useLang, useLangStore, useT, type Lang } from '../i18n'
 import { commonMessages } from '../i18n/messages/common'
+import { LATEST_UPDATE_ID } from '../data/updates'
+import { useUpdatesStore } from '../stores/updatesStore'
 
 /**
  * 섹션마다 게임 속 물건을 아이콘으로: 몬스터볼(도감), 기술머신(기술), 특성캡슐(특성), 상처약(도구),
@@ -157,6 +159,30 @@ function ColorModeMenu() {
     )
 }
 
+/** 업데이트 소식 버튼: 아직 보지 않은 소식이 있으면 작은 점 */
+function UpdatesButton() {
+    const t = useT(commonMessages)
+    const seen = useUpdatesStore((s) => s.seen)
+    const unseen = seen !== LATEST_UPDATE_ID
+    return (
+        <span className="relative inline-flex">
+            <IconButton
+                href="/updates"
+                label={unseen ? `${t('updates')} · ${t('updatesNew')}` : t('updates')}
+                variant="ghost"
+                size="lg"
+                icon={
+                    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden>
+                        <path d="M6 9a6 6 0 0 1 12 0c0 5 2 6.5 2 6.5H4S6 14 6 9z" />
+                        <path d="M10 19a2 2 0 0 0 4 0" strokeLinecap="round" />
+                    </svg>
+                }
+            />
+            {unseen && <span aria-hidden className="pointer-events-none absolute top-1.5 right-1.5 size-2 rounded-full bg-primary ring-2 ring-surface" />}
+        </span>
+    )
+}
+
 function BackToTop({ label }: { label: string }) {
     const [show, setShow] = useState(false)
     useEffect(() => {
@@ -212,6 +238,7 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                         startContent={<span className="hidden items-center gap-1 lg:flex">{items}</span>}
                         endContent={
                             <HStack gap={1} vAlign="center">
+                                <UpdatesButton />
                                 <ColorModeMenu />
                                 <LanguageSwitch />
                             </HStack>
@@ -232,6 +259,11 @@ const MainLayout = ({ fallback }: { fallback?: ReactNode }) => {
                 <p>{t('footerData')}</p>
                 <p>{t('footerCopyright')}</p>
                 <p>{t('footerFan')}</p>
+                <p className="mt-2">
+                    <Link to="/updates" className="underline underline-offset-2 hover:text-primary">
+                        {t('updates')}
+                    </Link>
+                </p>
             </footer>
 
             <BackToTop label={t('backToTop')} />

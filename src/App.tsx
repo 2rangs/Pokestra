@@ -16,6 +16,7 @@ const AbilitiesPage = lazy(() => import('./pages/AbilitiesPage'))
 const ItemListPage = lazy(() => import('./pages/items/ItemListPage.tsx'))
 const ItemDetailPage = lazy(() => import('./pages/items/ItemDetailPage.tsx'))
 const SpritesPage = lazy(() => import('./pages/SpritesPage.tsx'))
+const UpdatesPage = lazy(() => import('./pages/UpdatesPage.tsx'))
 
 function PageFallback() {
     const t = useT(commonMessages)
@@ -51,6 +52,7 @@ export default function App() {
                 <Route path="/items" element={<ItemListPage />} />
                 <Route path="/items/:slug" element={<ItemDetailPage />} />
                 <Route path="/sprites" element={<SpritesPage />} />
+                <Route path="/updates" element={<UpdatesPage />} />
 
                 {/* 이전 배틀/계산기 링크는 안내 없이 홈으로 */}
                 <Route path="/battle/*" element={<Navigate to="/" replace />} />
