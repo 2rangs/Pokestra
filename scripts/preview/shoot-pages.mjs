@@ -18,6 +18,7 @@ export const ROUTES = [
     ['detail', '/pokemon/6'],
     ['detail-forms', '/pokemon/25'],
     ['detail-moves', '/pokemon/6?tab=moves'],
+    ['detail-gen2', '/pokemon/6?gen=2'],
     ['moves', '/moves'],
     ['move-detail', '/moves/thunderbolt'],
     ['abilities', '/abilities'],

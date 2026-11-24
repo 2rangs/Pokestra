@@ -42,9 +42,11 @@ interface Props {
     flavor: ReactNode
     /** 도감 설명 묶음의 작은 제목 */
     flavorLabel: string
+    /** 도감 설명 제목 옆 조작 (작품 선택) */
+    flavorControl?: ReactNode
 }
 
-export function DetailHeader({ nav, image, number, name, badges, subline, strip, controls, flavor, flavorLabel }: Props) {
+export function DetailHeader({ nav, image, number, name, badges, subline, strip, controls, flavor, flavorLabel, flavorControl }: Props) {
     return (
         <Card>
             <VStack gap={3}>
@@ -99,10 +101,13 @@ export function DetailHeader({ nav, image, number, name, badges, subline, strip,
                             {flavor && (
                                 <>
                                     <Divider />
-                                    <VStack gap={1}>
-                                        <Text type="supporting" weight="medium">
-                                            {flavorLabel}
-                                        </Text>
+                                    <VStack gap={1.5}>
+                                        <HStack gap={2} vAlign="center" justify="between" wrap="wrap">
+                                            <Text type="supporting" weight="medium">
+                                                {flavorLabel}
+                                            </Text>
+                                            {flavorControl}
+                                        </HStack>
                                         {flavor}
                                     </VStack>
                                 </>

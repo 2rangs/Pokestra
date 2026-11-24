@@ -57,3 +57,21 @@ export function gameTitle(slug: string, lang: Lang): string {
 }
 
 export const KNOWN_VERSIONS: readonly string[] = Object.keys(VERSION_NAME)
+
+/** 작품 → 세대 (도감 설명을 세대 선택과 맞추는 데 쓴다) */
+const VERSION_GEN: Record<string, number> = {
+    red: 1, blue: 1, yellow: 1,
+    gold: 2, silver: 2, crystal: 2,
+    ruby: 3, sapphire: 3, emerald: 3, firered: 3, leafgreen: 3,
+    diamond: 4, pearl: 4, platinum: 4, heartgold: 4, soulsilver: 4,
+    black: 5, white: 5, 'black-2': 5, 'white-2': 5,
+    x: 6, y: 6, 'omega-ruby': 6, 'alpha-sapphire': 6,
+    sun: 7, moon: 7, 'ultra-sun': 7, 'ultra-moon': 7, 'lets-go-pikachu': 7, 'lets-go-eevee': 7,
+    sword: 8, shield: 8, 'legends-arceus': 8, 'brilliant-diamond': 8, 'shining-pearl': 8,
+    scarlet: 9, violet: 9, 'legends-za': 9,
+}
+
+/** 작품의 세대 (모르면 null) */
+export function versionGeneration(slug: string): number | null {
+    return VERSION_GEN[slug] ?? null
+}

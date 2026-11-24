@@ -45,7 +45,8 @@ export const pokedexMessages = defineMessages({
         colImage: '이미지',
         highestStat: '최고',
         pokedexEntry: '도감 설명',
-        otherEntries: '다른 작품의 도감 설명 {n}개',
+        entryGame: '도감 설명 작품',
+        entryFallbackLang: '한국어 설명 없음 (영어)',
         neighbors: '이전 및 다음 포켓몬',
 
         // ── 상세 ──
@@ -252,7 +253,8 @@ export const pokedexMessages = defineMessages({
         colImage: 'Image',
         highestStat: 'Highest',
         pokedexEntry: 'Pokédex entry',
-        otherEntries: '{n} more Pokédex entries from other games',
+        entryGame: 'Game for the Pokédex entry',
+        entryFallbackLang: 'not available in English',
         neighbors: 'Previous and next Pokémon',
 
         backToDex: 'Pokédex',
@@ -457,7 +459,8 @@ export const pokedexMessages = defineMessages({
         colImage: '画像',
         highestStat: '最高',
         pokedexEntry: '図鑑説明',
-        otherEntries: 'ほかの作品の図鑑説明 {n}件',
+        entryGame: '図鑑説明の作品',
+        entryFallbackLang: '日本語の説明なし (英語)',
         neighbors: '前後のポケモン',
 
         backToDex: '図鑑へ',

@@ -1,8 +1,8 @@
-import { type ReactNode, Fragment, useEffect, useMemo } from "react"
+import { type ReactNode, Fragment, useEffect, useMemo, useState } from "react"
 import { Blockquote } from "@astryxdesign/core/Blockquote"
 import { gameTitle, versionName } from "../../lib/gameNames"
-import { groupFlavors } from "../../lib/flavorEntries"
-import { Collapsible } from "@astryxdesign/core/Collapsible"
+import { buildFlavorOptions, defaultFlavor } from "../../lib/flavorEntries"
+import { Selector } from "@astryxdesign/core/Selector"
 import { useNavigate, useParams, useSearchParams } from "react-router"
 import { Button } from "@astryxdesign/core/Button"
 import { Card } from "@astryxdesign/core/Card"
@@ -276,15 +276,19 @@ export default function PokemonDetailPage() {
         return out
     }, [local, lang])
 
-    const flavorEntry = pickByLang(species?.flavor_text_entries, lang, true)
-    // 같은 언어의 모든 작품 설명 (최신 작품부터, 같은 글은 작품을 묶어서)
-    const flavorGroups = useMemo(
-        () => (flavorEntry ? groupFlavors(species?.flavor_text_entries, flavorEntry.language.name, cleanFlavor) : []),
-        [species, flavorEntry],
+    // 도감 설명은 작품마다 다르다: 작품별 후보(최신부터, 같은 글은 묶음, 사용자 언어가 없는 작품은 영어로)
+    const flavorPrimary = pickByLang(species?.flavor_text_entries, lang, true)?.language.name
+    const flavorOptions = useMemo(
+        () => (flavorPrimary ? buildFlavorOptions(species?.flavor_text_entries, flavorPrimary, flavorPrimary === "en" ? null : "en", cleanFlavor) : []),
+        [species, flavorPrimary],
     )
-    const flavor = flavorGroups[0]?.text ?? ""
-    const sourceTitle = (versions: readonly string[]) =>
-        [gameTitle(versions[0], lang), ...versions.slice(1).map((v) => versionName(v, lang))].join(" · ")
+    // 고른 작품은 세대 선택이 바뀌면 그 세대의 기본으로 돌아간다
+    const [flavorPick, setFlavorPick] = useState<{ id: string; gen: number | null; species: number | null } | null>(null)
+    const flavorShown =
+        (flavorPick && flavorPick.gen === gen && flavorPick.species === (speciesId ?? null) && flavorOptions.find((o) => o.id === flavorPick.id)) ||
+        defaultFlavor(flavorOptions, gen)
+    const versionList = (versions: readonly string[]) => versions.map((v) => versionName(v, lang)).join(" · ")
+    const sourceTitle = (versions: readonly string[]) => [gameTitle(versions[0], lang), ...versions.slice(1).map((v) => versionName(v, lang))].join(" · ")
     const genusEntry = pickByLang(species?.genera, lang)
 
     const abilities = useMemo(
@@ -435,33 +439,19 @@ export default function PokemonDetailPage() {
             {genusEntry ? `${otherNames.length > 0 ? " · " : ""}${genusEntry.genus}` : null}
         </Text>
     )
-    const flavorNode = flavor ? (
-        // 도감 설명은 게임 속 도감 항목처럼 인용 블록으로
-        <span lang={flavorEntry?.language.name.split("-")[0]} className="block max-w-prose break-keep">
-        <VStack gap={2}>
-            <Blockquote cite={sourceTitle(flavorGroups[0].versions)}>{flavor}</Blockquote>
-            {flavorGroups.length > 1 && (
-                // 도감 사이트의 "작품별 도감 설명" — 첫 화면을 길게 만들지 않게 접어 둔다
-                <Collapsible
-                    defaultIsOpen={false}
-                    chevronPosition="start"
-                    trigger={<Text type="supporting" weight="medium">{t("otherEntries", { n: flavorGroups.length - 1 })}</Text>}
-                >
-                    <VStack as="ul" gap={3} paddingBlockStart={2}>
-                        {flavorGroups.slice(1).map((g) => (
-                            <VStack as="li" key={g.text} gap={0.5}>
-                                <Text type="supporting" color="secondary">
-                                    {sourceTitle(g.versions)}
-                                </Text>
-                                <Text>{g.text}</Text>
-                            </VStack>
-                        ))}
-                    </VStack>
-                </Collapsible>
-            )}
-        </VStack>
-        </span>
-    ) : speciesQ.isPending && speciesId ? (
+    const flavorNode = flavorShown ? (
+        // 도감 설명은 게임 속 도감 항목처럼 인용 블록 + 출처 작품
+        <span lang={flavorShown.lang.split("-")[0]} className="block max-w-prose break-keep">
+            <Blockquote
+                cite={
+                    flavorShown.lang !== flavorPrimary
+                        ? `${sourceTitle(flavorShown.versions)} · ${t("entryFallbackLang")}`
+                        : sourceTitle(flavorShown.versions)
+                }
+            >
+                {flavorShown.text}
+            </Blockquote>
+        </span>    ) : speciesQ.isPending && speciesId ? (
         <VStack gap={1}>
             <Skeleton height={20} />
             <Skeleton width="60%" height={20} />
@@ -610,6 +600,21 @@ export default function PokemonDetailPage() {
                 }
                 flavor={flavorNode}
                 flavorLabel={t("pokedexEntry")}
+                flavorControl={
+                    flavorShown && flavorOptions.length > 1 ? (
+                        <Selector
+                            label={t("entryGame")}
+                            isLabelHidden
+                            size="sm"
+                            variant="ghost"
+                            presentation="adaptive"
+                            options={flavorOptions.map((o) => ({ value: o.id, label: versionList(o.versions) }))}
+                            value={flavorShown.id}
+                            onChange={(v) => setFlavorPick({ id: v, gen, species: speciesId ?? null })}
+                            renderValue={(o) => `${o.label} (${flavorOptions.length})`}
+                        />
+                    ) : undefined
+                }
             />
 
             {/* ── 탭 ── */}
