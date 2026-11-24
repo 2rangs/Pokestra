@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { RANK_POPULATION, countGreater, isRankKey, topPercent } from './statRank'
+import { RANK_POPULATION, countGreater, isRankKey, statRank, topPercent } from './statRank'
 
 describe('종족값 분포', () => {
     test('내림차순 배열에서 더 큰 값 개수', () => {
@@ -17,6 +17,16 @@ describe('종족값 분포', () => {
         expect(topPercent('hp', 999, d)).toBe(20)
         expect(topPercent('hp', 1, [])).toBeNull()
     })
+    test('상위 %는 소수 첫째 자리까지 올림, 1위는 단독·공동을 가린다', () => {
+        const d = Array.from({ length: 1000 }, (_, i) => 1000 - i) // 1000, 999, …, 1
+        expect(topPercent('hp', 996, d)).toBe(0.5) // 5위 / 1000
+        expect(topPercent('hp', 995, d)).toBe(0.6)
+        expect(statRank('hp', 1000, d)).toEqual({ rank: 1, tied: 1, percent: 0.1 })
+        const tie = [200, 200, 150, 100]
+        expect(statRank('hp', 200, tie)).toMatchObject({ rank: 1, tied: 2 })
+        expect(statRank('hp', 150, tie)).toEqual({ rank: 3, tied: 1, percent: 75 })
+        expect(statRank('hp', 999, tie)).toMatchObject({ rank: 1, tied: 0 })
+    })
     test('실제 데이터: 모집단은 폼을 뺀 종 수, 리자몽 특공 109·합계 534', () => {
         expect(RANK_POPULATION).toBeGreaterThan(1000)
         const spa = topPercent('spAtk', 109)!
@@ -25,7 +35,7 @@ describe('종족값 분포', () => {
         expect(spa).toBeLessThan(40)
         expect(total).toBeGreaterThan(10)
         expect(total).toBeLessThan(50)
-        expect(topPercent('total', 720)).toBe(1)
+        expect(statRank('total', 720)).toMatchObject({ rank: 1 }) // 아르세우스 720
     })
     test('키 판별', () => {
         expect(isRankKey('spAtk')).toBe(true)

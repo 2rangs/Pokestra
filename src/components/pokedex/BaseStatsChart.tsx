@@ -14,7 +14,7 @@ import { type Lang, type TFunction, formatNumber } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { statLabel } from "../../lib/dex"
 import type { GenStatKey } from "../../lib/generation"
-import { isRankKey, RANK_POPULATION, topPercent } from "../../lib/statRank"
+import { isRankKey, RANK_POPULATION, statRank } from "../../lib/statRank"
 import { StatBars } from "./StatBars"
 import { STAT_SCALE_MAX, type StatDatum, buildStatData, compareTotals, statsDiffer } from "./statChartModel"
 
@@ -60,13 +60,16 @@ export function BaseStatsChart({ stats, current, gen, headingId, footer, lang, t
     const fullLabel = (d: StatDatum) => (d.key === "special" ? t("specialStat") : statLabel(d.key, lang))
 
     // 분포: 전체 포켓몬(폼 제외, 현재 값) 중 상위 몇 %인지. 1세대 특수처럼 모집단이 없는 값은 빈칸
-    const rankOf = (key: string, value: number) => {
-        const p = isRankKey(key) ? topPercent(key, value) : null
-        return p === null ? null : t("topPercent", { n: p })
+    // 1위는 %(0.1%) 대신 단독·공동 1위로. %는 소수 첫째 자리까지("상위 0.5%")
+    const rankOf = (key: string, value: number, long = false) => {
+        const r = isRankKey(key) ? statRank(key, value) : null
+        if (!r) return null
+        if (r.rank === 1) return r.tied > 1 ? (long ? t("rankTiedFirstTip", { n: r.tied }) : t("rankTiedFirst")) : t("rankSoleFirst")
+        return t("topPercent", { n: formatNumber(r.percent, lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) })
     }
     const rank = (d: StatDatum) => rankOf(d.key, d.value)
     const tip = (d: StatDatum) => {
-        const r = rank(d)
+        const r = rankOf(d.key, d.value, true)
         const withRank = (s: string) => (r ? `${s} · ${r}` : s)
         if (gen !== null && d.current !== null && d.current !== d.value) {
             const base = `${fullLabel(d)} — ${t("statTipCompare", { gen, v: d.value, c: d.current })}`
