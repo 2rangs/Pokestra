@@ -2,7 +2,7 @@
  * 종족값 가로 막대 (숫자가 함께 있어 표 대용이 된다).
  * - 순서 고정: HP · 공격 · 방어 · 특공 · 특방 · 스피드(1세대는 특수) → 합계.
  * - 라벨 칸 고정 폭 · 값은 오른쪽 정렬 tabular · 막대는 0–200 고정 눈금(넘으면 꽉 채우고 "200+").
- * - 막대: 진한 타입 색 한 가지(무지개·상태 색 없음), 옅은 트랙, 데이터 끝만 4px 둥글게. 최고 값은 굵기로 강조.
+ * - 막대: 값 구간별 색(낮음 빨강 → 높음 청록, src/lib/statBand.ts), 옅은 트랙, 데이터 끝만 4px 둥글게. 최고 값은 굵기로 강조.
  * - 비교(현재) 값은 점선 눈금. 행마다 툴팁(호버·초점·탭). 목록 전체가 탭 한 번, ↑/↓ 로 행 이동(로빙 포커스).
  */
 import { type KeyboardEvent, createRef, useMemo, useState } from "react"
@@ -11,7 +11,7 @@ import { Divider } from "@astryxdesign/core/Divider"
 import { HStack } from "@astryxdesign/core/HStack"
 import { Text } from "@astryxdesign/core/Text"
 import { VStack } from "@astryxdesign/core/VStack"
-import type { TypeColorClasses } from "../../lib/typeColorClasses"
+import { statBandFill } from "../../lib/statBand"
 import { STAT_SCALE_MAX, type StatDatum, exceedsScale, nextRowIndex, scaleFraction } from "./statChartModel"
 
 /** 라벨·값·200+ 칸 고정 폭 (px): 행마다 막대 시작점과 끝점이 같다 */
@@ -21,12 +21,12 @@ const CAP_W = 36
 
 const pct = (v: number) => `${(scaleFraction(v) * 100).toFixed(2)}%`
 
-function Bar({ d, colors, showCurrent }: { d: StatDatum; colors: TypeColorClasses; showCurrent: boolean }) {
+function Bar({ d, showCurrent }: { d: StatDatum; showCurrent: boolean }) {
     const width = scaleFraction(d.value)
     return (
         <svg className="block h-3 min-w-0 flex-1 overflow-visible" aria-hidden>
             <rect width="100%" height="100%" rx={4} className="fill-muted" />
-            <g className={colors.fill}>
+            <g className={statBandFill(d.value)}>
                 {width > 0 && <rect width={pct(d.value)} height="100%" rx={4} />}
                 {/* 기준선 쪽 모서리는 각지게: 둥근 왼쪽 끝을 4px 사각형으로 덮는다 (아주 짧은 막대는 생략) */}
                 {width > 0.02 && <rect width={4} height="100%" />}
@@ -44,12 +44,11 @@ interface Props {
     /** 행 툴팁 내용 (스크린리더 이름으로도 쓴다) */
     tip: (d: StatDatum) => string
     showCurrent: boolean
-    colors: TypeColorClasses
     total: { label: string; value: number; note: string | null }
     listLabel: string
 }
 
-export function StatBars({ data, label, tip, showCurrent, colors, total, listLabel }: Props) {
+export function StatBars({ data, label, tip, showCurrent, total, listLabel }: Props) {
     const [focusIndex, setFocusIndex] = useState(0)
     const count = data.length
     const refs = useMemo(() => Array.from({ length: count }, () => createRef<HTMLElement>()), [count])
@@ -98,7 +97,7 @@ export function StatBars({ data, label, tip, showCurrent, colors, total, listLab
                                 className="-mx-1.5 min-h-11 rounded-sm px-1.5 outline-none hover:bg-muted focus-visible:bg-muted focus-visible:ring-2 focus-visible:ring-accent sm:min-h-8"
                             >
                                 {cells(label(d), d.value, d.isTop)}
-                                <Bar d={d} colors={colors} showCurrent={showCurrent} />
+                                <Bar d={d} showCurrent={showCurrent} />
                                 {hasCap && (
                                     <HStack width={CAP_W}>
                                         {exceedsScale(d.value) && <Text type="supporting">{`${STAT_SCALE_MAX}+`}</Text>}

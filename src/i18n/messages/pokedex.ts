@@ -44,6 +44,7 @@ export const pokedexMessages = defineMessages({
         colName: '이름',
         colImage: '이미지',
         highestStat: '최고',
+        otherEntries: '다른 작품의 도감 설명 {n}개',
         neighbors: '이전 및 다음 포켓몬',
 
         // ── 상세 ──
@@ -249,6 +250,7 @@ export const pokedexMessages = defineMessages({
         colName: 'Name',
         colImage: 'Image',
         highestStat: 'Highest',
+        otherEntries: '{n} more Pokédex entries from other games',
         neighbors: 'Previous and next Pokémon',
 
         backToDex: 'Pokédex',
@@ -452,6 +454,7 @@ export const pokedexMessages = defineMessages({
         colName: '名前',
         colImage: '画像',
         highestStat: '最高',
+        otherEntries: 'ほかの作品の図鑑説明 {n}件',
         neighbors: '前後のポケモン',
 
         backToDex: '図鑑へ',

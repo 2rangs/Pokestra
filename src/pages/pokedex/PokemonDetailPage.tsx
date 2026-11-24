@@ -1,6 +1,8 @@
 import { type ReactNode, Fragment, useEffect, useMemo } from "react"
 import { Blockquote } from "@astryxdesign/core/Blockquote"
-import { gameTitle } from "../../lib/gameNames"
+import { gameTitle, versionName } from "../../lib/gameNames"
+import { groupFlavors } from "../../lib/flavorEntries"
+import { Collapsible } from "@astryxdesign/core/Collapsible"
 import { useNavigate, useParams, useSearchParams } from "react-router"
 import { Button } from "@astryxdesign/core/Button"
 import { Card } from "@astryxdesign/core/Card"
@@ -274,7 +276,14 @@ export default function PokemonDetailPage() {
     }, [local, lang])
 
     const flavorEntry = pickByLang(species?.flavor_text_entries, lang, true)
-    const flavor = flavorEntry ? cleanFlavor(flavorEntry.flavor_text, flavorEntry.language.name) : ""
+    // 같은 언어의 모든 작품 설명 (최신 작품부터, 같은 글은 작품을 묶어서)
+    const flavorGroups = useMemo(
+        () => (flavorEntry ? groupFlavors(species?.flavor_text_entries, flavorEntry.language.name, cleanFlavor) : []),
+        [species, flavorEntry],
+    )
+    const flavor = flavorGroups[0]?.text ?? ""
+    const sourceTitle = (versions: readonly string[]) =>
+        [gameTitle(versions[0], lang), ...versions.slice(1).map((v) => versionName(v, lang))].join(" · ")
     const genusEntry = pickByLang(species?.genera, lang)
 
     const abilities = useMemo(
@@ -428,7 +437,28 @@ export default function PokemonDetailPage() {
     const flavorNode = flavor ? (
         // 도감 설명은 게임 속 도감 항목처럼 인용 블록으로
         <span lang={flavorEntry?.language.name.split("-")[0]} className="block max-w-prose break-keep">
-            <Blockquote cite={flavorEntry ? gameTitle(flavorEntry.version.name, lang) : undefined}>{flavor}</Blockquote>
+        <VStack gap={2}>
+            <Blockquote cite={sourceTitle(flavorGroups[0].versions)}>{flavor}</Blockquote>
+            {flavorGroups.length > 1 && (
+                // 도감 사이트의 "작품별 도감 설명" — 첫 화면을 길게 만들지 않게 접어 둔다
+                <Collapsible
+                    defaultIsOpen={false}
+                    chevronPosition="start"
+                    trigger={<Text type="supporting" weight="medium">{t("otherEntries", { n: flavorGroups.length - 1 })}</Text>}
+                >
+                    <VStack as="ul" gap={3} paddingBlockStart={2}>
+                        {flavorGroups.slice(1).map((g) => (
+                            <VStack as="li" key={g.text} gap={0.5}>
+                                <Text type="supporting" color="secondary">
+                                    {sourceTitle(g.versions)}
+                                </Text>
+                                <Text>{g.text}</Text>
+                            </VStack>
+                        ))}
+                    </VStack>
+                </Collapsible>
+            )}
+        </VStack>
         </span>
     ) : speciesQ.isPending && speciesId ? (
         <VStack gap={1}>
@@ -490,7 +520,6 @@ export default function PokemonDetailPage() {
             stats={stats}
             current={gen !== null ? currentStats : null}
             gen={gen}
-            type={types[0]}
             headingId="base-stats-title"
             footer={footer}
             lang={lang}

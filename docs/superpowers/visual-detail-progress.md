@@ -57,3 +57,36 @@
 - 상세 "기술" 탭 표의 모바일 열 합치기(기술 목록과 같은 방식).
 - 다크 모드 토글(토큰은 준비됨).
 - 도감 설명 출처(게임 버전 이름) 다국어 표기.
+
+---
+
+## 2차 (11-24, 이어서)
+
+### 사용자 피드백
+- "바탕에 속성색 넣지 마" → 카드 이미지 칸·상세 머리말·오늘의 포켓몬의 타입 색 면/테두리를 모두 제거(중립 `bg-muted`/기본 카드).
+  타입 색은 이제 **타입 배지에만** 쓴다.
+- "UI/UX 별로, 레딧/인터넷 찾아서 최적으로" → 아래 조사 후 반영. (reddit.com 은 이 환경의 검색 도구에서 차단돼 직접 인용 못 함)
+
+### 조사 요약 (근거)
+- 커뮤니티: Serebii·PokémonDB 는 "빠르고 한 페이지에 다 있어서" 선호, Bulbapedia 는 "끝없는 스크롤·군더더기·광고"로 비판
+  ([PokéCommunity: Serebii or Bulbapedia?](https://www.pokecommunity.com/threads/serebii-or-bulbapedia.452348/page-2)).
+- HN 의 도감 웹앱 피드백: 모바일 호환·속도·뒤로가기 동작이 반복된 불만
+  ([Pokedex.org](https://news.ycombinator.com/item?id=10619933), [Anidex](https://news.ycombinator.com/item?id=41720288)).
+- 목록 vs 그리드: 찾기(조건 검색)는 목록, 둘러보기는 그리드. 모바일은 목록이 한 화면에 더 많이 담는다
+  ([UX Planet](https://uxplanet.org/mobile-ux-design-list-view-and-grid-view-8f129b56fd5b), [babich.biz](https://babich.biz/blog/mobile-ux-design-list-view-and-grid-view), [NN/g](https://www.nngroup.com/articles/image-vs-list-mobile-navigation/)).
+- 도감 사이트의 관례(PokémonDB 등): 흰 바탕 + 색은 타입 배지에만, 종족값 막대는 **값 구간별 색**, 도감 설명은 **작품별 목록**.
+
+### 반영
+- **종족값 막대 = 값 구간별 색** (30·60·90·120·150 경계, 빨강→주황→노랑→연두→초록→청록). 타입 색 막대 제거.
+  색은 테마 토큰 `--pokestra-stat-1..6`(라이트/다크) + 브리지 `src/stat-colors.css`, 함수 `src/lib/statBand.ts`(테스트).
+  상세 차트·홈 오늘의 포켓몬 공통. 범례의 "선택한 세대" 견본은 중립색.
+- **작품별 도감 설명**: 최신 작품 설명을 인용 블록 + 출처(예: "포켓몬스터 실드 · Y" — 같은 글은 작품을 묶음),
+  나머지는 "다른 작품의 도감 설명 N개" 접힘 목록(`src/lib/flavorEntries.ts`, 작품 이름 `src/lib/gameNames.ts`, 각각 테스트).
+- **상세 "기술" 탭 표(모바일)**: 타입·분류를 기술 이름 아래로, 숫자 칸은 내용 폭 — 가로 잘림 없음.
+- **화면 모드**: 헤더의 아이콘 메뉴(기기 설정/밝게/어둡게, localStorage 저장, `src/stores/colorModeStore.ts`, `src/components/ThemeRoot.tsx`).
+  html 의 `color-scheme` 도 맞춰 스크롤바·바깥 면이 같은 모드.
+
+### Ruling (추가)
+- **R7 바탕 타입 색 금지**: 사용자 결정. 타입 색 토큰의 `subtle`/`border` 는 남겨 두지만 화면에서 쓰지 않는다.
+- **R8 막대 색은 값의 의미**: 밀도 트랙의 "타입 색 한 가지" 결정을 뒤집음 — 도감 사이트 관례이고, 막대만 보고 강점·약점을 읽게 한다. 숫자가 늘 옆에 있어 색만으로 정보를 전달하지 않는다.
+- **R9 다크 모드 기본 = 기기 설정**.

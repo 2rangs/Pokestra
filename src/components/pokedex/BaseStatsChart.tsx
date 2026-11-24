@@ -14,7 +14,6 @@ import type { Lang, TFunction } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { statLabel } from "../../lib/dex"
 import type { GenStatKey } from "../../lib/generation"
-import { TYPE_COLOR_CLASSES, type TypeColorClasses } from "../../lib/typeColorClasses"
 import { StatBars } from "./StatBars"
 import { STAT_SCALE_MAX, type StatDatum, buildStatData, compareTotals, statsDiffer } from "./statChartModel"
 
@@ -24,8 +23,6 @@ interface Props {
     /** 세대를 골랐을 때 비교할 현재 값. 아니면 null */
     current: readonly { key: GenStatKey; value: number }[] | null
     gen: number | null
-    /** 첫 번째 타입 (막대·면 색) */
-    type: string | undefined
     headingId: string
     /** 합계 아래 한 줄 (능력치 탭의 노력치) */
     footer?: ReactNode
@@ -33,12 +30,12 @@ interface Props {
     t: TFunction<PokedexKey>
 }
 
-function Legend({ gen, colors, t }: { gen: number; colors: TypeColorClasses; t: TFunction<PokedexKey> }) {
+function Legend({ gen, t }: { gen: number; t: TFunction<PokedexKey> }) {
     return (
         <HStack as="ul" gap={3} vAlign="center" wrap="wrap" aria-label={t("legendLabel")}>
             <HStack as="li" gap={1.5} vAlign="center">
                 <svg className="h-2 w-4 shrink-0" aria-hidden>
-                    <rect width="100%" height="100%" rx={2} className={colors.fill} />
+                    <rect width="100%" height="100%" rx={2} className="fill-secondary" />
                 </svg>
                 <Text type="supporting">{t("legendSelectedGen", { gen })}</Text>
             </HStack>
@@ -52,8 +49,7 @@ function Legend({ gen, colors, t }: { gen: number; colors: TypeColorClasses; t: 
     )
 }
 
-export function BaseStatsChart({ stats, current, gen, type, headingId, footer, lang, t }: Props) {
-    const colors = TYPE_COLOR_CLASSES[type ?? ""] ?? TYPE_COLOR_CLASSES.normal
+export function BaseStatsChart({ stats, current, gen, headingId, footer, lang, t }: Props) {
     const compare = gen !== null ? current : null
     const data = buildStatData(stats, compare)
     const totals = compareTotals(data, compare)
@@ -84,14 +80,13 @@ export function BaseStatsChart({ stats, current, gen, type, headingId, footer, l
                             </Heading>
                             <InfoTip content={hint} label={t("infoAbout", { label: t("baseStats") })} />
                         </HStack>
-                        {showLegend && gen !== null && <Legend gen={gen} colors={colors} t={t} />}
+                        {showLegend && gen !== null && <Legend gen={gen} t={t} />}
                     </HStack>
                     <StatBars
                         data={data}
                         label={fullLabel}
                         tip={tip}
                         showCurrent={showCurrent}
-                        colors={colors}
                         total={{
                             label: t("total"),
                             value: totals.selected,

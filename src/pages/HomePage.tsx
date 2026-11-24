@@ -14,7 +14,7 @@ import { VisuallyHidden } from '@astryxdesign/core/VisuallyHidden'
 import { StatBar } from '../components/ui/shared'
 import { TypeChip } from '../components/ui/TypeChip'
 import { PokeImage } from '../components/ui/PokeImage'
-import { TYPE_COLOR_CLASSES } from '../lib/typeColorClasses'
+import { statBandFill } from '../lib/statBand'
 import { DEX_ITEMS } from '../lib/items'
 import { pokemonImageCandidates } from '../lib/images'
 import { buildSearchKey, foldSearch, padDexNo } from '../components/dex/text'
@@ -213,7 +213,6 @@ function PokemonOfTheDay() {
     const [key] = useState(todayKey)
     const p = useMemo(() => pokemonOfDay(key), [key])
     const name = displayName(p, lang)
-    const colors = TYPE_COLOR_CLASSES[p.types[0]] ?? TYPE_COLOR_CLASSES.normal
     const maxStat = Math.max(...STAT_KEYS.map((k) => p.stats[k]))
 
     return (
@@ -264,7 +263,7 @@ function PokemonOfTheDay() {
                                     </Text>
                                 </HStack>
                                 <HStack className="min-w-0 flex-1">
-                                    <StatBar value={p.stats[k]} max={200} fillClass={colors.fill} label={statLabel(k, lang)} />
+                                    <StatBar value={p.stats[k]} max={200} fillClass={statBandFill(p.stats[k])} label={statLabel(k, lang)} />
                                 </HStack>
                             </HStack>
                         )
