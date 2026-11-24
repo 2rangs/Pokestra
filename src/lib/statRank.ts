@@ -2,7 +2,7 @@
  * 종족값 분포: 이 값이 전체 포켓몬 중 상위 몇 %인지.
  * - 모집단: 폼을 뺀 전체 포켓몬(현재 세대 값). 메가진화·지역 폼 등은 한 종으로 치지 않는다.
  * - 상위 % = (이 값보다 높은 포켓몬 수 + 1) / 모집단 × 100, 소수 첫째 자리까지 올림(0.5%처럼). 같은 값은 같은 순위(가장 좋은 쪽).
- * - 1위는 %가 아니라 "단독 1위"·"공동 1위"로 보여 준다(statRank 의 tied).
+ * - 위쪽 절반은 "상위 N%", 아래쪽 절반은 "하위 N%"(아래에서 센 순위). 맨 끝은 %가 아니라 "단독/공동 1위", "최하위/공동 최하위"(rankLabel).
  */
 import { ALL_POKEMON, type StatKey, STAT_KEYS, isAlternateForm } from './dex'
 
@@ -47,14 +47,33 @@ export interface StatRank {
     tied: number
     /** 상위 % (0.1–100, 소수 첫째 자리까지 올림) */
     percent: number
+    /** 아래에서 센 순위 (가장 낮은 값이 1) */
+    bottomRank: number
+    /** 하위 % (0.1–100, 소수 첫째 자리까지 올림) */
+    bottomPercent: number
 }
 
-/** 순위·동점 수·상위 %. 모집단이 비었으면 null */
+const pct = (rank: number, n: number) => Math.min(100, Math.max(0.1, Math.ceil((rank / n) * 1000) / 10))
+
+/** 순위·동점 수·상위/하위 %. 모집단이 비었으면 null */
 export function statRank(key: RankKey, value: number, desc: readonly number[] = table()[key]): StatRank | null {
     if (!desc.length || !Number.isFinite(value)) return null
-    const rank = countGreater(desc, value) + 1
-    const percent = Math.min(100, Math.max(0.1, Math.ceil((rank / desc.length) * 1000) / 10))
-    return { rank, tied: countEqual(desc, value), percent }
+    const greater = countGreater(desc, value)
+    const tied = countEqual(desc, value)
+    const rank = greater + 1
+    const bottomRank = desc.length - greater - tied + 1
+    return { rank, tied, percent: pct(rank, desc.length), bottomRank, bottomPercent: pct(bottomRank, desc.length) }
+}
+
+/** 화면 표기: 위쪽 절반은 상위 %, 아래쪽 절반은 하위 %. 맨 끝은 1위·최하위(단독/공동) */
+export type RankLabel =
+    | { kind: 'first' | 'last'; tied: number }
+    | { kind: 'top' | 'bottom'; percent: number }
+
+export function rankLabel(r: StatRank): RankLabel {
+    if (r.rank === 1) return { kind: 'first', tied: r.tied }
+    if (r.bottomRank === 1 && r.tied > 0) return { kind: 'last', tied: r.tied }
+    return r.percent <= 50 ? { kind: 'top', percent: r.percent } : { kind: 'bottom', percent: r.bottomPercent }
 }
 
 /** 상위 % (0.1–100, 소수 첫째 자리). 모집단이 비었으면 null */

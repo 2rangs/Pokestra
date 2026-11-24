@@ -14,7 +14,7 @@ import { type Lang, type TFunction, formatNumber } from "../../i18n"
 import type { PokedexKey } from "../../i18n/messages/pokedex"
 import { statLabel } from "../../lib/dex"
 import type { GenStatKey } from "../../lib/generation"
-import { isRankKey, RANK_POPULATION, statRank } from "../../lib/statRank"
+import { isRankKey, RANK_POPULATION, rankLabel, statRank } from "../../lib/statRank"
 import { StatBars } from "./StatBars"
 import { STAT_SCALE_MAX, type StatDatum, buildStatData, compareTotals, statsDiffer } from "./statChartModel"
 
@@ -60,12 +60,29 @@ export function BaseStatsChart({ stats, current, gen, headingId, footer, lang, t
     const fullLabel = (d: StatDatum) => (d.key === "special" ? t("specialStat") : statLabel(d.key, lang))
 
     // 분포: 전체 포켓몬(폼 제외, 현재 값) 중 상위 몇 %인지. 1세대 특수처럼 모집단이 없는 값은 빈칸
-    // 1위는 %(0.1%) 대신 단독·공동 1위로. %는 소수 첫째 자리까지("상위 0.5%")
+    // 위쪽 절반은 "상위 N%", 아래쪽 절반은 "하위 N%"(소수 첫째 자리). 맨 끝은 단독·공동 1위 / 최하위
+    // long(말풍선·스크린리더): "1,025종 중 123위 (상위 12.0%)"처럼 순위까지 문장으로
     const rankOf = (key: string, value: number, long = false) => {
         const r = isRankKey(key) ? statRank(key, value) : null
         if (!r) return null
-        if (r.rank === 1) return r.tied > 1 ? (long ? t("rankTiedFirstTip", { n: r.tied }) : t("rankTiedFirst")) : t("rankSoleFirst")
-        return t("topPercent", { n: formatNumber(r.percent, lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) })
+        const l = rankLabel(r)
+        const n = (v: number) => formatNumber(v, lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+        const all = formatNumber(RANK_POPULATION, lang)
+        const short = (() => {
+            switch (l.kind) {
+                case "first":
+                    return l.tied > 1 ? (long ? t("rankTiedFirstTip", { n: l.tied }) : t("rankTiedFirst")) : t("rankSoleFirst")
+                case "last":
+                    return l.tied > 1 ? (long ? t("rankTiedLastTip", { n: l.tied }) : t("rankTiedLast")) : t("rankSoleLast")
+                case "top":
+                    return t("topPercent", { n: n(l.percent) })
+                case "bottom":
+                    return t("bottomPercent", { n: n(l.percent) })
+            }
+        })()
+        if (!long) return short
+        if (l.kind === "first" || l.kind === "last") return t("rankEndOfAll", { all, label: short })
+        return t("rankOfAll", { all, rank: formatNumber(r.rank, lang), pct: short })
     }
     const rank = (d: StatDatum) => rankOf(d.key, d.value)
     const tip = (d: StatDatum) => {
